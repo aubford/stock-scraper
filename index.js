@@ -26,7 +26,7 @@ const newPage = async (browser, url) => {
   await page.on("console", msg => console.log("PAGE LOG:", msg.text()))
 
   await page.goto(url)
-  
+
   return page
 }
 
@@ -47,34 +47,50 @@ async function schwabLogin(browser) {
   return page
 }
 
-async function getSchwabCompanyData(ticker, browser) {
-  const page = await newPage(
-    browser,
-    `https://www.schwab.wallst.com/research/Client/Stocks/Summary?XXX104_PtYlYhyLn3p5rp9I0GEQEnDZsA/zZk9J73uoJxBOfYdc2/E3eSiE5kJjNcHDv9MZA9y3zns/L04vSNSA9Gj6z2R10JdEm4yDHzLL4Nca3fpXqRw/Nr8Azygln6drIiNjqCXiVUm1DyoJrvJEdF26HA==&p3=N&symbol=${ticker}&_PC=S1`
-  )
-
-  const creditSuisseRating = await getText(page, ".ratingBar.creditSuisseBar .active")
-
-  return {
-    ticker,
-    creditSuisseRating
-  }
-}
-
 function main(tickers) {
-  puppeteer.launch({ headless: true, slowMo: 51 }).then(async browser => {
+  puppeteer.launch({ headless: false, slowMo: 251 }).then(async browser => {
     await schwabLogin(browser)
+ 
+    const processPageData = async pageFunc => {
+      const promises = tickers.map(ticker => pageFunc(ticker, browser))
+      const data = await Promise.all(promises)
+      return _.fromPairs(data)
+    }
 
-    const promises = tickers.map(ticker => getSchwabCompanyData(ticker, browser))
-    const data = await Promise.all(promises)
+    const schwabData = await processPageData(scrapeSchwab)
 
-    const keyed = _.keyBy(data, "ticker")
-
-    console.log(keyed)
+    console.log(schwabData)
 
     await browser.close()
     process.exit(1)
   })
+}
+
+async function scrapeSchwab(ticker, browser) {
+  const iframeSelector = "iframe#wsodIFrame"
+  const creditSuisseSelector = ".ratingBar.creditSuisseBar .active"
+  
+  const page = await newPage(
+    browser,
+    `https://client.schwab.com/SymbolRouting.aspx?Symbol=${ticker}`
+  )
+
+  await page.waitForSelector(iframeSelector)
+  
+  /** @type {ElementHandle} */
+  const iframeHandle = await page.$(iframeSelector)
+  /** @type {Frame} */
+  const frame = await iframeHandle.contentFrame()
+  
+  await frame.waitForSelector(creditSuisseSelector)
+  const creditSuisseRating = await getText(frame, creditSuisseSelector)
+
+  return [
+    ticker,
+    {
+      creditSuisseRating
+    }
+  ]
 }
 
 const tickers = [
@@ -94,3 +110,5 @@ const tickers = [
 ]
 
 main(tickers)
+
+// https://www.schwab.wallst.com/research/Client/Stocks/Summary?XXX104_PtYlYhyLn3p5rp9I0GEQEnDZsA/zZk9J73uoJxBOfYdc2/E3eSiE5kJjNcHDv9MZA9y3zns/L04vSNSA9Gj6z2R10JdEm4yDHzLL4Nca3fpXqRw/Nr8Azygln6drIiNjqCXiVUm1DyoJrvJEdF26HA==&p3=N&symbol=C&_PC=S1
