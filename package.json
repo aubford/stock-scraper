@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "./index.js"
+    "start": "node index.js",
+    "sandbox": "node sandbox.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^4.17.20",
     "puppeteer": "^7.0.1",
     "puppeteer-extra": "^3.1.16",
     "puppeteer-extra-plugin-adblocker": "^2.11.10",
