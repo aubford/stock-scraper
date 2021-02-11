@@ -5,15 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "launch": "node launch.js",
     "sandbox": "node sandbox.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.20",
-    "puppeteer": "^7.0.1",
-    "puppeteer-extra": "^3.1.16",
-    "puppeteer-extra-plugin-adblocker": "^2.11.10",
-    "puppeteer-extra-plugin-stealth": "^2.7.4"
+    "puppeteer": "^7.0.4"
   }
 }
