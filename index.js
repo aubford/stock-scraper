@@ -5,9 +5,12 @@
 
 const puppeteer = require("puppeteer")
 const _ = require("lodash")
+const fs = require("fs")
+const {browserWSEndpoint} = require("./browserWSEndpoint.json")
+
 
 const connection = {
-  browserWSEndpoint: "ws://localhost:49275/devtools/browser/0b82c804-c1c5-ed4d-b415-82bc15cbf7a9",
+  browserWSEndpoint,
   product: "firefox",
   defaultViewport: {
     width: 1400,

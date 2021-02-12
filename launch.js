@@ -1,4 +1,14 @@
 const puppeteer = require("puppeteer")
+const fs = require("fs")
+
+const connection = {
+  headless: false,
+  product: "firefox",
+  defaultViewport: {
+    width: 1400,
+    height: 1800
+  }
+}
 
 function pbcopy(data) {
   const proc = require("child_process").spawn("pbcopy")
@@ -6,21 +16,11 @@ function pbcopy(data) {
   proc.stdin.end()
 }
 
-function main() {
-  puppeteer
-    .launch({
-      headless: false,
-      product: "firefox",
-      defaultViewport: {
-        width: 1400,
-        height: 1800
-      }
-    })
-    .then(async browser => {
-      const wsEndpoint = browser.wsEndpoint()
-      pbcopy(wsEndpoint)
-      console.log(wsEndpoint)
-    })
-}
+puppeteer.launch(connection).then(async browser => {
+  const browserWSEndpoint = browser.wsEndpoint()
+  console.log(browserWSEndpoint)
 
-main()
+  fs.writeFile("browserWSEndpoint.json", JSON.stringify({ browserWSEndpoint }), err =>
+    console.log(err)
+  )
+})
