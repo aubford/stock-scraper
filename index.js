@@ -17,7 +17,8 @@ async function newPage(browser, url) {
   await page.on("console", msg => console.log("PAGE LOG:", msg.text()))
 
   await page.goto(url)
-
+  
+  await page.waitForSelector(".textLayer > span")
   return page
 }
 
@@ -35,10 +36,12 @@ function test() {
     .then(async browser => {
       const page = await newPage(
         browser,
-        `http://www.brainjar.com/java/host/test.html`
+        `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=BLK&c_name=invest_VENDOR`
       )
-      const content = await page.content()
-      console.log(content)
+      const elements = await page.$x("/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]")
+      const text = await elements[0].evaluate(node => node.textContent)
+      
+      console.log(text)
     })
 }
 
