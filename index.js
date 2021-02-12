@@ -2,11 +2,8 @@ const puppeteer = require("puppeteer")
 const _ = require("lodash")
 
 const getText = async (page, selector) => {
-  const element = await page.$(selector)
-  if (!element) {
-    return "N/A"
-  }
-  const text = await element.evaluate(node => node.textContent)
+  const element = await page.$x(selector)
+  const text = await element[0].evaluate(node => node.textContent)
   return text
 }
 
@@ -38,8 +35,7 @@ function test() {
         browser,
         `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=BLK&c_name=invest_VENDOR`
       )
-      const elements = await page.$x("/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]")
-      const text = await elements[0].evaluate(node => node.textContent)
+      const text = await getText("/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]")
       
       console.log(text)
     })
