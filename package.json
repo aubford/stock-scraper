@@ -6,12 +6,16 @@
   "scripts": {
     "start": "node index.js",
     "launch": "node launch.js",
-    "sandbox": "node sandbox.js"
+    "test": "node test.js",
+    "launch-chrome": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "crawler-request": "^1.2.2",
     "lodash": "^4.17.20",
+    "merge-img": "^2.1.3",
+    "pdf-parse": "^1.1.1",
     "puppeteer": "^7.0.4"
   }
 }

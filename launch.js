@@ -5,15 +5,9 @@ const connection = {
   headless: false,
   product: "firefox",
   defaultViewport: {
-    width: 1400,
-    height: 1800
+    width: 1280,
+    height: 1304
   }
-}
-
-function pbcopy(data) {
-  const proc = require("child_process").spawn("pbcopy")
-  proc.stdin.write(data)
-  proc.stdin.end()
 }
 
 puppeteer.launch(connection).then(async browser => {

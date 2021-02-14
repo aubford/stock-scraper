@@ -34,4 +34,4 @@ function main(tickers) {
     await browser.close()
     process.exit(1)
   })
-}
+}``
