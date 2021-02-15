@@ -14,7 +14,9 @@ const connection = {
   }
 }
 
-const tickers = ["C"]
+const searchByAdjacentText = text => `//span[contains(text(),'${text}')]/following-sibling::span`
+
+const tickers = ["C", "T"]
 
 puppeteer.connect(connection).then(async browser => {
   const newPage = url => newBrowserPage(browser, url)
@@ -33,7 +35,7 @@ puppeteer.connect(connection).then(async browser => {
         pics = pics.concat(screenShots)
       }
 
-      //await page.close()
+      await page.close()
 
       return values
     }
@@ -44,7 +46,7 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
-        `//span[contains(text(),' performance is ')]/following-sibling::span`
+        searchByAdjacentText(" performance is ")
       ],
       [{ x: 330, y: 175, width: 250, height: 100 }]
     )
@@ -52,7 +54,7 @@ puppeteer.connect(connection).then(async browser => {
     const newConstructs = await fetchData(
       `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       [
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[196]`, // risk/reward
+        searchByAdjacentText("(MM)"), // rating
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
