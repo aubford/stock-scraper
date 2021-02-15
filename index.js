@@ -3,16 +3,18 @@ const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
 const { newBrowserPage } = require("./util")
 const mergeImg = require("merge-img")
+const fs = require("fs")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
+  slowMo: 51,
   defaultViewport: {
     width: 1400,
     height: 1800
   }
 }
 
-const tickers = ["C", "SEDG", "T"]
+const tickers = ["C"]
 
 puppeteer.connect(connection).then(async browser => {
   const newPage = url => newBrowserPage(browser, url)
@@ -26,8 +28,13 @@ puppeteer.connect(connection).then(async browser => {
 
       const values = await Promise.all(xPathArr.map(page.getTextByX))
 
-      const screenShots = await Promise.all(screenShotArr.map(clip => page.screenshot({ clip })))
-      pics = pics.concat(screenShots)
+      if (screenShotArr && screenShotArr.length > 0) {
+        const screenShots = await Promise.all(screenShotArr.map(clip => page.screenshot({ clip })))
+        pics = pics.concat(screenShots)
+      }
+
+      //await page.close()
+
       return values
     }
 
@@ -39,10 +46,42 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
         `//span[contains(text(),' performance is ')]/following-sibling::span`
       ],
+      [{ x: 330, y: 175, width: 250, height: 100 }]
+    )
+
+    const newConstructs = await fetchData(
+      `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       [
-        { x: 330, y: 175, width: 250, height: 100 },
-        { x: 330, y: 1000, width: 250, height: 250 }
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[196]`, // risk/reward
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]` // growth appreciation period
       ]
+    )
+
+    const theStreet = await fetchData(
+      `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
+      [
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[58]`, // growth
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[66]`, // total return
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[74]`, // efficiency
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[82]`, // price volatility
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[89]`, // solvency
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[96]`, // income
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[93]`, // price/earnings
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[122]`, // proj earnings
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[152]`, // p/b
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[181]`, // p/s
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[108]`, // p/cf
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[137]`, // p/eg
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[166]`, // earnings growth
+        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[195]`, // sales growth
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[12]`, // rating
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[16]` // target price
+      ],
+      [{ x: 300, y: 150, width: 350, height: 135 }]
     )
 
     // results
@@ -52,10 +91,34 @@ puppeteer.connect(connection).then(async browser => {
       fordEarningsStrength: fordData[0],
       fordRelativeValuation: fordData[1],
       fordPriceMovement: fordData[2],
-      fordIndustryStrength: fordData[3]
+      fordIndustryStrength: fordData[3],
+      ncRating: newConstructs[0],
+      ncEps: newConstructs[1],
+      ncRoic: newConstructs[2],
+      ncFCF: newConstructs[3],
+      ncPB: newConstructs[4],
+      ncGap: newConstructs[5],
+      streetGrowth: theStreet[0],
+      streetTotalReturn: theStreet[1],
+      streetEfficiency: theStreet[2],
+      streetVolatility: theStreet[3],
+      streetSolvency: theStreet[4],
+      streetIncome: theStreet[5],
+      streetPE: theStreet[6],
+      streetProjEarn: theStreet[7],
+      streetPB: theStreet[8],
+      streetPSales: theStreet[9],
+      streetPCF: theStreet[10],
+      streetPEG: theStreet[11],
+      streetEarningsGrowth: theStreet[12],
+      streetSalesGrowth: theStreet[13],
+      streetRating: theStreet[14],
+      streetTargetPrice: theStreet[15]
     }
   }
 
-  console.log(JSON.stringify(tickerData))
-  process.exit(0)
+  fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
+    console.log(err)
+    process.exit(0)
+  })
 })
