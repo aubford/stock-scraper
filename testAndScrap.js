@@ -1,6 +1,15 @@
+const puppeteer = require("puppeteer")
 const _ = require("lodash")
-const { parseStreetBulletData } = require("./util")
+const { newBrowserPage } = require("./util")
+const { webSocketDebuggerUrl } = require("./ws.json")
 
+const connection = {
+  browserWSEndpoint: webSocketDebuggerUrl,
+  defaultViewport: {
+    width: 1400,
+    height: 1800
+  }
+}
 
 /* NOTES
 
@@ -8,28 +17,60 @@ webSocketDebuggerUrl
 
  */
 
-//async function schwabLogin(browser) {
-//  const page = await newPage(
-//    browser,
-//    "https://lms.schwab.com/Login?ClientId=schwab-secondary&Region=&RedirectUri=https://client.schwab.com/Login/Signon/AuthCodeHandler.ashx&StartInSetId=1"
-//  )
-//
-//  await page.click("#LoginId")
-//  await page.keyboard.type(credentials.schwabUsername)
-//  await page.click("#Password")
-//  await page.keyboard.type(credentials.schwabPassword)
-//  await page.click("#LoginSubmitBtn")
-//
-//  await page.waitForNavigation()
-//
-//  return page
-//}
+puppeteer.connect(connection).then(async browser => {
+  const ticker = "GS"
+  const newPage = url => newBrowserPage(browser, url)
 
-const collection = [
-  ["a", 453],
-  ["b", 453],
-  ["a", 458],
-  ["c", 453]
-]
+  const getFidelityData = async () => {
+    const page = await newPage(
+      `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
+    )
+    const fidelityStarmineOneName = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`
+    )
+    const fidelityStarmineTwoName = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`
+    )
+    const fidelityStarmineThreeName = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`
+    )
+    const fidelityStarmineFourName = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`
+    )
+    const fidelityStarmineFiveName = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`
+    )
+    const fidelityStarmineOneRating = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`
+    )
+    const fidelityStarmineTwoRating = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`
+    )
+    const fidelityStarmineThreeRating = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`
+    )
+    const fidelityStarmineFourRating = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`
+    )
+    const fidelityStarmineFiveRating = await page.getTextByX(
+      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`
+    )
+    
+    
 
-const keyBy = _.fromPairs(collection)
+    await page.close()
+    return {
+      fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
+      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}` ,
+      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}` ,
+      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}` ,
+      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}` ,
+    }
+  }
+  
+  const fidelityData = await getFidelityData()
+  console.log(fidelityData)
+  
+  
+  process.exit(0)
+})

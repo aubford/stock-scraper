@@ -46,7 +46,7 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
   const chunked = _.chunk(fullTextBullets, 2)
   const mapped = chunked.map(([bulletA, bulletB]) => {
     if (bulletA.includes("Neutral")) {
-      return "N/A"
+      return ""
     }
     return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator)).value[
       bulletB.includes("significant") ? 1 : 0

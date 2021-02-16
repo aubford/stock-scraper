@@ -2,3 +2,4 @@ node_modules
 creds.json
 browserWSEndpoint.json
 ws.json
+stockData.json
