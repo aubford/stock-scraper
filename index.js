@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
-const { newBrowserPage, parseStreetBulletData, scrollPageToBottom } = require("./util")
+const { newBrowserPage, parseStreetBulletData } = require("./util")
 const mergeImg = require("merge-img")
 const fs = require("fs")
 
@@ -32,11 +32,11 @@ puppeteer.connect(connection).then(async browser => {
   const tickerData = {}
   for (const ticker of tickers) {
     let pics = []
-    const fetchData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
+    const fetchPdfData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
       const page = await newPage(url)
 
       await page.waitForXPath(xPathArr[0])
-      
+
       if (screenShotArr) {
         const screenShots = await Promise.all(screenShotArr.map(clip => page.screenshot({ clip })))
         pics = pics.concat(screenShots)
@@ -55,7 +55,7 @@ puppeteer.connect(connection).then(async browser => {
       return values
     }
 
-    const fordData = await fetchData({
+    const fordData = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
@@ -66,7 +66,7 @@ puppeteer.connect(connection).then(async browser => {
       screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }]
     })
 
-    const newConstructs = await fetchData({
+    const newConstructs = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextContains("(MM)"), // rating
@@ -79,7 +79,7 @@ puppeteer.connect(connection).then(async browser => {
       waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`
     })
 
-    const theStreet = await fetchData({
+    const theStreet = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextIs("Growth", 2), // 0 growth
@@ -95,20 +95,6 @@ puppeteer.connect(connection).then(async browser => {
       screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
       waitForPostScroll: "//span[contains(text(),'• ')]"
     })
-
-    // results
-    if (pics.length) {
-      const mergedJimpObj = await mergeImg(pics)
-      await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`, () => {
-        console.log("done with image: " + ticker)
-        completedPics.push(ticker)
-        exitIfAllowed()
-      })
-    } else {
-      completedPics.push(ticker)
-    }
-
-    const bulletData = parseStreetBulletData(theStreet[6], theStreet[7])
 
     tickerData[ticker] = {
       fordEarningsStrength: fordData[0],
@@ -128,7 +114,19 @@ puppeteer.connect(connection).then(async browser => {
       streetSolvency: theStreet[4],
       streetIncome: theStreet[5],
       streetTargetPrice: theStreet[8],
-      ...bulletData
+      ...parseStreetBulletData(theStreet[6], theStreet[7])
+    }
+
+    // screenShots
+    if (pics.length) {
+      const mergedJimpObj = await mergeImg(pics)
+      await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`, () => {
+        console.log("done with image: " + ticker)
+        completedPics.push(ticker)
+        exitIfAllowed()
+      })
+    } else {
+      completedPics.push(ticker)
     }
   }
 
