@@ -34,8 +34,8 @@
     <orderEntry type="library" name="@types/react-addons-create-fragment" level="application" />
     <orderEntry type="library" name="@types/react-dom" level="application" />
     <orderEntry type="library" name="@types/underscore" level="application" />
+    <orderEntry type="library" name="@types/jsdoc-to-markdown" level="application" />
     <orderEntry type="library" name="@types/puppeteer" level="application" />
     <orderEntry type="library" name="@types/puppeteer-core" level="application" />
-    <orderEntry type="library" name="@types/jsdoc-to-markdown" level="application" />
   </component>
 </module>

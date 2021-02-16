@@ -1,94 +1,115 @@
 const puppeteer = require("puppeteer")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
-const { newBrowserPage } = require("./util")
+const { newBrowserPage, parseStreetBulletData, scrollPageToBottom } = require("./util")
 const mergeImg = require("merge-img")
 const fs = require("fs")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
-  slowMo: 51,
   defaultViewport: {
     width: 1400,
     height: 1800
   }
 }
 
-const searchByAdjacentText = text => `//span[contains(text(),'${text}')]/following-sibling::span`
-
-const tickers = ["C", "T"]
+const prevSiblingTextContains = (text, num = 1) =>
+  `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
+const prevSiblingTextIs = (text, num = 1) =>
+  `//span[text()='${text}']/following-sibling::span[${num}]`
 
 puppeteer.connect(connection).then(async browser => {
+  const tickers = ["C"]
+
+  const completedPics = []
+  const exitIfAllowed = () => {
+    if (completedPics.length === tickers.length) {
+      process.exit(0)
+    }
+  }
   const newPage = url => newBrowserPage(browser, url)
 
   const tickerData = {}
-  for (let ticker of tickers) {
+  for (const ticker of tickers) {
     let pics = []
-    const fetchData = async (url, xPathArr, screenShotArr) => {
+    const fetchData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
       const page = await newPage(url)
+
       await page.waitForXPath(xPathArr[0])
-
-      const values = await Promise.all(xPathArr.map(page.getTextByX))
-
-      if (screenShotArr && screenShotArr.length > 0) {
+      
+      if (screenShotArr) {
         const screenShots = await Promise.all(screenShotArr.map(clip => page.screenshot({ clip })))
         pics = pics.concat(screenShots)
       }
+
+      if (waitForPostScroll) {
+        const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
+        await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
+        await page.waitForXPath(waitForPostScroll)
+      }
+
+      const values = await Promise.all(xPathArr.map(page.getTextByX))
 
       await page.close()
 
       return values
     }
 
-    const fordData = await fetchData(
-      `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
-      [
+    const fordData = await fetchData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
-        searchByAdjacentText(" performance is ")
+        prevSiblingTextContains(" performance is ")
       ],
-      [{ x: 330, y: 175, width: 250, height: 100 }]
-    )
+      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }]
+    })
 
-    const newConstructs = await fetchData(
-      `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
-      [
-        searchByAdjacentText("(MM)"), // rating
+    const newConstructs = await fetchData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
+        prevSiblingTextContains("(MM)"), // rating
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
         `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
         `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]` // growth appreciation period
-      ]
-    )
-
-    const theStreet = await fetchData(
-      `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
-      [
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[58]`, // growth
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[66]`, // total return
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[74]`, // efficiency
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[82]`, // price volatility
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[89]`, // solvency
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[96]`, // income
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[93]`, // price/earnings
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[122]`, // proj earnings
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[152]`, // p/b
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[181]`, // p/s
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[108]`, // p/cf
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[137]`, // p/eg
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[166]`, // earnings growth
-        `/html/body/div[1]/div[2]/div[4]/div/div[5]/div[2]/span[195]`, // sales growth
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[12]`, // rating
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[16]` // target price
       ],
-      [{ x: 300, y: 150, width: 350, height: 135 }]
-    )
+      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`
+    })
+
+    const theStreet = await fetchData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
+        prevSiblingTextIs("Growth", 2), // 0 growth
+        prevSiblingTextIs("Total Return", 2), // 1 total return
+        prevSiblingTextIs("Efficiency", 2), // 2 efficiency
+        prevSiblingTextIs("Price Volatility", 2), // 3 price volatility
+        prevSiblingTextIs("Solvency", 2), // 4 solvency
+        prevSiblingTextIs("Income", 2), // 5 income
+        `//span[contains(text(),'• ')]`, // 6 ...bullentPointData (lineOne)
+        `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
+        `//span[text()='TARGET PRICE ']/following-sibling::span[1]` // 8 target price
+      ],
+      screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
+      waitForPostScroll: "//span[contains(text(),'• ')]"
+    })
 
     // results
-    const mergedJimpObj = await mergeImg(pics)
-    await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`)
+    if (pics.length) {
+      const mergedJimpObj = await mergeImg(pics)
+      await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`, () => {
+        console.log("done with image: " + ticker)
+        completedPics.push(ticker)
+        exitIfAllowed()
+      })
+    } else {
+      completedPics.push(ticker)
+    }
+
+    const bulletData = parseStreetBulletData(theStreet[6], theStreet[7])
+
     tickerData[ticker] = {
       fordEarningsStrength: fordData[0],
       fordRelativeValuation: fordData[1],
@@ -106,21 +127,13 @@ puppeteer.connect(connection).then(async browser => {
       streetVolatility: theStreet[3],
       streetSolvency: theStreet[4],
       streetIncome: theStreet[5],
-      streetPE: theStreet[6],
-      streetProjEarn: theStreet[7],
-      streetPB: theStreet[8],
-      streetPSales: theStreet[9],
-      streetPCF: theStreet[10],
-      streetPEG: theStreet[11],
-      streetEarningsGrowth: theStreet[12],
-      streetSalesGrowth: theStreet[13],
-      streetRating: theStreet[14],
-      streetTargetPrice: theStreet[15]
+      streetTargetPrice: theStreet[8],
+      ...bulletData
     }
   }
 
   fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
-    console.log(err)
-    process.exit(0)
+    console.log("error: " + err)
+    exitIfAllowed()
   })
 })
