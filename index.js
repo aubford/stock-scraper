@@ -31,6 +31,7 @@ puppeteer.connect(connection).then(async browser => {
 
   const tickerData = {}
   for (const ticker of tickers) {
+    // UTIL
     let pics = []
     const fetchPdfData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
       const page = await newPage(url)
@@ -54,7 +55,8 @@ puppeteer.connect(connection).then(async browser => {
 
       return values
     }
-
+    
+    // FORD
     const fordData = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
@@ -66,6 +68,7 @@ puppeteer.connect(connection).then(async browser => {
       screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }]
     })
 
+    // NEW CONSTRUCTS
     const newConstructs = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
@@ -79,6 +82,7 @@ puppeteer.connect(connection).then(async browser => {
       waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`
     })
 
+    // THE STREET
     const theStreet = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
@@ -116,8 +120,8 @@ puppeteer.connect(connection).then(async browser => {
       streetTargetPrice: theStreet[8],
       ...parseStreetBulletData(theStreet[6], theStreet[7])
     }
-
-    // screenShots
+    
+    // SCREENSHOTS
     if (pics.length) {
       const mergedJimpObj = await mergeImg(pics)
       await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`, () => {
@@ -130,6 +134,7 @@ puppeteer.connect(connection).then(async browser => {
     }
   }
 
+  // WRITE FILE OUT
   fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
     console.log("error: " + err)
     exitIfAllowed()
