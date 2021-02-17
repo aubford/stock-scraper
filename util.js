@@ -7,15 +7,13 @@ const _ = require("lodash")
 /**
  * @param page {Page}
  * @param selector {string}
- * @returns {Promise<string>}
+ * @returns {Promise<string|string[]>}
  */
 const getTextByX = async (page, selector) => {
-  /**
-   * @type {ElementHandle[]}
-   */
+  /** @type {ElementHandle[]} */
   const elementArr = await page.$x(selector)
   if (!elementArr.length) {
-    return "N/A"
+    return ""
   }
   if (elementArr.length === 1) {
     return await elementArr[0].evaluate(node => node.textContent)
@@ -70,8 +68,26 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
   )
 }
 
+/**
+ * @param {Page} page
+ * @param selector {string}
+ * @param func {function}
+ * @returns {Promise<string|string[]>}
+ */
+const evalX = async (page, selector, func) => {
+  /** @type {ElementHandle[]} */
+  const elementArr = await page.$x(selector)
+  if (!elementArr.length) {
+    return ""
+  }
+  if (elementArr.length === 1) {
+    return await elementArr[0].evaluate(func)
+  }
+  return await Promise.all(elementArr.map(element => element.evaluate(func)))
+}
 
 module.exports = {
   newBrowserPage,
-  parseStreetBulletData
+  parseStreetBulletData,
+  evalX
 }

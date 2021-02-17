@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer")
 const _ = require("lodash")
-const { newBrowserPage } = require("./util")
+const { newBrowserPage, evalX } = require("./util")
 const { webSocketDebuggerUrl } = require("./ws.json")
 
 const connection = {
@@ -55,22 +55,35 @@ puppeteer.connect(connection).then(async browser => {
     const fidelityStarmineFiveRating = await page.getTextByX(
       `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`
     )
-    
-    
+
+    const analysts = await page.getTextByX(`//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`)
+    const reportHrefsHandles = await page.$x(`//table[@id="allOpinionsTable"]/tbody/tr/td[9]`)
+
+    const getReportLink = node => {
+      const href = node.href
+      if (href === "javascript:void(0);") {
+        return node.getAttribute("onclick").split(`'`)[1]
+      }
+      return href
+    }
+    const reportHrefs = await Promise.all(
+      reportHrefsHandles.map(handle => evalX(handle, "a", getReportLink))
+    )
+
+    //console.log(analysts)
+    console.log(reportHrefs)
 
     await page.close()
     return {
       fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
-      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}` ,
-      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}` ,
-      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}` ,
-      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}` ,
+      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
+      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
+      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
+      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`
     }
   }
-  
+
   const fidelityData = await getFidelityData()
-  console.log(fidelityData)
-  
-  
+
   process.exit(0)
 })
