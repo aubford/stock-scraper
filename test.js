@@ -22,6 +22,7 @@ puppeteer.connect(connection).then(async (browser) => {
   const ticker = "GS"
   const newPage = (url) => newBrowserPage(browser, url)
 
+  // TEST CODE
   const getFidelityData = async () => {
     const page = await newPage(
       `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
@@ -83,13 +84,12 @@ puppeteer.connect(connection).then(async (browser) => {
         fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
         fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
       },
-      analysts,
-      reportHrefs,
+      links: _.fromPairs(_.zip(analysts, reportHrefs)),
     }
   }
 
-  const fidelityData = await getFidelityData()
-  fs.writeFile("./testOutput.json", JSON.stringify(fidelityData), (err) => {
+  const output = await getFidelityData()
+  fs.writeFile("./testOutput.json", JSON.stringify(output), (err) => {
     console.log(err)
     process.exit(0)
   })

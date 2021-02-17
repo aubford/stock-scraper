@@ -9,8 +9,8 @@ const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
   defaultViewport: {
     width: 1400,
-    height: 1800
-  }
+    height: 1800,
+  },
 }
 
 const prevSiblingTextContains = (text, num = 1) =>
@@ -18,7 +18,7 @@ const prevSiblingTextContains = (text, num = 1) =>
 const prevSiblingTextIs = (text, num = 1) =>
   `//span[text()='${text}']/following-sibling::span[${num}]`
 
-puppeteer.connect(connection).then(async browser => {
+puppeteer.connect(connection).then(async (browser) => {
   const tickers = ["C"]
 
   const completedPics = []
@@ -27,7 +27,7 @@ puppeteer.connect(connection).then(async browser => {
       process.exit(0)
     }
   }
-  const newPage = url => newBrowserPage(browser, url)
+  const newPage = (url) => newBrowserPage(browser, url)
 
   const tickerData = {}
   for (const ticker of tickers) {
@@ -39,13 +39,15 @@ puppeteer.connect(connection).then(async browser => {
       await page.waitForXPath(xPathArr[0])
 
       if (screenShotArr) {
-        const screenShots = await Promise.all(screenShotArr.map(clip => page.screenshot({ clip })))
+        const screenShots = await Promise.all(
+          screenShotArr.map((clip) => page.screenshot({ clip }))
+        )
         pics = pics.concat(screenShots)
       }
 
       if (waitForPostScroll) {
         const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
-        await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
+        await viewerContainer.evaluate((node) => node.scrollBy(0, 2000))
         await page.waitForXPath(waitForPostScroll)
       }
 
@@ -55,7 +57,7 @@ puppeteer.connect(connection).then(async browser => {
 
       return values
     }
-    
+
     // FORD
     const fordData = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
@@ -63,9 +65,9 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
-        prevSiblingTextContains(" performance is ")
+        prevSiblingTextContains(" performance is "),
       ],
-      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }]
+      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }],
     })
 
     // NEW CONSTRUCTS
@@ -77,9 +79,9 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
         `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
         `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]` // growth appreciation period
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`, // growth appreciation period
       ],
-      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`
+      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
     })
 
     // THE STREET
@@ -94,10 +96,10 @@ puppeteer.connect(connection).then(async browser => {
         prevSiblingTextIs("Income", 2), // 5 income
         `//span[contains(text(),'• ')]`, // 6 ...bullentPointData (lineOne)
         `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
-        `//span[text()='TARGET PRICE ']/following-sibling::span[1]` // 8 target price
+        `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
       ],
       screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
-      waitForPostScroll: "//span[contains(text(),'• ')]"
+      waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
     tickerData[ticker] = {
@@ -118,9 +120,9 @@ puppeteer.connect(connection).then(async browser => {
       streetSolvency: theStreet[4],
       streetIncome: theStreet[5],
       streetTargetPrice: theStreet[8],
-      ...parseStreetBulletData(theStreet[6], theStreet[7])
+      ...parseStreetBulletData(theStreet[6], theStreet[7]),
     }
-    
+
     // SCREENSHOTS
     if (pics.length) {
       const mergedJimpObj = await mergeImg(pics)
@@ -135,7 +137,7 @@ puppeteer.connect(connection).then(async browser => {
   }
 
   // WRITE FILE OUT
-  fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
+  fs.writeFile("./stockData.json", JSON.stringify(tickerData), (err) => {
     console.log("error: " + err)
     exitIfAllowed()
   })
