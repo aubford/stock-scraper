@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
-const { newBrowserPage, parseStreetBulletData } = require("./util")
+const { evalX, newBrowserPage, parseStreetBulletData } = require("./util")
 const mergeImg = require("merge-img")
 const fs = require("fs")
 
@@ -18,7 +18,7 @@ const prevSiblingTextContains = (text, num = 1) =>
 const prevSiblingTextIs = (text, num = 1) =>
   `//span[text()='${text}']/following-sibling::span[${num}]`
 
-puppeteer.connect(connection).then(async (browser) => {
+puppeteer.connect(connection).then(async browser => {
   const tickers = ["C"]
 
   const completedPics = []
@@ -27,7 +27,7 @@ puppeteer.connect(connection).then(async (browser) => {
       process.exit(0)
     }
   }
-  const newPage = (url) => newBrowserPage(browser, url)
+  const newPage = url => newBrowserPage(browser, url)
 
   const tickerData = {}
   for (const ticker of tickers) {
@@ -40,14 +40,14 @@ puppeteer.connect(connection).then(async (browser) => {
 
       if (screenShotArr) {
         const screenShots = await Promise.all(
-          screenShotArr.map((clip) => page.screenshot({ clip }))
+          screenShotArr.map(clip => page.screenshot({ clip }))
         )
         pics = pics.concat(screenShots)
       }
 
       if (waitForPostScroll) {
         const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
-        await viewerContainer.evaluate((node) => node.scrollBy(0, 2000))
+        await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
         await page.waitForXPath(waitForPostScroll)
       }
 
@@ -58,8 +58,20 @@ puppeteer.connect(connection).then(async (browser) => {
       return values
     }
 
+    const fetchPageData = async ({ url, xPathArr }) => {
+      const page = await newPage(url)
+      await page.waitForXPath(xPathArr[0])
+      const values = await Promise.all(xPathArr.map(page.getTextByX))
+      return { page, values }
+    }
+
     // FORD
-    const fordData = await fetchPdfData({
+    const [
+      fordEarningsStrength,
+      fordRelativeValuation,
+      fordPriceMovement,
+      fordIndustryStrength,
+    ] = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
@@ -71,7 +83,7 @@ puppeteer.connect(connection).then(async (browser) => {
     })
 
     // NEW CONSTRUCTS
-    const newConstructs = await fetchPdfData({
+    const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextContains("(MM)"), // rating
@@ -85,7 +97,17 @@ puppeteer.connect(connection).then(async (browser) => {
     })
 
     // THE STREET
-    const theStreet = await fetchPdfData({
+    const [
+      streetGrowth,
+      streetTotalReturn,
+      streetEfficiency,
+      streetVolatility,
+      streetSolvency,
+      streetIncome,
+      streetBulletDataLineOne,
+      streetBulletDataLineTwo,
+      streetTargetPrice,
+    ] = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextIs("Growth", 2), // 0 growth
@@ -102,42 +124,105 @@ puppeteer.connect(connection).then(async (browser) => {
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
+    const {
+      values: [
+        fidelityStarmineOneName,
+        fidelityStarmineTwoName,
+        fidelityStarmineThreeName,
+        fidelityStarmineFourName,
+        fidelityStarmineFiveName,
+        fidelityStarmineOneRating,
+        fidelityStarmineTwoRating,
+        fidelityStarmineThreeRating,
+        fidelityStarmineFourRating,
+        fidelityStarmineFiveRating,
+        fidelityReportNameArr,
+      ],
+      page: fidelityPage,
+    } = await fetchPageData({
+      url: `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`,
+      xPathArr: [
+        `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
+        `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
+        `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
+      ],
+    })
+
+    const reportHrefsHandles = await fidelityPage.$x(
+      `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
+    )
+
+    const reportHrefs = await Promise.all(
+      reportHrefsHandles.map(handle =>
+        evalX(handle, "a", node => {
+          const href = node.href
+
+          if (href === "javascript:void(0);") {
+            return node.getAttribute("onclick").split(`'`)[1]
+          }
+
+          return href
+        })
+      )
+    )
+
+    const fidelityLinks = _.fromPairs(_.zip(fidelityReportNameArr, reportHrefs))
+
+    await fidelityPage.close()
+
     tickerData[ticker] = {
-      fordEarningsStrength: fordData[0],
-      fordRelativeValuation: fordData[1],
-      fordPriceMovement: fordData[2],
-      fordIndustryStrength: fordData[3],
-      ncRating: newConstructs[0],
-      ncEps: newConstructs[1],
-      ncRoic: newConstructs[2],
-      ncFCF: newConstructs[3],
-      ncPB: newConstructs[4],
-      ncGap: newConstructs[5],
-      streetGrowth: theStreet[0],
-      streetTotalReturn: theStreet[1],
-      streetEfficiency: theStreet[2],
-      streetVolatility: theStreet[3],
-      streetSolvency: theStreet[4],
-      streetIncome: theStreet[5],
-      streetTargetPrice: theStreet[8],
-      ...parseStreetBulletData(theStreet[6], theStreet[7]),
+      fidelityLinks,
+      fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
+      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
+      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
+      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
+      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
+      fordEarningsStrength,
+      fordRelativeValuation,
+      fordPriceMovement,
+      fordIndustryStrength,
+      ncRating,
+      ncEps,
+      ncRoic,
+      ncFCF,
+      ncPB,
+      ncGap,
+      streetGrowth,
+      streetTotalReturn,
+      streetEfficiency,
+      streetVolatility,
+      streetSolvency,
+      streetIncome,
+      streetTargetPrice,
+      ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
     }
 
     // SCREENSHOTS
     if (pics.length) {
       const mergedJimpObj = await mergeImg(pics)
-      await mergedJimpObj.write(`/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`, () => {
-        console.log("done with image: " + ticker)
-        completedPics.push(ticker)
-        exitIfAllowed()
-      })
+      await mergedJimpObj.write(
+        `/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`,
+        () => {
+          console.log("done with image: " + ticker)
+          completedPics.push(ticker)
+          exitIfAllowed()
+        }
+      )
     } else {
       completedPics.push(ticker)
     }
   }
 
   // WRITE FILE OUT
-  fs.writeFile("./stockData.json", JSON.stringify(tickerData), (err) => {
+  fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
     console.log("error: " + err)
     exitIfAllowed()
   })
