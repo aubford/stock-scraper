@@ -1,4 +1,4 @@
-const puppeteer = require("puppeteer")
+const puppeteer = require("puppeteer-core")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
 const { newBrowserPage, parseStreetBulletData } = require("./util")
