@@ -3,3 +3,4 @@ creds.json
 browserWSEndpoint.json
 ws.json
 stockData.json
+testOutput.json

@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const _ = require("lodash")
+const fs = require("fs")
 const { newBrowserPage, evalX } = require("./util")
 const { webSocketDebuggerUrl } = require("./ws.json")
 
@@ -7,8 +8,8 @@ const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
   defaultViewport: {
     width: 1400,
-    height: 1800
-  }
+    height: 1800,
+  },
 }
 
 /* NOTES
@@ -17,9 +18,9 @@ webSocketDebuggerUrl
 
  */
 
-puppeteer.connect(connection).then(async browser => {
+puppeteer.connect(connection).then(async (browser) => {
   const ticker = "GS"
-  const newPage = url => newBrowserPage(browser, url)
+  const newPage = (url) => newBrowserPage(browser, url)
 
   const getFidelityData = async () => {
     const page = await newPage(
@@ -59,7 +60,7 @@ puppeteer.connect(connection).then(async browser => {
     const analysts = await page.getTextByX(`//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`)
     const reportHrefsHandles = await page.$x(`//table[@id="allOpinionsTable"]/tbody/tr/td[9]`)
 
-    const getReportLink = node => {
+    const getReportLink = (node) => {
       const href = node.href
       if (href === "javascript:void(0);") {
         return node.getAttribute("onclick").split(`'`)[1]
@@ -67,23 +68,29 @@ puppeteer.connect(connection).then(async browser => {
       return href
     }
     const reportHrefs = await Promise.all(
-      reportHrefsHandles.map(handle => evalX(handle, "a", getReportLink))
+      reportHrefsHandles.map((handle) => evalX(handle, "a", getReportLink))
     )
 
-    //console.log(analysts)
+    console.log(analysts)
     console.log(reportHrefs)
 
     await page.close()
     return {
-      fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
-      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
-      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
-      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
-      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`
+      data: {
+        fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
+        fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
+        fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
+        fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
+        fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
+      },
+      analysts,
+      reportHrefs,
     }
   }
 
   const fidelityData = await getFidelityData()
-
-  process.exit(0)
+  fs.writeFile("./testOutput.json", JSON.stringify(fidelityData), (err) => {
+    console.log(err)
+    process.exit(0)
+  })
 })
