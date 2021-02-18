@@ -210,7 +210,7 @@ puppeteer.connect(connection).then(async browser => {
         `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
         `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
       ],
-      screenShotArr: [{ x: 348, y: 140, width: 500, height: 36 }],
+      screenShotArr: [{ x: 344, y: 138, width: 468, height: 48 }],
       screenshotName: "theStreet",
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
