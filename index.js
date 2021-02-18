@@ -224,7 +224,7 @@ puppeteer.connect(connection).then(async browser => {
       xPathArr: [
         prevSiblingTextIs("Target Price:"),
         prevSiblingTextIs("Argus Rating:", 3),
-        `//span[text()=${xpathHelper}]/preceding-sibling::span[position()=1 and (${xpathHelper})]`,
+        `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
     })
 
