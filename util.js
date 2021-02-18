@@ -96,6 +96,7 @@ module.exports = {
   ARGUS_ANALYST_KEY: "Argus Analyst",
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
   ZACKS_KEY: "Zacks Investment Research, Inc (i)",
+  XPATH_TIMEOUT: 16000,
   newBrowserPage,
   parseStreetBulletData,
   evalX,

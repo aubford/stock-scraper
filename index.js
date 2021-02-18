@@ -10,9 +10,10 @@ const {
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
+  XPATH_TIMEOUT,
 } = require("./util")
-const mergeImg = require("merge-img")
 const fs = require("fs")
+const readline = require("readline")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -23,8 +24,24 @@ const connection = {
 }
 const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 
+const readlineInterface = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+})
+
+const promptForTickers = () =>
+  new Promise(resolve => {
+    readlineInterface.question("Tickers: ", tickers => {
+      resolve(tickers)
+      readlineInterface.close()
+    })
+  })
+
 puppeteer.connect(connection).then(async browser => {
-  const tickers = ["T"]
+  const promptResponse = await promptForTickers()
+  const tickers = promptResponse.split(/[^A-Z]/)
+
+  console.log(tickers)
 
   const newPage = url => newBrowserPage(browser, url)
   const getFidelitySecretUrl = async fidelityLink => {
@@ -40,6 +57,7 @@ puppeteer.connect(connection).then(async browser => {
   const newStockData = {}
   for (const ticker of tickers) {
     // UTIL
+
     const fetchPdfData = async ({
       url,
       xPathArr,
@@ -52,7 +70,13 @@ puppeteer.connect(connection).then(async browser => {
       }
       const page = await newPage(url)
 
-      await page.waitForXPath(xPathArr[0])
+      try {
+        await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
+      } catch (err) {
+        console.log("waitForXpath failed for url: " + url)
+        await page.close()
+        return []
+      }
 
       if (screenShotArr) {
         await Promise.all(
@@ -74,7 +98,6 @@ puppeteer.connect(connection).then(async browser => {
       const values = await Promise.all(xPathArr.map(page.getTextByX))
 
       await page.close()
-
       return values
     }
 
@@ -83,12 +106,47 @@ puppeteer.connect(connection).then(async browser => {
         return {}
       }
       const page = await newPage(url)
-      await page.waitForXPath(xPathArr[0])
+      try {
+        await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
+      } catch (err) {
+        console.log("waitForXpath failed for url: " + url)
+        await page.close()
+        return {}
+      }
+
       const values = await Promise.all(xPathArr.map(page.getTextByX))
       return { page, values }
     }
 
+    const getFidelityPageData = async fidelityPage => {
+      if (fidelityPage) {
+        const reportHrefsHandles = await fidelityPage.$x(
+          `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
+        )
+
+        const reportLinks = await Promise.all(
+          reportHrefsHandles.map(handle =>
+            evalX(handle, "a", node => {
+              const href = node.href
+              const text = node.textContent
+
+              if (href === "javascript:void(0);") {
+                return { text, href: node.getAttribute("onclick").split(`'`)[1] }
+              }
+
+              return { text, href }
+            })
+          )
+        )
+
+        await fidelityPage.close()
+        return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
+      }
+      return {}
+    }
+
     // FIDELITY
+
     const {
       values: [
         fidelityStarmineOneName,
@@ -121,34 +179,14 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
-    const reportHrefsHandles = await fidelityPage.$x(
-      `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
-    )
-
-    const reportLinks = await Promise.all(
-      reportHrefsHandles.map(handle =>
-        evalX(handle, "a", node => {
-          const href = node.href
-          const text = node.textContent
-
-          if (href === "javascript:void(0);") {
-            return { text, href: node.getAttribute("onclick").split(`'`)[1] }
-          }
-
-          return { text, href }
-        })
-      )
-    )
-
     const {
       [ARGUS_ANALYST_KEY]: argusAnalystLink,
       [ARGUS_RESEARCH_KEY]: argusResearchLink,
       [ZACKS_KEY]: zacksLink,
-    } = _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
-
-    await fidelityPage.close()
+    } = await getFidelityPageData(fidelityPage)
 
     // FORD
+
     const [
       fordEarningsStrength,
       fordRelativeValuation,
@@ -167,6 +205,7 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     // ARGUS ANALYST
+
     const [
       argusAnalystRating,
       argusAnalystTarget,
@@ -187,6 +226,7 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     // THE STREET
+
     const [
       streetGrowth,
       streetTotalReturn,
@@ -226,17 +266,18 @@ puppeteer.connect(connection).then(async browser => {
         argusResearchFinancialStrength,
         argusResearchGrowth,
         argusResearchValue,
-      ],
+      ] = [],
     ] = await fetchPdfData({
-      url: argusResearchLink.href,
+      url: argusResearchLink ? argusResearchLink.href : null,
       xPathArr: [
-        prevSiblingTextIs("Target Price:"),
+        `//span[contains(text(),"Target ") and contains(text(),":")]/following-sibling::span[1]`,
         prevSiblingTextIs("Argus Rating:", 3),
         `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
     })
 
     // NEW CONSTRUCTS
+
     const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
@@ -251,6 +292,7 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     // ZACKS
+
     const [
       zacksTarget,
       zacksRecommendation,
@@ -275,6 +317,7 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     // RESULT
+
     newStockData[ticker] = {
       fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
       fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
