@@ -24,7 +24,7 @@ const connection = {
 const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 
 puppeteer.connect(connection).then(async browser => {
-  const tickers = ["C"]
+  const tickers = ["T"]
 
   const completedPics = []
   const exitIfAllowed = () => {
@@ -33,14 +33,17 @@ puppeteer.connect(connection).then(async browser => {
     }
   }
   const newPage = url => newBrowserPage(browser, url)
-  const getFidelitySecretUrl = async url => {
-    const page = await newPage(url)
+  const getFidelitySecretUrl = async fidelityLink => {
+    if (!fidelityLink) {
+      return null
+    }
+    const page = await newPage(fidelityLink.href)
     const src = await page.$eval("frame", node => node.getAttribute("src"))
     await page.close()
     return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
   }
 
-  const tickerData = {}
+  const newStockData = {}
   for (const ticker of tickers) {
     // UTIL
     let pics = []
@@ -168,7 +171,7 @@ puppeteer.connect(connection).then(async browser => {
       argusAnalystFiveYrEpsGrowth,
       argusAnalystOneYrDivGrowth,
     ] = await fetchPdfData({
-      url: await getFidelitySecretUrl(argusAnalystLink.href),
+      url: await getFidelitySecretUrl(argusAnalystLink),
       xPathArr: [
         prevSiblingTextIs("ARGUS RATING: "),
         prevSiblingTextIs("Target Price"),
@@ -253,7 +256,7 @@ puppeteer.connect(connection).then(async browser => {
       zacksMomentum,
       zacksIndustryRank,
     ] = await fetchPdfData({
-      url: await getFidelitySecretUrl(zacksLink.href),
+      url: await getFidelitySecretUrl(zacksLink),
       xPathArr: [
         prevSiblingTextIs("Price Target (6-12 Months): "),
         prevSiblingTextIs("Zacks Recommendation:", 4),
@@ -267,7 +270,7 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     // RESULT
-    tickerData[ticker] = {
+    newStockData[ticker] = {
       fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
       fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
       fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
@@ -332,11 +335,19 @@ puppeteer.connect(connection).then(async browser => {
       completedPics.push(ticker)
     }
   }
-
+  
   // WRITE FILE OUT
-  fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
+  const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
+  const stockDataFile = fs.readFileSync(stockDataLocation)
+  const currentStockData = JSON.parse(stockDataFile)
+  const writeToFile = {
+    ...currentStockData,
+    ...newStockData
+  }
+
+  fs.writeFile("./stockData.json", JSON.stringify(writeToFile), err => {
     console.log("test file write error: " + err)
-    fs.writeFile(`${SCRAPBOOK_LOCATION}/stockData.json`, JSON.stringify(tickerData), err => {
+    fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
       console.log("scrapbook file write error: " + err)
       exitIfAllowed()
     })

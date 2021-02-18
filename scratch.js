@@ -1,23 +1,12 @@
-const data = require("./testOutput.json")
 const _ = require("lodash")
+const fs = require("fs")
 
-const ONE = "one"
-const THREE = "three"
+const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 
-const a = {
-  "one": 1,
-  "two": 2
-}
+const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
+const currentStockData = fs.readFileSync(stockDataLocation)
 
-const {
-  [ONE]: resA,
-  [THREE]: resB
-} = a
-
-resA;
-resB;
+const res = JSON.parse(currentStockData)
 
 
-const sua = [{a:1,b:2},{a:3,b:4}]
-
-_.map(sua,"a") /* ?+*/
+const keyy = Object.values(res)[0]
