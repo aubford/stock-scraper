@@ -21,6 +21,7 @@ const connection = {
     height: 1800,
   },
 }
+const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 
 puppeteer.connect(connection).then(async browser => {
   const tickers = ["C"]
@@ -223,7 +224,7 @@ puppeteer.connect(connection).then(async browser => {
       xPathArr: [
         prevSiblingTextIs("Target Price:"),
         prevSiblingTextIs("Argus Rating:", 3),
-        `//span[text()=${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
+        `//span[text()=${xpathHelper}]/preceding-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
     })
 
@@ -258,9 +259,9 @@ puppeteer.connect(connection).then(async browser => {
         prevSiblingTextIs("Zacks Recommendation:", 4),
         prevSiblingTextIs(`Zacks Style Scores:`),
         prevSiblingTextIs(`VGM:`),
-        `//*[@id="viewer"]/span[contains(text(),"Value: ")]`,
-        `//*[@id="viewer"]/span[contains(text(),"Growth: ")]`,
-        `//*[@id="viewer"]/span[contains(text(),"Momentum: ")]`,
+        `//*[@id="viewer"]//span[contains(text(),"Value: ")]`,
+        `//*[@id="viewer"]//span[contains(text(),"Growth: ")]`,
+        `//*[@id="viewer"]//span[contains(text(),"Momentum: ")]`,
         prevSiblingTextIs(`Zacks Industry Rank`),
       ],
     })
@@ -322,14 +323,11 @@ puppeteer.connect(connection).then(async browser => {
     // SCREENSHOTS
     if (pics.length) {
       const mergedJimpObj = await mergeImg(pics)
-      await mergedJimpObj.write(
-        `/Users/aubrey/Google Drive/stock-scrapbook/${ticker}.png`,
-        () => {
-          console.log("done with image: " + ticker)
-          completedPics.push(ticker)
-          exitIfAllowed()
-        }
-      )
+      await mergedJimpObj.write(`${SCRAPBOOK_LOCATION}/${ticker}.png`, () => {
+        console.log("done with image: " + ticker)
+        completedPics.push(ticker)
+        exitIfAllowed()
+      })
     } else {
       completedPics.push(ticker)
     }
@@ -337,7 +335,10 @@ puppeteer.connect(connection).then(async browser => {
 
   // WRITE FILE OUT
   fs.writeFile("./stockData.json", JSON.stringify(tickerData), err => {
-    console.log("error: " + err)
-    exitIfAllowed()
+    console.log("test file write error: " + err)
+    fs.writeFile(`${SCRAPBOOK_LOCATION}/stockData.json`, JSON.stringify(tickerData), err => {
+      console.log("scrapbook file write error: " + err)
+      exitIfAllowed()
+    })
   })
 })
