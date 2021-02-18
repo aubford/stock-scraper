@@ -26,12 +26,6 @@ const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 puppeteer.connect(connection).then(async browser => {
   const tickers = ["T"]
 
-  const completedPics = []
-  const exitIfAllowed = () => {
-    if (completedPics.length === tickers.length) {
-      process.exit(0)
-    }
-  }
   const newPage = url => newBrowserPage(browser, url)
   const getFidelitySecretUrl = async fidelityLink => {
     if (!fidelityLink) {
@@ -46,8 +40,13 @@ puppeteer.connect(connection).then(async browser => {
   const newStockData = {}
   for (const ticker of tickers) {
     // UTIL
-    let pics = []
-    const fetchPdfData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
+    const fetchPdfData = async ({
+      url,
+      xPathArr,
+      screenShotArr,
+      waitForPostScroll,
+      screenshotName,
+    }) => {
       if (!url) {
         return []
       }
@@ -56,10 +55,14 @@ puppeteer.connect(connection).then(async browser => {
       await page.waitForXPath(xPathArr[0])
 
       if (screenShotArr) {
-        const screenShots = await Promise.all(
-          screenShotArr.map(clip => page.screenshot({ clip }))
+        await Promise.all(
+          screenShotArr.map(clip =>
+            page.screenshot({
+              clip,
+              path: `${SCRAPBOOK_LOCATION}/${ticker}-${screenshotName}-screenshot.png`,
+            })
+          )
         )
-        pics = pics.concat(screenShots)
       }
 
       if (waitForPostScroll) {
@@ -159,7 +162,8 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
         prevSiblingTextContains(" performance is "),
       ],
-      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }],
+      screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
+      screenshotName: "ford",
     })
 
     // ARGUS ANALYST
@@ -206,7 +210,8 @@ puppeteer.connect(connection).then(async browser => {
         `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
         `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
       ],
-      screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
+      screenShotArr: [{ x: 348, y: 140, width: 500, height: 36 }],
+      screenshotName: "theStreet",
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
@@ -322,34 +327,26 @@ puppeteer.connect(connection).then(async browser => {
       streetTargetPrice,
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
     }
-
-    // SCREENSHOTS
-    if (pics.length) {
-      const mergedJimpObj = await mergeImg(pics)
-      await mergedJimpObj.write(`${SCRAPBOOK_LOCATION}/${ticker}.png`, () => {
-        console.log("done with image: " + ticker)
-        completedPics.push(ticker)
-        exitIfAllowed()
-      })
-    } else {
-      completedPics.push(ticker)
-    }
   }
-  
+
   // WRITE FILE OUT
   const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
   const stockDataFile = fs.readFileSync(stockDataLocation)
   const currentStockData = JSON.parse(stockDataFile)
   const writeToFile = {
     ...currentStockData,
-    ...newStockData
+    ...newStockData,
   }
 
   fs.writeFile("./stockData.json", JSON.stringify(writeToFile), err => {
-    console.log("test file write error: " + err)
+    if (err) {
+      console.log("test file write error: " + err)
+    }
     fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
-      console.log("scrapbook file write error: " + err)
-      exitIfAllowed()
+      if (err) {
+        console.log("scrapbook file write error: " + err)
+      }
+      process.exit(0)
     })
   })
 })
