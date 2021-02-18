@@ -18,7 +18,9 @@ const getTextByX = async (page, selector) => {
   if (elementArr.length === 1) {
     return await elementArr[0].evaluate(node => node.textContent)
   }
-  return await Promise.all(elementArr.map(element => element.evaluate(node => node.textContent)))
+  return await Promise.all(
+    elementArr.map(element => element.evaluate(node => node.textContent))
+  )
 }
 
 /** @returns {Promise<MyPage>} */
@@ -38,7 +40,7 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     { indicator: "Discount", value: [4, 5] },
     { indicator: "Average", value: [3, 3] },
     { indicator: "Higher", value: [4, 5] },
-    { indicator: "Lower", value: [2, 1] }
+    { indicator: "Lower", value: [2, 1] },
   ]
   const fullTextBullets = _.zipWith(lineOne, lineTwo, (a, b) => `${a} ${b}`)
   const chunked = _.chunk(fullTextBullets, 2)
@@ -46,9 +48,8 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     if (bulletA.includes("Neutral")) {
       return ""
     }
-    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator)).value[
-      bulletB.includes("significant") ? 1 : 0
-    ]
+    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator))
+      .value[bulletB.includes("significant") ? 1 : 0]
   })
 
   return _.fromPairs(
@@ -61,7 +62,7 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
         "streetPB",
         "streetEarningsGrowth",
         "streetPSales",
-        "streetSalesGrowth"
+        "streetSalesGrowth",
       ],
       mapped
     )
@@ -86,8 +87,19 @@ const evalX = async (page, selector, func) => {
   return await Promise.all(elementArr.map(element => element.evaluate(func)))
 }
 
+const prevSiblingTextContains = (text, num = 1) =>
+  `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
+const prevSiblingTextIs = (text, num = 1) =>
+  `//span[text()='${text}']/following-sibling::span[${num}]`
+
 module.exports = {
+  ARGUS_ANALYST_KEY: "Argus Analyst",
+  ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
+  ZACKS_KEY: "Zacks Investment Research, Inc (i)",
   newBrowserPage,
   parseStreetBulletData,
-  evalX
+  evalX,
+  prevSiblingTextIs,
+  prevSiblingTextContains,
+  getTextByX,
 }

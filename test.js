@@ -1,7 +1,12 @@
 const puppeteer = require("puppeteer-core")
 const _ = require("lodash")
 const fs = require("fs")
-const { newBrowserPage, evalX } = require("./util")
+const {
+  getTextByX,
+  newBrowserPage,
+  prevSiblingTextIs,
+  prevSiblingTextContains,
+} = require("./util")
 const { webSocketDebuggerUrl } = require("./ws.json")
 
 const connection = {
@@ -18,78 +23,44 @@ webSocketDebuggerUrl
 
  */
 
-puppeteer.connect(connection).then(async (browser) => {
+puppeteer.connect(connection).then(async browser => {
   const ticker = "GS"
-  const newPage = (url) => newBrowserPage(browser, url)
+  const newPage = url => newBrowserPage(browser, url)
 
   // TEST CODE
-  const getFidelityData = async () => {
+
+  const testFunc = async () => {
+    const xPathArr = [
+      `//*[@id="viewer"]/div[1]/div[2]/span[3]`,
+      prevSiblingTextIs("ARGUS RATING: "),
+      prevSiblingTextIs("Target Price"),
+      prevSiblingTextIs("Financial Strength Rating"),
+      prevSiblingTextIs("1 Year EPS Growth Forecast"),
+      prevSiblingTextIs("5 Year EPS Growth Forecast"),
+      prevSiblingTextIs("1 Year Dividend Growth Forecast"),
+    ]
     const page = await newPage(
-      `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
+      `https://research2.fidelity.com/fidelity/research/reports/pdf/getReport.asp?feedID=11&docTag=172967424&version=285317ANOTE`
     )
-    const fidelityStarmineOneName = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`
-    )
-    const fidelityStarmineTwoName = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`
-    )
-    const fidelityStarmineThreeName = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`
-    )
-    const fidelityStarmineFourName = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`
-    )
-    const fidelityStarmineFiveName = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`
-    )
-    const fidelityStarmineOneRating = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`
-    )
-    const fidelityStarmineTwoRating = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`
-    )
-    const fidelityStarmineThreeRating = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`
-    )
-    const fidelityStarmineFourRating = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`
-    )
-    const fidelityStarmineFiveRating = await page.getTextByX(
-      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`
-    )
-
-    const analysts = await page.getTextByX(`//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`)
-    const reportHrefsHandles = await page.$x(`//table[@id="allOpinionsTable"]/tbody/tr/td[9]`)
-
-    const getReportLink = (node) => {
-      const href = node.href
-      if (href === "javascript:void(0);") {
-        return node.getAttribute("onclick").split(`'`)[1]
-      }
-      return href
-    }
-    const reportHrefs = await Promise.all(
-      reportHrefsHandles.map((handle) => evalX(handle, "a", getReportLink))
-    )
-
-    console.log(analysts)
-    console.log(reportHrefs)
-
-    await page.close()
-    return {
-      data: {
-        fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
-        fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
-        fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
-        fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
-        fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
-      },
-      links: _.fromPairs(_.zip(analysts, reportHrefs)),
-    }
+    
+    await page.waitForSelector("frame")
+    
+    //const frames = await page.frames()
+    //let text = await frames[1].evaluate(() => {
+    //  document.querySelector(".textLayer > span")
+    //})
+    
+    const src = await page.$eval("frame", node => node.getAttribute("src"))
+    const pdf = await newPage(`https://research2.fidelity.com/cgi-bin/upload.dll/${src}`)
+    
+    
+    
+    
+    console.log("********************* HIT ******************",text)
   }
 
-  const output = await getFidelityData()
-  fs.writeFile("./testOutput.json", JSON.stringify(output), (err) => {
+  const output = await testFunc()
+  fs.writeFile("./testOutput.json", JSON.stringify(output), err => {
     console.log(err)
     process.exit(0)
   })

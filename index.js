@@ -1,7 +1,16 @@
 const puppeteer = require("puppeteer-core")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const _ = require("lodash")
-const { evalX, newBrowserPage, parseStreetBulletData } = require("./util")
+const {
+  evalX,
+  newBrowserPage,
+  parseStreetBulletData,
+  prevSiblingTextIs,
+  prevSiblingTextContains,
+  ARGUS_ANALYST_KEY,
+  ARGUS_RESEARCH_KEY,
+  ZACKS_KEY,
+} = require("./util")
 const mergeImg = require("merge-img")
 const fs = require("fs")
 
@@ -13,11 +22,6 @@ const connection = {
   },
 }
 
-const prevSiblingTextContains = (text, num = 1) =>
-  `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
-const prevSiblingTextIs = (text, num = 1) =>
-  `//span[text()='${text}']/following-sibling::span[${num}]`
-
 puppeteer.connect(connection).then(async browser => {
   const tickers = ["C"]
 
@@ -28,12 +32,21 @@ puppeteer.connect(connection).then(async browser => {
     }
   }
   const newPage = url => newBrowserPage(browser, url)
+  const getFidelitySecretUrl = async url => {
+    const page = await newPage(url)
+    const src = await page.$eval("frame", node => node.getAttribute("src"))
+    await page.close()
+    return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
+  }
 
   const tickerData = {}
   for (const ticker of tickers) {
     // UTIL
     let pics = []
     const fetchPdfData = async ({ url, xPathArr, screenShotArr, waitForPostScroll }) => {
+      if (!url) {
+        return []
+      }
       const page = await newPage(url)
 
       await page.waitForXPath(xPathArr[0])
@@ -59,71 +72,16 @@ puppeteer.connect(connection).then(async browser => {
     }
 
     const fetchPageData = async ({ url, xPathArr }) => {
+      if (!url) {
+        return {}
+      }
       const page = await newPage(url)
       await page.waitForXPath(xPathArr[0])
       const values = await Promise.all(xPathArr.map(page.getTextByX))
       return { page, values }
     }
 
-    // FORD
-    const [
-      fordEarningsStrength,
-      fordRelativeValuation,
-      fordPriceMovement,
-      fordIndustryStrength,
-    ] = await fetchPdfData({
-      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
-      xPathArr: [
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
-        prevSiblingTextContains(" performance is "),
-      ],
-      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }],
-    })
-
-    // NEW CONSTRUCTS
-    const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
-      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
-      xPathArr: [
-        prevSiblingTextContains("(MM)"), // rating
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`, // growth appreciation period
-      ],
-      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
-    })
-
-    // THE STREET
-    const [
-      streetGrowth,
-      streetTotalReturn,
-      streetEfficiency,
-      streetVolatility,
-      streetSolvency,
-      streetIncome,
-      streetBulletDataLineOne,
-      streetBulletDataLineTwo,
-      streetTargetPrice,
-    ] = await fetchPdfData({
-      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
-      xPathArr: [
-        prevSiblingTextIs("Growth", 2), // 0 growth
-        prevSiblingTextIs("Total Return", 2), // 1 total return
-        prevSiblingTextIs("Efficiency", 2), // 2 efficiency
-        prevSiblingTextIs("Price Volatility", 2), // 3 price volatility
-        prevSiblingTextIs("Solvency", 2), // 4 solvency
-        prevSiblingTextIs("Income", 2), // 5 income
-        `//span[contains(text(),'• ')]`, // 6 ...bullentPointData (lineOne)
-        `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
-        `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
-      ],
-      screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
-      waitForPostScroll: "//span[contains(text(),'• ')]",
-    })
-
+    // FIDELITY
     const {
       values: [
         fidelityStarmineOneName,
@@ -160,31 +118,187 @@ puppeteer.connect(connection).then(async browser => {
       `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
     )
 
-    const reportHrefs = await Promise.all(
+    const reportLinks = await Promise.all(
       reportHrefsHandles.map(handle =>
         evalX(handle, "a", node => {
           const href = node.href
+          const text = node.textContent
 
           if (href === "javascript:void(0);") {
-            return node.getAttribute("onclick").split(`'`)[1]
+            return { text, href: node.getAttribute("onclick").split(`'`)[1] }
           }
 
-          return href
+          return { text, href }
         })
       )
     )
 
-    const fidelityLinks = _.fromPairs(_.zip(fidelityReportNameArr, reportHrefs))
+    const {
+      [ARGUS_ANALYST_KEY]: argusAnalystLink,
+      [ARGUS_RESEARCH_KEY]: argusResearchLink,
+      [ZACKS_KEY]: zacksLink,
+    } = _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
 
     await fidelityPage.close()
 
+    // FORD
+    const [
+      fordEarningsStrength,
+      fordRelativeValuation,
+      fordPriceMovement,
+      fordIndustryStrength,
+    ] = await fetchPdfData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
+        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
+        prevSiblingTextContains(" performance is "),
+      ],
+      screenShotArr: [{ x: 330, y: 175, width: 250, height: 100 }],
+    })
+
+    // ARGUS ANALYST
+    const [
+      argusAnalystRating,
+      argusAnalystTarget,
+      argusAnalystFinancialStrength,
+      argusAnalystOneYrEpsGrowth,
+      argusAnalystFiveYrEpsGrowth,
+      argusAnalystOneYrDivGrowth,
+    ] = await fetchPdfData({
+      url: await getFidelitySecretUrl(argusAnalystLink.href),
+      xPathArr: [
+        prevSiblingTextIs("ARGUS RATING: "),
+        prevSiblingTextIs("Target Price"),
+        prevSiblingTextIs("Financial Strength Rating"),
+        prevSiblingTextIs("1 Year EPS Growth Forecast"),
+        prevSiblingTextIs("5 Year EPS Growth Forecast"),
+        prevSiblingTextIs("1 Year Dividend Growth Forecast"),
+      ],
+    })
+
+    // THE STREET
+    const [
+      streetGrowth,
+      streetTotalReturn,
+      streetEfficiency,
+      streetVolatility,
+      streetSolvency,
+      streetIncome,
+      streetBulletDataLineOne,
+      streetBulletDataLineTwo,
+      streetTargetPrice,
+    ] = await fetchPdfData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
+        prevSiblingTextIs("Growth", 2), // 0 growth
+        prevSiblingTextIs("Total Return", 2), // 1 total return
+        prevSiblingTextIs("Efficiency", 2), // 2 efficiency
+        prevSiblingTextIs("Price Volatility", 2), // 3 price volatility
+        prevSiblingTextIs("Solvency", 2), // 4 solvency
+        prevSiblingTextIs("Income", 2), // 5 income
+        `//span[contains(text(),'• ')]`, // 6 ...bullentPointData (lineOne)
+        `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
+        `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
+      ],
+      screenShotArr: [{ x: 340, y: 140, width: 520, height: 80 }],
+      waitForPostScroll: "//span[contains(text(),'• ')]",
+    })
+
+    // ARGUS RESEARCH
+    const xpathHelper = `text()='M' or text()='H' or text()='L'`
+    const [
+      argusResearchTarget,
+      argusResearchRating,
+      [
+        argusResearchManagement,
+        argusResearchSafety,
+        argusResearchFinancialStrength,
+        argusResearchGrowth,
+        argusResearchValue,
+      ],
+    ] = await fetchPdfData({
+      url: argusResearchLink.href,
+      xPathArr: [
+        prevSiblingTextIs("Target Price:"),
+        prevSiblingTextIs("Argus Rating:", 3),
+        `//span[text()=${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
+      ],
+    })
+
+    // NEW CONSTRUCTS
+    const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
+      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
+      xPathArr: [
+        prevSiblingTextContains("(MM)"), // rating
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
+        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
+        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`, // growth appreciation period
+      ],
+      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
+    })
+
+    // ZACKS
+    const [
+      zacksTarget,
+      zacksRecommendation,
+      zacksRank,
+      zacksVGM,
+      zacksValue,
+      zacksGrowth,
+      zacksMomentum,
+      zacksIndustryRank,
+    ] = await fetchPdfData({
+      url: await getFidelitySecretUrl(zacksLink.href),
+      xPathArr: [
+        prevSiblingTextIs("Price Target (6-12 Months): "),
+        prevSiblingTextIs("Zacks Recommendation:", 4),
+        prevSiblingTextIs(`Zacks Style Scores:`),
+        prevSiblingTextIs(`VGM:`),
+        `//*[@id="viewer"]/span[contains(text(),"Value: ")]`,
+        `//*[@id="viewer"]/span[contains(text(),"Growth: ")]`,
+        `//*[@id="viewer"]/span[contains(text(),"Momentum: ")]`,
+        prevSiblingTextIs(`Zacks Industry Rank`),
+      ],
+    })
+
+    // RESULT
     tickerData[ticker] = {
-      fidelityLinks,
       fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
       fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
       fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
       fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
       fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
+      argusResearchLink: argusResearchLink.href,
+      argusResearchDate: argusResearchLink.text,
+      argusResearchTarget,
+      argusResearchRating,
+      argusResearchManagement,
+      argusResearchSafety,
+      argusResearchFinancialStrength,
+      argusResearchGrowth,
+      argusResearchValue,
+      argusAnalystLink: argusAnalystLink.href,
+      argusAnalystDate: argusAnalystLink.text,
+      argusAnalystRating,
+      argusAnalystTarget,
+      argusAnalystFinancialStrength,
+      argusAnalystOneYrEpsGrowth,
+      argusAnalystFiveYrEpsGrowth,
+      argusAnalystOneYrDivGrowth,
+      zacksLink: zacksLink.href,
+      zacksDate: zacksLink.text,
+      zacksTarget,
+      zacksRecommendation,
+      zacksRank,
+      zacksVGM,
+      zacksValue,
+      zacksGrowth,
+      zacksMomentum,
+      zacksIndustryRank,
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
@@ -209,7 +323,7 @@ puppeteer.connect(connection).then(async browser => {
     if (pics.length) {
       const mergedJimpObj = await mergeImg(pics)
       await mergedJimpObj.write(
-        `/Users/aubreyford/Desktop/Stock-Scrapbook/${ticker}.png`,
+        `/Users/aubrey/Google Drive/stock-scrapbook/${ticker}.png`,
         () => {
           console.log("done with image: " + ticker)
           completedPics.push(ticker)
