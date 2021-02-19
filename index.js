@@ -77,6 +77,14 @@ puppeteer.connect(connection).then(async browser => {
         return []
       }
       const page = await newPage(url)
+      
+      
+      /** @type ElementHandle[] */
+      const dataNotAvailableText = await page.$x(`//body[contains(text(),'data is not available to create this report')]`)
+      if (dataNotAvailableText.length > 0) {
+        await page.close()
+        return []
+      }
 
       try {
         await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
@@ -152,8 +160,7 @@ puppeteer.connect(connection).then(async browser => {
         )
 
         await fidelityPage.close()
-        const obj = _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
-        return obj
+        return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
       }
       return {}
     }
