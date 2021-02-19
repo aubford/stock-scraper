@@ -18,6 +18,9 @@ const {
   ARGUS_ANALYST,
   ARGUS_RESEARCH,
   ZACKS,
+  BOA,
+  MORNINGSTAR,
+  CFRA,
 } = require("./util")
 const fs = require("fs")
 const readline = require("readline")
@@ -232,6 +235,33 @@ puppeteer.connect(connection).then(async browser => {
       screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
     })
 
+    // B of A
+
+    const {
+      values: [boaRating, [boaVolatility, boaInvestment, boaIncome] = []],
+      page: boaPage,
+    } = await fetchPageData({
+      analystName: BOA,
+      url: `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=BLK&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`,
+      xPathArr: [
+        `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
+        `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+      ],
+    })
+
+    const morningstarLink = await evalX(
+      boaPage,
+      `//a[contains(@aria-label,"View latest Morningstar")]`,
+      node => node.href
+    )
+    const cfraLink = await evalX(
+      boaPage,
+      `//a[contains(@aria-label,"View latest CFRA")]`,
+      node => node.href
+    )
+    
+    await boaPage.close()
+
     // ARGUS ANALYST
 
     const [
@@ -284,7 +314,30 @@ puppeteer.connect(connection).then(async browser => {
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
+    // Morningstar
+
+    const [
+      morningstarFairValue,
+      morningstarRatingQArray,
+      morningstarMoat,
+      morningstarUncertainty,
+      morningstarCapitalAllocation,
+      morningstarDate,
+    ] = await fetchPdfData({
+      analystName: MORNINGSTAR,
+      url: morningstarLink,
+      xPathArr: [
+        `//*[@id="viewer"]/div[1]/div[2]/span[41]`,
+        `//*[@id="viewer"]/div[1]/div[2]/span[text()='Q']`,
+        `//*[@id="viewer"]/div[1]/div[2]/span[48]`,
+        `//*[@id="viewer"]/div[1]/div[2]/span[50]`,
+        `//*[@id="viewer"]/div[1]/div[2]/span[51]`,
+        `//*[@id="viewer"]/div[1]/div[2]/span[27]`,
+      ],
+    })
+
     // ARGUS RESEARCH
+
     const xpathHelper = `text()='M' or text()='H' or text()='L'`
     const [
       argusResearchTarget,
@@ -322,6 +375,21 @@ puppeteer.connect(connection).then(async browser => {
       waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
     })
 
+    // CFRA
+
+    const [cfraTarget, cfraRatingStarArray, cfraFairValue, cfraDate] = await fetchPdfData(
+      {
+        analystName: CFRA,
+        url: cfraLink,
+        xPathArr: [
+          prevSiblingTextContains("12-Mo.  Target  Price"),
+          `//*[@id="viewer"]//span[text()=' «   ']`,
+          prevSiblingTextContains("Calculation", 2),
+          `//*[@id="viewer"]/div[1]/div[2]/span[2]`,
+        ],
+      }
+    )
+
     // ZACKS
 
     const [
@@ -351,25 +419,41 @@ puppeteer.connect(connection).then(async browser => {
     // RESULT
 
     newStockData[ticker] = {
+      cfraLink,
+      cfraTarget,
+      cfraRating: cfraRatingStarArray.length,
+      cfraFairValue,
+      cfraDate,
+      morningstarLink,
+      morningstarRating: morningstarRatingQArray.length,
+      morningstarFairValue,
+      morningstarMoat,
+      morningstarUncertainty,
+      morningstarCapitalAllocation,
+      morningstarDate,
+      boaRating,
+      boaIncome,
+      boaInvestment,
+      boaVolatility,
       fidelityStarmineOne: `${fidelityStarmineOneName.substring(
         0,
-        20
+        18
       )} - ${fidelityStarmineOneRating}`,
       fidelityStarmineTwo: `${fidelityStarmineTwoName.substring(
         0,
-        20
+        18
       )} - ${fidelityStarmineTwoRating}`,
       fidelityStarmineThree: `${fidelityStarmineThreeName.substring(
         0,
-        20
+        18
       )} - ${fidelityStarmineThreeRating}`,
       fidelityStarmineFour: `${fidelityStarmineFourName.substring(
         0,
-        20
+        18
       )} - ${fidelityStarmineFourRating}`,
       fidelityStarmineFive: `${fidelityStarmineFiveName.substring(
         0,
-        20
+        18
       )} - ${fidelityStarmineFiveRating}`,
       argusResearchLink: argusResearchLinkHref,
       argusResearchDate: argusResearchLinkText,
