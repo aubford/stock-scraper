@@ -407,15 +407,10 @@ puppeteer.connect(connection).then(async browser => {
     ...newStockData,
   }
 
-  fs.writeFile("./stockData.json", JSON.stringify(writeToFile), err => {
+  fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
     if (err) {
-      console.log("test file write error: " + err)
+      console.log("File Write Error: " + err)
     }
-    fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
-      if (err) {
-        console.log("scrapbook file write error: " + err)
-      }
-      process.exit(0)
-    })
+    process.exit(0)
   })
 })
