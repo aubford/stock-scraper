@@ -515,6 +515,7 @@ puppeteer.connect(connection).then(async browser => {
   }
 
   fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
+    console.log("** Complete, writing to file **")
     if (err) {
       console.log("File Write Error: " + err)
     }
