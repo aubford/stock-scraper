@@ -77,10 +77,11 @@ puppeteer.connect(connection).then(async browser => {
         return []
       }
       const page = await newPage(url)
-      
-      
+
       /** @type ElementHandle[] */
-      const dataNotAvailableText = await page.$x(`//body[contains(text(),'data is not available to create this report')]`)
+      const dataNotAvailableText = await page.$x(
+        `//body[contains(text(),'data is not available to create this report')]`
+      )
       if (dataNotAvailableText.length > 0) {
         await page.close()
         return []
@@ -350,11 +351,26 @@ puppeteer.connect(connection).then(async browser => {
     // RESULT
 
     newStockData[ticker] = {
-      fidelityStarmineOne: `${fidelityStarmineOneName} - ${fidelityStarmineOneRating}`,
-      fidelityStarmineTwo: `${fidelityStarmineTwoName} - ${fidelityStarmineTwoRating}`,
-      fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
-      fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
-      fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
+      fidelityStarmineOne: `${fidelityStarmineOneName.substring(
+        0,
+        20
+      )} - ${fidelityStarmineOneRating}`,
+      fidelityStarmineTwo: `${fidelityStarmineTwoName.substring(
+        0,
+        20
+      )} - ${fidelityStarmineTwoRating}`,
+      fidelityStarmineThree: `${fidelityStarmineThreeName.substring(
+        0,
+        20
+      )} - ${fidelityStarmineThreeRating}`,
+      fidelityStarmineFour: `${fidelityStarmineFourName.substring(
+        0,
+        20
+      )} - ${fidelityStarmineFourRating}`,
+      fidelityStarmineFive: `${fidelityStarmineFiveName.substring(
+        0,
+        20
+      )} - ${fidelityStarmineFiveRating}`,
       argusResearchLink: argusResearchLinkHref,
       argusResearchDate: argusResearchLinkText,
       argusResearchTarget,
