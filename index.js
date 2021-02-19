@@ -173,6 +173,7 @@ puppeteer.connect(connection).then(async browser => {
 
     const {
       values: [
+        fidelityReportNameArr,
         fidelityStarmineOneName,
         fidelityStarmineTwoName,
         fidelityStarmineThreeName,
@@ -183,13 +184,13 @@ puppeteer.connect(connection).then(async browser => {
         fidelityStarmineThreeRating,
         fidelityStarmineFourRating,
         fidelityStarmineFiveRating,
-        fidelityReportNameArr,
       ] = [],
       page: fidelityPage,
     } = await fetchPageData({
       analystName: FIDELITY,
       url: `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`,
       xPathArr: [
+        `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
         `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
         `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
         `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
@@ -200,7 +201,6 @@ puppeteer.connect(connection).then(async browser => {
         `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
         `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
         `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
-        `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
       ],
     })
 
@@ -259,7 +259,7 @@ puppeteer.connect(connection).then(async browser => {
       `//a[contains(@aria-label,"View latest CFRA")]`,
       node => node.href
     )
-    
+
     await boaPage.close()
 
     // ARGUS ANALYST
@@ -435,23 +435,23 @@ puppeteer.connect(connection).then(async browser => {
       boaIncome,
       boaInvestment,
       boaVolatility,
-      fidelityStarmineOne: `${fidelityStarmineOneName.substring(
+      fidelityStarmineOne: `${(fidelityStarmineOneName || "").substring(
         0,
         18
       )} - ${fidelityStarmineOneRating}`,
-      fidelityStarmineTwo: `${fidelityStarmineTwoName.substring(
+      fidelityStarmineTwo: `${(fidelityStarmineTwoName || "").substring(
         0,
         18
       )} - ${fidelityStarmineTwoRating}`,
-      fidelityStarmineThree: `${fidelityStarmineThreeName.substring(
+      fidelityStarmineThree: `${(fidelityStarmineThreeName || "").substring(
         0,
         18
       )} - ${fidelityStarmineThreeRating}`,
-      fidelityStarmineFour: `${fidelityStarmineFourName.substring(
+      fidelityStarmineFour: `${(fidelityStarmineFourName || "").substring(
         0,
         18
       )} - ${fidelityStarmineFourRating}`,
-      fidelityStarmineFive: `${fidelityStarmineFiveName.substring(
+      fidelityStarmineFive: `${(fidelityStarmineFiveName || "").substring(
         0,
         18
       )} - ${fidelityStarmineFiveRating}`,
