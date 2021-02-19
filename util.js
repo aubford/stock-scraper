@@ -1,3 +1,4 @@
+require("puppeteer-core")
 const _ = require("lodash")
 /**
  * @typedef {Page} MyPage
@@ -70,14 +71,13 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
 }
 
 /**
- * @param {Page} page
+ * @param {Frame|Page|ElementHandle} frame
  * @param selector {string}
  * @param func {function}
  * @returns {Promise<string|string[]>}
  */
-const evalX = async (page, selector, func) => {
-  /** @type {ElementHandle[]} */
-  const elementArr = await page.$x(selector)
+const evalX = async (frame, selector, func) => {
+  const elementArr = await frame.$x(selector) || []
   if (!elementArr.length) {
     return ""
   }
@@ -97,6 +97,13 @@ module.exports = {
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
   ZACKS_KEY: "Zacks Investment Research, Inc (i)",
   XPATH_TIMEOUT: 16000,
+  FIDELITY: "fidelity",
+  FORD: "ford",
+  NEW_CONSTRUCTS: "nc",
+  THE_STREET: "theStreet",
+  ARGUS_ANALYST: "argusAnalyst",
+  ARGUS_RESEARCH: "argusResearch",
+  ZACKS: "zacks",
   newBrowserPage,
   parseStreetBulletData,
   evalX,

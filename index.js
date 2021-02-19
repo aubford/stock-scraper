@@ -11,6 +11,13 @@ const {
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
   XPATH_TIMEOUT,
+  FIDELITY,
+  FORD,
+  NEW_CONSTRUCTS,
+  THE_STREET,
+  ARGUS_ANALYST,
+  ARGUS_RESEARCH,
+  ZACKS,
 } = require("./util")
 const fs = require("fs")
 const readline = require("readline")
@@ -39,16 +46,16 @@ const promptForTickers = () =>
 
 puppeteer.connect(connection).then(async browser => {
   const promptResponse = await promptForTickers()
-  const tickers = promptResponse.split(/[^A-Z]/)
 
-  console.log(tickers)
+  const tickers = promptResponse.split(/[^A-Z]/)
+  console.log("Searching for tickers:", tickers)
 
   const newPage = url => newBrowserPage(browser, url)
   const getFidelitySecretUrl = async fidelityLink => {
     if (!fidelityLink) {
       return null
     }
-    const page = await newPage(fidelityLink.href)
+    const page = await newPage(fidelityLink)
     const src = await page.$eval("frame", node => node.getAttribute("src"))
     await page.close()
     return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
@@ -63,9 +70,10 @@ puppeteer.connect(connection).then(async browser => {
       xPathArr,
       screenShotArr,
       waitForPostScroll,
-      screenshotName,
+      analystName,
     }) => {
       if (!url) {
+        console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
         return []
       }
       const page = await newPage(url)
@@ -73,7 +81,9 @@ puppeteer.connect(connection).then(async browser => {
       try {
         await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
       } catch (err) {
-        console.log("waitForXpath failed for url: " + url)
+        console.log(
+          `waitForXpath failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
+        )
         await page.close()
         return []
       }
@@ -83,7 +93,7 @@ puppeteer.connect(connection).then(async browser => {
           screenShotArr.map(clip =>
             page.screenshot({
               clip,
-              path: `${SCRAPBOOK_LOCATION}/${ticker}-${screenshotName}-screenshot.png`,
+              path: `${SCRAPBOOK_LOCATION}/${ticker}-${analystName}-screenshot.png`,
             })
           )
         )
@@ -101,8 +111,9 @@ puppeteer.connect(connection).then(async browser => {
       return values
     }
 
-    const fetchPageData = async ({ url, xPathArr }) => {
+    const fetchPageData = async ({ url, xPathArr, analystName }) => {
       if (!url) {
+        console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
         return {}
       }
       const page = await newPage(url)
@@ -120,6 +131,7 @@ puppeteer.connect(connection).then(async browser => {
 
     const getFidelityPageData = async fidelityPage => {
       if (fidelityPage) {
+        /** @type ElementHandle[] */
         const reportHrefsHandles = await fidelityPage.$x(
           `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
         )
@@ -140,7 +152,8 @@ puppeteer.connect(connection).then(async browser => {
         )
 
         await fidelityPage.close()
-        return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
+        const obj = _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
+        return obj
       }
       return {}
     }
@@ -160,9 +173,10 @@ puppeteer.connect(connection).then(async browser => {
         fidelityStarmineFourRating,
         fidelityStarmineFiveRating,
         fidelityReportNameArr,
-      ],
+      ] = [],
       page: fidelityPage,
     } = await fetchPageData({
+      analystName: FIDELITY,
       url: `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`,
       xPathArr: [
         `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
@@ -180,9 +194,15 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     const {
-      [ARGUS_ANALYST_KEY]: argusAnalystLink,
-      [ARGUS_RESEARCH_KEY]: argusResearchLink,
-      [ZACKS_KEY]: zacksLink,
+      [ARGUS_ANALYST_KEY]: {
+        href: argusAnalystLinkHref,
+        text: argusAnalystLinkText,
+      } = {},
+      [ARGUS_RESEARCH_KEY]: {
+        href: argusResearchLinkHref,
+        text: argusResearchLinkText,
+      } = {},
+      [ZACKS_KEY]: { href: zacksLinkHref, text: zacksLinkText } = {},
     } = await getFidelityPageData(fidelityPage)
 
     // FORD
@@ -193,6 +213,7 @@ puppeteer.connect(connection).then(async browser => {
       fordPriceMovement,
       fordIndustryStrength,
     ] = await fetchPdfData({
+      analystName: FORD,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
@@ -201,7 +222,6 @@ puppeteer.connect(connection).then(async browser => {
         prevSiblingTextContains(" performance is "),
       ],
       screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
-      screenshotName: "ford",
     })
 
     // ARGUS ANALYST
@@ -214,7 +234,8 @@ puppeteer.connect(connection).then(async browser => {
       argusAnalystFiveYrEpsGrowth,
       argusAnalystOneYrDivGrowth,
     ] = await fetchPdfData({
-      url: await getFidelitySecretUrl(argusAnalystLink),
+      analystName: ARGUS_ANALYST,
+      url: await getFidelitySecretUrl(argusAnalystLinkHref),
       xPathArr: [
         prevSiblingTextIs("ARGUS RATING: "),
         prevSiblingTextIs("Target Price"),
@@ -238,6 +259,7 @@ puppeteer.connect(connection).then(async browser => {
       streetBulletDataLineTwo,
       streetTargetPrice,
     ] = await fetchPdfData({
+      analystName: THE_STREET,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextIs("Growth", 2), // 0 growth
@@ -251,7 +273,6 @@ puppeteer.connect(connection).then(async browser => {
         `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
       ],
       screenShotArr: [{ x: 344, y: 138, width: 468, height: 48 }],
-      screenshotName: "theStreet",
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
@@ -268,7 +289,8 @@ puppeteer.connect(connection).then(async browser => {
         argusResearchValue,
       ] = [],
     ] = await fetchPdfData({
-      url: argusResearchLink ? argusResearchLink.href : null,
+      analystName: ARGUS_RESEARCH,
+      url: argusResearchLinkHref,
       xPathArr: [
         `//span[contains(text(),"Target ") and contains(text(),":")]/following-sibling::span[1]`,
         prevSiblingTextIs("Argus Rating:", 3),
@@ -279,6 +301,7 @@ puppeteer.connect(connection).then(async browser => {
     // NEW CONSTRUCTS
 
     const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
+      analystName: NEW_CONSTRUCTS,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         prevSiblingTextContains("(MM)"), // rating
@@ -294,20 +317,21 @@ puppeteer.connect(connection).then(async browser => {
     // ZACKS
 
     const [
+      zacksRank,
       zacksTarget,
       zacksRecommendation,
-      zacksRank,
       zacksVGM,
       zacksValue,
       zacksGrowth,
       zacksMomentum,
       zacksIndustryRank,
     ] = await fetchPdfData({
-      url: await getFidelitySecretUrl(zacksLink),
+      analystName: ZACKS,
+      url: await getFidelitySecretUrl(zacksLinkHref),
       xPathArr: [
+        `//span[text()="Zacks Style Scores:" or text()="Zacks Rank: "]/following-sibling::span[position()=1 and not(text()="(1-5)")]`,
         prevSiblingTextIs("Price Target (6-12 Months): "),
         prevSiblingTextIs("Zacks Recommendation:", 4),
-        prevSiblingTextIs(`Zacks Style Scores:`),
         prevSiblingTextIs(`VGM:`),
         `//*[@id="viewer"]//span[contains(text(),"Value: ")]`,
         `//*[@id="viewer"]//span[contains(text(),"Growth: ")]`,
@@ -324,8 +348,8 @@ puppeteer.connect(connection).then(async browser => {
       fidelityStarmineThree: `${fidelityStarmineThreeName} - ${fidelityStarmineThreeRating}`,
       fidelityStarmineFour: `${fidelityStarmineFourName} - ${fidelityStarmineFourRating}`,
       fidelityStarmineFive: `${fidelityStarmineFiveName} - ${fidelityStarmineFiveRating}`,
-      argusResearchLink: argusResearchLink.href,
-      argusResearchDate: argusResearchLink.text,
+      argusResearchLink: argusResearchLinkHref,
+      argusResearchDate: argusResearchLinkText,
       argusResearchTarget,
       argusResearchRating,
       argusResearchManagement,
@@ -333,16 +357,16 @@ puppeteer.connect(connection).then(async browser => {
       argusResearchFinancialStrength,
       argusResearchGrowth,
       argusResearchValue,
-      argusAnalystLink: argusAnalystLink.href,
-      argusAnalystDate: argusAnalystLink.text,
+      argusAnalystLink: argusAnalystLinkHref,
+      argusAnalystDate: argusAnalystLinkText,
       argusAnalystRating,
       argusAnalystTarget,
       argusAnalystFinancialStrength,
       argusAnalystOneYrEpsGrowth,
       argusAnalystFiveYrEpsGrowth,
       argusAnalystOneYrDivGrowth,
-      zacksLink: zacksLink.href,
-      zacksDate: zacksLink.text,
+      zacksLink: zacksLinkHref,
+      zacksDate: zacksLinkText,
       zacksTarget,
       zacksRecommendation,
       zacksRank,
@@ -370,6 +394,8 @@ puppeteer.connect(connection).then(async browser => {
       streetTargetPrice,
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
     }
+
+    console.log(`Completed OK: ${ticker}`)
   }
 
   // WRITE FILE OUT
