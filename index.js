@@ -327,7 +327,7 @@ puppeteer.connect(connection).then(async browser => {
         prevSiblingTextIs("Growth", 2), // 0 growth
         prevSiblingTextIs("Total Return", 2), // 1 total return
         prevSiblingTextIs("Efficiency", 2), // 2 efficiency
-        prevSiblingTextIs("Price Volatility", 2), // 3 price volatility
+        prevSiblingTextIs("Price volatility", 2), // 3 price volatility
         prevSiblingTextIs("Solvency", 2), // 4 solvency
         prevSiblingTextIs("Income", 2), // 5 income
         `//span[contains(text(),'• ')]`, // 6 ...bullentPointData (lineOne)
