@@ -25,11 +25,11 @@ const getTextByX = async (page, selector) => {
 }
 
 /** @returns {Promise<MyPage>} */
-const newBrowserPage = async (browser, url) => {
+const newBrowserPage = async (browser, url, options = {}) => {
   /** @type {MyPage} */
   const page = await browser.newPage()
 
-  await page.goto(url)
+  await page.goto(url, options)
 
   page.getTextByX = text => getTextByX(page, text)
   return page
@@ -92,11 +92,19 @@ const prevSiblingTextContains = (text, num = 1) =>
 const prevSiblingTextIs = (text, num = 1) =>
   `//span[text()='${text}']/following-sibling::span[${num}]`
 
+const hasCFRA = (rating,ticker,analystName) => {
+  const hasReport = rating !== "no rating"
+  if (!hasReport) {
+    console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
+  }
+  return hasReport
+}
+
 module.exports = {
   ARGUS_ANALYST_KEY: "Argus Analyst",
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
   ZACKS_KEY: "Zacks Investment Research, Inc (i)",
-  XPATH_TIMEOUT: 16000,
+  XPATH_TIMEOUT: 15000,
   FIDELITY: "fidelity",
   FORD: "ford",
   NEW_CONSTRUCTS: "nc",
@@ -113,4 +121,5 @@ module.exports = {
   prevSiblingTextIs,
   prevSiblingTextContains,
   getTextByX,
+  hasCFRA
 }

@@ -7,6 +7,7 @@ const {
   parseStreetBulletData,
   prevSiblingTextIs,
   prevSiblingTextContains,
+  hasCFRA,
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
@@ -53,7 +54,7 @@ puppeteer.connect(connection).then(async browser => {
   const tickers = promptResponse.split(/[^A-Z]/)
   console.log("Searching for tickers:", tickers)
 
-  const newPage = url => newBrowserPage(browser, url)
+  const newPage = (url, options) => newBrowserPage(browser, url, options)
   const getFidelitySecretUrl = async fidelityLink => {
     if (!fidelityLink) {
       return null
@@ -65,6 +66,7 @@ puppeteer.connect(connection).then(async browser => {
   }
 
   const newStockData = {}
+
   for (const ticker of tickers) {
     // UTIL
 
@@ -76,7 +78,7 @@ puppeteer.connect(connection).then(async browser => {
       analystName,
     }) => {
       if (!url) {
-        console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
+        console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
         return []
       }
       const page = await newPage(url)
@@ -114,7 +116,13 @@ puppeteer.connect(connection).then(async browser => {
       if (waitForPostScroll) {
         const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
         await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
-        await page.waitForXPath(waitForPostScroll)
+        try {
+          await page.waitForXPath(waitForPostScroll, { timeout: XPATH_TIMEOUT })
+        } catch (err) {
+          console.log(
+            `waitForXpath after scroll failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
+          )
+        }
       }
 
       const values = await Promise.all(xPathArr.map(page.getTextByX))
@@ -128,7 +136,7 @@ puppeteer.connect(connection).then(async browser => {
         console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
         return {}
       }
-      const page = await newPage(url)
+      const page = await newPage(url, { waitUntil: "domcontentloaded" })
       try {
         await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
       } catch (err) {
@@ -173,6 +181,7 @@ puppeteer.connect(connection).then(async browser => {
 
     const {
       values: [
+        fidelitySummaryScore,
         fidelityReportNameArr,
         fidelityStarmineOneName,
         fidelityStarmineTwoName,
@@ -190,6 +199,7 @@ puppeteer.connect(connection).then(async browser => {
       analystName: FIDELITY,
       url: `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`,
       xPathArr: [
+        `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
         `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
         `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
         `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
@@ -235,6 +245,13 @@ puppeteer.connect(connection).then(async browser => {
       screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
     })
 
+    // short pause every 9 tickers
+    const tickerIndex = tickers.indexOf(ticker)
+    if (tickerIndex !== 0 && tickerIndex % 9 === 0) {
+      console.log("((pause))")
+      await new Promise(resolve => setTimeout(resolve, 3000))
+    }
+
     // B of A
 
     const {
@@ -242,7 +259,7 @@ puppeteer.connect(connection).then(async browser => {
       page: boaPage,
     } = await fetchPageData({
       analystName: BOA,
-      url: `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=BLK&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`,
+      url: `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`,
       xPathArr: [
         `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
         `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
@@ -258,6 +275,11 @@ puppeteer.connect(connection).then(async browser => {
       boaPage,
       `//a[contains(@aria-label,"View latest CFRA")]`,
       node => node.href
+    )
+    const [morningstarRating, cfraRating] = await evalX(
+      boaPage,
+      `//span[contains(@class,"morningStarRating")]`,
+      node => node.getAttribute("aria-label")
     )
 
     await boaPage.close()
@@ -318,7 +340,6 @@ puppeteer.connect(connection).then(async browser => {
 
     const [
       morningstarFairValue,
-      morningstarRatingQArray,
       morningstarMoat,
       morningstarUncertainty,
       morningstarCapitalAllocation,
@@ -328,7 +349,6 @@ puppeteer.connect(connection).then(async browser => {
       url: morningstarLink,
       xPathArr: [
         `//*[@id="viewer"]/div[1]/div[2]/span[41]`,
-        `//*[@id="viewer"]/div[1]/div[2]/span[text()='Q']`,
         `//*[@id="viewer"]/div[1]/div[2]/span[48]`,
         `//*[@id="viewer"]/div[1]/div[2]/span[50]`,
         `//*[@id="viewer"]/div[1]/div[2]/span[51]`,
@@ -377,18 +397,18 @@ puppeteer.connect(connection).then(async browser => {
 
     // CFRA
 
-    const [cfraTarget, cfraRatingStarArray, cfraFairValue, cfraDate] = await fetchPdfData(
-      {
-        analystName: CFRA,
-        url: cfraLink,
-        xPathArr: [
-          prevSiblingTextContains("12-Mo.  Target  Price"),
-          `//*[@id="viewer"]//span[text()=' «   ']`,
-          prevSiblingTextContains("Calculation", 2),
-          `//*[@id="viewer"]/div[1]/div[2]/span[2]`,
-        ],
-      }
-    )
+    const [cfraTarget, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
+      ? await fetchPdfData({
+          analystName: CFRA,
+          url: cfraLink,
+          xPathArr: [
+            prevSiblingTextContains("12-Mo.  Target  Price"),
+            prevSiblingTextContains("Calculation", 2),
+            prevSiblingTextContains("Analysis prepared by", 3),
+          ],
+          waitForPostScroll: prevSiblingTextContains("Calculation", 2),
+        })
+      : []
 
     // ZACKS
 
@@ -421,11 +441,11 @@ puppeteer.connect(connection).then(async browser => {
     newStockData[ticker] = {
       cfraLink,
       cfraTarget,
-      cfraRating: cfraRatingStarArray.length,
+      cfraRating,
       cfraFairValue,
       cfraDate,
       morningstarLink,
-      morningstarRating: morningstarRatingQArray.length,
+      morningstarRating,
       morningstarFairValue,
       morningstarMoat,
       morningstarUncertainty,
@@ -435,6 +455,7 @@ puppeteer.connect(connection).then(async browser => {
       boaIncome,
       boaInvestment,
       boaVolatility,
+      fidelitySummaryScore,
       fidelityStarmineOne: `${(fidelityStarmineOneName || "").substring(
         0,
         18
