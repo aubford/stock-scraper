@@ -341,11 +341,11 @@ puppeteer.connect(connection).then(async browser => {
     // Morningstar
 
     const [
-      [morningstarFairValue],
+      [morningstarFairValue] = [],
       morningstarMoat,
       morningstarUncertainty,
       morningstarCapitalAllocation,
-      [morningstarDate],
+      [morningstarDate] = [],
     ] = await fetchPdfData({
       analystName: MORNINGSTAR,
       url: morningstarLink,
