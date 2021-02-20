@@ -91,6 +91,8 @@ const prevSiblingTextContains = (text, num = 1) =>
   `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
 const prevSiblingTextIs = (text, num = 1) =>
   `//span[text()='${text}']/following-sibling::span[${num}]`
+const followingSiblingTextIs = (text, num = 1) =>
+  `//span[text()='${text}']/preceding-sibling::span[${num}]`
 
 const hasCFRA = (rating,ticker,analystName) => {
   const hasReport = rating !== "no rating"
@@ -115,11 +117,13 @@ module.exports = {
   MORNINGSTAR: "morningstar",
   CFRA: "CFRA",
   BOA: "BoA",
+  extractNumbers: text => text ? text.match(/[\d,\\.]/g).join("") : "",
   newBrowserPage,
   parseStreetBulletData,
   evalX,
   prevSiblingTextIs,
   prevSiblingTextContains,
+  followingSiblingTextIs,
   getTextByX,
   hasCFRA
 }

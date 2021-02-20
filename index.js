@@ -7,7 +7,9 @@ const {
   parseStreetBulletData,
   prevSiblingTextIs,
   prevSiblingTextContains,
+  followingSiblingTextIs,
   hasCFRA,
+  extractNumbers,
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
@@ -339,20 +341,20 @@ puppeteer.connect(connection).then(async browser => {
     // Morningstar
 
     const [
-      morningstarFairValue,
+      [morningstarFairValue],
       morningstarMoat,
       morningstarUncertainty,
       morningstarCapitalAllocation,
-      morningstarDate,
+      [morningstarDate],
     ] = await fetchPdfData({
       analystName: MORNINGSTAR,
       url: morningstarLink,
       xPathArr: [
-        `//*[@id="viewer"]/div[1]/div[2]/span[41]`,
-        `//*[@id="viewer"]/div[1]/div[2]/span[48]`,
-        `//*[@id="viewer"]/div[1]/div[2]/span[50]`,
-        `//*[@id="viewer"]/div[1]/div[2]/span[51]`,
-        `//*[@id="viewer"]/div[1]/div[2]/span[27]`,
+        prevSiblingTextIs("Capital Allocation", 4),
+        followingSiblingTextIs("Price vs. Fair Value ", 4),
+        followingSiblingTextIs("Price vs. Fair Value ", 2),
+        followingSiblingTextIs("Price vs. Fair Value ", 1),
+        prevSiblingTextIs("Capital Allocation", 6),
       ],
     })
 
@@ -440,7 +442,7 @@ puppeteer.connect(connection).then(async browser => {
 
     newStockData[ticker] = {
       cfraLink,
-      cfraTarget,
+      cfraTarget: extractNumbers(cfraTarget),
       cfraRating,
       cfraFairValue,
       cfraDate,
