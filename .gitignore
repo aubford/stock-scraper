@@ -4,3 +4,4 @@ browserWSEndpoint.json
 ws.json
 stockData.json
 testOutput.json
+scratch.js
