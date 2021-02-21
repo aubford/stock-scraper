@@ -153,7 +153,6 @@ puppeteer.connect(connection).then(async browser => {
 
     const getFidelityPageData = async fidelityPage => {
       if (fidelityPage) {
-        /** @type ElementHandle[] */
         const reportHrefsHandles = await fidelityPage.$x(
           `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
         )
