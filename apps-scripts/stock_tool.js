@@ -642,13 +642,13 @@ function buildCompanyData({ quoteSummary }, wsjData) {
     shareHolderRightsRisk,
     totalRevenueTTM,
     operatingCashflowTTM,
-    payoutRatioMRQ: cashFlows.dividendsPaid / cashFlows.netIncome,
     mostRecentQuarter: mostRecentQuarter
       ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${
           incomeStatement.quartersBack
         }`
       : "?",
     totalDebt: mTotalDebt,
+    payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome), /* ?+*/
     percentRepurchasedMRQ: cashFlowReStock / fiftyDayAverage.raw / sharesOutstanding.raw,
     buybackRatio: cashFlows.netIncome > 0 ? cashFlowReStock / cashFlows.netIncome : "n/a", // validated this data w/ other brokerages
     debtToCapital: mTotalDebt / (mTotalDebt + balanceSheet.totalStockholderEquity),
