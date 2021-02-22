@@ -37,5 +37,7 @@
     <orderEntry type="library" name="@types/react-dom" level="application" />
     <orderEntry type="library" name="@types/underscore" level="application" />
     <orderEntry type="library" name="@types/puppeteer" level="application" />
+    <orderEntry type="library" name="@types/node-fetch" level="application" />
+    <orderEntry type="library" name="@types/cheerio" level="application" />
   </component>
 </module>
