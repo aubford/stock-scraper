@@ -459,23 +459,23 @@ puppeteer.connect(connection).then(async browser => {
       fidelitySummaryScore: fidelitySummaryScore.trim(),
       fidelityStarmineOne: `${(fidelityStarmineOneName || "").substring(
         0,
-        18
+        10
       )} - ${fidelityStarmineOneRating}`,
       fidelityStarmineTwo: `${(fidelityStarmineTwoName || "").substring(
         0,
-        18
+        10
       )} - ${fidelityStarmineTwoRating}`,
       fidelityStarmineThree: `${(fidelityStarmineThreeName || "").substring(
         0,
-        18
+        10
       )} - ${fidelityStarmineThreeRating}`,
       fidelityStarmineFour: `${(fidelityStarmineFourName || "").substring(
         0,
-        18
+        10
       )} - ${fidelityStarmineFourRating}`,
       fidelityStarmineFive: `${(fidelityStarmineFiveName || "").substring(
         0,
-        18
+        10
       )} - ${fidelityStarmineFiveRating}`,
       argusResearchLink: argusResearchLinkHref,
       argusResearchDate: argusResearchLinkText,
