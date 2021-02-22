@@ -648,7 +648,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
         }`
       : "?",
     totalDebt: mTotalDebt,
-    payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome), /* ?+*/
+    payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome),
     percentRepurchasedMRQ: cashFlowReStock / fiftyDayAverage.raw / sharesOutstanding.raw,
     buybackRatio: cashFlows.netIncome > 0 ? cashFlowReStock / cashFlows.netIncome : "n/a", // validated this data w/ other brokerages
     debtToCapital: mTotalDebt / (mTotalDebt + balanceSheet.totalStockholderEquity),
