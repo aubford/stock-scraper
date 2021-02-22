@@ -255,7 +255,7 @@ const types = [
   "trailingStockBasedCompensation",
   "trailingTaxesRefundPaid",
   "trailingTaxesRefundPaidDirect",
-  "trailingUnrealizedGainLossOnInvestmentSecurities"
+  "trailingUnrealizedGainLossOnInvestmentSecurities",
 ]
 const data = importedData.timeseries.result
 
@@ -263,5 +263,5 @@ const selectAKey = "quarterlyChangeInDividendPayable"
 
 const end = data.find(({ meta }) => meta.type[0] === selectAKey)
 
-end; /* ?+*/
-end[selectAKey].map(({reportedValue}) => reportedValue.fmt); /* ?*/
+end /* ?+*/
+end[selectAKey].map(({ reportedValue }) => reportedValue.fmt) /* ?*/

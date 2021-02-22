@@ -12,7 +12,7 @@ function selectValueTypes(multiValues, type) {
   return Object.keys(multiValues).reduce(
     (acc, key) => ({
       ...acc,
-      [key]: multiValues[key] ? multiValues[key][type] : 0
+      [key]: multiValues[key] ? multiValues[key][type] : 0,
     }),
     {}
   )
@@ -29,7 +29,9 @@ function getNonIndexOwners(ownershipList) {
   const indexFundTags = ["index", "500", "russel", "spdr", "s&p"]
 
   return ownershipList
-    .filter(owner => indexFundTags.every(name => !owner.organization.toLowerCase().includes(name)))
+    .filter(owner =>
+      indexFundTags.every(name => !owner.organization.toLowerCase().includes(name))
+    )
     .map(({ organization, pctHeld }) => `${organization}: ${pctHeld.fmt}`)
     .join("\n")
 }
@@ -68,15 +70,15 @@ function validateEarningsTrend(trend) {
         "7daysAgo": weekEpsEstimate,
         "30daysAgo": monthEpsEstimate,
         "60daysAgo": monthsEpsEstimate,
-        "90daysAgo": quarterEpsEstimate
+        "90daysAgo": quarterEpsEstimate,
       } = {},
       revenueEstimate: {
         avg: revenueEstimateAvg,
         low: revenueEstimateLow,
         high: revenueEstimateHigh,
-        growth: revenueEstimateGrowth
+        growth: revenueEstimateGrowth,
       } = {},
-      growth: earningsEstimateGrowth
+      growth: earningsEstimateGrowth,
     } = {},
     1: {
       // Estimates for +1 Quarter earnings
@@ -85,15 +87,15 @@ function validateEarningsTrend(trend) {
         "7daysAgo": weekEpsEstimateFollowingQuarter,
         "30daysAgo": monthEpsEstimateFollowingQuarter,
         "60daysAgo": monthsEpsEstimateFollowingQuarter,
-        "90daysAgo": quarterEpsEstimateFollowingQuarter
+        "90daysAgo": quarterEpsEstimateFollowingQuarter,
       } = {},
       revenueEstimate: {
         avg: revenueEstimateFollowingQuarterAvg,
         low: revenueEstimateFollowingQuarterLow,
         high: revenueEstimateFollowingQuarterHigh,
-        growth: revenueEstimateFollowingQuarterGrowth
+        growth: revenueEstimateFollowingQuarterGrowth,
       } = {},
-      growth: earningsEstimateFollowingQuarterGrowth
+      growth: earningsEstimateFollowingQuarterGrowth,
     } = {},
     3: {
       // Estimates for year-end earnings
@@ -102,16 +104,16 @@ function validateEarningsTrend(trend) {
         "7daysAgo": weekEpsEstimateNextYear,
         "30daysAgo": monthEpsEstimateNextYear,
         "60daysAgo": monthsEpsEstimateNextYear,
-        "90daysAgo": quarterEpsEstimateNextYear
+        "90daysAgo": quarterEpsEstimateNextYear,
       } = {},
       revenueEstimate: {
         avg: revenueEstimateNextYearAvg,
         low: revenueEstimateNextYearLow,
         high: revenueEstimateNextYearHigh,
-        growth: revenueEstimateNextYearGrowth
+        growth: revenueEstimateNextYearGrowth,
       } = {},
-      growth: earningsEstimateNextYearGrowth
-    } = {}
+      growth: earningsEstimateNextYearGrowth,
+    } = {},
   } = trend
 
   return {
@@ -144,7 +146,7 @@ function validateEarningsTrend(trend) {
     revenueEstimateNextYearLow,
     revenueEstimateNextYearHigh,
     revenueEstimateNextYearGrowth,
-    earningsEstimateNextYearGrowth
+    earningsEstimateNextYearGrowth,
   }
 }
 
@@ -194,7 +196,7 @@ function cleanShortInterest(
   return {
     sharesShortPriorMonth: sharesShortPriorMonth.raw,
     sharesShort: sharesShort.raw,
-    shortPercentOfFloat: shortPercentOfFloat.raw
+    shortPercentOfFloat: shortPercentOfFloat.raw,
   }
 }
 
@@ -207,7 +209,8 @@ const reduceUpdownGrade = upgradeDowngradeHistory =>
 function getUpgradeDowngradeHistory(upgradeDowngradeHistory) {
   const filterDoubles = upgradeDowngradeHistory.filter(({ firm, epochGradeDate }) =>
     upgradeDowngradeHistory.every(
-      comparison => firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
+      comparison =>
+        firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
     )
   )
 
@@ -248,7 +251,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       overallRisk,
       sector,
       industry,
-      country
+      country,
     },
     recommendationTrend: { trend: recommendationTrend } = {},
     defaultKeyStatistics: {
@@ -280,7 +283,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       sharesShortPriorMonth,
       shortPercentOfFloat,
       shortRatio,
-      trailingEps // current EPS
+      trailingEps, // current EPS
     },
     fundOwnership: { ownershipList } = {},
     summaryDetail: {
@@ -295,7 +298,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       payoutRatio,
       priceToSalesTrailing12Months,
       regularMarketVolume,
-      twoHundredDayAverage
+      twoHundredDayAverage,
     },
     majorHoldersBreakdown: { institutionsCount } = {},
     calendarEvents: {
@@ -306,8 +309,8 @@ function buildCompanyData({ quoteSummary }, wsjData) {
         revenueAverage,
         revenueLow,
         revenueHigh,
-        earningsDate
-      } = {} // upcoming quarter-end projections
+        earningsDate,
+      } = {}, // upcoming quarter-end projections
     } = {},
     earnings: { earningsChart, financialsChart } = {},
     earningsTrend: { trend } = {},
@@ -335,21 +338,24 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       operatingCashflow: operatingCashflowTTM, // verified this is TTM from Schwab cash flow statement
       earningsGrowth,
       revenueGrowth, // Quarterly Revenue Growth (yoy)
-      operatingMargins // TTM
+      operatingMargins, // TTM
     } = {},
     upgradeDowngradeHistory: { history: upgradeDowngradeHistory } = {},
     price: { regularMarketPrice },
     cashflowStatementHistory: { cashflowStatements: annualCashFlowStatements } = {},
     cashflowStatementHistoryQuarterly: { cashflowStatements },
     incomeStatementHistoryQuarterly: { incomeStatementHistory },
-    balanceSheetHistoryQuarterly: { balanceSheetStatements }
+    balanceSheetHistoryQuarterly: { balanceSheetStatements },
   } = quoteSummary.result[0]
 
   const mrqSeconds = mostRecentQuarter ? mostRecentQuarter.raw : 0
   const lfyEndSeconds = lastFiscalYearEnd ? lastFiscalYearEnd.raw : 0
 
-  const lastReportedQuarter = Math.round((mrqSeconds - lfyEndSeconds) / (secondsInYear / 4))
-  const fiscalMRQQtr = mrqSeconds && lfyEndSeconds === mrqSeconds ? 4 : lastReportedQuarter
+  const lastReportedQuarter = Math.round(
+    (mrqSeconds - lfyEndSeconds) / (secondsInYear / 4)
+  )
+  const fiscalMRQQtr =
+    mrqSeconds && lfyEndSeconds === mrqSeconds ? 4 : lastReportedQuarter
   const fiscalMRQYear = new Date(mrqSeconds * 1000).getFullYear()
   const fiscalMRQStr = `${fiscalMRQQtr}Q${fiscalMRQYear}`
 
@@ -385,14 +391,14 @@ function buildCompanyData({ quoteSummary }, wsjData) {
     revenueEstimateNextYearLow,
     revenueEstimateNextYearHigh,
     revenueEstimateNextYearGrowth,
-    earningsEstimateNextYearGrowth
+    earningsEstimateNextYearGrowth,
   } = validateEarningsTrend(trend)
 
   const {
     currentQuarterEstimate,
     currentQuarterEstimateDate,
     currentQuarterEstimateYear,
-    earningsDate: earningsChartCurrentEstimateDates
+    earningsDate: earningsChartCurrentEstimateDates,
   } = earningsChart || {}
   const getEarningsChartCurrentEstimateData = () => {
     if (currentQuarterEstimateDate && currentQuarterEstimateYear) {
@@ -404,13 +410,13 @@ function buildCompanyData({ quoteSummary }, wsjData) {
           earningsChartCurrentEstimateDates && earningsChartCurrentEstimateDates[0]
             ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).sort()[0]
             : currentQuarterEstimateDate + currentQuarterEstimateYear,
-        earningsChartDateOk: earliestDateNum > mrqNum
+        earningsChartDateOk: earliestDateNum > mrqNum,
       }
     }
 
     return {
       earningsDates: 0,
-      earningsChartDateOk: false
+      earningsChartDateOk: false,
     }
   }
 
@@ -460,7 +466,9 @@ function buildCompanyData({ quoteSummary }, wsjData) {
   const totalRevenueTTM =
     totalRevenue && totalRevenue.raw ? totalRevenue.raw : statementTotalRevenueSum
 
-  const cashFlowReStock = -((cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0))
+  const cashFlowReStock = -(
+    (cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0)
+  )
 
   const cashFlowStatementsUpToDate = Boolean(
     getRecentStatement(cashflowStatements, mrqSeconds) &&
@@ -471,7 +479,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       .filter(statement => statement.dividendsPaid)
       .reverse()
       .map(({ dividendsPaid }) => -dividendsPaid.raw * mult)
-  
+
   const anaylstRecommendations = getAnalystRecommendations(recommendationTrend)
 
   return {
@@ -559,7 +567,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
         revenueEstimateFollowingQuarterHigh,
         revenueEstimateNextYearLow, // estimate for next year revenue
         revenueEstimateNextYearAvg,
-        revenueEstimateNextYearHigh
+        revenueEstimateNextYearHigh,
       },
       "raw"
     ),
@@ -619,7 +627,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
         revenueEstimateNextYearGrowth, // estimated revenue growth (YoY) for next year
         earningsEstimateGrowth, // estimated earnings growth (YoY) for this quarter
         earningsEstimateFollowingQuarterGrowth,
-        earningsEstimateNextYearGrowth // estimated earnings growth (YoY) for next year
+        earningsEstimateNextYearGrowth, // estimated earnings growth (YoY) for next year
       },
       "fmt"
     ),
@@ -643,9 +651,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
     totalRevenueTTM,
     operatingCashflowTTM,
     mostRecentQuarter: mostRecentQuarter
-      ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${
-          incomeStatement.quartersBack
-        }`
+      ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${incomeStatement.quartersBack}`
       : "?",
     totalDebt: mTotalDebt,
     payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome),
@@ -658,12 +664,18 @@ function buildCompanyData({ quoteSummary }, wsjData) {
         : incomeStatement.ebit / incomeStatement.totalRevenue,
     priceToSalesMRQ:
       regularMarketPrice && regularMarketPrice.raw && incomeStatement.totalRevenue
-        ? (regularMarketPrice.raw / slicePerShareAnnlz(incomeStatement.totalRevenue)).toFixed(2)
+        ? (
+            regularMarketPrice.raw / slicePerShareAnnlz(incomeStatement.totalRevenue)
+          ).toFixed(2)
         : "n/a",
-    leveredFreeCashFlowPerShare: leveredFreeCashFlow ? slicePerShare(leveredFreeCashFlow.raw) : 0,
+    leveredFreeCashFlowPerShare: leveredFreeCashFlow
+      ? slicePerShare(leveredFreeCashFlow.raw)
+      : 0,
     freeCashFlowPerShareTTM: slicePerShare(freeCashFlowTTM),
     freeCashFlowPerShareMRQ: slicePerShare(freeCashFlowMRQ),
-    totalCashPerShare: totalCashPerShare ? totalCashPerShare.raw : slicePerShare(balanceSheet.cash),
+    totalCashPerShare: totalCashPerShare
+      ? totalCashPerShare.raw
+      : slicePerShare(balanceSheet.cash),
     operatingCashFlowPerShareMRQ: slicePerShare(operatingCashFlowMRQ),
     enterpriseToRevenue:
       enterpriseToRevenue && enterpriseToRevenue.raw
@@ -675,7 +687,10 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       ? getUpgradeDowngradeHistory(upgradeDowngradeHistory)
       : "n/a",
     anaylstRecommendations,
-    numAnaylstRecommendations: anaylstRecommendations.reduce((acc,curr) => acc + curr,0),
+    numAnaylstRecommendations: anaylstRecommendations.reduce(
+      (acc, curr) => acc + curr,
+      0
+    ),
     institutionsCount: institutionsCount ? institutionsCount.longFmt : null,
     nonIndexOwners: getNonIndexOwners(ownershipList),
     earliestEarningsDate: getEarningsChartCurrentEstimateData().earningsDates,
@@ -683,13 +698,14 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       ? [
           ...getDividendChart(annualCashFlowStatements),
           0,
-          ...getDividendChart(cashflowStatements, 4)
+          ...getDividendChart(cashflowStatements, 4),
         ]
       : [],
     quarterlyEPSActualEstimateChart: validateEarningsChart(earningsChart, fiscalMRQStr)
       .reduce((acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0], [])
       .concat(
-        currentQuarterEstimate && getEarningsChartCurrentEstimateData().earningsChartDateOk
+        currentQuarterEstimate &&
+          getEarningsChartCurrentEstimateData().earningsChartDateOk
           ? currentQuarterEstimate.raw
           : []
       ),
@@ -714,13 +730,13 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       .reverse(),
     wsjChartCurrentNum: wsjData
       .filter((d, idx) => (idx + 1) % 3 === 0)
-      .reduce((acc, curr) => acc + Number(curr), 0)
+      .reduce((acc, curr) => acc + Number(curr), 0),
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const companyData  = buildCompanyData(data, [
+const companyData = buildCompanyData(data, [
   "19",
   "21",
   "19",
@@ -735,5 +751,5 @@ const companyData  = buildCompanyData(data, [
   "0",
   "0",
   "0",
-  "0"
+  "0",
 ]) /* ?*/
