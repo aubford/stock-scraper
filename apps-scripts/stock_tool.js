@@ -1,4 +1,4 @@
-import data from "./data/citiData.json"
+import data from "./data/nlokData.json"
 import _ from "lodash"
 //noinspection JSUnusedLocalSymbols
 const million = 1000000
