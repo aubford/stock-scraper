@@ -243,7 +243,7 @@ puppeteer.connect(connection).then(async browser => {
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
         prevSiblingTextContains(" performance is "),
       ],
-      screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
+      //screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
     })
 
     // short pause every 9 tickers
@@ -333,7 +333,7 @@ puppeteer.connect(connection).then(async browser => {
         `//span[contains(text(),'• ')]/following-sibling::span[1]`, // 7 ...bulletPointData (lineTwo)
         `//span[text()='TARGET PRICE ']/following-sibling::span[1]`, // 8 target price
       ],
-      screenShotArr: [{ x: 344, y: 138, width: 468, height: 48 }],
+      //screenShotArr: [{ x: 344, y: 138, width: 468, height: 48 }],
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
