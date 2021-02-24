@@ -1,5 +1,5 @@
 // 🍤  GET COMPANY DATA 🍤
-function getCompanyData(firstRowRange, dataPoint) {
+function test_CODE_getCompanyData(firstRowRange, dataPoint) {
   const displaySheetTickers = firstRowRange[0]
   const dataSheetName = displaySheetTickers.shift()
   const dataSheet = getSheet(dataSheetName).getDataRange().getValues()

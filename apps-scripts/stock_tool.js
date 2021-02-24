@@ -1,10 +1,3 @@
-import data from "./data/nlokData.json"
-import _ from "lodash"
-//noinspection JSUnusedLocalSymbols
-const million = 1000000
-
-///////////////////////////////////////////////////////////////////////
-
 const maxSecondsInQuarter = 8121600
 const secondsInYear = 525600 * 60
 
@@ -252,7 +245,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       sector,
       industry,
       country,
-    },
+    } = {},
     recommendationTrend: { trend: recommendationTrend } = {},
     defaultKeyStatistics: {
       beta, // "Beta (5Y Monthly)"
@@ -284,7 +277,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       shortPercentOfFloat,
       shortRatio,
       trailingEps, // current EPS
-    },
+    } = {},
     fundOwnership: { ownershipList } = {},
     summaryDetail: {
       dividendRate, // "Forward Dividend
@@ -299,7 +292,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       priceToSalesTrailing12Months,
       regularMarketVolume,
       twoHundredDayAverage,
-    },
+    } = {},
     majorHoldersBreakdown: { institutionsCount } = {},
     calendarEvents: {
       earnings: {
@@ -734,22 +727,4 @@ function buildCompanyData({ quoteSummary }, wsjData) {
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const companyData = buildCompanyData(data, [
-  "19",
-  "21",
-  "19",
-  "2",
-  "1",
-  "1",
-  "5",
-  "5",
-  "6",
-  "0",
-  "0",
-  "0",
-  "0",
-  "0",
-  "0",
-]) /* ?*/
+GLOBAL.buildCompanyData = buildCompanyData
