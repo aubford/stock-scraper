@@ -5,16 +5,17 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run updateWs && node index.js",
-    "test": "npm run updateWs && node test.js",
+    "test": "npm run updateWs && node puppeteerSandbox.js",
     "launch": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check",
     "updateWs": "curl localhost:9222/json/version > ws.json",
-    "haleakala":  "node haleakala.js",
-    "stock-tool": "node ./apps-scripts/test-stock_tool.js"
+    "haleakala": "node haleakala.js",
+    "stock-tool": "node apps-scripts/stock_tool.test.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.5",
+    "jest": "^26.6.3",
     "lodash": "^4.17.20",
     "merge-img": "^2.1.3",
     "node-fetch": "^2.6.1",

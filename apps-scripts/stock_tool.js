@@ -160,7 +160,7 @@ function getRecentStatement(statements, seconds) {
 function cleanStatement(statementList, mrqSeconds) {
   const recentStatement = getRecentStatement(statementList, mrqSeconds)
   if (!recentStatement) {
-    return {}
+    return statementList[0]
   }
   const selectedStatement =
     Object.keys(recentStatement).length > 10
@@ -177,6 +177,9 @@ function cleanShortInterest(
   shortPercentOfFloat,
   sharesShort
 ) {
+  if (!sharesShort || !sharesShortPriorMonth || !shortPercentOfFloat) {
+    return {}
+  }
   const twoMonthsAgo = -60
   const threeMonthsAgo = -90
   if (
@@ -268,7 +271,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       pegRatio,
       priceToBook,
       profitMargins, // probably TMM
-      sharesOutstanding,
+      sharesOutstanding = { raw: 0 },
       sharesPercentSharesOut, // "Short % of Shares Outstanding"
       sharesShort,
       dateShortInterest,
@@ -727,4 +730,4 @@ function buildCompanyData({ quoteSummary }, wsjData) {
   }
 }
 
-GLOBAL.buildCompanyData = buildCompanyData
+module.exports = buildCompanyData
