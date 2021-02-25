@@ -106,7 +106,7 @@ module.exports = {
   ARGUS_ANALYST_KEY: "Argus Analyst",
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
   ZACKS_KEY: "Zacks Investment Research, Inc (i)",
-  XPATH_TIMEOUT: 15000,
+  XPATH_TIMEOUT: 17000,
   FIDELITY: "fidelity",
   FORD: "ford",
   NEW_CONSTRUCTS: "nc",
