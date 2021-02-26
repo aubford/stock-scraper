@@ -4,7 +4,7 @@
 
 global.million = 1000000
 global._ = require("lodash")
-const buildCompanyData = require("./stock_tool.js")
+const buildCompanyData = require("./buildCompanyData.js")
 const data = require("./data/bsxData.json")
 
 const wsjData = [
@@ -28,5 +28,5 @@ const wsjData = [
 
 test("main", () => {
   const companyData = buildCompanyData(data,wsjData)
-  expect(companyData).toBeTruthy()
+  expect(companyData.salesPerShareMRQ).toBeTruthy()
 })

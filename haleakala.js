@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const _ = require("lodash")
 const fs = require("fs")
-const { getTextByX, newBrowserPage } = require("./util")
+const { newBrowserPage } = require("./util")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const prevSiblingTextContains = (text, num = 1) =>
   `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`

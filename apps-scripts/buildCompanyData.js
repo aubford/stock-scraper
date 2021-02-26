@@ -667,6 +667,7 @@ function buildCompanyData({ quoteSummary }, wsjData) {
     salesPerShareMRQ: incomeStatement.totalRevenue
       ? slicePerShareAnnlz(incomeStatement.totalRevenue).toFixed(2)
       : 0,
+    salesPerShareTTM: slicePerShare(totalRevenueTTM),
     leveredFreeCashFlowPerShare: leveredFreeCashFlow
       ? slicePerShare(leveredFreeCashFlow.raw)
       : 0,
