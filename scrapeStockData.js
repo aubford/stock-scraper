@@ -9,7 +9,9 @@ const {
   prevSiblingTextContains,
   followingSiblingTextIs,
   hasCFRA,
+  writeOut,
   extractNumbers,
+  SCRAPBOOK_LOCATION,
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
@@ -25,7 +27,6 @@ const {
   MORNINGSTAR,
   CFRA,
 } = require("./util")
-const fs = require("fs")
 const readline = require("readline")
 
 const connection = {
@@ -35,7 +36,6 @@ const connection = {
     height: 1800,
   },
 }
-const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 
 const readlineInterface = readline.createInterface({
   input: process.stdin,
@@ -527,20 +527,5 @@ puppeteer.connect(connection).then(async browser => {
     console.log(`Completed OK: ${ticker}`)
   }
 
-  // WRITE FILE OUT
-  const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
-  const stockDataFile = fs.readFileSync(stockDataLocation)
-  const currentStockData = JSON.parse(stockDataFile)
-  const writeToFile = {
-    ...currentStockData,
-    ...newStockData,
-  }
-
-  fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
-    console.log("** Complete, writing to file **")
-    if (err) {
-      console.log("File Write Error: " + err)
-    }
-    process.exit(0)
-  })
+  writeOut(newStockData)
 })

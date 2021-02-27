@@ -1,4 +1,5 @@
 require("puppeteer-core")
+const fs = require("fs")
 const _ = require("lodash")
 /**
  * @typedef {Page} MyPage
@@ -77,7 +78,7 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
  * @returns {Promise<string|string[]>}
  */
 const evalX = async (frame, selector, func) => {
-  const elementArr = await frame.$x(selector) || []
+  const elementArr = (await frame.$x(selector)) || []
   if (!elementArr.length) {
     return ""
   }
@@ -94,12 +95,31 @@ const prevSiblingTextIs = (text, num = 1) =>
 const followingSiblingTextIs = (text, num = 1) =>
   `//span[text()='${text}']/preceding-sibling::span[${num}]`
 
-const hasCFRA = (rating,ticker,analystName) => {
+const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
   if (!hasReport) {
     console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
   }
   return hasReport
+}
+
+const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
+const writeOut = data => {
+  const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
+  const stockDataFile = fs.readFileSync(stockDataLocation)
+  const existingData = JSON.parse(stockDataFile)
+  const writeToFile = {
+    ...existingData,
+    ...data,
+  }
+
+  fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
+    console.log("** Complete, writing to file **")
+    if (err) {
+      console.log("File Write Error: " + err)
+    }
+    process.exit(0)
+  })
 }
 
 module.exports = {
@@ -117,7 +137,9 @@ module.exports = {
   MORNINGSTAR: "morningstar",
   CFRA: "CFRA",
   BOA: "BoA",
-  extractNumbers: text => text ? text.match(/[\d,\\.]/g).join("") : "",
+  SCRAPBOOK_LOCATION,
+  extractNumbers: text => (text ? text.match(/[\d,\\.]/g).join("") : ""),
+  writeOut,
   newBrowserPage,
   parseStreetBulletData,
   evalX,
@@ -125,5 +147,5 @@ module.exports = {
   prevSiblingTextContains,
   followingSiblingTextIs,
   getTextByX,
-  hasCFRA
+  hasCFRA,
 }

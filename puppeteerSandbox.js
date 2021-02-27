@@ -17,20 +17,25 @@ const connection = {
   },
 }
 
-/* NOTES
-
-webSocketDebuggerUrl
-
- */
+const moodysUrl = "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult"
+async function getMoodysLink(ticker) {
+  const response = await fetch(moodysUrl, {
+    contentType: "application/json",
+    method: "POST",
+    body: { data: [ticker, "en"] },
+  })
+  const text = await response.text()
+  console.log(text)
+}
 
 puppeteer.connect(connection).then(async browser => {
   const ticker = "GS"
   const newPage = url => newBrowserPage(browser, url)
 
-
   const testFunc = async () => {
-    // TEST CODE
-    
+    /////////// TEST CODE //////////////////////////
+    const page = newPage()
+    /////////// TEST CODE //////////////////////////
   }
 
   const output = await testFunc()
