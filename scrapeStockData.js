@@ -181,8 +181,10 @@ puppeteer.connect(connection).then(async browser => {
       `//span[contains(@class,"morningStarRating")]`,
       node => node.getAttribute("aria-label")
     )
-
-    await boaPage.close()
+  
+    if (boaPage) {
+      await boaPage.close()
+    }
 
     // ARGUS ANALYST
 
@@ -271,8 +273,10 @@ puppeteer.connect(connection).then(async browser => {
             "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
           ],
         })
-        await page.close()
-        return values ? values : ["",""]
+        if (page) {
+          await page.close()
+        }
+        return values ? values : ["", ""]
       }
       return ["", ""]
     }

@@ -258,7 +258,9 @@ const makeScrapeTools = (ticker, browser) => {
         )
       )
 
-      await fidelityPage.close()
+      if (fidelityPage) {
+        await fidelityPage.close()
+      }
       return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
     }
     return {}
