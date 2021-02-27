@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer-core")
 const { webSocketDebuggerUrl } = require("./ws.json")
-const _ = require("lodash")
 const {
   evalX,
   newBrowserPage,
@@ -12,6 +11,8 @@ const {
   writeOut,
   makeScrapeTools,
   getMoodysLink,
+  promptForTickers,
+  promptLogin,
   extractNumbers,
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
@@ -27,7 +28,6 @@ const {
   MORNINGSTAR,
   CFRA,
 } = require("./util")
-const readline = require("readline")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -37,26 +37,17 @@ const connection = {
   },
 }
 
-const readlineInterface = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-})
-
-const promptForTickers = () =>
-  new Promise(resolve => {
-    readlineInterface.question("Tickers: ", tickers => {
-      resolve(tickers)
-      readlineInterface.close()
-    })
-  })
-
 puppeteer.connect(connection).then(async browser => {
+  const newPage = (url, options) => newBrowserPage(browser, url, options)
+  
+  const closeLoginPages = await promptLogin(newPage)
+  
   const promptResponse = await promptForTickers()
-
   const tickers = promptResponse.split(/[^A-Z]/)
   console.log("Searching for tickers:", tickers)
+  
+  closeLoginPages()
 
-  const newPage = (url, options) => newBrowserPage(browser, url, options)
   const getFidelitySecretUrl = async fidelityLink => {
     if (!fidelityLink) {
       return null
@@ -181,7 +172,7 @@ puppeteer.connect(connection).then(async browser => {
       `//span[contains(@class,"morningStarRating")]`,
       node => node.getAttribute("aria-label")
     )
-  
+
     if (boaPage) {
       await boaPage.close()
     }

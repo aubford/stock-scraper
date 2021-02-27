@@ -1,4 +1,5 @@
 require("puppeteer-core")
+const readline = require("readline")
 const fs = require("fs")
 const fetch = require("node-fetch")
 const _ = require("lodash")
@@ -282,6 +283,37 @@ const makeScrapeTools = (ticker, browser) => {
   }
 }
 
+const promptForTickers = async () => {
+  const readlineInterface = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  })
+
+  return new Promise(resolve => {
+    readlineInterface.question("Tickers: ", tickers => {
+      resolve(tickers)
+      readlineInterface.close()
+    })
+  })
+}
+
+const promptLogin = newPage => {
+  const pages = [
+    "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
+    "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary",
+    "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550",
+  ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
+
+  return () =>
+    Promise.all(pages).then(pages =>
+      pages.forEach(page => {
+        try {
+          page.close()
+        } catch (err) {}
+      })
+    )
+}
+
 module.exports = {
   ARGUS_ANALYST_KEY: "Argus Analyst",
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
@@ -310,4 +342,6 @@ module.exports = {
   followingSiblingTextIs,
   getTextByX,
   hasCFRA,
+  promptForTickers,
+  promptLogin,
 }
