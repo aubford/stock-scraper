@@ -236,7 +236,7 @@ puppeteer.connect(connection).then(async browser => {
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
-    // Morningstar
+    // MORNINGSTAR
 
     const [
       [morningstarFairValue] = [],
@@ -263,15 +263,16 @@ puppeteer.connect(connection).then(async browser => {
       const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
       if (moodysLink) {
-        const { values } = await fetchPageData({
+        const { values, page } = await fetchPageData({
           url: `https://www.moodys.com${moodysLink.link}`,
           analystName: "moodys",
           xPathArr: [
-            "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
             "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+            "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
           ],
         })
-        return values
+        await page.close()
+        return values ? values : ["",""]
       }
       return ["", ""]
     }

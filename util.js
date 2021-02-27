@@ -152,10 +152,7 @@ const getMoodysLink = async (ticker, cookie) => {
   )
   const text = await response.text()
   const data = JSON.parse(text).data.organizations[0]
-  if (data.ticker !== ticker) {
-    return null
-  }
-  return data
+  return data && data.ticker === ticker ? data : null
 }
 
 const makeScrapeTools = (ticker, browser) => {
