@@ -1,13 +1,16 @@
 require("puppeteer-core")
 const fs = require("fs")
+const fetch = require("node-fetch")
 const _ = require("lodash")
 /**
  * @typedef {Page} MyPage
  * @property getTextByX
  */
 
+const XPATH_TIMEOUT = 20000
+
 /**
- * @param page {Page}
+ * @param page {MyPage}
  * @param selector {string}
  * @returns {Promise<string|string[]>}
  */
@@ -122,11 +125,169 @@ const writeOut = data => {
   })
 }
 
+const getMoodysLink = async (ticker, cookie) => {
+  /** @type {*} */
+  const response = await fetch(
+    "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
+    {
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9,es;q=0.8",
+        "content-type": "application/json",
+        "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "x-lang": "en",
+        cookie,
+      },
+      referrer:
+        "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550/reports?category=Ratings_and_Assessments_Reports_rc|Issuer_Reports_rc|Issuer_Data_Reports&type=Rating_Action_rc|Announcement_rc|Announcement_of_Periodic_Review_rc,Credit_Opinion_ir_rc,Peer_Snapshot_rc",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: `{"data":["${ticker}","en"]}`,
+      method: "POST",
+      mode: "cors",
+    }
+  )
+  const text = await response.text()
+  const data = JSON.parse(text).data.organizations[0]
+  if (data.ticker !== ticker) {
+    return null
+  }
+  return data
+}
+
+const makeScrapeTools = (ticker, browser) => {
+  const newPage = (url, options) => newBrowserPage(browser, url, options)
+  const fetchPdfData = async ({
+    url,
+    xPathArr,
+    screenShotArr,
+    waitForPostScroll,
+    analystName,
+  }) => {
+    if (!url) {
+      console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
+      return []
+    }
+    const page = await newPage(url)
+
+    /** @type ElementHandle[] */
+    const dataNotAvailableText = await page.$x(
+      `//body[contains(text(),'data is not available to create this report')]`
+    )
+    if (dataNotAvailableText.length > 0) {
+      await page.close()
+      return []
+    }
+
+    try {
+      await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
+    } catch (err) {
+      console.log(
+        `waitForXpath failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
+      )
+      await page.close()
+      return []
+    }
+
+    if (screenShotArr) {
+      await Promise.all(
+        screenShotArr.map(clip =>
+          page.screenshot({
+            clip,
+            path: `${SCRAPBOOK_LOCATION}/${ticker}-${analystName}-screenshot.png`,
+          })
+        )
+      )
+    }
+
+    if (waitForPostScroll) {
+      const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
+      await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
+      try {
+        await page.waitForXPath(waitForPostScroll, { timeout: XPATH_TIMEOUT })
+      } catch (err) {
+        console.log(
+          `waitForXpath after scroll failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
+        )
+      }
+    }
+
+    const values = await Promise.all(xPathArr.map(page.getTextByX))
+
+    await page.close()
+    return values
+  }
+
+  const fetchPageData = async ({ url, xPathArr, analystName }) => {
+    if (!url) {
+      console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
+      return {}
+    }
+    const page = await newPage(url, { waitUntil: "domcontentloaded" })
+    try {
+      await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
+    } catch (err) {
+      console.log("waitForXpath failed for url: " + url)
+      await page.close()
+      return {}
+    }
+
+    const values = await Promise.all(xPathArr.map(page.getTextByX))
+    return { page, values }
+  }
+
+  const fetchFidelityPageData = async (fidelityPage, fidelityReportNameArr) => {
+    if (fidelityPage) {
+      /** @type {array} */
+      const reportHrefsHandles = await fidelityPage.$x(
+        `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
+      )
+
+      const reportLinks = await Promise.all(
+        reportHrefsHandles.map(handle =>
+          evalX(handle, "a", node => {
+            const href = node.href
+            const text = node.textContent
+
+            if (href === "javascript:void(0);") {
+              return { text, href: node.getAttribute("onclick").split(`'`)[1] }
+            }
+
+            return { text, href }
+          })
+        )
+      )
+
+      await fidelityPage.close()
+      return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
+    }
+    return {}
+  }
+
+  const getPageCookies = async url => {
+    const page = await newPage(url)
+    /** @type {array} */
+    const cookieArr = await page.cookies()
+    await page.close()
+    return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
+  }
+
+  return {
+    fetchFidelityPageData,
+    fetchPageData,
+    fetchPdfData,
+    getPageCookies,
+  }
+}
+
 module.exports = {
   ARGUS_ANALYST_KEY: "Argus Analyst",
   ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
   ZACKS_KEY: "Zacks Investment Research, Inc (i)",
-  XPATH_TIMEOUT: 20000,
+  XPATH_TIMEOUT,
   FIDELITY: "fidelity",
   FORD: "ford",
   NEW_CONSTRUCTS: "nc",
@@ -139,6 +300,8 @@ module.exports = {
   BOA: "BoA",
   SCRAPBOOK_LOCATION,
   extractNumbers: text => (text ? text.match(/[\d,\\.]/g).join("") : ""),
+  makeScrapeTools,
+  getMoodysLink,
   writeOut,
   newBrowserPage,
   parseStreetBulletData,

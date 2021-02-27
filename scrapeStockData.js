@@ -10,12 +10,12 @@ const {
   followingSiblingTextIs,
   hasCFRA,
   writeOut,
+  makeScrapeTools,
+  getMoodysLink,
   extractNumbers,
-  SCRAPBOOK_LOCATION,
   ARGUS_ANALYST_KEY,
   ARGUS_RESEARCH_KEY,
   ZACKS_KEY,
-  XPATH_TIMEOUT,
   FIDELITY,
   FORD,
   NEW_CONSTRUCTS,
@@ -70,113 +70,12 @@ puppeteer.connect(connection).then(async browser => {
   const newStockData = {}
 
   for (const ticker of tickers) {
-    // UTIL
-
-    const fetchPdfData = async ({
-      url,
-      xPathArr,
-      screenShotArr,
-      waitForPostScroll,
-      analystName,
-    }) => {
-      if (!url) {
-        console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
-        return []
-      }
-      const page = await newPage(url)
-
-      /** @type ElementHandle[] */
-      const dataNotAvailableText = await page.$x(
-        `//body[contains(text(),'data is not available to create this report')]`
-      )
-      if (dataNotAvailableText.length > 0) {
-        await page.close()
-        return []
-      }
-
-      try {
-        await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
-      } catch (err) {
-        console.log(
-          `waitForXpath failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
-        )
-        await page.close()
-        return []
-      }
-
-      if (screenShotArr) {
-        await Promise.all(
-          screenShotArr.map(clip =>
-            page.screenshot({
-              clip,
-              path: `${SCRAPBOOK_LOCATION}/${ticker}-${analystName}-screenshot.png`,
-            })
-          )
-        )
-      }
-
-      if (waitForPostScroll) {
-        const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
-        await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
-        try {
-          await page.waitForXPath(waitForPostScroll, { timeout: XPATH_TIMEOUT })
-        } catch (err) {
-          console.log(
-            `waitForXpath after scroll failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
-          )
-        }
-      }
-
-      const values = await Promise.all(xPathArr.map(page.getTextByX))
-
-      await page.close()
-      return values
-    }
-
-    const fetchPageData = async ({ url, xPathArr, analystName }) => {
-      if (!url) {
-        console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
-        return {}
-      }
-      const page = await newPage(url, { waitUntil: "domcontentloaded" })
-      try {
-        await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
-      } catch (err) {
-        console.log("waitForXpath failed for url: " + url)
-        await page.close()
-        return {}
-      }
-
-      const values = await Promise.all(xPathArr.map(page.getTextByX))
-      return { page, values }
-    }
-
-    const getFidelityPageData = async fidelityPage => {
-      if (fidelityPage) {
-        const reportHrefsHandles = await fidelityPage.$x(
-          `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
-        )
-
-        const reportLinks = await Promise.all(
-          reportHrefsHandles.map(handle =>
-            evalX(handle, "a", node => {
-              const href = node.href
-              const text = node.textContent
-
-              if (href === "javascript:void(0);") {
-                return { text, href: node.getAttribute("onclick").split(`'`)[1] }
-              }
-
-              return { text, href }
-            })
-          )
-        )
-
-        await fidelityPage.close()
-        return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
-      }
-      return {}
-    }
+    const {
+      fetchPageData,
+      fetchPdfData,
+      fetchFidelityPageData,
+      getPageCookies,
+    } = makeScrapeTools(ticker, browser)
 
     // FIDELITY
 
@@ -225,7 +124,7 @@ puppeteer.connect(connection).then(async browser => {
         text: argusResearchLinkText,
       } = {},
       [ZACKS_KEY]: { href: zacksLinkHref, text: zacksLinkText } = {},
-    } = await getFidelityPageData(fidelityPage)
+    } = await fetchFidelityPageData(fidelityPage, fidelityReportNameArr)
 
     // FORD
 
@@ -357,6 +256,28 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
+    // MOODYS
+
+    const fetchMoodysData = async () => {
+      const moodysCookies = await getPageCookies("https://www.moodys.com/")
+      const moodysLink = await getMoodysLink(ticker, moodysCookies)
+
+      if (moodysLink) {
+        const { values } = await fetchPageData({
+          url: `https://www.moodys.com${moodysLink.link}`,
+          analystName: "moodys",
+          xPathArr: [
+            "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
+            "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+          ],
+        })
+        return values
+      }
+      return ["", ""]
+    }
+
+    const [moodysRating, moodysOutlook] = await fetchMoodysData()
+
     // ARGUS RESEARCH
 
     const xpathHelper = `text()='M' or text()='H' or text()='L'`
@@ -452,6 +373,8 @@ puppeteer.connect(connection).then(async browser => {
       morningstarUncertainty,
       morningstarCapitalAllocation,
       morningstarDate,
+      moodysOutlook,
+      moodysRating,
       boaRating,
       boaIncome,
       boaInvestment,

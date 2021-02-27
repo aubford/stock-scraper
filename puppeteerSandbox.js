@@ -1,9 +1,12 @@
 const puppeteer = require("puppeteer-core")
 const _ = require("lodash")
+const fetch = require("node-fetch")
 const fs = require("fs")
 const {
   getTextByX,
   newBrowserPage,
+  makeScrapeTools,
+  getMoodysLink,
   prevSiblingTextIs,
   prevSiblingTextContains,
 } = require("./util")
@@ -17,24 +20,29 @@ const connection = {
   },
 }
 
-const moodysUrl = "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult"
-async function getMoodysLink(ticker) {
-  const response = await fetch(moodysUrl, {
-    contentType: "application/json",
-    method: "POST",
-    body: { data: [ticker, "en"] },
-  })
-  const text = await response.text()
-  console.log(text)
-}
-
 puppeteer.connect(connection).then(async browser => {
-  const ticker = "GS"
+  const ticker = "T"
   const newPage = url => newBrowserPage(browser, url)
+  const { fetchPageData, getPageCookies } = makeScrapeTools(ticker, browser)
 
   const testFunc = async () => {
-    /////////// TEST CODE //////////////////////////
-    const page = newPage()
+    /////////// TEST CODE /////////////////////////
+
+    const moodysCookies = await getPageCookies("https://www.moodys.com/")
+    const moodysLink = await getMoodysLink("T", moodysCookies)
+
+    if (moodysLink) {
+      return await fetchPageData({
+        url: `https://www.moodys.com${moodysLink.link}`,
+        analystName: "moodys",
+        xPathArr: [
+          "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
+          "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+        ],
+      })
+    }
+    return []
+
     /////////// TEST CODE //////////////////////////
   }
 
