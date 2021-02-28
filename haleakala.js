@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const _ = require("lodash")
 const fs = require("fs")
+const moment = require("moment")
 const { newBrowserPage } = require("./util")
 const { webSocketDebuggerUrl } = require("./ws.json")
 const prevSiblingTextContains = (text, num = 1) =>
@@ -24,13 +25,15 @@ const month = dateObj.getMonth()
 const sevenAM = new Date(`2021-${month}-${date}`)
 sevenAM.setHours(7)
 
+const dateStr = moment(dateObj).add(7, "days").format("dddd, MMMM D, YYYY")
+
 const tourCalendarSelector = `#tourCalendarWithKey`
-const dateSquareSelector = `//*[@id="page-content"]/main/div[2]//td[@aria-label="Thursday, March 4, 2021"]`
+const dateSquareSelector = `//*[@id="page-content"]/main/div[2]//td[@aria-label="${dateStr}"]`
 const btnSelector =
   `//*[@id="page-content"]/main/div[2]/div/div[1]/div[1]/div/div[2]/div[2]/` +
   `button[@class="sarsa-button sarsa-button-primary sarsa-button-md sarsa-button-fit-container"]`
 
-try {
+const run = async () => {
   puppeteer.connect(connection).then(async browser => {
     const newPage = url => newBrowserPage(browser, url)
 
@@ -62,7 +65,4 @@ try {
     console.log("hit")
     process.exit(0)
   })
-} catch (err) {
-  console.log("***", err)
-  process.exit(1)
 }
