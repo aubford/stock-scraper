@@ -92,12 +92,15 @@ const evalX = async (frame, selector, func) => {
   return await Promise.all(elementArr.map(element => element.evaluate(func)))
 }
 
+const chars = text => text.replace(/\s/g, '')
+const matchChars = text => `translate(text()," ","")="${chars(text)}"`
+const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 const prevSiblingTextContains = (text, num = 1) =>
-  `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
+  `//span[${containsChars(text)}]/following-sibling::span[${num}]`
 const prevSiblingTextIs = (text, num = 1) =>
-  `//span[text()='${text}']/following-sibling::span[${num}]`
+  `//span[${matchChars(text)}]/following-sibling::span[${num}]`
 const followingSiblingTextIs = (text, num = 1) =>
-  `//span[text()='${text}']/preceding-sibling::span[${num}]`
+  `//span[${matchChars(text)}]/preceding-sibling::span[${num}]`
 
 const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
@@ -307,9 +310,7 @@ const promptLogin = newPage => {
   return () =>
     Promise.all(pages).then(pages =>
       pages.forEach(page => {
-        try {
-          page.close()
-        } catch (err) {}
+        page.close().catch(err => err)
       })
     )
 }
