@@ -27,6 +27,7 @@ const {
   BOA,
   MORNINGSTAR,
   CFRA,
+  PAUSE_MS
 } = require("./util")
 
 const connection = {
@@ -136,11 +137,11 @@ puppeteer.connect(connection).then(async browser => {
       //screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
     })
 
-    // short pause every 9 tickers
+    // Pause every 5 tickers
     const tickerIndex = tickers.indexOf(ticker)
-    if (tickerIndex !== 0 && tickerIndex % 9 === 0) {
+    if (tickerIndex !== 0 && tickerIndex % 5 === 0) {
       console.log("((pause))")
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
     }
 
     // B of A

@@ -8,7 +8,7 @@ const _ = require("lodash")
  * @property getTextByX
  */
 
-const XPATH_TIMEOUT = 20000
+const XPATH_TIMEOUT = 18000
 
 /**
  * @param page {MyPage}
@@ -330,6 +330,7 @@ module.exports = {
   MORNINGSTAR: "morningstar",
   CFRA: "CFRA",
   BOA: "BoA",
+  PAUSE_MS: process.argv.length > 2 ? Number(process.argv[2]) * 1000 : 3000,
   SCRAPBOOK_LOCATION,
   extractNumbers: text => (text ? text.match(/[\d,\\.]/g).join("") : ""),
   makeScrapeTools,
