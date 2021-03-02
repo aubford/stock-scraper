@@ -91,7 +91,6 @@ const getBuffetData = async () => {
   return _.fromPairs(chunk)
 }
 
-
 puppeteer.connect(connection).then(async browser => {
   const newPage = url => newBrowserPage(browser, url)
 

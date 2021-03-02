@@ -20,7 +20,15 @@ const connection = {
 }
 
 const now = new Date()
-const sevenAM = new Date(now.getFullYear(),now.getMonth(),now.getDate(),7,0,0,0).getTime()
+const sevenAM = new Date(
+  now.getFullYear(),
+  now.getMonth(),
+  now.getDate(),
+  7,
+  0,
+  0,
+  0
+).getTime()
 const waitForSeven = () => {
   const nowMillis = Date.now()
   console.log(sevenAM - nowMillis)

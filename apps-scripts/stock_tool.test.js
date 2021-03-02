@@ -25,8 +25,7 @@ const wsjData = [
   "0",
 ]
 
-
 test("main", () => {
-  const companyData = buildCompanyData(data,wsjData)
+  const companyData = buildCompanyData(data, wsjData)
   expect(companyData.salesPerShareMRQ).toBeTruthy()
 })
