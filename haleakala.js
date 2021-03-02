@@ -19,13 +19,15 @@ const connection = {
   },
 }
 
-const dateObj = new Date()
-const date = dateObj.getDate()
-const month = dateObj.getMonth()
-const sevenAM = new Date(`2021-${month}-${date}`)
-sevenAM.setHours(7)
+const now = new Date()
+const sevenAM = new Date(now.getFullYear(),now.getMonth(),now.getDate(),7,0,0,0).getTime()
+const waitForSeven = () => {
+  const nowMillis = Date.now()
+  console.log(sevenAM - nowMillis)
+  return nowMillis <= sevenAM
+}
 
-const dateStr = moment(dateObj).add(7, "days").format("dddd, MMMM D, YYYY")
+const dateStr = moment(now).add(7, "days").format("dddd, MMMM D, YYYY")
 
 const tourCalendarSelector = `#tourCalendarWithKey`
 const dateSquareSelector = `//*[@id="page-content"]/main/div[2]//td[@aria-label="${dateStr}"]`
@@ -57,7 +59,7 @@ const run = async () => {
     const elementArr = await page.$x(btnSelector)
     const button = elementArr[0]
 
-    while (new Date() < sevenAM) {
+    while (waitForSeven()) {
       console.log("waiting...")
     }
 
@@ -66,3 +68,5 @@ const run = async () => {
     process.exit(0)
   })
 }
+
+run()
