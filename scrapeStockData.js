@@ -139,11 +139,11 @@ puppeteer.connect(connection).then(async browser => {
 
     const fordRating =
       [
-        "will strongly underperform the market",
-        "will underperform the market",
-        "will perform in line with the market",
-        "will outperform the market over",
         "will strongly outperform the market",
+        "will outperform the market",
+        "will perform in line with the market",
+        "will underperform the market",
+        "will strongly underperform the market",
       ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
 
     // Pause every 5 tickers
