@@ -273,7 +273,7 @@ puppeteer.connect(connection).then(async browser => {
       return ["", ""]
     }
 
-    const [moodysRating, moodysOutlook] = await fetchMoodysData()
+    const [moodysOutlook,moodysRating] = await fetchMoodysData()
 
     // ARGUS RESEARCH
 
