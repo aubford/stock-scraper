@@ -6,9 +6,10 @@ const _ = require("lodash")
 /**
  * @typedef {Page} MyPage
  * @property getTextByX
+ * @property closeSafe
  */
 
-const XPATH_TIMEOUT = 18000
+const XPATH_TIMEOUT = 20000
 
 /**
  * @param page {MyPage}
@@ -37,6 +38,7 @@ const newBrowserPage = async (browser, url, options = {}) => {
   await page.goto(url, options)
 
   page.getTextByX = text => getTextByX(page, text)
+  page.closeSafe = () => page.close().catch(err => err)
   return page
 }
 
@@ -92,7 +94,7 @@ const evalX = async (frame, selector, func) => {
   return await Promise.all(elementArr.map(element => element.evaluate(func)))
 }
 
-const chars = text => text.replace(/\s/g, '')
+const chars = text => text.replace(/\s/g, "")
 const matchChars = text => `translate(text()," ","")="${chars(text)}"`
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 const prevSiblingTextContains = (text, num = 1) =>
@@ -121,7 +123,7 @@ const writeOut = data => {
   }
 
   fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
-    console.log("** Complete, writing to file **")
+    console.log("** COMPLETE, WRITING TO FILE **")
     if (err) {
       console.log("File Write Error: " + err)
     }
@@ -167,6 +169,7 @@ const makeScrapeTools = (ticker, browser) => {
     screenShotArr,
     waitForPostScroll,
     analystName,
+    timeout = XPATH_TIMEOUT,
   }) => {
     if (!url) {
       console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
@@ -179,17 +182,17 @@ const makeScrapeTools = (ticker, browser) => {
       `//body[contains(text(),'data is not available to create this report')]`
     )
     if (dataNotAvailableText.length > 0) {
-      await page.close()
+      await page.closeSafe()
       return []
     }
 
     try {
-      await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
+      await page.waitForXPath(xPathArr[0], { timeout })
     } catch (err) {
       console.log(
         `waitForXpath failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
       )
-      await page.close()
+      await page.closeSafe()
       return []
     }
 
@@ -218,7 +221,8 @@ const makeScrapeTools = (ticker, browser) => {
 
     const values = await Promise.all(xPathArr.map(page.getTextByX))
 
-    await page.close()
+    await page.closeSafe()
+    console.log(`${analystName} PDF: done`)
     return values
   }
 
@@ -227,16 +231,17 @@ const makeScrapeTools = (ticker, browser) => {
       console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
       return {}
     }
-    const page = existingPage || await newPage(url, { waitUntil: "domcontentloaded" })
+    const page = existingPage || (await newPage(url, { waitUntil: "domcontentloaded" }))
     try {
       await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
     } catch (err) {
       console.log("waitForXpath failed for url: " + url)
-      await page.close()
+      await page.closeSafe()
       return {}
     }
 
     const values = await Promise.all(xPathArr.map(page.getTextByX))
+    console.log(`${analystName} Page: done`)
     return { page, values }
   }
 
@@ -263,7 +268,7 @@ const makeScrapeTools = (ticker, browser) => {
       )
 
       if (fidelityPage) {
-        await fidelityPage.close()
+        await fidelityPage.closeSafe()
       }
       return _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
     }
@@ -274,7 +279,7 @@ const makeScrapeTools = (ticker, browser) => {
     const page = await newPage(url)
     /** @type {array} */
     const cookieArr = await page.cookies()
-    await page.close()
+    await page.closeSafe()
     return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
   }
 
@@ -310,7 +315,7 @@ const promptLogin = newPage => {
   return () =>
     Promise.all(pages).then(pages =>
       pages.forEach(page => {
-        page.close().catch(err => err)
+        page.closeSafe()
       })
     )
 }

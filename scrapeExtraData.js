@@ -100,7 +100,7 @@ puppeteer.connect(connection).then(async browser => {
   )
 
   const cookies = await page.cookies()
-  await page.close()
+  await page.closeSafe()
 
   const magicTickers = await aggregateMagicFormulaTickers(cookies)
   const buffetData = await getBuffetData()

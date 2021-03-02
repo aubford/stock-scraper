@@ -30,6 +30,8 @@ const {
   PAUSE_MS,
 } = require("./util")
 
+console.log("PAUSE MS", PAUSE_MS)
+
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
   defaultViewport: {
@@ -54,9 +56,15 @@ puppeteer.connect(connection).then(async browser => {
       return null
     }
     const page = await newPage(fidelityLink)
-    const src = await page.$eval("frame", node => node.getAttribute("src"))
-    await page.close()
-    return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
+    try {
+      const src = await page.$eval("frame", node => node.getAttribute("src"))
+      return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
+    } catch (err) {
+      console.error("failed to getFidelitySecretUrl")
+      return null
+    } finally {
+      await page.closeSafe()
+    }
   }
 
   const newStockData = {}
@@ -121,7 +129,7 @@ puppeteer.connect(connection).then(async browser => {
     // FORD
 
     const [
-      fordRatingSentence,
+      fordRatingSentence = "",
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
@@ -184,7 +192,7 @@ puppeteer.connect(connection).then(async browser => {
     )
 
     if (boaPage) {
-      await boaPage.close()
+      await boaPage.closeSafe()
     }
 
     // ARGUS ANALYST
@@ -277,7 +285,7 @@ puppeteer.connect(connection).then(async browser => {
           ],
         })
         if (page) {
-          await page.close()
+          await page.closeSafe()
         }
         return values ? values : ["", ""]
       }
@@ -457,7 +465,7 @@ puppeteer.connect(connection).then(async browser => {
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
     }
 
-    console.log(`Completed OK: ${ticker}`)
+    console.log(`* COMPLETED OK: ${ticker}`)
   }
 
   writeOut(newStockData)
