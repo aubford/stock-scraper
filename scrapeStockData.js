@@ -27,7 +27,7 @@ const {
   BOA,
   MORNINGSTAR,
   CFRA,
-  PAUSE_MS
+  PAUSE_MS,
 } = require("./util")
 
 const connection = {
@@ -40,13 +40,13 @@ const connection = {
 
 puppeteer.connect(connection).then(async browser => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
-  
+
   const closeLoginPages = await promptLogin(newPage)
-  
+
   const promptResponse = await promptForTickers()
   const tickers = promptResponse.split(/[^A-Z]/)
   console.log("Searching for tickers:", tickers)
-  
+
   closeLoginPages()
 
   const getFidelitySecretUrl = async fidelityLink => {
@@ -121,6 +121,7 @@ puppeteer.connect(connection).then(async browser => {
     // FORD
 
     const [
+      fordRatingSentence,
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
@@ -129,13 +130,21 @@ puppeteer.connect(connection).then(async browser => {
       analystName: FORD,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
+        `//span[contains(text(),"We project that")]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
         `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
-        prevSiblingTextContains(" performance is "),
       ],
-      //screenShotArr: [{ x: 336, y: 175, width: 240, height: 36 }],
     })
+
+    const fordRating =
+      [
+        "will strongly underperform the market",
+        "will underperform the market",
+        "will perform in line with the market",
+        "will outperform the market over",
+        "will strongly outperform the market",
+      ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
 
     // Pause every 5 tickers
     const tickerIndex = tickers.indexOf(ticker)
@@ -203,6 +212,7 @@ puppeteer.connect(connection).then(async browser => {
     // THE STREET
 
     const [
+      streetRating,
       streetGrowth,
       streetTotalReturn,
       streetEfficiency,
@@ -216,6 +226,7 @@ puppeteer.connect(connection).then(async browser => {
       analystName: THE_STREET,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
+        followingSiblingTextIs("RATING SINCE", 2), // 0 growth
         prevSiblingTextIs("Growth", 2), // 0 growth
         prevSiblingTextIs("Total Return", 2), // 1 total return
         prevSiblingTextIs("Efficiency", 2), // 2 efficiency
@@ -273,7 +284,7 @@ puppeteer.connect(connection).then(async browser => {
       return ["", ""]
     }
 
-    const [moodysOutlook,moodysRating] = await fetchMoodysData()
+    const [moodysOutlook, moodysRating] = await fetchMoodysData()
 
     // ARGUS RESEARCH
 
@@ -424,6 +435,7 @@ puppeteer.connect(connection).then(async browser => {
       zacksGrowth,
       zacksMomentum,
       zacksIndustryRank,
+      fordRating,
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
@@ -434,6 +446,7 @@ puppeteer.connect(connection).then(async browser => {
       ncFCF,
       ncPB,
       ncGap,
+      streetRating,
       streetGrowth,
       streetTotalReturn,
       streetEfficiency,

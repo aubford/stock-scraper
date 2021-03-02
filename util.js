@@ -222,12 +222,12 @@ const makeScrapeTools = (ticker, browser) => {
     return values
   }
 
-  const fetchPageData = async ({ url, xPathArr, analystName }) => {
-    if (!url) {
+  const fetchPageData = async ({ url, xPathArr, analystName, existingPage }) => {
+    if (!url && !existingPage) {
       console.log(`url failed -> ticker: ${ticker} -> analyst:${analystName}`)
       return {}
     }
-    const page = await newPage(url, { waitUntil: "domcontentloaded" })
+    const page = existingPage || await newPage(url, { waitUntil: "domcontentloaded" })
     try {
       await page.waitForXPath(xPathArr[0], { timeout: XPATH_TIMEOUT })
     } catch (err) {
