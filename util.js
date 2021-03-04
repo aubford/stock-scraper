@@ -7,6 +7,7 @@ const _ = require("lodash")
  * @typedef {Page} MyPage
  * @property getTextByX
  * @property closeSafe
+ * @property error
  */
 
 const XPATH_TIMEOUT = 20000
@@ -35,7 +36,13 @@ const newBrowserPage = async (browser, url, options = {}) => {
   /** @type {MyPage} */
   const page = await browser.newPage()
 
-  await page.goto(url, options)
+  try {
+    await page.goto(url, options)
+  } catch (err) {
+    console.log("Error loading page:" + err)
+    page.error = error
+    return page
+  }
 
   page.getTextByX = text => getTextByX(page, text)
   page.closeSafe = () => page.close().catch(err => err)
@@ -175,7 +182,13 @@ const makeScrapeTools = (ticker, browser) => {
       console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
       return []
     }
+
+    /** @type MyPage */
     const page = await newPage(url)
+    if (page.error) {
+      await page.closeSafe()
+      return []
+    }
 
     /** @type ElementHandle[] */
     const dataNotAvailableText = await page.$x(
