@@ -395,7 +395,7 @@ puppeteer.connect(connection).then(async browser => {
       boaIncome,
       boaInvestment,
       boaVolatility,
-      fidelitySummaryScore: fidelitySummaryScore.trim(),
+      fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
       fidelityStarmineOne: `${(fidelityStarmineOneName || "").substring(
         0,
         10
