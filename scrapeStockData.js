@@ -199,7 +199,7 @@ puppeteer.connect(connection).then(async browser => {
 
     const [
       argusAnalystRating,
-      argusAnalystTarget,
+      argusAnalystTargetStr,
       argusAnalystFinancialStrength,
       argusAnalystOneYrEpsGrowth,
       argusAnalystFiveYrEpsGrowth,
@@ -216,6 +216,10 @@ puppeteer.connect(connection).then(async browser => {
         prevSiblingTextIs("1 Year Dividend Growth Forecast"),
       ],
     })
+
+    const argusAnalystTarget = argusAnalystTargetStr.includes("Thousand")
+      ? extractNumbers(argusAnalystTargetStr) * 1000
+      : extractNumbers(argusAnalystTargetStr)
 
     // THE STREET
 
