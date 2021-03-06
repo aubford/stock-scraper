@@ -134,15 +134,14 @@ puppeteer.connect(connection).then(async browser => {
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
-      fordIndustryStrength,
     ] = await fetchPdfData({
       analystName: FORD,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
         `//span[contains(text(),"We project that")]`,
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[36]`,
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[46]`,
-        `/html/body/div[1]/div[2]/div[4]/div/div[1]/div[2]/span[53]`,
+        prevSiblingTextIs("Earnings Strength"),
+        prevSiblingTextIs("Relative Valuation"),
+        prevSiblingTextIs("Price Movement"),
       ],
     })
 
@@ -449,7 +448,6 @@ puppeteer.connect(connection).then(async browser => {
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
-      fordIndustryStrength,
       ncRating,
       ncEps,
       ncRoic,
