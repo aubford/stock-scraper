@@ -9,7 +9,6 @@ const {
   followingSiblingTextIs,
   hasCFRA,
   writeOut,
-  makeScrapeTools,
   getMoodysLink,
   promptForTickers,
   promptLogin,
@@ -29,6 +28,8 @@ const {
   CFRA,
   PAUSE_MS,
 } = require("./util")
+const makeScrapeTools = require("./makeScrapeTools")
+global._ = require("lodash")
 
 console.log("PAUSE MS", PAUSE_MS)
 
@@ -277,11 +278,12 @@ puppeteer.connect(connection).then(async browser => {
 
       if (moodysLink) {
         const { values, page } = await fetchPageData({
+          waitForXpath: `//div[@class="mis-ratings-container"]`,
           url: `https://www.moodys.com${moodysLink.link}`,
           analystName: "moodys",
           xPathArr: [
+            "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
             "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
-            "//span[contains(text(),'LONG TERM RATING')]/following-sibling::div[1]/a/div",
           ],
         })
         if (page) {
@@ -292,7 +294,7 @@ puppeteer.connect(connection).then(async browser => {
       return ["", ""]
     }
 
-    const [moodysOutlook, moodysRating] = await fetchMoodysData()
+    const [moodysRating, moodysOutlook] = await fetchMoodysData()
 
     // ARGUS RESEARCH
 
