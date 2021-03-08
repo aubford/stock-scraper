@@ -145,14 +145,15 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
-    const fordRating =
-      [
-        "will strongly outperform the market",
-        "will outperform the market",
-        "will perform in line with the market",
-        "will underperform the market",
-        "will strongly underperform the market",
-      ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
+    const fordRating = fordRatingSentence
+      ? [
+          "will strongly outperform the market",
+          "will outperform the market",
+          "will perform in line with the market",
+          "will underperform the market",
+          "will strongly underperform the market",
+        ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
+      : ""
 
     // Pause every 5 tickers
     const tickerIndex = tickers.indexOf(ticker)
@@ -217,9 +218,11 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
-    const argusAnalystTarget = argusAnalystTargetStr.includes("Thousand")
-      ? extractNumbers(argusAnalystTargetStr) * 1000
-      : extractNumbers(argusAnalystTargetStr)
+    const argusAnalystTarget = argusAnalystTargetStr
+      ? argusAnalystTargetStr.includes("Thousand")
+        ? extractNumbers(argusAnalystTargetStr) * 1000
+        : extractNumbers(argusAnalystTargetStr)
+      : ""
 
     // THE STREET
 
