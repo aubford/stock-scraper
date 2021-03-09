@@ -1,7 +1,6 @@
 require("puppeteer-core")
 const readline = require("readline")
 const fs = require("fs")
-const fetch = require("node-fetch")
 /**
  * @typedef {Page} MyPage
  * @property getTextByX

@@ -121,7 +121,9 @@ module.exports = (ticker, browser) => {
         await page.waitForXPath(waitForXpath || xPathArr[0], { timeout: XPATH_TIMEOUT })
       } catch (err) {
         console.log("waitForXpath failed for url: " + url)
-        await page.closeSafe()
+        if (page) {
+          await page.closeSafe()
+        }
         return {}
       }
 

@@ -277,12 +277,11 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
-    // MOODYS/YAHOO/WSJ
+    // MOODYS / YAHOO / WSJ
 
+    const moodysCookies = await getPageCookies("https://www.moodys.com/")
+    const moodysLink = await getMoodysLink(ticker, moodysCookies)
     const fetchMoodysData = async () => {
-      const moodysCookies = await getPageCookies("https://www.moodys.com/")
-      const moodysLink = await getMoodysLink(ticker, moodysCookies)
-
       if (moodysLink) {
         const { values, page } = await fetchPageData({
           waitForXpath: `//div[@class="mis-ratings-container"]`,
@@ -406,6 +405,7 @@ puppeteer.connect(connection).then(async browser => {
       morningstarDate,
       moodysOutlook,
       moodysRating,
+      moodysLink,
       boaRating,
       boaIncome,
       boaInvestment,
