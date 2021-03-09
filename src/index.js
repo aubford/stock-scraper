@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer-core")
-const { webSocketDebuggerUrl } = require("./ws.json")
+const { webSocketDebuggerUrl } = require("../ws.json")
+const { getMoodysLink, fetchYahooData, fetchWSJData } = require("./api")
+const buildCompanyData = require("./buildCompanyData")
 const {
   evalX,
   newBrowserPage,
@@ -9,7 +11,6 @@ const {
   followingSiblingTextIs,
   hasCFRA,
   writeOut,
-  getMoodysLink,
   promptForTickers,
   promptLogin,
   extractNumbers,
@@ -276,7 +277,7 @@ puppeteer.connect(connection).then(async browser => {
       ],
     })
 
-    // MOODYS
+    // MOODYS/YAHOO/WSJ
 
     const fetchMoodysData = async () => {
       const moodysCookies = await getPageCookies("https://www.moodys.com/")
@@ -300,7 +301,12 @@ puppeteer.connect(connection).then(async browser => {
       return ["", ""]
     }
 
-    const [moodysRating, moodysOutlook] = await fetchMoodysData()
+    const [[moodysRating, moodysOutlook], yahooData, wsjData] = await Promise.all([
+      fetchMoodysData(),
+      fetchYahooData(ticker),
+      fetchWSJData(ticker),
+    ])
+    const companyData = buildCompanyData(yahooData, wsjData)
 
     // ARGUS RESEARCH
 
@@ -385,6 +391,7 @@ puppeteer.connect(connection).then(async browser => {
     // RESULT
 
     newStockData[ticker] = {
+      ...companyData,
       cfraLink,
       cfraTarget: extractNumbers(cfraTarget),
       cfraRating,

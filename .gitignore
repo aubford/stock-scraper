@@ -2,6 +2,6 @@ node_modules
 creds.json
 browserWSEndpoint.json
 ws.json
-stockData.json
+test/stockData.json
 testOutput.json
-scratch.js
+test/scratch.js

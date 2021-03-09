@@ -11,7 +11,7 @@ const {
   XPATH_TIMEOUT,
   SCRAPBOOK_LOCATION,
 } = require("./util")
-const { webSocketDebuggerUrl } = require("./ws.json")
+const { webSocketDebuggerUrl } = require("../ws.json")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,

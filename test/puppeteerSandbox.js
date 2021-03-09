@@ -9,8 +9,8 @@ const {
   getMoodysLink,
   prevSiblingTextIs,
   prevSiblingTextContains,
-} = require("./util")
-const { webSocketDebuggerUrl } = require("./ws.json")
+} = require("../src/util")
+const { webSocketDebuggerUrl } = require("../ws.json")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,

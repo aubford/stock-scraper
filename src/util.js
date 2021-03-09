@@ -137,36 +137,6 @@ const writeOut = data => {
   })
 }
 
-const getMoodysLink = async (ticker, cookie) => {
-  /** @type {*} */
-  const response = await fetch(
-    "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
-    {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "accept-language": "en-US,en;q=0.9,es;q=0.8",
-        "content-type": "application/json",
-        "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "x-lang": "en",
-        cookie,
-      },
-      referrer:
-        "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550/reports?category=Ratings_and_Assessments_Reports_rc|Issuer_Reports_rc|Issuer_Data_Reports&type=Rating_Action_rc|Announcement_rc|Announcement_of_Periodic_Review_rc,Credit_Opinion_ir_rc,Peer_Snapshot_rc",
-      referrerPolicy: "strict-origin-when-cross-origin",
-      body: `{"data":["${ticker}","en"]}`,
-      method: "POST",
-      mode: "cors",
-    }
-  )
-  const text = await response.text()
-  const data = JSON.parse(text).data.organizations[0]
-  return data && data.ticker === ticker ? data : null
-}
-
 const promptForTickers = async () => {
   const readlineInterface = readline.createInterface({
     input: process.stdin,
@@ -213,8 +183,7 @@ module.exports = {
   BOA: "BoA",
   PAUSE_MS: process.argv.length > 2 ? Number(process.argv[2]) * 1000 : 3000,
   SCRAPBOOK_LOCATION,
-  extractNumbers: text => (text ? text.match(/[\d,\\.]/g).join("") : ""),
-  getMoodysLink,
+  extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
   newBrowserPage,
   parseStreetBulletData,

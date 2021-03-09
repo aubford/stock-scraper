@@ -1,21 +1,18 @@
 const maxSecondsInQuarter = 8121600
 const secondsInYear = 525600 * 60
 
-function selectValueTypes(multiValues, type) {
-  return Object.keys(multiValues).reduce(
+const selectValueTypes = (multiValues, type) =>
+  Object.keys(multiValues).reduce(
     (acc, key) => ({
       ...acc,
       [key]: multiValues[key] ? multiValues[key][type] : 0,
     }),
     {}
   )
-}
 
-function annu(val) {
-  return val * 4
-}
+const annu = val => val * 4
 
-function getNonIndexOwners(ownershipList) {
+const getNonIndexOwners = ownershipList => {
   if (!ownershipList) {
     return ""
   }
@@ -29,7 +26,7 @@ function getNonIndexOwners(ownershipList) {
     .join("\n")
 }
 
-function getAnalystRecommendations(recommendationTrend) {
+const getAnalystRecommendations = recommendationTrend => {
   if (!recommendationTrend) {
     return []
   }
@@ -39,12 +36,12 @@ function getAnalystRecommendations(recommendationTrend) {
   return [strongSell, sell, hold, buy, strongBuy]
 }
 
-function addDays(incomingDate, daysToAdd) {
+const addDays = (incomingDate, daysToAdd) => {
   const newDate = new Date(incomingDate)
   return new Date(newDate.setDate(newDate.getDate() + daysToAdd))
 }
 
-function validateEarningsTrend(trend) {
+const validateEarningsTrend = trend => {
   if (!trend) {
     return {}
   }
@@ -143,21 +140,19 @@ function validateEarningsTrend(trend) {
   }
 }
 
-function dateStrIsBefore(dateStr, daysToAdd) {
-  return Boolean(new Date(dateStr) < addDays(new Date(), daysToAdd))
-}
+const dateStrIsBefore = (dateStr, daysToAdd) =>
+  Boolean(new Date(dateStr) < addDays(new Date(), daysToAdd))
 
-function validateEarningsChart(earningsChart, mrq) {
+const validateEarningsChart = (earningsChart, mrq) => {
   if (!earningsChart || !earningsChart.quarterly.some(({ date }) => date === mrq)) {
     return []
   }
   return earningsChart.quarterly
 }
 
-function getRecentStatement(statements, seconds) {
-  return statements.find(({ endDate }) => endDate && endDate.raw === seconds)
-}
-function cleanStatement(statementList, mrqSeconds) {
+const getRecentStatement = (statements, seconds) =>
+  statements.find(({ endDate }) => endDate && endDate.raw === seconds)
+const cleanStatement = (statementList, mrqSeconds) => {
   const recentStatement = getRecentStatement(statementList, mrqSeconds)
   if (!recentStatement) {
     return statementList[0]
@@ -170,13 +165,13 @@ function cleanStatement(statementList, mrqSeconds) {
   return { ...mapped, quartersBack: -statementList.indexOf(selectedStatement) }
 }
 
-function cleanShortInterest(
+const cleanShortInterest = (
   dateShortInterest,
   sharesShortPreviousMonthDate,
   sharesShortPriorMonth,
   shortPercentOfFloat,
   sharesShort
-) {
+) => {
   if (!sharesShort || !sharesShortPriorMonth || !shortPercentOfFloat) {
     return {}
   }
@@ -202,7 +197,7 @@ const reduceUpdownGrade = upgradeDowngradeHistory =>
     .reduce((acc, { firm, toGrade, fromGrade }) => {
       return acc + ` ${firm}: ${fromGrade} => ${toGrade}\n`
     }, "")
-function getUpgradeDowngradeHistory(upgradeDowngradeHistory) {
+const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
   const filterDoubles = upgradeDowngradeHistory.filter(({ firm, epochGradeDate }) =>
     upgradeDowngradeHistory.every(
       comparison =>
@@ -236,7 +231,7 @@ function getUpgradeDowngradeHistory(upgradeDowngradeHistory) {
   )
 }
 
-function buildCompanyData({ quoteSummary }, wsjData) {
+module.exports = ({ quoteSummary }, wsjData) => {
   const {
     assetProfile: {
       longBusinessSummary,
@@ -733,5 +728,3 @@ function buildCompanyData({ quoteSummary }, wsjData) {
       .reduce((acc, curr) => acc + Number(curr), 0),
   }
 }
-
-module.exports = buildCompanyData
