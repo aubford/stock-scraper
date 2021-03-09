@@ -28,6 +28,8 @@ const getTextByX = async (page, selector) => {
 const newBrowserPage = async (browser, url, options = {}) => {
   /** @type {MyPage} */
   const page = await browser.newPage()
+  page.getTextByX = text => getTextByX(page, text)
+  page.closeSafe = () => page.close().catch(err => err)
 
   try {
     await page.goto(url, options)
@@ -37,8 +39,6 @@ const newBrowserPage = async (browser, url, options = {}) => {
     return page
   }
 
-  page.getTextByX = text => getTextByX(page, text)
-  page.closeSafe = () => page.close().catch(err => err)
   return page
 }
 
@@ -163,6 +163,15 @@ const promptLogin = newPage => {
     )
 }
 
+const pauseExecution = async (ticker, tickers) => {
+  // Pause every 5 tickers
+  const tickerIndex = tickers.indexOf(ticker)
+  if (tickerIndex !== 0 && tickerIndex % 5 === 0) {
+    console.log("((pause))")
+    await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
+  }
+}
+
 module.exports = {
   extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
@@ -177,4 +186,5 @@ module.exports = {
   promptForTickers,
   promptUser,
   promptLogin,
+  pauseExecution,
 }

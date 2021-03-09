@@ -1,4 +1,5 @@
 const Cheerio = require("cheerio")
+const { prevSiblingTextContains } = require("./util")
 
 /**
  * @param fetchArgs
@@ -83,4 +84,32 @@ exports.fetchIEXData = async (ticker, datum) => {
   const url = `https://sandbox.iexapis.com/stable/data-points/${ticker}/${datum}?token=${iexToken}`
   const text = await fetchText(url)
   return JSON.parse(text)
+}
+
+// NEW CONSTRUCTS
+
+exports.fetchNewConstructs = async (ticker, fetchPdfData) => {
+  const [ncRating, [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB] = []] = await fetchPdfData({
+    analystName: NEW_CONSTRUCTS,
+    url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
+    xPathArr: [
+      prevSiblingTextContains("(MM)"),
+      `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
+    ],
+    waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
+  })
+
+  if (ncRating !== ncRatingB) {
+    console.error("New Constructs rating mismatch!!!!!!")
+    return {}
+  }
+
+  return {
+    ncEps,
+    ncFCF,
+    ncGap,
+    ncPB,
+    ncRating,
+    ncRoic,
+  }
 }

@@ -99,7 +99,7 @@ module.exports = (ticker, browser) => {
       const values = await Promise.all(xPathArr.map(page.getTextByX))
 
       await page.closeSafe()
-      console.log(`${analystName} PDF: done`)
+      console.log(`${ticker} - ${analystName} PDF: done`)
       return values
     },
 
@@ -128,7 +128,7 @@ module.exports = (ticker, browser) => {
       }
 
       const values = await Promise.all(xPathArr.map(page.getTextByX))
-      console.log(`${analystName} Page: done`)
+      console.log(`${ticker} - ${analystName} Page: done`)
       return { page, values }
     },
   }

@@ -13,6 +13,7 @@ const {
   writeOut,
   promptForTickers,
   promptLogin,
+  pauseExecution,
   extractNumbers,
 } = require("./util")
 
@@ -122,12 +123,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
         ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
       : ""
 
-    // Pause every 5 tickers
-    const tickerIndex = tickers.indexOf(ticker)
-    if (tickerIndex !== 0 && tickerIndex % 5 === 0) {
-      console.log("((pause))")
-      await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
-    }
+    // PAUSE
+    await pauseExecution(ticker, tickers)
 
     // B of A
 
