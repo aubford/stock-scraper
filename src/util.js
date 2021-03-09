@@ -24,9 +24,7 @@ const getTextByX = async (page, selector) => {
   if (elementArr.length === 1) {
     return await elementArr[0].evaluate(node => node.textContent)
   }
-  return await Promise.all(
-    elementArr.map(element => element.evaluate(node => node.textContent))
-  )
+  return await Promise.all(elementArr.map(element => element.evaluate(node => node.textContent)))
 }
 
 /** @returns {Promise<MyPage>} */
@@ -61,8 +59,9 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     if (bulletA.includes("Neutral")) {
       return ""
     }
-    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator))
-      .value[bulletB.includes("significant") ? 1 : 0]
+    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator)).value[
+      bulletB.includes("significant") ? 1 : 0
+    ]
   })
 
   return _.fromPairs(
@@ -120,6 +119,7 @@ const hasCFRA = (rating, ticker, analystName) => {
 const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 const writeOut = data => {
   const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
+  /** @type {*} */
   const stockDataFile = fs.readFileSync(stockDataLocation)
   const existingData = JSON.parse(stockDataFile)
   const writeToFile = {

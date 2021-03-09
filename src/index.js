@@ -72,12 +72,10 @@ puppeteer.connect(connection).then(async browser => {
   const newStockData = {}
 
   for (const ticker of tickers) {
-    const {
-      fetchPageData,
-      fetchPdfData,
-      fetchFidelityPageData,
-      getPageCookies,
-    } = makeScrapeTools(ticker, browser)
+    const { fetchPageData, fetchPdfData, fetchFidelityPageData, getPageCookies } = makeScrapeTools(
+      ticker,
+      browser
+    )
 
     // FIDELITY
 
@@ -117,14 +115,8 @@ puppeteer.connect(connection).then(async browser => {
     })
 
     const {
-      [ARGUS_ANALYST_KEY]: {
-        href: argusAnalystLinkHref,
-        text: argusAnalystLinkText,
-      } = {},
-      [ARGUS_RESEARCH_KEY]: {
-        href: argusResearchLinkHref,
-        text: argusResearchLinkText,
-      } = {},
+      [ARGUS_ANALYST_KEY]: { href: argusAnalystLinkHref, text: argusAnalystLinkText } = {},
+      [ARGUS_RESEARCH_KEY]: { href: argusResearchLinkHref, text: argusResearchLinkText } = {},
       [ZACKS_KEY]: { href: zacksLinkHref, text: zacksLinkText } = {},
     } = await fetchFidelityPageData(fidelityPage, fidelityReportNameArr)
 
@@ -389,94 +381,95 @@ puppeteer.connect(connection).then(async browser => {
 
     // RESULT
 
+    const formatFidelityStarmine = (name, rating) => `${(name || "").substring(0, 14)} - ${rating}`
     newStockData[ticker] = {
-      ...companyData,
-      cfraLink,
-      cfraTarget: extractNumbers(cfraTarget),
-      cfraRating,
-      cfraFairValue,
-      cfraDate,
-      morningstarLink,
-      morningstarRating,
-      morningstarFairValue,
-      morningstarMoat,
-      morningstarUncertainty,
-      morningstarCapitalAllocation,
-      morningstarDate,
-      moodysOutlook,
-      moodysRating,
-      moodysLink,
-      boaRating,
-      boaIncome,
-      boaInvestment,
-      boaVolatility,
-      fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
-      fidelityStarmineOne: `${(fidelityStarmineOneName || "").substring(
-        0,
-        10
-      )} - ${fidelityStarmineOneRating}`,
-      fidelityStarmineTwo: `${(fidelityStarmineTwoName || "").substring(
-        0,
-        10
-      )} - ${fidelityStarmineTwoRating}`,
-      fidelityStarmineThree: `${(fidelityStarmineThreeName || "").substring(
-        0,
-        10
-      )} - ${fidelityStarmineThreeRating}`,
-      fidelityStarmineFour: `${(fidelityStarmineFourName || "").substring(
-        0,
-        10
-      )} - ${fidelityStarmineFourRating}`,
-      fidelityStarmineFive: `${(fidelityStarmineFiveName || "").substring(
-        0,
-        10
-      )} - ${fidelityStarmineFiveRating}`,
-      argusResearchLink: argusResearchLinkHref,
-      argusResearchDate: argusResearchLinkText,
-      argusResearchTarget,
-      argusResearchRating,
-      argusResearchManagement,
-      argusResearchSafety,
-      argusResearchFinancialStrength,
-      argusResearchGrowth,
-      argusResearchValue,
-      argusAnalystLink: argusAnalystLinkHref,
       argusAnalystDate: argusAnalystLinkText,
+      argusAnalystFinancialStrength,
+      argusAnalystFiveYrEpsGrowth,
+      argusAnalystLink: argusAnalystLinkHref,
+      argusAnalystOneYrDivGrowth,
+      argusAnalystOneYrEpsGrowth,
       argusAnalystRating,
       argusAnalystTarget,
-      argusAnalystFinancialStrength,
-      argusAnalystOneYrEpsGrowth,
-      argusAnalystFiveYrEpsGrowth,
-      argusAnalystOneYrDivGrowth,
-      zacksLink: zacksLinkHref,
+      argusResearchDate: argusResearchLinkText,
+      argusResearchFinancialStrength,
+      argusResearchGrowth,
+      argusResearchLink: argusResearchLinkHref,
+      argusResearchManagement,
+      argusResearchRating,
+      argusResearchSafety,
+      argusResearchTarget,
+      argusResearchValue,
+      boaIncome,
+      boaInvestment,
+      boaRating,
+      boaVolatility,
+      cfraDate,
+      cfraFairValue,
+      cfraLink,
+      cfraRating,
+      cfraTarget: extractNumbers(cfraTarget),
+      fidelityStarmineFive: formatFidelityStarmine(
+        fidelityStarmineFiveName,
+        fidelityStarmineFiveRating
+      ),
+      fidelityStarmineFour: formatFidelityStarmine(
+        fidelityStarmineFourName,
+        fidelityStarmineFourRating
+      ),
+      fidelityStarmineOne: formatFidelityStarmine(
+        fidelityStarmineOneName,
+        fidelityStarmineOneRating
+      ),
+      fidelityStarmineThree: formatFidelityStarmine(
+        fidelityStarmineThreeName,
+        fidelityStarmineThreeRating
+      ),
+      fidelityStarmineTwo: formatFidelityStarmine(
+        fidelityStarmineTwoName,
+        fidelityStarmineTwoRating
+      ),
+      fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
+      fordEarningsStrength,
+      fordPriceMovement,
+      fordRating,
+      fordRelativeValuation,
+      moodysLink,
+      moodysOutlook,
+      moodysRating,
+      morningstarCapitalAllocation,
+      morningstarDate,
+      morningstarFairValue,
+      morningstarLink,
+      morningstarMoat,
+      morningstarRating,
+      morningstarUncertainty,
+      ncEps,
+      ncFCF,
+      ncGap,
+      ncPB,
+      ncRating,
+      ncRoic,
+      streetEfficiency,
+      streetGrowth,
+      streetIncome,
+      ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
+      streetRating,
+      streetSolvency,
+      streetTargetPrice,
+      streetTotalReturn,
+      streetVolatility,
       zacksDate: zacksLinkText,
-      zacksTarget,
-      zacksRecommendation,
+      zacksGrowth,
+      zacksIndustryRank,
+      zacksLink: zacksLinkHref,
+      zacksMomentum,
       zacksRank,
+      zacksRecommendation,
+      zacksTarget,
       zacksVGM,
       zacksValue,
-      zacksGrowth,
-      zacksMomentum,
-      zacksIndustryRank,
-      fordRating,
-      fordEarningsStrength,
-      fordRelativeValuation,
-      fordPriceMovement,
-      ncRating,
-      ncEps,
-      ncRoic,
-      ncFCF,
-      ncPB,
-      ncGap,
-      streetRating,
-      streetGrowth,
-      streetTotalReturn,
-      streetEfficiency,
-      streetVolatility,
-      streetSolvency,
-      streetIncome,
-      streetTargetPrice,
-      ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
+      ...companyData,
     }
 
     console.log(`* COMPLETED OK: ${ticker}`)
