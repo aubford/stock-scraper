@@ -132,19 +132,21 @@ const writeOut = data => {
   })
 }
 
-const promptForTickers = async () => {
+const promptUser = async question => {
   const readlineInterface = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   })
 
   return new Promise(resolve => {
-    readlineInterface.question("Tickers: ", tickers => {
+    readlineInterface.question(question, tickers => {
       resolve(tickers)
       readlineInterface.close()
     })
   })
 }
+
+const promptForTickers = () => promptUser("Tickers: ")
 
 const promptLogin = newPage => {
   const pages = [
@@ -173,5 +175,6 @@ module.exports = {
   getTextByX,
   hasCFRA,
   promptForTickers,
+  promptUser,
   promptLogin,
 }

@@ -15,6 +15,7 @@ const fetchData = async ticker => {
   return [ticker, { ...buildCompanyData(yahooData, wsjData), ...stockData[ticker] }]
 }
 
+// NOTE: Is there an issue with fetchData being async??
 Promise.all(tickers.map(fetchData)).then(companyData => {
   const updatedStockData = _.fromPairs(companyData)
   const updatedData = { magicTickers, buffetData, ...updatedStockData }

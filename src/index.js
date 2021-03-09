@@ -1,5 +1,5 @@
 const puppeteer = require("puppeteer-core")
-const { webSocketDebuggerUrl } = require("../ws.json")
+const makeScrapeTools = require("./makeScrapeTools")
 const { getMoodysLink, fetchYahooData, fetchWSJData } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -15,17 +15,8 @@ const {
   promptLogin,
   extractNumbers,
 } = require("./util")
-const makeScrapeTools = require("./makeScrapeTools")
 
-const connection = {
-  browserWSEndpoint: webSocketDebuggerUrl,
-  defaultViewport: {
-    width: 1400,
-    height: 1800,
-  },
-}
-
-puppeteer.connect(connection).then(async browser => {
+puppeteer.connect(CONNECTION).then(async browser => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
   const closeLoginPages = await promptLogin(newPage)

@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "npm run updateWs && node --require ./preload.js src/index.js",
-    "update": "npm run updateWs && node --require ./preload.js src/updateSimpleFetchData.js",
+    "updateYahooWsj": "npm run updateWs && node --require ./preload.js src/updateYahooWsj.js",
+    "updateAnalysts": "npm run updateWs && node --require ./preload.js src/updateAnalysts.js",
     "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js",
     "test": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.js",
     "launch": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check",
