@@ -19,9 +19,7 @@ const getNonIndexOwners = ownershipList => {
   const indexFundTags = ["index", "500", "russel", "spdr", "s&p"]
 
   return ownershipList
-    .filter(owner =>
-      indexFundTags.every(name => !owner.organization.toLowerCase().includes(name))
-    )
+    .filter(owner => indexFundTags.every(name => !owner.organization.toLowerCase().includes(name)))
     .map(({ organization, pctHeld }) => `${organization}: ${pctHeld.fmt}`)
     .join("\n")
 }
@@ -200,8 +198,7 @@ const reduceUpdownGrade = upgradeDowngradeHistory =>
 const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
   const filterDoubles = upgradeDowngradeHistory.filter(({ firm, epochGradeDate }) =>
     upgradeDowngradeHistory.every(
-      comparison =>
-        firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
+      comparison => firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
     )
   )
 
@@ -342,11 +339,8 @@ module.exports = ({ quoteSummary }, wsjData) => {
   const mrqSeconds = mostRecentQuarter ? mostRecentQuarter.raw : 0
   const lfyEndSeconds = lastFiscalYearEnd ? lastFiscalYearEnd.raw : 0
 
-  const lastReportedQuarter = Math.round(
-    (mrqSeconds - lfyEndSeconds) / (secondsInYear / 4)
-  )
-  const fiscalMRQQtr =
-    mrqSeconds && lfyEndSeconds === mrqSeconds ? 4 : lastReportedQuarter
+  const lastReportedQuarter = Math.round((mrqSeconds - lfyEndSeconds) / (secondsInYear / 4))
+  const fiscalMRQQtr = mrqSeconds && lfyEndSeconds === mrqSeconds ? 4 : lastReportedQuarter
   const fiscalMRQYear = new Date(mrqSeconds * 1000).getFullYear()
   const fiscalMRQStr = `${fiscalMRQQtr}Q${fiscalMRQYear}`
 
@@ -457,9 +451,7 @@ module.exports = ({ quoteSummary }, wsjData) => {
   const totalRevenueTTM =
     totalRevenue && totalRevenue.raw ? totalRevenue.raw : statementTotalRevenueSum
 
-  const cashFlowReStock = -(
-    (cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0)
-  )
+  const cashFlowReStock = -((cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0))
 
   const cashFlowStatementsUpToDate = Boolean(
     getRecentStatement(cashflowStatements, mrqSeconds) &&
@@ -655,22 +647,16 @@ module.exports = ({ quoteSummary }, wsjData) => {
         : incomeStatement.ebit / incomeStatement.totalRevenue,
     priceToSalesMRQ:
       regularMarketPrice && regularMarketPrice.raw && incomeStatement.totalRevenue
-        ? (
-            regularMarketPrice.raw / slicePerShareAnnlz(incomeStatement.totalRevenue)
-          ).toFixed(2)
+        ? (regularMarketPrice.raw / slicePerShareAnnlz(incomeStatement.totalRevenue)).toFixed(2)
         : "n/a",
     salesPerShareMRQ: incomeStatement.totalRevenue
       ? slicePerShareAnnlz(incomeStatement.totalRevenue).toFixed(2)
       : 0,
     salesPerShareTTM: slicePerShare(totalRevenueTTM),
-    leveredFreeCashFlowPerShare: leveredFreeCashFlow
-      ? slicePerShare(leveredFreeCashFlow.raw)
-      : 0,
+    leveredFreeCashFlowPerShare: leveredFreeCashFlow ? slicePerShare(leveredFreeCashFlow.raw) : 0,
     freeCashFlowPerShareTTM: slicePerShare(freeCashFlowTTM),
     freeCashFlowPerShareMRQ: slicePerShare(freeCashFlowMRQ),
-    totalCashPerShare: totalCashPerShare
-      ? totalCashPerShare.raw
-      : slicePerShare(balanceSheet.cash),
+    totalCashPerShare: totalCashPerShare ? totalCashPerShare.raw : slicePerShare(balanceSheet.cash),
     operatingCashFlowPerShareMRQ: slicePerShare(operatingCashFlowMRQ),
     enterpriseToRevenue:
       enterpriseToRevenue && enterpriseToRevenue.raw
@@ -682,10 +668,7 @@ module.exports = ({ quoteSummary }, wsjData) => {
       ? getUpgradeDowngradeHistory(upgradeDowngradeHistory)
       : "n/a",
     anaylstRecommendations,
-    numAnaylstRecommendations: anaylstRecommendations.reduce(
-      (acc, curr) => acc + curr,
-      0
-    ),
+    numAnaylstRecommendations: anaylstRecommendations.reduce((acc, curr) => acc + curr, 0),
     institutionsCount: institutionsCount ? institutionsCount.longFmt : null,
     nonIndexOwners: getNonIndexOwners(ownershipList),
     earliestEarningsDate: getEarningsChartCurrentEstimateData().earningsDates,
@@ -699,8 +682,7 @@ module.exports = ({ quoteSummary }, wsjData) => {
     quarterlyEPSActualEstimateChart: validateEarningsChart(earningsChart, fiscalMRQStr)
       .reduce((acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0], [])
       .concat(
-        currentQuarterEstimate &&
-          getEarningsChartCurrentEstimateData().earningsChartDateOk
+        currentQuarterEstimate && getEarningsChartCurrentEstimateData().earningsChartDateOk
           ? currentQuarterEstimate.raw
           : []
       ),

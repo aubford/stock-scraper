@@ -1,16 +1,6 @@
 const puppeteer = require("puppeteer-core")
-const fetch = require("node-fetch")
-const _ = require("lodash")
 const Cheerio = require("cheerio")
-const {
-  getTextByX,
-  newBrowserPage,
-  writeOut,
-  prevSiblingTextIs,
-  prevSiblingTextContains,
-  XPATH_TIMEOUT,
-  SCRAPBOOK_LOCATION,
-} = require("./util")
+const { newBrowserPage, writeOut } = require("./util")
 const { webSocketDebuggerUrl } = require("../ws.json")
 
 const connection = {
@@ -19,32 +9,28 @@ const connection = {
     width: 1400,
     height: 1800,
   },
-  slowMo: 500,
 }
 
 const getMagicFormulaData = async (minMarketCap, cookieArr) => {
   const cookie = cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
-  const response = await fetch(
-    "https://www.magicformulainvesting.com/Screening/StockScreening",
-    {
-      headers: {
-        accept: "*/*",
-        "accept-language": "en-US,en;q=0.9,es;q=0.8",
-        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "x-requested-with": "XMLHttpRequest",
-        referrer: "https://www.magicformulainvesting.com/Screening/StockScreening",
-        referrerPolicy: "strict-origin-when-cross-origin",
-        cookie,
-      },
-      body: `MinimumMarketCap=${minMarketCap}&Select30=false&stocks=Get+Stocks`,
-      method: "post",
-    }
-  )
+  const response = await fetch("https://www.magicformulainvesting.com/Screening/StockScreening", {
+    headers: {
+      accept: "*/*",
+      "accept-language": "en-US,en;q=0.9,es;q=0.8",
+      "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "x-requested-with": "XMLHttpRequest",
+      referrer: "https://www.magicformulainvesting.com/Screening/StockScreening",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      cookie,
+    },
+    body: `MinimumMarketCap=${minMarketCap}&Select30=false&stocks=Get+Stocks`,
+    method: "post",
+  })
 
   const text = await response.text()
 
@@ -77,8 +63,7 @@ const getBuffetData = async () => {
     .map((i, node) => [
       [
         $(node).children(`td.stock`).text().split(" - ")[0],
-        $(node).children(`td.buy:first`).text() ||
-          $(node).children(`td.sell:first`).text(),
+        $(node).children(`td.buy:first`).text() || $(node).children(`td.sell:first`).text(),
       ],
     ])
     .toArray()
@@ -94,9 +79,7 @@ const getBuffetData = async () => {
 puppeteer.connect(connection).then(async browser => {
   const newPage = url => newBrowserPage(browser, url)
 
-  const page = await newPage(
-    "https://www.magicformulainvesting.com/Screening/StockScreening"
-  )
+  const page = await newPage("https://www.magicformulainvesting.com/Screening/StockScreening")
 
   const cookies = await page.cookies()
   await page.closeSafe()

@@ -3,7 +3,6 @@
  */
 
 global.million = 1000000
-global._ = require("lodash")
 const buildCompanyData = require("../src/buildCompanyData.js")
 const data = require("./data/bsxData.json")
 

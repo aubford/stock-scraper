@@ -1,4 +1,4 @@
-const { newBrowserPage, XPATH_TIMEOUT, SCRAPBOOK_LOCATION, evalX } = require("./util")
+const { newBrowserPage, evalX } = require("./util")
 
 module.exports = (ticker, browser) => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)

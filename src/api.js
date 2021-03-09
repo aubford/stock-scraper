@@ -1,6 +1,4 @@
 const Cheerio = require("cheerio")
-const fetch = require("node-fetch")
-const { yahooModules } = require("./constants")
 
 /**
  * @param fetchArgs
@@ -62,7 +60,7 @@ exports.fetchWSJData = async ticker => {
 // YAHOO
 
 exports.fetchYahooData = async ticker => {
-  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=${yahooModules.join(
+  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=${YAHOO_MODULES.join(
     ","
   )}`
   const text = await fetchText(url)

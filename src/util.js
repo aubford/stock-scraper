@@ -1,14 +1,11 @@
 require("puppeteer-core")
 const readline = require("readline")
-const fs = require("fs")
 /**
  * @typedef {Page} MyPage
  * @property getTextByX
  * @property closeSafe
  * @property error
  */
-
-const XPATH_TIMEOUT = 20000
 
 /**
  * @param page {MyPage}
@@ -116,7 +113,6 @@ const hasCFRA = (rating, ticker, analystName) => {
   return hasReport
 }
 
-const SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
 const writeOut = data => {
   const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
   /** @type {*} */
@@ -166,22 +162,6 @@ const promptLogin = newPage => {
 }
 
 module.exports = {
-  ARGUS_ANALYST_KEY: "Argus Analyst",
-  ARGUS_RESEARCH_KEY: "Argus Research A6/Quantitative (i)",
-  ZACKS_KEY: "Zacks Investment Research, Inc (i)",
-  XPATH_TIMEOUT,
-  FIDELITY: "fidelity",
-  FORD: "ford",
-  NEW_CONSTRUCTS: "nc",
-  THE_STREET: "theStreet",
-  ARGUS_ANALYST: "argusAnalyst",
-  ARGUS_RESEARCH: "argusResearch",
-  ZACKS: "zacks",
-  MORNINGSTAR: "morningstar",
-  CFRA: "CFRA",
-  BOA: "BoA",
-  PAUSE_MS: process.argv.length > 2 ? Number(process.argv[2]) * 1000 : 3000,
-  SCRAPBOOK_LOCATION,
   extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
   newBrowserPage,

@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer-core")
-const _ = require("lodash")
 const fs = require("fs")
 const moment = require("moment")
 const { newBrowserPage } = require("../src/util")

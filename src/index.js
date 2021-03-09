@@ -14,25 +14,8 @@ const {
   promptForTickers,
   promptLogin,
   extractNumbers,
-  ARGUS_ANALYST_KEY,
-  ARGUS_RESEARCH_KEY,
-  ZACKS_KEY,
-  FIDELITY,
-  FORD,
-  NEW_CONSTRUCTS,
-  THE_STREET,
-  ARGUS_ANALYST,
-  ARGUS_RESEARCH,
-  ZACKS,
-  BOA,
-  MORNINGSTAR,
-  CFRA,
-  PAUSE_MS,
 } = require("./util")
 const makeScrapeTools = require("./makeScrapeTools")
-global._ = require("lodash")
-
-console.log("PAUSE MS", PAUSE_MS)
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,

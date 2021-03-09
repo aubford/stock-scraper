@@ -4,13 +4,14 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "npm run updateWs && node src/index.js",
-    "extra": "npm run updateWs && node src/scrapeExtraData.js",
-    "test": "npm run updateWs && node test/puppeteerSandbox.js",
+    "start": "npm run updateWs && node --require ./preload.js src/index.js",
+    "update": "npm run updateWs && node --require ./preload.js src/updateSimpleFetchData.js",
+    "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js",
+    "test": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.js",
     "launch": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check",
     "updateWs": "curl localhost:9222/json/version > ws.json",
-    "haleakala": "npm run updateWs && node test/haleakala.js",
-    "stock-tool": "node test/stock_tool.test.js"
+    "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.js",
+    "stock-tool": "node --require lodash test/stock_tool.test.js"
   },
   "author": "",
   "license": "ISC",
@@ -34,7 +35,27 @@
       "jest": true
     },
     "globals": [
-      "_"
+      "_",
+      "fetch",
+      "ARGUS_ANALYST_KEY",
+      "ARGUS_RESEARCH_KEY",
+      "ZACKS_KEY",
+      "XPATH_TIMEOUT",
+      "FIDELITY",
+      "FORD",
+      "NEW_CONSTRUCTS",
+      "THE_STREET",
+      "ARGUS_ANALYST",
+      "ARGUS_RESEARCH",
+      "ZACKS",
+      "MORNINGSTAR",
+      "CFRA",
+      "BOA",
+      "SCRAPBOOK_LOCATION",
+      "PAUSE_MS",
+      "STOCK_DATA_LOCATION",
+      "STOCK_DATA_BACKUP_LOCATION",
+      "YAHOO_MODULES"
     ],
     "extends": [
       "eslint:recommended"
