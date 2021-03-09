@@ -307,19 +307,19 @@ puppeteer.connect(connection).then(async browser => {
 
     // NEW CONSTRUCTS
 
-    const [ncRating, ncEps, ncRoic, ncFCF, ncPB, ncGap] = await fetchPdfData({
+    const [ncRating, [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB]] = await fetchPdfData({
       analystName: NEW_CONSTRUCTS,
       url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
       xPathArr: [
-        prevSiblingTextContains("(MM)"), // rating
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[69]`, // eps
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[24]`, // roic
-        `/html/body/div[1]/div[2]/div[4]/div/div[2]/div[2]/span[63]`, // fcf yield
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[181]`, // p/ebv
-        `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`, // growth appreciation period
+        prevSiblingTextContains("(MM)"),
+        `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
       ],
       waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
     })
+
+    if (ncRating !== ncRatingB) {
+      throw new Error("*** NC Rating mismatch error !!!!")
+    }
 
     // CFRA
 

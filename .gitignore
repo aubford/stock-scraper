@@ -5,3 +5,4 @@ ws.json
 test/stockData.json
 testOutput.json
 test/scratch.js
+.DS_Store
