@@ -2,16 +2,15 @@ const { newBrowserPage, evalX } = require("./util")
 
 /**
  * @typedef ScrapeTools
- * @property PageDataFetcher
- * @property getPageCookies(*=):Promise<string>
- * @property fetchPdfData({url?:*, analystName:*, xPathArr:*, waitForPostScroll?:*, timeout?:*}):Promise<[]|unknown[]>}|string|unknown[]|*[]
+ * @property {PageDataFetcher} PageDataFetcher
+ * @property {getPageCookies} getPageCookies
+ * @property {fetchPdfData} fetchPdfData
  */
 
 /**
- * @function makeScrapeTools
  * @param {string} ticker
  * @param {*} browser
- * @returns {ScrapeTools} scrapeTools
+ * @returns {ScrapeTools}
  */
 module.exports = (ticker, browser) => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
@@ -156,7 +155,7 @@ module.exports = (ticker, browser) => {
       }
 
       /** @type MyPage */
-      const page = await newPage(url)
+      const page = await newPage(url, { waitUntil: "networkidle2" })
       if (page.error) {
         await page.closeSafe()
         return []
@@ -199,9 +198,13 @@ module.exports = (ticker, browser) => {
       return values
     },
 
+    /**
+     * @typedef getPageCookies
+     * @param url
+     * @returns {Promise<string>}
+     */
     async getPageCookies(url) {
       const page = await newPage(url)
-      /** @type {array} */
       const cookieArr = await page.cookies()
       await page.closeSafe()
       return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")

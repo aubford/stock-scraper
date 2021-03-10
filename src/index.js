@@ -84,7 +84,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     await fidelityFetcher.close()
 
-    const fidelityKeyStats = fetchFidelityKeyStats(ticker, { PageDataFetcher })
+    const fidelityKeyStats = await fetchFidelityKeyStats(ticker, { PageDataFetcher })
 
     // FORD
 
@@ -273,7 +273,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // NEW CONSTRUCTS
 
-    const ncData = fetchNewConstructs(ticker, scrapeTools)
+    const ncData = await fetchNewConstructs(ticker, scrapeTools)
 
     // CFRA
 
@@ -348,7 +348,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       fordPriceMovement,
       fordRating,
       fordRelativeValuation,
-      moodysLink,
+      moodysLink: moodysLink ? moodysLink.link : "",
       moodysOutlook,
       moodysRating,
       morningstarCapitalAllocation,

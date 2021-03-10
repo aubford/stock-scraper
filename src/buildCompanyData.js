@@ -491,6 +491,7 @@ module.exports = ({ quoteSummary }, wsjData) => {
         revenuePerShare,
         totalCash,
         ebitda,
+        operatingCashflowTTM,
 
         // DEFAULT KEY STATISTICS
 
@@ -640,7 +641,6 @@ module.exports = ({ quoteSummary }, wsjData) => {
     sector,
     shareHolderRightsRisk,
     totalRevenueTTM,
-    operatingCashflowTTM,
     mostRecentQuarter: mostRecentQuarter
       ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${incomeStatement.quartersBack}`
       : "?",

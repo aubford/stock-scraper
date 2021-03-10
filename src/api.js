@@ -2,15 +2,6 @@ const Cheerio = require("cheerio")
 const { prevSiblingTextContains, prevSiblingTextIs } = require("./util")
 
 /**
- * @typedef ApiCall
- * @function
- * @param {string} ticker
- * @param {ScrapeTools} scrapeTools
- * @param {string} url
- * @returns Promise<Object>
- */
-
-/**
  * @returns {Promise<string>}
  */
 const fetchText = async (...fetchArgs) => {
@@ -18,85 +9,13 @@ const fetchText = async (...fetchArgs) => {
   return await response.text()
 }
 
-// MOODYS
-
-exports.getMoodysLink = async (ticker, cookie) => {
-  const text = await fetchText(
-    "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
-    {
-      headers: {
-        accept: "application/json, text/plain, */*",
-        "accept-language": "en-US,en;q=0.9,es;q=0.8",
-        "content-type": "application/json",
-        "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-origin",
-        "x-lang": "en",
-        cookie,
-      },
-      referrer:
-        "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550/reports?category=Ratings_and_Assessments_Reports_rc|Issuer_Reports_rc|Issuer_Data_Reports&type=Rating_Action_rc|Announcement_rc|Announcement_of_Periodic_Review_rc,Credit_Opinion_ir_rc,Peer_Snapshot_rc",
-      referrerPolicy: "strict-origin-when-cross-origin",
-      body: `{"data":["${ticker}","en"]}`,
-      method: "POST",
-      mode: "cors",
-    }
-  )
-  const data = JSON.parse(text).data.organizations[0]
-  return data && data.ticker === ticker ? data : null
-}
-
-// WSJ
-
-exports.fetchWSJData = async ticker => {
-  const url = `https://www.wsj.com/market-data/quotes/${ticker}/research-ratings`
-  try {
-    const text = await fetchText(url)
-    const $ = Cheerio.load(text)
-    const html = $(".cr_analystRatings .data_data")
-    return html
-      .contents()
-      .get()
-      .map(node => node.data)
-  } catch (err) {
-    console.error("WSJ ERROR: ", err)
-    return []
-  }
-}
-
-// YAHOO
-
-exports.fetchYahooData = async ticker => {
-  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=${YAHOO_MODULES.join(
-    ","
-  )}`
-  const text = await fetchText(url)
-  return JSON.parse(text)
-}
-
-// ALPHA VANTAGE
-
-const avApiKey = "1FSCTLZ457VMJH2F"
-const avUrl = "https://www.alphavantage.co/query?function="
-exports.fetchAlphaVantageData = async (ticker, func) => {
-  const text = await fetchText(avUrl + func + "&symbol=" + ticker + "&apikey=" + avApiKey)
-  return JSON.parse(text)
-}
-
-// IEX
-
-const iexToken = "Tsk_05e3881c9446499bac9b6778ca0c2f8e"
-exports.fetchIEXData = async (ticker, datum) => {
-  const url = `https://sandbox.iexapis.com/stable/data-points/${ticker}/${datum}?token=${iexToken}`
-  const text = await fetchText(url)
-  return JSON.parse(text)
-}
-
 // NEW CONSTRUCTS
 
-/** @type ApiCall */
+/**
+ * @param ticker
+ * @param {ScrapeTools} scrapeTools
+ * @returns {Promise<{}|{ncRoic:*, ncPB:*, ncRating:*, ncFCF:*, ncGap:*, ncEps:*}>}
+ */
 exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   const [
     ncRating,
@@ -108,7 +27,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
       prevSiblingTextContains("(MM)"),
       `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
     ],
-    waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
+    waitForPostScroll: `//span[contains(text(),"Price-to-EBV Ratio is")]`,
   })
 
   if (ncRating !== ncRatingB) {
@@ -126,7 +45,12 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   }
 }
 
-/** @type ApiCall */
+/**
+ * @param ticker
+ * @param {ScrapeTools} scrapeTools
+ * @param url
+ * @returns {Promise<Object>}
+ */
 exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
   const [
     zacksRank,
@@ -234,7 +158,11 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
 const fidelityKeyStatXpath = name =>
   `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
-/** @type ApiCall */
+/**
+ * @param ticker
+ * @param PageDataFetcher
+ * @returns Promise<{fidelityEVIndustry:*, fidelityRevChngIndustryPct:*, fidelityOpMarginIndustryPct:*, fidelityRoAMrqIndustryPct:*, fidelityCurrentIndustry:*, fidelityIncomeEmploy:*, fidelityRevChngIndustry:*, fidelityPeFiveYrIndustry:*, fidelityPretaxMarginMrqIndustry:*, fidelityRoIIndustry:*, fidelityPayoutIndustryPct:*, fidelityDAMrqIndustry:*, fidelityPcf:*, fidelityRoAIndustry:*, fidelityRoIMrqIndustry:*, fidelityPayoutIndustry:*, fidelityPEGFiveYrIndustryPct:*, fidelityEpsGrowthYoYIndustryPct:*, fidelityEV:*, fidelityEpsGrowthYoY:*, fidelityEpsGrowthProj:*, fidelityPcfMrqIndustry:*, fidelityEpsGrowthProjIndustryPct:*, fidelityIncomeEmployIndustry:*, fidelityPBookIndustry:*, fidelityDA:*, fidelityEpsGrowthProjIndustry:*, fidelityLongDEMrqIndustryPct:*, fidelityDC:*, fidelityDE:*, fidelityRoIMrqIndustryPct:*, fidelityPEGFiveYrIndustry:*, fidelityPeIndustryPct:*, fidelityPayout:*, fidelityPeFiveYrIndustryPct:*, fidelityRoE:*, fidelityPBook:*, fidelityLongDEIndustry:*, fidelityRoEIndustryPct:*, fidelityRoI:*, fidelityLongDEMrq:*, fidelityLongDE:*, fidelityPeIndustry:*, fidelityProfitMarginMrqIndustryPct:*, fidelityCurrent:*, fidelityPSalesMrq:*, fidelityBookValueIndustryPct:*, fidelityGMargin:*, fidelityPretaxMarginMrqIndustryPct:*, fidelityEpsGrowth:*, fidelityPeFiveYr:*, fidelityEbitdMarginIndustryPct:*, fidelityDCIndustry:*, fidelityPSalesIndustry:*, fidelityRoeMrqIndustryPct:*, fidelityIncomeEmployIndustryPct:*, fidelityProfitMarginMrqIndustry:*, fidelityDEMrqIndustry:*, fidelityEVIndustryPct:*, fidelityEpsGrowthFiveYrIndustryPct:*, fidelityDCIndustryPct:*, fidelityPSalesMrqIndustry:*, fidelityGMarginIndustryPct:*, fidelityRevEmploy:*, fidelityDAMrq:*, fidelityRevChngYoYIndustry:*, fidelityRoAIndustryPct:*, fidelityDAMrqIndustryPct:*, fidelityCurrentIndustryPct:*, fidelityDEIndustryPct:*, fidelityCFlowGrowthFiveYrIndustryPct:*, fidelityLongDEIndustryPct:*, fidelityEpsGrowthProjLongIndustry:*, fidelityDCMrqIndustry:*, fidelityRevGrowthFiveYrIndustryPct:*, fidelityDEMrqIndustryPct:*, fidelityFcFIndustryPct:*, fidelityPretaxMargin:*, fidelityPSales:*, fidelityRevEmployIndustryPct:*, fidelityOpMarginMrq:*, fidelityGMarginMrqIndustry:*, fidelityBookGrowthFiveYr:*, fidelityRevChngYoY:*, fidelityRevChng:*, fidelityLongDEMrqIndustry:*, fidelityPSalesIndustryPct:*, fidelityEpsGrowthFiveYr:*, fidelityEpsGrowthProjLongIndustryPct:*, fidelityPBookIndustryPct:*, fidelityFcFIndustry:*, fidelityEpsGrowthIndustry:*, fidelityRoAMrqIndustry:*, fidelityBookGrowthFiveYrIndustry:*, fidelityDCMrq:*, fidelityBookValueIndustry:*, fidelityEpsGrowthYoYIndustry:*, fidelityBookValue:*, fidelityEbitdMarginIndustry:*, fidelityRevGrowthFiveYrIndustry:*, fidelityOpMargin:*, fidelityPretaxMarginIndustryPct:*, fidelityRoeMrq:*, fidelityPe:*, fidelityPcfIndustryPct:*, fidelityPretaxMarginIndustry:*, fidelityPcfMrq:*, fidelityGMarginMrqIndustryPct:*, fidelityDCMrqIndustryPct:*, fidelityFcF:*, fidelityPcfIndustry:*, fidelityOpMarginMrqIndustryPct:*, fidelityOpMarginMrqIndustry:*, fidelityDAIndustryPct:*, fidelityEbitdMargin:*, fidelityEpsGrowthFiveYrIndustry:*, fidelityBookGrowthFiveYrIndustryPct:*, fidelityCompustatLink:*, fidelityRoAMrq:*, fidelityRoA:*, fidelityRoIMrq:*, fidelityEpsGrowthIndustryPct:*, fidelityEpsGrowthProjLong:*, fidelityDAIndustry:*, fidelityProfitMarginMrq:*, fidelityCFlowGrowthFiveYrIndustry:*, fidelityRevChngYoYIndustryPct:*, fidelityGMarginMrq:*, fidelityOpMarginIndustry:*, fidelityDEMrq:*, fidelityPEGFiveYr:*, fidelityPcfMrqIndustryPct:*, fidelityRevGrowthFiveYr:*, fidelityRoeMrqIndustry:*, fidelityDEIndustry:*, fidelityPSalesMrqIndustryPct:*, fidelityCFlowGrowthFiveYr:*, fidelityPretaxMarginMrq:*, fidelityGMarginIndustry:*, fidelityRoEIndustry:*, fidelityRoIIndustryPct:*, fidelityRevEmployIndustry:*}>
+ */
 exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
   const fetcher = new PageDataFetcher(FIDELITY_STATS)
   await fetcher.setPage(
@@ -539,4 +467,93 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
     fidelityRevEmployIndustryPct,
     fidelityCompustatLink,
   }
+}
+
+// MOODYS
+
+/**
+ * @param ticker
+ * @param cookie
+ * @returns {Promise<*|null>}
+ */
+exports.getMoodysLink = async (ticker, cookie) => {
+  const text = await fetchText(
+    "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
+    {
+      headers: {
+        accept: "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9,es;q=0.8",
+        "content-type": "application/json",
+        "sec-ch-ua": '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "x-lang": "en",
+        cookie,
+      },
+      referrer:
+        "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550/reports?category=Ratings_and_Assessments_Reports_rc|Issuer_Reports_rc|Issuer_Data_Reports&type=Rating_Action_rc|Announcement_rc|Announcement_of_Periodic_Review_rc,Credit_Opinion_ir_rc,Peer_Snapshot_rc",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: `{"data":["${ticker}","en"]}`,
+      method: "POST",
+      mode: "cors",
+    }
+  )
+  const data = JSON.parse(text).data.organizations[0]
+  return data && data.ticker === ticker ? data : null
+}
+
+// WSJ
+
+/**
+ * @param ticker
+ * @returns {Promise<*[]>}
+ */
+exports.fetchWSJData = async ticker => {
+  const url = `https://www.wsj.com/market-data/quotes/${ticker}/research-ratings`
+  try {
+    const text = await fetchText(url)
+    const $ = Cheerio.load(text)
+    const html = $(".cr_analystRatings .data_data")
+    return html
+      .contents()
+      .get()
+      .map(node => node.data)
+  } catch (err) {
+    console.error("WSJ ERROR: ", err)
+    return []
+  }
+}
+
+// YAHOO
+
+/**
+ * @param ticker
+ * @returns {Promise<any>}
+ */
+exports.fetchYahooData = async ticker => {
+  const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=${YAHOO_MODULES.join(
+    ","
+  )}`
+  const text = await fetchText(url)
+  return JSON.parse(text)
+}
+
+// ALPHA VANTAGE
+
+const avApiKey = "1FSCTLZ457VMJH2F"
+const avUrl = "https://www.alphavantage.co/query?function="
+exports.fetchAlphaVantageData = async (ticker, func) => {
+  const text = await fetchText(avUrl + func + "&symbol=" + ticker + "&apikey=" + avApiKey)
+  return JSON.parse(text)
+}
+
+// IEX
+
+const iexToken = "Tsk_05e3881c9446499bac9b6778ca0c2f8e"
+exports.fetchIEXData = async (ticker, datum) => {
+  const url = `https://sandbox.iexapis.com/stable/data-points/${ticker}/${datum}?token=${iexToken}`
+  const text = await fetchText(url)
+  return JSON.parse(text)
 }
