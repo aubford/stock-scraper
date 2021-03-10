@@ -1,11 +1,18 @@
 const puppeteer = require("puppeteer-core")
 const makeScrapeTools = require("./makeScrapeTools")
-const { getMoodysLink, fetchYahooData, fetchWSJData } = require("./api")
+const {
+  fetchZacks,
+  fetchNewConstructs,
+  getMoodysLink,
+  fetchYahooData,
+  fetchWSJData,
+} = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
   evalX,
   newBrowserPage,
   parseStreetBulletData,
+  getFidelitySecretUrl,
   prevSiblingTextIs,
   prevSiblingTextContains,
   followingSiblingTextIs,
@@ -27,22 +34,6 @@ puppeteer.connect(CONNECTION).then(async browser => {
   console.log("Searching for tickers:", tickers)
 
   closeLoginPages()
-
-  const getFidelitySecretUrl = async fidelityLink => {
-    if (!fidelityLink) {
-      return null
-    }
-    const page = await newPage(fidelityLink)
-    try {
-      const src = await page.$eval("frame", node => node.getAttribute("src"))
-      return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
-    } catch (err) {
-      console.error("failed to getFidelitySecretUrl")
-      return null
-    } finally {
-      await page.closeSafe()
-    }
-  }
 
   const newStockData = {}
 
@@ -171,7 +162,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       argusAnalystOneYrDivGrowth,
     ] = await fetchPdfData({
       analystName: ARGUS_ANALYST,
-      url: await getFidelitySecretUrl(argusAnalystLinkHref),
+      url: await getFidelitySecretUrl(argusAnalystLinkHref, browser),
       xPathArr: [
         prevSiblingTextIs("ARGUS RATING: "),
         prevSiblingTextIs("Target Price"),
@@ -295,19 +286,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // NEW CONSTRUCTS
 
-    const [ncRating, [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB]] = await fetchPdfData({
-      analystName: NEW_CONSTRUCTS,
-      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
-      xPathArr: [
-        prevSiblingTextContains("(MM)"),
-        `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
-      ],
-      waitForPostScroll: `/html/body/div[1]/div[2]/div[4]/div/div[3]/div[2]/span[49]`,
-    })
-
-    if (ncRating !== ncRatingB) {
-      throw new Error("*** NC Rating mismatch error !!!!")
-    }
+    const ncData = fetchNewConstructs(ticker, fetchPdfData)
 
     // CFRA
 
@@ -326,29 +305,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // ZACKS
 
-    const [
-      zacksRank,
-      zacksTarget,
-      zacksRecommendation,
-      zacksVGM,
-      zacksValue,
-      zacksGrowth,
-      zacksMomentum,
-      zacksIndustryRank,
-    ] = await fetchPdfData({
-      analystName: ZACKS,
-      url: await getFidelitySecretUrl(zacksLinkHref),
-      xPathArr: [
-        `//span[text()="Zacks Style Scores:" or text()="Zacks Rank: "]/following-sibling::span[position()=1 and not(text()="(1-5)")]`,
-        prevSiblingTextIs("Price Target (6-12 Months): "),
-        prevSiblingTextIs("Zacks Recommendation:", 4),
-        prevSiblingTextIs(`VGM:`),
-        `//*[@id="viewer"]//span[contains(text(),"Value: ")]`,
-        `//*[@id="viewer"]//span[contains(text(),"Growth: ")]`,
-        `//*[@id="viewer"]//span[contains(text(),"Momentum: ")]`,
-        prevSiblingTextIs(`Zacks Industry Rank`),
-      ],
-    })
+    const zacksUrl = await getFidelitySecretUrl(zacksLinkHref, browser)
+    const zacksData = await fetchZacks(ticker, fetchPdfData, zacksUrl)
 
     // RESULT
 
@@ -415,12 +373,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       morningstarMoat,
       morningstarRating,
       morningstarUncertainty,
-      ncEps,
-      ncFCF,
-      ncGap,
-      ncPB,
-      ncRating,
-      ncRoic,
+      ...ncData,
       streetEfficiency,
       streetGrowth,
       streetIncome,
@@ -431,15 +384,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
       streetTotalReturn,
       streetVolatility,
       zacksDate: zacksLinkText,
-      zacksGrowth,
-      zacksIndustryRank,
       zacksLink: zacksLinkHref,
-      zacksMomentum,
-      zacksRank,
-      zacksRecommendation,
-      zacksTarget,
-      zacksVGM,
-      zacksValue,
+      ...zacksData,
       ...companyData,
     }
 

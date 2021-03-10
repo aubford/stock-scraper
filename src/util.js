@@ -172,6 +172,22 @@ const pauseExecution = async (ticker, tickers) => {
   }
 }
 
+const getFidelitySecretUrl = async (fidelityLink, browser) => {
+  if (!fidelityLink) {
+    return null
+  }
+  const page = await newBrowserPage(browser, fidelityLink)
+  try {
+    const src = await page.$eval("frame", node => node.getAttribute("src"))
+    return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
+  } catch (err) {
+    console.error("failed to getFidelitySecretUrl")
+    return null
+  } finally {
+    await page.closeSafe()
+  }
+}
+
 module.exports = {
   extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
@@ -187,4 +203,5 @@ module.exports = {
   promptUser,
   promptLogin,
   pauseExecution,
+  getFidelitySecretUrl,
 }

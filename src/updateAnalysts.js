@@ -1,10 +1,17 @@
 const puppeteer = require("puppeteer-core")
 const makeScrapeTools = require("./makeScrapeTools")
-const { fetchNewConstructs } = require("./api")
-const { pauseExecution, writeOut, promptForTickers, promptUser } = require("./util")
+const { fetchNewConstructs, fetchZacks } = require("./api")
+const {
+  getFidelitySecretUrl,
+  pauseExecution,
+  writeOut,
+  promptForTickers,
+  promptUser,
+} = require("./util")
 
 const analystMap = {
-  nc: fetchNewConstructs,
+  [NEW_CONSTRUCTS]: fetchNewConstructs,
+  [ZACKS]: fetchZacks,
 }
 
 fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
@@ -26,7 +33,15 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     await pauseExecution(ticker, tickers)
 
-    const analystData = await fetchAnalystData(ticker, fetchPdfData)
+    let url
+    if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
+      const link = stockData[ticker][analyst + "Link"]
+      if (link) {
+        url = await getFidelitySecretUrl(link, browser)
+      }
+    }
+
+    const analystData = await fetchAnalystData(ticker, fetchPdfData, url)
 
     stockData[ticker] = {
       ...stockData[ticker],

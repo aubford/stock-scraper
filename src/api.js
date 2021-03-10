@@ -1,5 +1,5 @@
 const Cheerio = require("cheerio")
-const { prevSiblingTextContains } = require("./util")
+const { getFidelitySecretUrl, prevSiblingTextContains, prevSiblingTextIs } = require("./util")
 
 /**
  * @param fetchArgs
@@ -111,5 +111,42 @@ exports.fetchNewConstructs = async (ticker, fetchPdfData) => {
     ncPB,
     ncRating,
     ncRoic,
+  }
+}
+
+exports.fetchZacks = async (ticker, fetchPdfData, url) => {
+  const [
+    zacksRank,
+    zacksTarget,
+    zacksRecommendation,
+    zacksVGM,
+    zacksValue,
+    zacksGrowth,
+    zacksMomentum,
+    zacksIndustryRank,
+  ] = await fetchPdfData({
+    analystName: ZACKS,
+    url,
+    xPathArr: [
+      `//span[text()="Zacks Style Scores:" or text()="Zacks Rank: "]/following-sibling::span[position()=1 and not(text()="(1-5)")]`,
+      prevSiblingTextIs("Price Target (6-12 Months): "),
+      prevSiblingTextIs("Zacks Recommendation:", 4),
+      prevSiblingTextIs(`VGM:`),
+      `//*[@id="viewer"]//span[contains(text(),"Value: ")]`,
+      `//*[@id="viewer"]//span[contains(text(),"Growth: ")]`,
+      `//*[@id="viewer"]//span[contains(text(),"Momentum: ")]`,
+      prevSiblingTextIs(`Zacks Industry Rank`),
+    ],
+  })
+
+  return {
+    zacksRank,
+    zacksTarget,
+    zacksRecommendation,
+    zacksVGM,
+    zacksValue,
+    zacksGrowth,
+    zacksMomentum,
+    zacksIndustryRank,
   }
 }
