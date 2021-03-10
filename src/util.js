@@ -166,7 +166,7 @@ const promptLogin = newPage => {
 const pauseExecution = async (ticker, tickers) => {
   // Pause every 5 tickers
   const tickerIndex = tickers.indexOf(ticker)
-  if (tickerIndex !== 0 && tickerIndex % 5 === 0) {
+  if ((tickerIndex + 1) % 6 === 0) {
     console.log("((pause))")
     await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
   }
