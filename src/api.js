@@ -114,6 +114,12 @@ exports.fetchNewConstructs = async (ticker, fetchPdfData) => {
   }
 }
 
+/**
+ * @param ticker
+ * @param {fetchPdfData} fetchPdfData
+ * @param url
+ * @returns {Promise<{zacksTarget:*, zacksCashFlowPerShare:*, zacksHistEpsGrowth:*, zacksProjEpsGrowth:*, zacksCurrentRatio:*, zacksMomentum:*, zacksExpectedReportDate:*, zacksNetMargin:*, zacksPB:*, zacksIndustryRank:*, zacksRank:*, zacksCurrCashFlowGrowth:*, zacksGrowth:*, zacksProjSalesGrowth:*, zacksEVEbitda:*, zacksDebtCapital:*, zacksValue:*, zacksQuarterlyEps:*, zacksSalesToAssets:*, zacksDebtEquity:*, zacksVGM:*, zacksEpsSurprise:*, zacksROE:*, zacksSalesSurprise:*, zacksEarningsYield:*, zacksRecommendation:*, zacksPEG:*, zacksAnnualEps:*, zacksPCF:*, zacksHistCashFlowGrowth:*}>}
+ */
 exports.fetchZacks = async (ticker, fetchPdfData, url) => {
   const [
     zacksRank,
@@ -123,19 +129,64 @@ exports.fetchZacks = async (ticker, fetchPdfData, url) => {
     zacksValue,
     zacksGrowth,
     zacksMomentum,
-    zacksIndustryRank,
+    [zacksIndustryRank] = [],
+    zacksEpsSurprise,
+    zacksSalesSurprise,
+    zacksExpectedReportDate,
+    zacksQuarterlyEps,
+    zacksAnnualEps,
+    zacksEVEbitda,
+    zacksPEG,
+    zacksPB,
+    zacksPCF,
+    zacksEarningsYield,
+    zacksDebtEquity,
+    zacksCashFlowPerShare,
+    zacksHistEpsGrowth, // 3-5 years
+    zacksProjEpsGrowth,
+    zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth,
+    zacksCurrentRatio,
+    zacksDebtCapital,
+    zacksNetMargin,
+    zacksROE,
+    zacksSalesToAssets,
+    zacksProjSalesGrowth,
   ] = await fetchPdfData({
     analystName: ZACKS,
     url,
+    waitForPostScroll: prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
     xPathArr: [
       `//span[text()="Zacks Style Scores:" or text()="Zacks Rank: "]/following-sibling::span[position()=1 and not(text()="(1-5)")]`,
       prevSiblingTextIs("Price Target (6-12 Months): "),
       prevSiblingTextIs("Zacks Recommendation:", 4),
-      prevSiblingTextIs(`VGM:`),
+      prevSiblingTextIs("VGM:"),
       `//*[@id="viewer"]//span[contains(text(),"Value: ")]`,
       `//*[@id="viewer"]//span[contains(text(),"Growth: ")]`,
       `//*[@id="viewer"]//span[contains(text(),"Momentum: ")]`,
-      prevSiblingTextIs(`Zacks Industry Rank`),
+      prevSiblingTextContains("Zacks Industry Rank"),
+      prevSiblingTextContains("Last EPS Surprise"),
+      prevSiblingTextContains("Last Sales Surprise"),
+      prevSiblingTextContains("Expected Report Date"),
+      prevSiblingTextContains("Quarterly EPS"),
+      prevSiblingTextContains("Annual EPS (TTM)"),
+      prevSiblingTextContains("EV/EBITDA"),
+      prevSiblingTextContains("PEG Ratio"),
+      prevSiblingTextContains("Price/Book (P/B)"),
+      prevSiblingTextContains("Price/Cash Flow (P/CF)"),
+      prevSiblingTextContains("Earnings Yield"),
+      prevSiblingTextContains("Debt/Equity"),
+      prevSiblingTextContains("Cash Flow ($/share)"),
+      prevSiblingTextContains("Hist. EPS Growth (3-5 yrs)"),
+      prevSiblingTextContains("Proj. EPS Growth (F1/F0)"),
+      prevSiblingTextContains("Curr. Cash Flow Growth"),
+      prevSiblingTextContains("Hist. Cash Flow Growth (3-5 yrs)"),
+      prevSiblingTextContains("Current Ratio"),
+      prevSiblingTextContains("Debt/Capital"),
+      prevSiblingTextContains("Net Margin"),
+      prevSiblingTextContains("Return on Equity"),
+      prevSiblingTextContains("Sales/Assets"),
+      prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
     ],
   })
 
@@ -148,5 +199,27 @@ exports.fetchZacks = async (ticker, fetchPdfData, url) => {
     zacksGrowth,
     zacksMomentum,
     zacksIndustryRank,
+    zacksEpsSurprise,
+    zacksSalesSurprise,
+    zacksExpectedReportDate,
+    zacksQuarterlyEps,
+    zacksAnnualEps,
+    zacksEVEbitda,
+    zacksPEG,
+    zacksPB,
+    zacksPCF,
+    zacksEarningsYield,
+    zacksDebtEquity,
+    zacksCashFlowPerShare,
+    zacksHistEpsGrowth, // 3-5 years
+    zacksProjEpsGrowth,
+    zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth,
+    zacksCurrentRatio,
+    zacksDebtCapital,
+    zacksNetMargin,
+    zacksROE,
+    zacksSalesToAssets,
+    zacksProjSalesGrowth,
   }
 }

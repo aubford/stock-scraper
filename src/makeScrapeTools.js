@@ -34,14 +34,17 @@ module.exports = (ticker, browser) => {
       return {}
     },
 
-    async fetchPdfData({
-      url,
-      xPathArr,
-      screenShotArr,
-      waitForPostScroll,
-      analystName,
-      timeout = XPATH_TIMEOUT,
-    }) {
+    /**
+     * @typedef fetchPdfData
+     * @param {Object} options
+     * @param {String} options.url
+     * @param {String} options.analystName
+     * @param {String[]} options.xPathArr
+     * @param {String[]} [options.waitForPostScroll]
+     * @param {Number} [options.timeout]
+     * @returns {Promise<*[]>}
+     */
+    async fetchPdfData({ url, analystName, xPathArr, waitForPostScroll, timeout = XPATH_TIMEOUT }) {
       if (!url) {
         console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
         return []
@@ -71,17 +74,6 @@ module.exports = (ticker, browser) => {
         )
         await page.closeSafe()
         return []
-      }
-
-      if (screenShotArr) {
-        await Promise.all(
-          screenShotArr.map(clip =>
-            page.screenshot({
-              clip,
-              path: `${SCRAPBOOK_LOCATION}/${ticker}-${analystName}-screenshot.png`,
-            })
-          )
-        )
       }
 
       if (waitForPostScroll) {
