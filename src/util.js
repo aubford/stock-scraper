@@ -13,15 +13,20 @@ const readline = require("readline")
  * @returns {Promise<string|string[]>}
  */
 const getTextByX = async (page, selector) => {
-  /** @type {ElementHandle[]} */
   const elementArr = await page.$x(selector)
   if (!elementArr.length) {
     return ""
   }
   if (elementArr.length === 1) {
-    return await elementArr[0].evaluate(node => node.textContent)
+    return await elementArr[0].evaluate(({ textContent }) =>
+      textContent ? textContent.trim() : ""
+    )
   }
-  return await Promise.all(elementArr.map(element => element.evaluate(node => node.textContent)))
+  return await Promise.all(
+    elementArr.map(element =>
+      element.evaluate(({ textContent }) => (textContent ? textContent.trim() : ""))
+    )
+  )
 }
 
 /** @returns {Promise<MyPage>} */
@@ -56,9 +61,8 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     if (bulletA.includes("Neutral")) {
       return ""
     }
-    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator)).value[
-      bulletB.includes("significant") ? 1 : 0
-    ]
+    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator))
+      .value[bulletB.includes("significant") ? 1 : 0]
   })
 
   return _.fromPairs(
@@ -79,20 +83,20 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
 }
 
 /**
- * @param {Frame|Page|ElementHandle} frame
+ * @param {Frame|Page} frame
  * @param selector {string}
- * @param func {function}
+ * @param {*} func
  * @returns {Promise<string|string[]>}
  */
-const evalX = async (frame, selector, func) => {
+const evalX = async (frame, selector, ...func) => {
   const elementArr = (await frame.$x(selector)) || []
   if (!elementArr.length) {
     return ""
   }
   if (elementArr.length === 1) {
-    return await elementArr[0].evaluate(func)
+    return await elementArr[0].evaluate(...func)
   }
-  return await Promise.all(elementArr.map(element => element.evaluate(func)))
+  return await Promise.all(elementArr.map(element => element.evaluate(...func)))
 }
 
 const chars = text => text.replace(/\s/g, "")

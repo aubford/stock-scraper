@@ -29,35 +29,38 @@
   "devDependencies": {
     "eslint": "^7.21.0"
   },
-  "eslint": {
+  "eslintConfig": {
     "env": {
       "es2021": true,
       "node": true,
       "jest": true
     },
-    "globals": [
-      "_",
-      "fetch",
-      "ARGUS_ANALYST_KEY",
-      "ARGUS_RESEARCH_KEY",
-      "ZACKS_KEY",
-      "XPATH_TIMEOUT",
-      "FIDELITY",
-      "FORD",
-      "NEW_CONSTRUCTS",
-      "THE_STREET",
-      "ARGUS_ANALYST",
-      "ARGUS_RESEARCH",
-      "ZACKS",
-      "MORNINGSTAR",
-      "CFRA",
-      "BOA",
-      "SCRAPBOOK_LOCATION",
-      "PAUSE_MS",
-      "STOCK_DATA_LOCATION",
-      "STOCK_DATA_BACKUP_LOCATION",
-      "YAHOO_MODULES"
-    ],
+    "globals": {
+      "_": true,
+      "fs": true,
+      "fetch": true,
+      "ARGUS_ANALYST_KEY": true,
+      "ARGUS_RESEARCH_KEY": true,
+      "ZACKS_KEY": true,
+      "XPATH_TIMEOUT": true,
+      "FIDELITY": true,
+      "FORD": true,
+      "NEW_CONSTRUCTS": true,
+      "THE_STREET": true,
+      "ARGUS_ANALYST": true,
+      "ARGUS_RESEARCH": true,
+      "ZACKS": true,
+      "MORNINGSTAR": true,
+      "CFRA": true,
+      "BOA": true,
+      "SCRAPBOOK_LOCATION": true,
+      "PAUSE_MS": true,
+      "STOCK_DATA_LOCATION": true,
+      "STOCK_DATA_BACKUP_LOCATION": true,
+      "YAHOO_MODULES": true,
+      "CONNECTION": true,
+      "FIDELITY_STATS": true
+    },
     "extends": [
       "eslint:recommended"
     ],
@@ -68,7 +71,7 @@
   "prettier": {
     "singleQuote": false,
     "semi": false,
-    "printWidth": 100,
+    "printWidth": 90,
     "arrowParens": "avoid"
   }
 }

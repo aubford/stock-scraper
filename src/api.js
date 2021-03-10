@@ -1,8 +1,16 @@
 const Cheerio = require("cheerio")
-const { getFidelitySecretUrl, prevSiblingTextContains, prevSiblingTextIs } = require("./util")
+const { prevSiblingTextContains, prevSiblingTextIs } = require("./util")
 
 /**
- * @param fetchArgs
+ * @typedef ApiCall
+ * @function
+ * @param {string} ticker
+ * @param {ScrapeTools} scrapeTools
+ * @param {string} url
+ * @returns Promise<Object>
+ */
+
+/**
  * @returns {Promise<string>}
  */
 const fetchText = async (...fetchArgs) => {
@@ -88,8 +96,12 @@ exports.fetchIEXData = async (ticker, datum) => {
 
 // NEW CONSTRUCTS
 
-exports.fetchNewConstructs = async (ticker, fetchPdfData) => {
-  const [ncRating, [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB] = []] = await fetchPdfData({
+/** @type ApiCall */
+exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
+  const [
+    ncRating,
+    [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
+  ] = await fetchPdfData({
     analystName: NEW_CONSTRUCTS,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [
@@ -114,13 +126,8 @@ exports.fetchNewConstructs = async (ticker, fetchPdfData) => {
   }
 }
 
-/**
- * @param ticker
- * @param {fetchPdfData} fetchPdfData
- * @param url
- * @returns {Promise<{zacksTarget:*, zacksCashFlowPerShare:*, zacksHistEpsGrowth:*, zacksProjEpsGrowth:*, zacksCurrentRatio:*, zacksMomentum:*, zacksExpectedReportDate:*, zacksNetMargin:*, zacksPB:*, zacksIndustryRank:*, zacksRank:*, zacksCurrCashFlowGrowth:*, zacksGrowth:*, zacksProjSalesGrowth:*, zacksEVEbitda:*, zacksDebtCapital:*, zacksValue:*, zacksQuarterlyEps:*, zacksSalesToAssets:*, zacksDebtEquity:*, zacksVGM:*, zacksEpsSurprise:*, zacksROE:*, zacksSalesSurprise:*, zacksEarningsYield:*, zacksRecommendation:*, zacksPEG:*, zacksAnnualEps:*, zacksPCF:*, zacksHistCashFlowGrowth:*}>}
- */
-exports.fetchZacks = async (ticker, fetchPdfData, url) => {
+/** @type ApiCall */
+exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
   const [
     zacksRank,
     zacksTarget,
@@ -221,5 +228,315 @@ exports.fetchZacks = async (ticker, fetchPdfData, url) => {
     zacksROE,
     zacksSalesToAssets,
     zacksProjSalesGrowth,
+  }
+}
+
+const fidelityKeyStatXpath = name =>
+  `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
+
+/** @type ApiCall */
+exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
+  const fetcher = new PageDataFetcher(FIDELITY_STATS)
+  await fetcher.setPage(
+    `https://eresearch.fidelity.com/eresearch/evaluate/fundamentals/keyStatistics.jhtml?stockspage=keyStatistics&symbols=${ticker}`
+  )
+
+  const [
+    [fidelityPe, fidelityPeIndustry, fidelityPeIndustryPct] = [], // TTM, which is default vs. Mrq
+    [fidelityPeFiveYr, fidelityPeFiveYrIndustry, fidelityPeFiveYrIndustryPct] = [],
+    [fidelityPEGFiveYr, fidelityPEGFiveYrIndustry, fidelityPEGFiveYrIndustryPct] = [],
+    [fidelityEV, fidelityEVIndustry, fidelityEVIndustryPct] = [],
+    [fidelityPcfMrq, fidelityPcfMrqIndustry, fidelityPcfMrqIndustryPct] = [],
+    [fidelityPcf, fidelityPcfIndustry, fidelityPcfIndustryPct] = [],
+    [fidelityPSalesMrq, fidelityPSalesMrqIndustry, fidelityPSalesMrqIndustryPct] = [],
+    [fidelityPSales, fidelityPSalesIndustry, fidelityPSalesIndustryPct] = [],
+    [fidelityPBook, fidelityPBookIndustry, fidelityPBookIndustryPct] = [],
+    [fidelityBookValue, fidelityBookValueIndustry, fidelityBookValueIndustryPct] = [],
+    [
+      fidelityEpsGrowthYoY,
+      fidelityEpsGrowthYoYIndustry,
+      fidelityEpsGrowthYoYIndustryPct,
+    ] = [],
+    [fidelityEpsGrowth, fidelityEpsGrowthIndustry, fidelityEpsGrowthIndustryPct] = [], // ttm vs. prior ttm
+    [
+      fidelityEpsGrowthFiveYr,
+      fidelityEpsGrowthFiveYrIndustry,
+      fidelityEpsGrowthFiveYrIndustryPct,
+    ] = [],
+    [
+      fidelityEpsGrowthProj,
+      fidelityEpsGrowthProjIndustry,
+      fidelityEpsGrowthProjIndustryPct,
+    ] = [],
+    [
+      fidelityEpsGrowthProjLong,
+      fidelityEpsGrowthProjLongIndustry,
+      fidelityEpsGrowthProjLongIndustryPct,
+    ] = [],
+    [fidelityRevChngYoY, fidelityRevChngYoYIndustry, fidelityRevChngYoYIndustryPct] = [],
+    [fidelityRevChng, fidelityRevChngIndustry, fidelityRevChngIndustryPct] = [],
+    [
+      fidelityRevGrowthFiveYr,
+      fidelityRevGrowthFiveYrIndustry,
+      fidelityRevGrowthFiveYrIndustryPct,
+    ] = [],
+    [
+      fidelityBookGrowthFiveYr,
+      fidelityBookGrowthFiveYrIndustry,
+      fidelityBookGrowthFiveYrIndustryPct,
+    ] = [],
+    [fidelityFcF, fidelityFcFIndustry, fidelityFcFIndustryPct] = [],
+    [
+      fidelityCFlowGrowthFiveYr,
+      fidelityCFlowGrowthFiveYrIndustry,
+      fidelityCFlowGrowthFiveYrIndustryPct,
+    ] = [],
+    [fidelityGMarginMrq, fidelityGMarginMrqIndustry, fidelityGMarginMrqIndustryPct] = [],
+    [fidelityGMargin, fidelityGMarginIndustry, fidelityGMarginIndustryPct] = [],
+    [
+      fidelityEbitdMargin,
+      fidelityEbitdMarginIndustry,
+      fidelityEbitdMarginIndustryPct,
+    ] = [],
+    [
+      fidelityProfitMarginMrq,
+      fidelityProfitMarginMrqIndustry,
+      fidelityProfitMarginMrqIndustryPct,
+    ] = [],
+    [
+      fidelityOpMarginMrq,
+      fidelityOpMarginMrqIndustry,
+      fidelityOpMarginMrqIndustryPct,
+    ] = [],
+    [fidelityOpMargin, fidelityOpMarginIndustry, fidelityOpMarginIndustryPct] = [],
+    [
+      fidelityPretaxMarginMrq,
+      fidelityPretaxMarginMrqIndustry,
+      fidelityPretaxMarginMrqIndustryPct,
+    ] = [],
+    [
+      fidelityPretaxMargin,
+      fidelityPretaxMarginIndustry,
+      fidelityPretaxMarginIndustryPct,
+    ] = [],
+    [fidelityRoeMrq, fidelityRoeMrqIndustry, fidelityRoeMrqIndustryPct] = [],
+    [fidelityRoE, fidelityRoEIndustry, fidelityRoEIndustryPct] = [],
+    [fidelityRoAMrq, fidelityRoAMrqIndustry, fidelityRoAMrqIndustryPct] = [],
+    [fidelityRoA, fidelityRoAIndustry, fidelityRoAIndustryPct] = [],
+    [fidelityRoIMrq, fidelityRoIMrqIndustry, fidelityRoIMrqIndustryPct] = [],
+    [fidelityRoI, fidelityRoIIndustry, fidelityRoIIndustryPct] = [],
+    [fidelityLongDEMrq, fidelityLongDEMrqIndustry, fidelityLongDEMrqIndustryPct] = [],
+    [fidelityLongDE, fidelityLongDEIndustry, fidelityLongDEIndustryPct] = [],
+    [fidelityDAMrq, fidelityDAMrqIndustry, fidelityDAMrqIndustryPct] = [],
+    [fidelityDA, fidelityDAIndustry, fidelityDAIndustryPct] = [],
+    [fidelityDCMrq, fidelityDCMrqIndustry, fidelityDCMrqIndustryPct] = [],
+    [fidelityDC, fidelityDCIndustry, fidelityDCIndustryPct] = [],
+    [fidelityDEMrq, fidelityDEMrqIndustry, fidelityDEMrqIndustryPct] = [],
+    [fidelityDE, fidelityDEIndustry, fidelityDEIndustryPct] = [],
+    [fidelityCurrent, fidelityCurrentIndustry, fidelityCurrentIndustryPct] = [],
+    [fidelityPayout, fidelityPayoutIndustry, fidelityPayoutIndustryPct] = [],
+    [
+      fidelityIncomeEmploy,
+      fidelityIncomeEmployIndustry,
+      fidelityIncomeEmployIndustryPct,
+    ] = [],
+    [fidelityRevEmploy, fidelityRevEmployIndustry, fidelityRevEmployIndustryPct] = [],
+    fidelityCompustatLink,
+  ] = await fetcher.fetchPageData([
+    fidelityKeyStatXpath("P/E (Trailing Twelve Months)"),
+    fidelityKeyStatXpath("P/E (5-Year Average)"),
+    fidelityKeyStatXpath("PEG Ratio (5-Year Projected)"),
+    fidelityKeyStatXpath("Enterprise Value"),
+    fidelityKeyStatXpath("Price/Cash Flow (Most Recent Quarter)"),
+    fidelityKeyStatXpath("Price/Cash Flow (TTM)"),
+    fidelityKeyStatXpath("Price/Sales (Most Recent Quarter)"),
+    fidelityKeyStatXpath("Price/Sales (TTM)"),
+    fidelityKeyStatXpath("Price/Book"),
+    fidelityKeyStatXpath("Book Value"),
+    fidelityKeyStatXpath("EPS Growth (Last Qrtr vs. Same Qrtr Prior Year)"),
+    fidelityKeyStatXpath("EPS Growth (TTM vs. Prior TTM)"),
+    fidelityKeyStatXpath("EPS Growth (Last 5 Years)"),
+    fidelityKeyStatXpath("Projected EPS Growth (Next Year vs. This Year)"),
+    fidelityKeyStatXpath("Forward EPS Long Term Growth (3-5 Yrs)"),
+    fidelityKeyStatXpath("Revenue % Change (Last Qrtr vs. Same Qrtr Prior Year)"),
+    fidelityKeyStatXpath("Revenue % Change (TTM)"),
+    fidelityKeyStatXpath("Revenue Growth (Last 5 Years)"),
+    fidelityKeyStatXpath("Book Value per Share Growth (Last 5 Years)"),
+    fidelityKeyStatXpath("Free Cash Flow (TTM)"),
+    fidelityKeyStatXpath("Cash Flow Growth Rate (Last 5 Years)"),
+    fidelityKeyStatXpath("Gross Margin (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Gross Margin (TTM)"),
+    fidelityKeyStatXpath("EBITD Margin (TTM)"),
+    fidelityKeyStatXpath("Profit Margin (Most Recent Quarter)"),
+    fidelityKeyStatXpath("Operating Margin (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Operating Margin (TTM)"),
+    fidelityKeyStatXpath("Pretax Margin (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Pretax Margin (TTM)"),
+    fidelityKeyStatXpath("Return on Equity (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Return on Equity (TTM)"),
+    fidelityKeyStatXpath("Return on Assets (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Return on Assets (TTM)"),
+    fidelityKeyStatXpath("Return on Investment (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Return on Investment (TTM)"),
+    fidelityKeyStatXpath("Long Term Debt/Equity (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Long Term Debt/Equity (TTM)"),
+    fidelityKeyStatXpath("Total Debt/Assets (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Total Debt/Assets (TTM)"),
+    fidelityKeyStatXpath("Total Debt/Capital (Most Recent Quarter)"),
+    fidelityKeyStatXpath("Total Debt/Capital (TTM)"),
+    fidelityKeyStatXpath("Total Debt/Equity (Most Recent Quarter, Annualized)"),
+    fidelityKeyStatXpath("Total Debt/Equity (TTM)"),
+    fidelityKeyStatXpath("Current Ratio (TTM)"),
+    fidelityKeyStatXpath("Payout Ratio (TTM)"),
+    fidelityKeyStatXpath("Income/Employee (TTM)"),
+    fidelityKeyStatXpath("Revenue/Employee (TTM)"),
+    `//img[@title="MSCI Company Report"]/following-sibling::a/@href`,
+  ])
+
+  await fetcher.close()
+
+  return {
+    fidelityPe,
+    fidelityPeIndustry,
+    fidelityPeIndustryPct,
+    fidelityPeFiveYr,
+    fidelityPeFiveYrIndustry,
+    fidelityPeFiveYrIndustryPct,
+    fidelityPEGFiveYr,
+    fidelityPEGFiveYrIndustry,
+    fidelityPEGFiveYrIndustryPct,
+    fidelityEV,
+    fidelityEVIndustry,
+    fidelityEVIndustryPct,
+    fidelityPcfMrq,
+    fidelityPcfMrqIndustry,
+    fidelityPcfMrqIndustryPct,
+    fidelityPcf,
+    fidelityPcfIndustry,
+    fidelityPcfIndustryPct,
+    fidelityPSalesMrq,
+    fidelityPSalesMrqIndustry,
+    fidelityPSalesMrqIndustryPct,
+    fidelityPSales,
+    fidelityPSalesIndustry,
+    fidelityPSalesIndustryPct,
+    fidelityPBook,
+    fidelityPBookIndustry,
+    fidelityPBookIndustryPct,
+    fidelityBookValue,
+    fidelityBookValueIndustry,
+    fidelityBookValueIndustryPct,
+    fidelityEpsGrowthYoY,
+    fidelityEpsGrowthYoYIndustry,
+    fidelityEpsGrowthYoYIndustryPct,
+    fidelityEpsGrowth,
+    fidelityEpsGrowthIndustry,
+    fidelityEpsGrowthIndustryPct,
+    fidelityEpsGrowthFiveYr,
+    fidelityEpsGrowthFiveYrIndustry,
+    fidelityEpsGrowthFiveYrIndustryPct,
+    fidelityEpsGrowthProj,
+    fidelityEpsGrowthProjIndustry,
+    fidelityEpsGrowthProjIndustryPct,
+    fidelityEpsGrowthProjLong,
+    fidelityEpsGrowthProjLongIndustry,
+    fidelityEpsGrowthProjLongIndustryPct,
+    fidelityRevChngYoY,
+    fidelityRevChngYoYIndustry,
+    fidelityRevChngYoYIndustryPct,
+    fidelityRevChng,
+    fidelityRevChngIndustry,
+    fidelityRevChngIndustryPct,
+    fidelityRevGrowthFiveYr,
+    fidelityRevGrowthFiveYrIndustry,
+    fidelityRevGrowthFiveYrIndustryPct,
+    fidelityBookGrowthFiveYr,
+    fidelityBookGrowthFiveYrIndustry,
+    fidelityBookGrowthFiveYrIndustryPct,
+    fidelityFcF,
+    fidelityFcFIndustry,
+    fidelityFcFIndustryPct,
+    fidelityCFlowGrowthFiveYr,
+    fidelityCFlowGrowthFiveYrIndustry,
+    fidelityCFlowGrowthFiveYrIndustryPct,
+    fidelityGMarginMrq,
+    fidelityGMarginMrqIndustry,
+    fidelityGMarginMrqIndustryPct,
+    fidelityGMargin,
+    fidelityGMarginIndustry,
+    fidelityGMarginIndustryPct,
+    fidelityEbitdMargin,
+    fidelityEbitdMarginIndustry,
+    fidelityEbitdMarginIndustryPct,
+    fidelityProfitMarginMrq,
+    fidelityProfitMarginMrqIndustry,
+    fidelityProfitMarginMrqIndustryPct,
+    fidelityOpMarginMrq,
+    fidelityOpMarginMrqIndustry,
+    fidelityOpMarginMrqIndustryPct,
+    fidelityOpMargin,
+    fidelityOpMarginIndustry,
+    fidelityOpMarginIndustryPct,
+    fidelityPretaxMarginMrq,
+    fidelityPretaxMarginMrqIndustry,
+    fidelityPretaxMarginMrqIndustryPct,
+    fidelityPretaxMargin,
+    fidelityPretaxMarginIndustry,
+    fidelityPretaxMarginIndustryPct,
+    fidelityRoeMrq,
+    fidelityRoeMrqIndustry,
+    fidelityRoeMrqIndustryPct,
+    fidelityRoE,
+    fidelityRoEIndustry,
+    fidelityRoEIndustryPct,
+    fidelityRoAMrq,
+    fidelityRoAMrqIndustry,
+    fidelityRoAMrqIndustryPct,
+    fidelityRoA,
+    fidelityRoAIndustry,
+    fidelityRoAIndustryPct,
+    fidelityRoIMrq,
+    fidelityRoIMrqIndustry,
+    fidelityRoIMrqIndustryPct,
+    fidelityRoI,
+    fidelityRoIIndustry,
+    fidelityRoIIndustryPct,
+    fidelityLongDEMrq,
+    fidelityLongDEMrqIndustry,
+    fidelityLongDEMrqIndustryPct,
+    fidelityLongDE,
+    fidelityLongDEIndustry,
+    fidelityLongDEIndustryPct,
+    fidelityDAMrq,
+    fidelityDAMrqIndustry,
+    fidelityDAMrqIndustryPct,
+    fidelityDA,
+    fidelityDAIndustry,
+    fidelityDAIndustryPct,
+    fidelityDCMrq,
+    fidelityDCMrqIndustry,
+    fidelityDCMrqIndustryPct,
+    fidelityDC,
+    fidelityDCIndustry,
+    fidelityDCIndustryPct,
+    fidelityDEMrq,
+    fidelityDEMrqIndustry,
+    fidelityDEMrqIndustryPct,
+    fidelityDE,
+    fidelityDEIndustry,
+    fidelityDEIndustryPct,
+    fidelityCurrent,
+    fidelityCurrentIndustry,
+    fidelityCurrentIndustryPct,
+    fidelityPayout,
+    fidelityPayoutIndustry,
+    fidelityPayoutIndustryPct,
+    fidelityIncomeEmploy,
+    fidelityIncomeEmployIndustry,
+    fidelityIncomeEmployIndustryPct,
+    fidelityRevEmploy,
+    fidelityRevEmployIndustry,
+    fidelityRevEmployIndustryPct,
+    fidelityCompustatLink,
   }
 }

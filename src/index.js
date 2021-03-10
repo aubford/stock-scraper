@@ -6,10 +6,10 @@ const {
   getMoodysLink,
   fetchYahooData,
   fetchWSJData,
+  fetchFidelityKeyStats,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
-  evalX,
   newBrowserPage,
   parseStreetBulletData,
   getFidelitySecretUrl,
@@ -38,53 +38,53 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const newStockData = {}
 
   for (const ticker of tickers) {
-    const { fetchPageData, fetchPdfData, fetchFidelityPageData, getPageCookies } = makeScrapeTools(
-      ticker,
-      browser
-    )
+    const scrapeTools = makeScrapeTools(ticker, browser)
+    const { PageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
 
     // FIDELITY
 
-    const {
-      values: [
-        fidelitySummaryScore,
-        fidelityReportNameArr,
-        fidelityStarmineOneName,
-        fidelityStarmineTwoName,
-        fidelityStarmineThreeName,
-        fidelityStarmineFourName,
-        fidelityStarmineFiveName,
-        fidelityStarmineOneRating,
-        fidelityStarmineTwoRating,
-        fidelityStarmineThreeRating,
-        fidelityStarmineFourRating,
-        fidelityStarmineFiveRating,
-      ] = [],
-      page: fidelityPage,
-    } = await fetchPageData({
-      analystName: FIDELITY,
-      url: `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`,
-      xPathArr: [
-        `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
-        `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
-        `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
-      ],
-    })
+    const fidelityFetcher = new PageDataFetcher(FIDELITY)
+    await fidelityFetcher.setPage(
+      `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
+    )
+    const [
+      fidelitySummaryScore,
+      fidelityReportNameArr,
+      fidelityStarmineOneName,
+      fidelityStarmineTwoName,
+      fidelityStarmineThreeName,
+      fidelityStarmineFourName,
+      fidelityStarmineFiveName,
+      fidelityStarmineOneRating,
+      fidelityStarmineTwoRating,
+      fidelityStarmineThreeRating,
+      fidelityStarmineFourRating,
+      fidelityStarmineFiveRating,
+    ] = await fidelityFetcher.fetchPageData([
+      `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
+      `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
+      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
+    ])
 
     const {
-      [ARGUS_ANALYST_KEY]: { href: argusAnalystLinkHref, text: argusAnalystLinkText } = {},
-      [ARGUS_RESEARCH_KEY]: { href: argusResearchLinkHref, text: argusResearchLinkText } = {},
-      [ZACKS_KEY]: { href: zacksLinkHref, text: zacksLinkText } = {},
-    } = await fetchFidelityPageData(fidelityPage, fidelityReportNameArr)
+      zacksLink,
+      argusResearchLink,
+      argusAnalystLink,
+      ...fidelityReportData
+    } = await fidelityFetcher.fetchFidelityReportData(fidelityReportNameArr)
+
+    await fidelityFetcher.close()
+
+    const fidelityKeyStats = fetchFidelityKeyStats(ticker, { PageDataFetcher })
 
     // FORD
 
@@ -119,37 +119,30 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // B of A
 
-    const {
-      values: [boaRating, [boaVolatility, boaInvestment, boaIncome] = []],
-      page: boaPage,
-    } = await fetchPageData({
-      analystName: BOA,
-      url: `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`,
-      xPathArr: [
-        `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
-        `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
-      ],
-    })
+    const boaFetcher = new PageDataFetcher(BOA)
+    await boaFetcher.setPage(
+      `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
+    )
+    const [
+      boaRating,
+      [boaVolatility, boaInvestment, boaIncome] = [],
+    ] = await boaFetcher.fetchPageData([
+      `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
+      `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+    ])
 
-    const morningstarLink = await evalX(
-      boaPage,
-      `//a[contains(@aria-label,"View latest Morningstar")]`,
-      node => node.href
+    const morningstarLink = await boaFetcher.fetchHref(
+      `//a[contains(@aria-label,"View latest Morningstar")]`
     )
-    const cfraLink = await evalX(
-      boaPage,
-      `//a[contains(@aria-label,"View latest CFRA")]`,
-      node => node.href
+    const cfraLink = await boaFetcher.fetchHref(
+      `//a[contains(@aria-label,"View latest CFRA")]`
     )
-    const [morningstarRating, cfraRating] = await evalX(
-      boaPage,
+    const [morningstarRating, cfraRating] = await boaFetcher.fetchAttribute(
       `//span[contains(@class,"morningStarRating")]`,
-      node => node.getAttribute("aria-label")
+      "aria-label"
     )
 
-    if (boaPage) {
-      await boaPage.closeSafe()
-    }
+    await boaFetcher.close()
 
     // ARGUS ANALYST
 
@@ -162,7 +155,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       argusAnalystOneYrDivGrowth,
     ] = await fetchPdfData({
       analystName: ARGUS_ANALYST,
-      url: await getFidelitySecretUrl(argusAnalystLinkHref, browser),
+      url: await getFidelitySecretUrl(argusAnalystLink, browser),
       xPathArr: [
         prevSiblingTextIs("ARGUS RATING: "),
         prevSiblingTextIs("Target Price"),
@@ -235,31 +228,25 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     const moodysCookies = await getPageCookies("https://www.moodys.com/")
     const moodysLink = await getMoodysLink(ticker, moodysCookies)
-    const fetchMoodysData = async () => {
-      if (moodysLink) {
-        const { values, page } = await fetchPageData({
-          waitForXpath: `//div[@class="mis-ratings-container"]`,
-          url: `https://www.moodys.com${moodysLink.link}`,
-          analystName: "moodys",
-          xPathArr: [
-            "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
-            "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
-          ],
-        })
-        if (page) {
-          await page.closeSafe()
-        }
-        return values ? values : ["", ""]
-      }
-      return ["", ""]
-    }
+
+    const moodysFetcher = new PageDataFetcher("moodys")
+    await moodysFetcher.setPage(
+      moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
+    )
 
     const [[moodysRating, moodysOutlook], yahooData, wsjData] = await Promise.all([
-      fetchMoodysData(),
+      moodysFetcher.fetchPageData(
+        [
+          "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
+          "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+        ],
+        `//div[@class="mis-ratings-container"]`
+      ),
       fetchYahooData(ticker),
       fetchWSJData(ticker),
     ])
-    const companyData = buildCompanyData(yahooData, wsjData)
+
+    await moodysFetcher.close()
 
     // ARGUS RESEARCH
 
@@ -276,7 +263,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       ] = [],
     ] = await fetchPdfData({
       analystName: ARGUS_RESEARCH,
-      url: argusResearchLinkHref,
+      url: argusResearchLink,
       xPathArr: [
         `//span[contains(text(),"Target ") and contains(text(),":")]/following-sibling::span[1]`,
         prevSiblingTextIs("Argus Rating:", 3),
@@ -286,7 +273,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // NEW CONSTRUCTS
 
-    const ncData = fetchNewConstructs(ticker, fetchPdfData)
+    const ncData = fetchNewConstructs(ticker, scrapeTools)
 
     // CFRA
 
@@ -305,25 +292,22 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // ZACKS
 
-    const zacksUrl = await getFidelitySecretUrl(zacksLinkHref, browser)
-    const zacksData = await fetchZacks(ticker, fetchPdfData, zacksUrl)
+    const zacksUrl = await getFidelitySecretUrl(zacksLink, browser)
+    const zacksData = await fetchZacks(ticker, scrapeTools, zacksUrl)
 
     // RESULT
 
-    const formatFidelityStarmine = (name, rating) => `${(name || "").substring(0, 14)} - ${rating}`
+    const formatFidelityStarmine = (name, rating) =>
+      `${(name || "").substring(0, 14)} - ${rating}`
     newStockData[ticker] = {
-      argusAnalystDate: argusAnalystLinkText,
       argusAnalystFinancialStrength,
       argusAnalystFiveYrEpsGrowth,
-      argusAnalystLink: argusAnalystLinkHref,
       argusAnalystOneYrDivGrowth,
       argusAnalystOneYrEpsGrowth,
       argusAnalystRating,
       argusAnalystTarget,
-      argusResearchDate: argusResearchLinkText,
       argusResearchFinancialStrength,
       argusResearchGrowth,
-      argusResearchLink: argusResearchLinkHref,
       argusResearchManagement,
       argusResearchRating,
       argusResearchSafety,
@@ -359,6 +343,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
         fidelityStarmineTwoRating
       ),
       fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
+      ...fidelityKeyStats,
       fordEarningsStrength,
       fordPriceMovement,
       fordRating,
@@ -383,10 +368,9 @@ puppeteer.connect(CONNECTION).then(async browser => {
       streetTargetPrice,
       streetTotalReturn,
       streetVolatility,
-      zacksDate: zacksLinkText,
-      zacksLink: zacksLinkHref,
+      ...fidelityReportData,
       ...zacksData,
-      ...companyData,
+      ...buildCompanyData(yahooData, wsjData),
     }
 
     console.log(`* COMPLETED OK: ${ticker}`)
