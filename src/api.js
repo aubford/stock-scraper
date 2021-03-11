@@ -168,6 +168,11 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
 const fidelityKeyStatXpath = name =>
   `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
+const getFirstLastValue = str => {
+  const split = str ? str.split(/\s/) : []
+
+  return [_.first(split), _.last(split)]
+}
 /**
  * @type ApiCall
  * @param ticker
@@ -184,15 +189,27 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
     fidelityPrice,
     fidelityTimeAndDate,
     [fidelityPe, fidelityPeIndustry, fidelityPeIndustryPct] = [], // TTM, which is default vs. Mrq
-    [fidelityPeFiveYr, fidelityPeFiveYrIndustry, fidelityPeFiveYrIndustryPct] = [],
-    [fidelityPEGFiveYr, fidelityPEGFiveYrIndustry, fidelityPEGFiveYrIndustryPct] = [],
+    [
+      fidelityPeFiveYrAvg,
+      fidelityPeFiveYrAvgIndustry,
+      fidelityPeFiveYrAvgIndustryPct,
+    ] = [],
+    [
+      fidelityPEGFiveYrProj,
+      fidelityPEGFiveYrProjIndustry,
+      fidelityPEGFiveYrProjIndustryPct,
+    ] = [],
     [fidelityEV, fidelityEVIndustry, fidelityEVIndustryPct] = [],
     [fidelityPcfMrq, fidelityPcfMrqIndustry, fidelityPcfMrqIndustryPct] = [],
     [fidelityPcf, fidelityPcfIndustry, fidelityPcfIndustryPct] = [],
     [fidelityPSalesMrq, fidelityPSalesMrqIndustry, fidelityPSalesMrqIndustryPct] = [],
     [fidelityPSales, fidelityPSalesIndustry, fidelityPSalesIndustryPct] = [],
-    [fidelityPBook, fidelityPBookIndustry, fidelityPBookIndustryPct] = [],
-    [fidelityBookValue, fidelityBookValueIndustry, fidelityBookValueIndustryPct] = [],
+    [fidelityPBookWithDate, fidelityPBookIndustry, fidelityPBookIndustryPct] = [],
+    [
+      fidelityBookValueWithDate,
+      fidelityBookValueIndustry,
+      fidelityBookValueIndustryPct,
+    ] = [],
     [
       fidelityEpsGrowthYoY,
       fidelityEpsGrowthYoYIndustry,
@@ -338,37 +355,51 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
 
   await fetcher.close()
 
+  const [fidelityBookValue, fidelityBookValueDate] = getFirstLastValue(
+    fidelityBookValueWithDate
+  )
+  const [fidelityPBook] = getFirstLastValue(fidelityPBookWithDate)
+
   return {
     fidelityPrice,
     fidelityTimeAndDate,
     fidelityPe,
     fidelityPeIndustry,
     fidelityPeIndustryPct,
-    fidelityPeFiveYr,
-    fidelityPeFiveYrIndustry,
-    fidelityPeFiveYrIndustryPct,
-    fidelityPEGFiveYr,
-    fidelityPEGFiveYrIndustry,
-    fidelityPEGFiveYrIndustryPct,
+    fidelityPeRev: fidelityPrice / fidelityPe,
+    fidelityPeFiveYrAvg,
+    fidelityPeFiveYrAvgIndustry,
+    fidelityPeFiveYrAvgIndustryPct,
+    fidelityPeFiveYrAvgRev: fidelityPrice / fidelityPeFiveYrAvg,
+    fidelityPEGFiveYrProj,
+    fidelityPEGFiveYrProjIndustry,
+    fidelityPEGFiveYrProjIndustryPct,
+    fidelityPEGFiveYrProjRev: fidelityPrice / fidelityPEGFiveYrProj,
     fidelityEV,
     fidelityEVIndustry,
     fidelityEVIndustryPct,
     fidelityPcfMrq,
     fidelityPcfMrqIndustry,
     fidelityPcfMrqIndustryPct,
+    fidelityPcfMrqRev: fidelityPrice / fidelityPcfMrq,
     fidelityPcf,
     fidelityPcfIndustry,
     fidelityPcfIndustryPct,
+    fidelityPcfRev: fidelityPrice / fidelityPcf,
     fidelityPSalesMrq,
     fidelityPSalesMrqIndustry,
     fidelityPSalesMrqIndustryPct,
+    fidelityPSalesMrqRev: fidelityPrice / fidelityPSalesMrq,
     fidelityPSales,
     fidelityPSalesIndustry,
     fidelityPSalesIndustryPct,
+    fidelityPSalesRev: fidelityPrice / fidelityPSales,
     fidelityPBook,
     fidelityPBookIndustry,
     fidelityPBookIndustryPct,
+    fidelityPBookRev: fidelityPrice / fidelityPBook,
     fidelityBookValue,
+    fidelityBookValueDate,
     fidelityBookValueIndustry,
     fidelityBookValueIndustryPct,
     fidelityEpsGrowthYoY,
