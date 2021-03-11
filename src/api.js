@@ -93,6 +93,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     zacksROE,
     zacksSalesToAssets,
     zacksProjSalesGrowth,
+    zacksPrice,
   ] = await fetchPdfData({
     analystName: ZACKS,
     url,
@@ -128,6 +129,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
       prevSiblingTextContains("Return on Equity"),
       prevSiblingTextContains("Sales/Assets"),
       prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
+      `//div[@id="viewer"]//div[@data-page-number=1]//span[2]`,
     ],
   })
 
@@ -162,6 +164,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     zacksROE,
     zacksSalesToAssets,
     zacksProjSalesGrowth,
+    zacksPrice,
   }
 }
 
