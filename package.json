@@ -4,15 +4,15 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "npm run updateWs && node --require ./preload.js src/index.js",
-    "updateYahooWsj": "npm run updateWs && node --require ./preload.js src/updateYahooWsj.js",
-    "updateAnalysts": "npm run updateWs && node --require ./preload.js src/updateAnalysts.js",
-    "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js",
+    "start": "npm run updateWs && node --require ./preload.js src/index.js && npm run prettyStock",
+    "updateYahooWsj": "npm run updateWs && node --require ./preload.js src/updateYahooWsj.js && npm run prettyStock",
+    "updateAnalysts": "npm run updateWs && node --require ./preload.js src/updateAnalysts.js && npm run prettyStock",
+    "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js && npm run prettyStock",
     "test": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.js",
     "launch": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check",
     "updateWs": "curl localhost:9222/json/version > ws.json",
     "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.js",
-    "stock-tool": "node --require lodash test/stock_tool.test.js"
+    "prettyStock": "prettier --write ./test/stockData.json"
   },
   "author": "",
   "license": "ISC",

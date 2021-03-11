@@ -181,6 +181,8 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
   )
 
   const [
+    fidelityPrice,
+    fidelityTimeAndDate,
     [fidelityPe, fidelityPeIndustry, fidelityPeIndustryPct] = [], // TTM, which is default vs. Mrq
     [fidelityPeFiveYr, fidelityPeFiveYrIndustry, fidelityPeFiveYrIndustryPct] = [],
     [fidelityPEGFiveYr, fidelityPEGFiveYrIndustry, fidelityPEGFiveYrIndustryPct] = [],
@@ -282,6 +284,8 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
     [fidelityRevEmploy, fidelityRevEmployIndustry, fidelityRevEmployIndustryPct] = [],
     fidelityCompustatLink,
   ] = await fetcher.fetchPageData([
+    `//span[@id="lastPrice"]`,
+    `//span[@id="timeAndDate"]`,
     fidelityKeyStatXpath("P/E (Trailing Twelve Months)"),
     fidelityKeyStatXpath("P/E (5-Year Average)"),
     fidelityKeyStatXpath("PEG Ratio (5-Year Projected)"),
@@ -335,6 +339,8 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
   await fetcher.close()
 
   return {
+    fidelityPrice,
+    fidelityTimeAndDate,
     fidelityPe,
     fidelityPeIndustry,
     fidelityPeIndustryPct,
