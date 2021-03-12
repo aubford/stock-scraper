@@ -172,7 +172,7 @@ module.exports = (ticker, browser) => {
       try {
         await page.waitForXPath(xPathArr[0], { timeout })
       } catch (err) {
-        console.log(
+        console.error(
           `waitForXpath failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
         )
         await page.closeSafe()
@@ -185,7 +185,7 @@ module.exports = (ticker, browser) => {
         try {
           await page.waitForXPath(waitForPostScroll, { timeout: XPATH_TIMEOUT })
         } catch (err) {
-          console.log(
+          console.error(
             `waitForXpath after scroll failed -> ticker: ${ticker} -> analyst:${analystName} -> url: ${url}`
           )
         }

@@ -29,6 +29,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
   const closeLoginPages = await promptLogin(newPage)
+  console.warn("********  Turn on PDF Viewer extension!!!! ********")
 
   const promptResponse = await promptForTickers()
   const tickers = promptResponse.split(/[^A-Z]/)
