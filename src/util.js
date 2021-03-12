@@ -192,6 +192,13 @@ const getFidelitySecretUrl = async (fidelityLink, browser) => {
   }
 }
 
+const backupReturnStockDataFile = () => {
+  fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
+  /** @type * */
+  const file = fs.readFileSync(STOCK_DATA_LOCATION)
+  return JSON.parse(file)
+}
+
 module.exports = {
   extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
@@ -208,4 +215,5 @@ module.exports = {
   promptLogin,
   pauseExecution,
   getFidelitySecretUrl,
+  backupReturnStockDataFile,
 }

@@ -12,6 +12,7 @@ const {
   writeOut,
   promptForTickers,
   promptUser,
+  backupReturnStockDataFile,
 } = require("./util")
 
 /** @type {Object<ApiCall>} */
@@ -22,11 +23,7 @@ const analystMap = {
   [FIDELITY]: fetchFidelityAnalystOpinions,
 }
 
-fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
-
-/** @type {*} */
-const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-const { magicTickers, buffetData, ...stockData } = JSON.parse(stockDataFile)
+const { magicTickers, buffetData, ...stockData } = backupReturnStockDataFile()
 
 puppeteer.connect(CONNECTION).then(async browser => {
   const analyst = await promptUser("Analyst: ")

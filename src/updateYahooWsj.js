@@ -1,12 +1,8 @@
 const { fetchYahooData, fetchWSJData } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
+const { writeOut, backupReturnStockDataFile } = require("./util")
 
-fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
-
-/** @type {*} */
-const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-const { magicTickers, buffetData, ...stockData } = JSON.parse(stockDataFile)
-
+const { magicTickers, buffetData, ...stockData } = backupReturnStockDataFile()
 const tickers = Object.keys(stockData)
 
 const fetchData = async ticker => {
@@ -19,12 +15,5 @@ const fetchData = async ticker => {
 Promise.all(tickers.map(fetchData)).then(companyData => {
   const updatedStockData = _.fromPairs(companyData)
   const updatedData = { magicTickers, buffetData, ...updatedStockData }
-  console.log(updatedData)
-  //fs.writeFile(stockDataLocation, JSON.stringify(updatedData), err => {
-  //  console.log("** COMPLETE, WRITING TO FILE **")
-  //  if (err) {
-  //    console.log("File Write Error: " + err)
-  //  }
-  //  process.exit(0)
-  //})
+  writeOut(updatedData)
 })
