@@ -2,7 +2,7 @@ const { newBrowserPage, evalX } = require("./util")
 
 /**
  * @typedef ScrapeTools
- * @property {PageDataFetcher} PageDataFetcher
+ * @property {Class} PageDataFetcher
  * @property {getPageCookies} getPageCookies
  * @property {fetchPdfData} fetchPdfData
  */

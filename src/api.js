@@ -520,6 +520,80 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
   }
 }
 
+/**
+ * @type ApiCall
+ * @param ticker
+ * @param PageDataFetcher
+ * @returns Promise<Object>
+ */
+exports.fetchFidelityAnalystOpinions = async (ticker, { PageDataFetcher }) => {
+  const formatFidelityStarmine = (name, rating) =>
+    `${(name || "").substring(0, 14)} - ${rating}`
+
+  const fidelityFetcher = new PageDataFetcher(FIDELITY)
+  await fidelityFetcher.setPage(
+    `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
+  )
+  const [
+    fidelitySummaryScore,
+    fidelityReportNameArr,
+    fidelityStarmineOneName,
+    fidelityStarmineTwoName,
+    fidelityStarmineThreeName,
+    fidelityStarmineFourName,
+    fidelityStarmineFiveName,
+    fidelityStarmineOneRating,
+    fidelityStarmineTwoRating,
+    fidelityStarmineThreeRating,
+    fidelityStarmineFourRating,
+    fidelityStarmineFiveRating,
+  ] = await fidelityFetcher.fetchPageData([
+    `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
+    `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
+    `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
+  ])
+
+  const fidelityReportData = await fidelityFetcher.fetchFidelityReportData(
+    fidelityReportNameArr
+  )
+
+  await fidelityFetcher.close()
+
+  return {
+    fidelityStarmineFive: formatFidelityStarmine(
+      fidelityStarmineFiveName,
+      fidelityStarmineFiveRating
+    ),
+    fidelityStarmineFour: formatFidelityStarmine(
+      fidelityStarmineFourName,
+      fidelityStarmineFourRating
+    ),
+    fidelityStarmineOne: formatFidelityStarmine(
+      fidelityStarmineOneName,
+      fidelityStarmineOneRating
+    ),
+    fidelityStarmineThree: formatFidelityStarmine(
+      fidelityStarmineThreeName,
+      fidelityStarmineThreeRating
+    ),
+    fidelityStarmineTwo: formatFidelityStarmine(
+      fidelityStarmineTwoName,
+      fidelityStarmineTwoRating
+    ),
+    fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
+    ...fidelityReportData,
+  }
+}
+
 // MOODYS
 
 /**

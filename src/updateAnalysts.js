@@ -1,6 +1,11 @@
 const puppeteer = require("puppeteer-core")
 const makeScrapeTools = require("./makeScrapeTools")
-const { fetchFidelityKeyStats, fetchNewConstructs, fetchZacks } = require("./api")
+const {
+  fetchFidelityAnalystOpinions,
+  fetchFidelityKeyStats,
+  fetchNewConstructs,
+  fetchZacks,
+} = require("./api")
 const {
   getFidelitySecretUrl,
   pauseExecution,
@@ -14,6 +19,7 @@ const analystMap = {
   [NEW_CONSTRUCTS]: fetchNewConstructs,
   [ZACKS]: fetchZacks,
   [FIDELITY_STATS]: fetchFidelityKeyStats,
+  [FIDELITY]: fetchFidelityAnalystOpinions,
 }
 
 fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)

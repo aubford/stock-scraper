@@ -7,6 +7,7 @@ const {
   fetchYahooData,
   fetchWSJData,
   fetchFidelityKeyStats,
+  fetchFidelityAnalystOpinions,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -42,49 +43,12 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const { PageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
 
     // FIDELITY
-
-    const fidelityFetcher = new PageDataFetcher(FIDELITY)
-    await fidelityFetcher.setPage(
-      `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
-    )
-    const [
-      fidelitySummaryScore,
-      fidelityReportNameArr,
-      fidelityStarmineOneName,
-      fidelityStarmineTwoName,
-      fidelityStarmineThreeName,
-      fidelityStarmineFourName,
-      fidelityStarmineFiveName,
-      fidelityStarmineOneRating,
-      fidelityStarmineTwoRating,
-      fidelityStarmineThreeRating,
-      fidelityStarmineFourRating,
-      fidelityStarmineFiveRating,
-    ] = await fidelityFetcher.fetchPageData([
-      `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
-      `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
-      `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
-    ])
-
-    const {
-      zacksLink,
-      argusResearchLink,
-      argusAnalystLink,
-      ...fidelityReportData
-    } = await fidelityFetcher.fetchFidelityReportData(fidelityReportNameArr)
-
-    await fidelityFetcher.close()
-
+    const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(ticker, {
+      PageDataFetcher,
+    })
     const fidelityKeyStats = await fetchFidelityKeyStats(ticker, { PageDataFetcher })
+
+    const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
     // FORD
 
@@ -297,8 +261,6 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // RESULT
 
-    const formatFidelityStarmine = (name, rating) =>
-      `${(name || "").substring(0, 14)} - ${rating}`
     newStockData[ticker] = {
       argusAnalystFinancialStrength,
       argusAnalystFiveYrEpsGrowth,
@@ -322,28 +284,6 @@ puppeteer.connect(CONNECTION).then(async browser => {
       cfraLink,
       cfraRating,
       cfraTarget: extractNumbers(cfraTarget),
-      fidelityStarmineFive: formatFidelityStarmine(
-        fidelityStarmineFiveName,
-        fidelityStarmineFiveRating
-      ),
-      fidelityStarmineFour: formatFidelityStarmine(
-        fidelityStarmineFourName,
-        fidelityStarmineFourRating
-      ),
-      fidelityStarmineOne: formatFidelityStarmine(
-        fidelityStarmineOneName,
-        fidelityStarmineOneRating
-      ),
-      fidelityStarmineThree: formatFidelityStarmine(
-        fidelityStarmineThreeName,
-        fidelityStarmineThreeRating
-      ),
-      fidelityStarmineTwo: formatFidelityStarmine(
-        fidelityStarmineTwoName,
-        fidelityStarmineTwoRating
-      ),
-      fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
-      ...fidelityKeyStats,
       fordEarningsStrength,
       fordPriceMovement,
       fordRating,
@@ -358,17 +298,18 @@ puppeteer.connect(CONNECTION).then(async browser => {
       morningstarMoat,
       morningstarRating,
       morningstarUncertainty,
-      ...ncData,
       streetEfficiency,
       streetGrowth,
       streetIncome,
-      ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
       streetRating,
       streetSolvency,
       streetTargetPrice,
       streetTotalReturn,
       streetVolatility,
-      ...fidelityReportData,
+      ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
+      ...ncData,
+      ...fidelityKeyStats,
+      ...fidelityAnalystOpinionsData,
       ...zacksData,
       ...buildCompanyData(yahooData, wsjData),
     }
