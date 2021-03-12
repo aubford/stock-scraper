@@ -199,6 +199,11 @@ const backupReturnStockDataFile = () => {
   return JSON.parse(file)
 }
 
+const getFirstLastValue = str => {
+  const split = str ? str.split(/\s/) : []
+  return [_.first(split), _.last(split)]
+}
+
 module.exports = {
   extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
   writeOut,
@@ -216,4 +221,5 @@ module.exports = {
   pauseExecution,
   getFidelitySecretUrl,
   backupReturnStockDataFile,
+  getFirstLastValue,
 }
