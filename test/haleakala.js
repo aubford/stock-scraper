@@ -1,14 +1,7 @@
 const puppeteer = require("puppeteer-core")
-const fs = require("fs")
 const moment = require("moment")
 const { newBrowserPage } = require("../src/util")
 const { webSocketDebuggerUrl } = require("../ws.json")
-const prevSiblingTextContains = (text, num = 1) =>
-  `//span[contains(text(),'${text}')]/following-sibling::span[${num}]`
-const prevSiblingTextIs = (text, num = 1) =>
-  `//span[text()='${text}']/following-sibling::span[${num}]`
-const followingSiblingTextIs = (text, num = 1) =>
-  `//span[text()='${text}']/preceding-sibling::span[${num}]`
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -42,38 +35,32 @@ const btnSelector =
   `//*[@id="page-content"]/main/div[2]/div/div[1]/div[1]/div/div[2]/div[2]/` +
   `button[@class="sarsa-button sarsa-button-primary sarsa-button-md sarsa-button-fit-container"]`
 
-const run = async () => {
-  puppeteer.connect(connection).then(async browser => {
-    const newPage = url => newBrowserPage(browser, url)
+puppeteer.connect(connection).then(async browser => {
+  const newPage = url => newBrowserPage(browser, url)
 
-    const page = await newPage(`https://www.recreation.gov/ticket/253731/ticket/255`)
+  const page = await newPage(`https://www.recreation.gov/ticket/253731/ticket/255`)
 
-    await page.waitForSelector(tourCalendarSelector)
-    await page.click(tourCalendarSelector)
+  await page.waitForSelector(tourCalendarSelector)
+  await page.click(tourCalendarSelector)
 
-    await page.waitForXPath(dateSquareSelector)
-    /** @type {ElementHandle[]} */
-    const dateSquare = await page.$x(dateSquareSelector)
+  await page.waitForXPath(dateSquareSelector)
+  const dateSquare = await page.$x(dateSquareSelector)
 
-    if (dateSquare.length > 1) {
-      return console.error("too many date squares selected")
-    }
+  if (dateSquare.length > 1) {
+    return console.error("too many date squares selected")
+  }
 
-    await dateSquare[0].click()
+  await dateSquare[0].click()
 
-    /** @type {ElementHandle[]} */
-    await page.waitForXPath(btnSelector)
-    const elementArr = await page.$x(btnSelector)
-    const button = elementArr[0]
+  await page.waitForXPath(btnSelector)
+  const elementArr = await page.$x(btnSelector)
+  const button = elementArr[0]
 
-    while (waitForSeven()) {
-      console.log("waiting...")
-    }
+  while (waitForSeven()) {
+    console.log("waiting...")
+  }
 
-    await button.click()
-    console.log("hit")
-    process.exit(0)
-  })
-}
-
-run()
+  await button.click()
+  console.log("hit")
+  process.exit(0)
+})
