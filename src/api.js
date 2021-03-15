@@ -3,6 +3,7 @@ const {
   getFirstLastValue,
   prevSiblingTextContains,
   prevSiblingTextIs,
+  millBillStrToNum,
 } = require("./util")
 
 /**
@@ -95,7 +96,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     zacksROE,
     zacksSalesToAssets,
     zacksProjSalesGrowth,
-    zacksPrice,
+    zacksPriceStr,
   ] = await fetchPdfData({
     analystName: ZACKS,
     url,
@@ -135,6 +136,8 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     ],
   })
 
+  const zacksPrice = zacksPriceStr ? zacksPriceStr.replace("$", "") : 0
+
   return {
     zacksRank,
     zacksTarget,
@@ -155,7 +158,6 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     zacksPB,
     zacksBookPerShare: zacksPrice / zacksPB,
     zacksPCF,
-    zacksCFPerShare: zacksPrice / zacksPCF,
     zacksEarningsYield,
     zacksDebtEquity,
     zacksCashFlowPerShare,
@@ -432,8 +434,8 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
     fidelityBookGrowthFiveYr,
     fidelityBookGrowthFiveYrIndustry,
     fidelityBookGrowthFiveYrIndustryPct,
-    fidelityFcF,
-    fidelityFcFIndustry,
+    fidelityFcF: millBillStrToNum(fidelityFcF),
+    fidelityFcFIndustry: millBillStrToNum(fidelityFcFIndustry),
     fidelityFcFIndustryPct,
     fidelityCFlowGrowthFiveYr,
     fidelityCFlowGrowthFiveYrIndustry,

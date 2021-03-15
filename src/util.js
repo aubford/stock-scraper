@@ -1,4 +1,5 @@
 require("puppeteer-core")
+const { first, last, endsWith, fromPairs, zip, chunk, zipWith } = require("lodash")
 const readline = require("readline")
 /**
  * @typedef {Page} MyPage
@@ -55,8 +56,8 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     { indicator: "Higher", value: [4, 5] },
     { indicator: "Lower", value: [2, 1] },
   ]
-  const fullTextBullets = _.zipWith(lineOne, lineTwo, (a, b) => `${a} ${b}`)
-  const chunked = _.chunk(fullTextBullets, 2)
+  const fullTextBullets = zipWith(lineOne, lineTwo, (a, b) => `${a} ${b}`)
+  const chunked = chunk(fullTextBullets, 2)
   const mapped = chunked.map(([bulletA, bulletB]) => {
     if (bulletA.includes("Neutral")) {
       return ""
@@ -65,8 +66,8 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
       .value[bulletB.includes("significant") ? 1 : 0]
   })
 
-  return _.fromPairs(
-    _.zip(
+  return fromPairs(
+    zip(
       [
         "streetPE",
         "streetPCF",
@@ -100,12 +101,17 @@ const evalX = async (frame, selector, ...func) => {
 }
 
 const chars = text => text.replace(/\s/g, "")
+
 const matchChars = text => `translate(text()," ","")="${chars(text)}"`
+
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
+
 const prevSiblingTextContains = (text, num = 1) =>
   `//span[${containsChars(text)}]/following-sibling::span[${num}]`
+
 const prevSiblingTextIs = (text, num = 1) =>
   `//span[${matchChars(text)}]/following-sibling::span[${num}]`
+
 const followingSiblingTextIs = (text, num = 1) =>
   `//span[${matchChars(text)}]/preceding-sibling::span[${num}]`
 
@@ -201,11 +207,24 @@ const backupReturnStockDataFile = () => {
 
 const getFirstLastValue = str => {
   const split = str ? str.split(/\s/) : []
-  return [_.first(split), _.last(split)]
+  return [first(split), last(split)]
+}
+
+const extractNumbers = text =>
+  text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""
+
+const millBillStrToNum = str => {
+  const num = extractNumbers(str)
+  if (endsWith(str, "M") || endsWith(str, "B")) {
+    const mult = endsWith(str, "M") ? 1000 ** 2 : 1000 ** 3
+    return num * mult
+  }
+  return num
 }
 
 module.exports = {
-  extractNumbers: text => (text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""),
+  millBillStrToNum,
+  extractNumbers,
   writeOut,
   newBrowserPage,
   parseStreetBulletData,

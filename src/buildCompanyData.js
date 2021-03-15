@@ -445,6 +445,7 @@ module.exports = ({ quoteSummary }, wsjData) => {
         totalCash,
         ebitda,
         operatingCashflowTTM,
+        leveredFreeCashFlow,
 
         // DEFAULT KEY STATISTICS
 

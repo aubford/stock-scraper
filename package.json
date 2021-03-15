@@ -36,7 +36,6 @@
       "jest": true
     },
     "globals": {
-      "_": true,
       "fs": true,
       "fetch": true,
       "ARGUS_ANALYST_KEY": true,
