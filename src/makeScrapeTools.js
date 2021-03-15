@@ -1,8 +1,9 @@
+const { zip, fromPairs } = require("lodash")
 const { newBrowserPage, evalX } = require("./util")
 
 /**
  * @typedef ScrapeTools
- * @property {Class} PageDataFetcher
+ * @property {PageDataFetcher} PageDataFetcher
  * @property {getPageCookies} getPageCookies
  * @property {fetchPdfData} fetchPdfData
  */
@@ -16,10 +17,6 @@ module.exports = (ticker, browser) => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
   class PageDataFetcher {
-    /**
-     * @param analystName
-     * @param [existingPage]
-     */
     constructor(analystName, existingPage) {
       this.analystName = analystName
       this.page = existingPage
@@ -32,7 +29,7 @@ module.exports = (ticker, browser) => {
     }
 
     async fetchPageData(xPathArr, waitForXpath) {
-      const { url, analystName, page } = this
+      const { analystName, page } = this
 
       if (!page) {
         console.error(
@@ -41,10 +38,11 @@ module.exports = (ticker, browser) => {
         return []
       }
 
+      const waitFor = waitForXpath || xPathArr[0]
       try {
-        await page.waitForXPath(waitForXpath || xPathArr[0], { timeout: XPATH_TIMEOUT })
+        await page.waitForXPath(waitFor, { timeout: XPATH_TIMEOUT })
       } catch (err) {
-        console.log("fetchPageData waitForXpath failed for url: " + url)
+        console.log("fetchPageData waitForXpath failed for url: " + waitFor)
         return []
       }
 
@@ -83,7 +81,7 @@ module.exports = (ticker, browser) => {
         [ARGUS_ANALYST_KEY]: { href: argusAnalystLink, text: argusAnalystDate } = {},
         [ARGUS_RESEARCH_KEY]: { href: argusResearchLink, text: argusResearchDate } = {},
         [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {},
-      } = _.fromPairs(_.zip(fidelityReportNameArr, reportLinks))
+      } = fromPairs(zip(fidelityReportNameArr, reportLinks))
 
       return {
         argusAnalystDate,
@@ -209,7 +207,6 @@ module.exports = (ticker, browser) => {
       await page.closeSafe()
       return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
     },
-
     PageDataFetcher,
   }
 }
