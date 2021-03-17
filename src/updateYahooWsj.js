@@ -8,7 +8,11 @@ const tickers = Object.keys(stockData)
 const fetchData = async ticker => {
   const yahooData = await fetchYahooData(ticker)
   const wsjData = await fetchWSJData(ticker)
-  return [ticker, { ...buildCompanyData(yahooData, wsjData), ...stockData[ticker] }]
+  const { quoteSummary: { result } = {} } = yahooData
+  if (result && wsjData) {
+    return [ticker, { ...stockData[ticker], ...buildCompanyData(yahooData, wsjData) }]
+  }
+  return [ticker, stockData[ticker]]
 }
 
 // NOTE: Is there an issue with fetchData being async??

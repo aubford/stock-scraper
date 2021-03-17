@@ -1,3 +1,4 @@
+const { mapValues } = require("lodash")
 const {
   maxSecondsInQuarter,
   secondsInYear,
@@ -120,7 +121,7 @@ const cleanStatement = (statementList, mrqSeconds) => {
     Object.keys(recentStatement).length > 10
       ? recentStatement
       : statementList[statementList.indexOf(recentStatement) + 1]
-  const mapped = _.mapValues(selectedStatement, "raw")
+  const mapped = mapValues(selectedStatement, "raw")
   return { ...mapped, quartersBack: -statementList.indexOf(selectedStatement) }
 }
 
