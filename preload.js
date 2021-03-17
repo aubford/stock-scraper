@@ -14,7 +14,7 @@ global.CONNECTION = {
 
 // Constants
 
-global.PAUSE_MS = process.argv.length > 2 ? Number(process.argv[2]) * 1000 : 200
+global.PAUSE_MS = 200
 console.log("PAUSE MS", PAUSE_MS)
 global.XPATH_TIMEOUT = 20000
 

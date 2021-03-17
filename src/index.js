@@ -23,11 +23,13 @@ const {
   promptLogin,
   pauseExecution,
   extractNumbers,
+  promptForPause,
 } = require("./util")
 
 puppeteer.connect(CONNECTION).then(async browser => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
+  await promptForPause()
   const closeLoginPages = await promptLogin(newPage)
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
 

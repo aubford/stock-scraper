@@ -185,7 +185,7 @@ const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
   )
 }
 
-module.exports = ({ quoteSummary }, wsjData) => {
+module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
   const {
     assetProfile: {
       longBusinessSummary,
@@ -666,20 +666,21 @@ module.exports = ({ quoteSummary }, wsjData) => {
           ? [0, revenueAverage.raw]
           : []
       ),
-    wsjChartThreeMonthAgo: wsjData
+    wsjChartThreeMonthAgo: wsjChart
       .filter((d, idx) => idx % 3 === 0)
       .map(str => Number(str))
       .reverse(),
-    wsjChartMonthAgo: wsjData
+    wsjChartMonthAgo: wsjChart
       .filter((d, idx) => (idx + 2) % 3 === 0)
       .map(str => Number(str))
       .reverse(),
-    wsjChartCurrent: wsjData
+    wsjChartCurrent: wsjChart
       .filter((d, idx) => (idx + 1) % 3 === 0)
       .map(str => Number(str))
       .reverse(),
-    wsjChartCurrentNum: wsjData
+    wsjChartCurrentNum: wsjChart
       .filter((d, idx) => (idx + 1) % 3 === 0)
       .reduce((acc, curr) => acc + Number(curr), 0),
+    ...wsjData,
   }
 }

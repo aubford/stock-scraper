@@ -158,6 +158,11 @@ const promptUser = async question => {
 
 const promptForTickers = () => promptUser("Tickers: ")
 
+const promptForPause = async () => {
+  const pauseTimeout = promptUser("Pause Timeout: ")
+  global.PAUSE_MS = pauseTimeout ? pauseTimeout * 1000 * 60 : PAUSE_MS
+}
+
 const promptLogin = newPage => {
   const pages = [
     "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
@@ -241,4 +246,5 @@ module.exports = {
   getFidelitySecretUrl,
   backupReturnStockDataFile,
   getFirstLastValue,
+  promptForPause,
 }

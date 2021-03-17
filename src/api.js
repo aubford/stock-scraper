@@ -631,18 +631,28 @@ exports.getMoodysLink = async (ticker, cookie) => {
 
 /**
  * @param ticker
- * @returns {Promise<*[]>}
+ * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}>}
  */
 exports.fetchWSJData = async ticker => {
-  const url = `https://www.wsj.com/market-data/quotes/${ticker}/research-ratings`
+  const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   try {
-    const text = await fetchText(url)
-    const $ = Cheerio.load(text)
-    const html = $(".cr_analystRatings .data_data")
-    return html
-      .contents()
-      .get()
-      .map(node => node.data)
+    const [mainPage, researchPage] = await Promise.all([
+      fetchText(url),
+      fetchText(url + "/research-ratings"),
+    ])
+    const researchPageDoc = Cheerio.load(researchPage)
+    const html = researchPageDoc(".cr_analystRatings .data_data")
+
+    const mainPageDoc = Cheerio.load(mainPage)
+    return {
+      wsjChart: html
+        .contents()
+        .get()
+        .map(node => node.data),
+      wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
+      wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
+      wsjShortDate: mainPageDoc(`h3:contains("Short Interest ") span`).text(),
+    }
   } catch (err) {
     console.error("WSJ ERROR: ", err)
     return []
