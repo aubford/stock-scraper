@@ -135,11 +135,9 @@ const cleanShortInterest = (
   if (!sharesShort || !sharesShortPriorMonth || !shortPercentOfFloat) {
     return {}
   }
-  const twoMonthsAgo = -60
-  const threeMonthsAgo = -90
   if (
-    dateStrIsBefore(dateShortInterest.fmt, twoMonthsAgo) ||
-    dateStrIsBefore(sharesShortPreviousMonthDate.fmt, threeMonthsAgo)
+    dateStrIsBefore(dateShortInterest.fmt, -45) ||
+    dateStrIsBefore(sharesShortPreviousMonthDate.fmt, -75)
   ) {
     return {}
   }
@@ -575,6 +573,8 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
         earningsEstimateGrowth, // estimated earnings growth (YoY) for this quarter
         earningsEstimateFollowingQuarterGrowth,
         earningsEstimateNextYearGrowth, // estimated earnings growth (YoY) for next year
+        dateShortInterest,
+        sharesShortPreviousMonthDate,
       },
       "fmt"
     ),
