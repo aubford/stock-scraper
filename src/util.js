@@ -159,8 +159,9 @@ const promptUser = async question => {
 const promptForTickers = () => promptUser("Tickers: ")
 
 const promptForPause = async () => {
-  const pauseTimeout = promptUser("Pause Timeout: ")
+  const pauseTimeout = await promptUser("Pause Timeout: ")
   global.PAUSE_MS = pauseTimeout ? pauseTimeout * 1000 * 60 : PAUSE_MS
+  console.log("PAUSE MS", PAUSE_MS)
 }
 
 const promptLogin = newPage => {

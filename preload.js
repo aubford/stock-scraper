@@ -15,7 +15,6 @@ global.CONNECTION = {
 // Constants
 
 global.PAUSE_MS = 200
-console.log("PAUSE MS", PAUSE_MS)
 global.XPATH_TIMEOUT = 20000
 
 global.ARGUS_ANALYST_KEY = "Argus Analyst"
