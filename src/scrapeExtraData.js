@@ -87,8 +87,12 @@ puppeteer.connect(connection).then(async browser => {
     "https://www.magicformulainvesting.com/Screening/StockScreening"
   )
 
+  await page.waitForSelector(`.nav-text`)
+  if (await page.$("input#login")) {
+    await page.click(`input#login`)
+  }
+
   const cookies = await page.cookies()
-  await page.closeSafe()
 
   const magicTickers = await aggregateMagicFormulaTickers(cookies)
   const buffetData = await getBuffetData()
