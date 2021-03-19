@@ -309,6 +309,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
       streetTargetPrice,
       streetTotalReturn,
       streetVolatility,
+      ticker,
+      tickerSearch: `//${ticker}`,
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
       ...ncData,
       ...fidelityKeyStats,
