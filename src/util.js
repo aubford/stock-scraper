@@ -149,8 +149,8 @@ const promptUser = async question => {
   })
 
   return new Promise(resolve => {
-    readlineInterface.question(question, tickers => {
-      resolve(tickers)
+    readlineInterface.question(question, text => {
+      resolve(text)
       readlineInterface.close()
     })
   })

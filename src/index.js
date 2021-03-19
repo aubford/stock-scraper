@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const makeScrapeTools = require("./makeScrapeTools")
+const { omit } = require("lodash")
 const {
   fetchZacks,
   fetchNewConstructs,
@@ -23,6 +24,7 @@ const {
   promptLogin,
   pauseExecution,
   extractNumbers,
+  backupReturnStockDataFile,
   promptForPause,
 } = require("./util")
 
@@ -34,7 +36,9 @@ puppeteer.connect(CONNECTION).then(async browser => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
 
   const promptResponse = await promptForTickers()
-  const tickers = promptResponse.split(/[^A-Z]/)
+  const tickers = promptResponse
+    ? promptResponse.split(/[^A-Z]/)
+    : Object.keys(omit(backupReturnStockDataFile(), ["buffetData", "magicTickers"]))
   console.log("Searching for tickers:", tickers)
 
   closeLoginPages()
