@@ -1,3 +1,4 @@
+const { fromPairs, unionBy, sortBy } = require("lodash")
 exports.maxSecondsInQuarter = 8121600
 exports.secondsInYear = 525600 * 60
 
@@ -57,8 +58,23 @@ exports.getRecentStatement = (statements, seconds) =>
   statements.find(({ endDate }) => endDate && endDate.raw === seconds)
 
 exports.reduceUpdownGrade = upgradeDowngradeHistory =>
-  _.sortBy(upgradeDowngradeHistory, "epochGradeDate")
+  sortBy(upgradeDowngradeHistory, "epochGradeDate")
     .reverse()
     .reduce((acc, { firm, toGrade, fromGrade }) => {
       return acc + ` ${firm}: ${fromGrade} => ${toGrade}\n`
     }, "")
+
+const isObj = value => typeof value === "object" && value !== null
+
+const keySet = objArr => unionBy(...objArr.map(Object.keys))
+const getRaw = val => (isObj(val) ? val.raw : val) || 0
+
+exports.getStatementCharts = (statement, name = "Chart") =>
+  fromPairs(
+    keySet(statement).map(key => [
+      key + name,
+      statement.map(statement =>
+        key === "endDate" ? statement[key].fmt || 0 : getRaw(statement[key])
+      ),
+    ])
+  )

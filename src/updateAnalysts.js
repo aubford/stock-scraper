@@ -9,7 +9,7 @@ const {
 const {
   getFidelitySecretUrl,
   pauseExecution,
-  writeOut,
+  scrapbookWriteOut,
   promptForTickers,
   promptUser,
   backupReturnStockDataFile,
@@ -53,5 +53,5 @@ puppeteer.connect(CONNECTION).then(async browser => {
     }
   }
 
-  writeOut({ ...stockData, magicTickers, buffetData })
+  scrapbookWriteOut({ ...stockData, magicTickers, buffetData })
 })

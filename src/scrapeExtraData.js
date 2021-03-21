@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
-const { newBrowserPage, writeOut } = require("./util")
+const { newBrowserPage, scrapbookWriteOut } = require("./util")
 const { webSocketDebuggerUrl } = require("../ws.json")
 
 const connection = {
@@ -97,7 +97,7 @@ puppeteer.connect(connection).then(async browser => {
   const magicTickers = await aggregateMagicFormulaTickers(cookies)
   const buffetData = await getBuffetData()
 
-  writeOut({
+  scrapbookWriteOut({
     magicTickers,
     buffetData,
   })

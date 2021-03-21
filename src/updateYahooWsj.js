@@ -1,6 +1,6 @@
 const { fetchYahooData, fetchWSJData } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
-const { writeOut, backupReturnStockDataFile } = require("./util")
+const { scrapbookWriteOut, backupReturnStockDataFile } = require("./util")
 
 const { magicTickers, buffetData, ...stockData } = backupReturnStockDataFile()
 const tickers = Object.keys(stockData)
@@ -19,5 +19,5 @@ const fetchData = async ticker => {
 Promise.all(tickers.map(fetchData)).then(companyData => {
   const updatedStockData = _.fromPairs(companyData)
   const updatedData = { magicTickers, buffetData, ...updatedStockData }
-  writeOut(updatedData)
+  scrapbookWriteOut(updatedData)
 })

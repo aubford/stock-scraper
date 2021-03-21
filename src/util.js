@@ -123,7 +123,17 @@ const hasCFRA = (rating, ticker, analystName) => {
   return hasReport
 }
 
-const writeOut = data => {
+const writeFile = (location, data) => {
+  fs.writeFile(location, JSON.stringify(data), err => {
+    console.log("** COMPLETE, WRITING TO FILE **")
+    if (err) {
+      console.log("File Write Error: " + err)
+    }
+    process.exit(0)
+  })
+}
+
+const scrapbookWriteOut = data => {
   const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
   /** @type {*} */
   const stockDataFile = fs.readFileSync(stockDataLocation)
@@ -133,13 +143,7 @@ const writeOut = data => {
     ...data,
   }
 
-  fs.writeFile(stockDataLocation, JSON.stringify(writeToFile), err => {
-    console.log("** COMPLETE, WRITING TO FILE **")
-    if (err) {
-      console.log("File Write Error: " + err)
-    }
-    process.exit(0)
-  })
+  writeFile(stockDataLocation, writeToFile)
 }
 
 const promptUser = async question => {
@@ -229,23 +233,24 @@ const millBillStrToNum = str => {
 }
 
 module.exports = {
-  millBillStrToNum,
-  extractNumbers,
-  writeOut,
-  newBrowserPage,
-  parseStreetBulletData,
+  backupReturnStockDataFile,
   evalX,
-  prevSiblingTextIs,
-  prevSiblingTextContains,
+  extractNumbers,
   followingSiblingTextIs,
+  getFidelitySecretUrl,
+  getFirstLastValue,
   getTextByX,
   hasCFRA,
-  promptForTickers,
-  promptUser,
-  promptLogin,
+  millBillStrToNum,
+  newBrowserPage,
+  parseStreetBulletData,
   pauseExecution,
-  getFidelitySecretUrl,
-  backupReturnStockDataFile,
-  getFirstLastValue,
+  prevSiblingTextContains,
+  prevSiblingTextIs,
   promptForPause,
+  promptForTickers,
+  promptLogin,
+  promptUser,
+  scrapbookWriteOut,
+  writeFile,
 }

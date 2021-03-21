@@ -11,6 +11,7 @@ const {
   getRecentStatement,
   reduceUpdownGrade,
   dateStrIsBefore,
+  getStatementCharts,
 } = require("./buildCompanyDataUtil")
 
 const validateEarningsTrend = trend => {
@@ -183,6 +184,23 @@ const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
   )
 }
 
+/**
+ * @typedef {{
+ * mostRecentQuarter:string,
+ * endDateAnnuChart:string[],
+ * endDateQuartChart:string[],
+ * capitalExpendituresAnnuChart:number[],
+ * dividendChart:number[],
+ * country:*, nonIndexOwners:string|*, wsjChartThreeMonthAgo:*, percentRepurchasedMRQ, leveredFreeCashFlowPerShare:*|number, debtToCapital, industry:*, wsjChartCurrentNum:*, payoutRatioMRQ, buybackRatio:string, quarterlyRevenueChart:*, boardRisk:*, upgradeDowngradeHistory:string|string, overallRisk:*, totalCashPerShare:*, sector:*, operatingMargins:*, institutionsCount:*|null, compensationRisk:*, numAnaylstRecommendations:*, operatingCashFlowPerShareMRQ:*, totalDebt:*, wsjChartMonthAgo:*, freeCashFlowPerShareMRQ:*, quarterlyEPSActualEstimateChart:*, wsjChartCurrent:*, freeCashFlowPerShareTTM:*, shareHolderRightsRisk:*, recommendationKey:*, totalRevenueTTM:*|number, anaylstRecommendations:[]|[*, *, *, *, *], longBusinessSummary:*, enterpriseToRevenue:*, salesPerShareMRQ:*|number, salesPerShareTTM:*, auditRisk:*, earliestEarningsDate:number|*}}
+ * @name CompanyData
+ */
+
+/**
+ * @param quoteSummary
+ * @param wsjChart
+ * @param wsjData
+ * @returns {CompanyData}
+ */
 module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
   const {
     assetProfile: {
@@ -285,11 +303,23 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     } = {},
     upgradeDowngradeHistory: { history: upgradeDowngradeHistory } = {},
     price: { regularMarketPrice },
-    cashflowStatementHistory: { cashflowStatements: annualCashFlowStatements } = {},
+    balanceSheetHistory: { balanceSheetStatements: balanceSheetStatementsAnnu } = {},
+    cashflowStatementHistory: { cashflowStatements: cashflowStatementsAnnu } = {},
+    incomeStatementHistory: { incomeStatementHistory: incomeStatementsAnnu } = {},
     cashflowStatementHistoryQuarterly: { cashflowStatements },
     incomeStatementHistoryQuarterly: { incomeStatementHistory },
     balanceSheetHistoryQuarterly: { balanceSheetStatements },
   } = quoteSummary.result[0]
+
+  const cashflowChartsAnnu = getStatementCharts(cashflowStatementsAnnu, "AnnuChart")
+  const cashflowCharts = getStatementCharts(cashflowStatements, "QuartChart")
+  const incomeChartsAnnu = getStatementCharts(incomeStatementsAnnu, "AnnuChart")
+  const incomeCharts = getStatementCharts(incomeStatementHistory, "QuartChart")
+  const balanceSheetChartsAnnu = getStatementCharts(
+    balanceSheetStatementsAnnu,
+    "AnnuChart"
+  )
+  const balanceSheetCharts = getStatementCharts(balanceSheetStatements, "QuartChart")
 
   const mrqSeconds = mostRecentQuarter ? mostRecentQuarter.raw : 0
   const lfyEndSeconds = lastFiscalYearEnd ? lastFiscalYearEnd.raw : 0
@@ -413,19 +443,18 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     (cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0)
   )
 
-  const cashFlowStatementsUpToDate = Boolean(
-    getRecentStatement(cashflowStatements, mrqSeconds) &&
-      getRecentStatement(annualCashFlowStatements, lfyEndSeconds)
-  )
-  const getDividendChart = (statements, mult = 1) =>
-    statements
-      .filter(statement => statement.dividendsPaid)
-      .reverse()
-      .map(({ dividendsPaid }) => -dividendsPaid.raw * mult)
-
   const anaylstRecommendations = getAnalystRecommendations(recommendationTrend)
 
   return {
+    mostRecentQuarter: mostRecentQuarter
+      ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${incomeStatement.quartersBack}`
+      : "?",
+    ...cashflowChartsAnnu,
+    ...cashflowCharts,
+    ...incomeChartsAnnu,
+    ...incomeCharts,
+    ...balanceSheetChartsAnnu,
+    ...balanceSheetCharts,
     ...balanceSheet,
     ...incomeStatement,
     ...cashFlows,
@@ -596,9 +625,6 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     sector,
     shareHolderRightsRisk,
     totalRevenueTTM,
-    mostRecentQuarter: mostRecentQuarter
-      ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${incomeStatement.quartersBack}`
-      : "?",
     totalDebt: mTotalDebt,
     payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome),
     percentRepurchasedMRQ: cashFlowReStock / fiftyDayAverage.raw / sharesOutstanding.raw,
@@ -608,12 +634,6 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       operatingMargins && operatingMargins.raw
         ? operatingMargins.raw
         : incomeStatement.ebit / incomeStatement.totalRevenue,
-    priceToSalesMRQ:
-      regularMarketPrice && regularMarketPrice.raw && incomeStatement.totalRevenue
-        ? (
-            regularMarketPrice.raw / slicePerShareAnnlz(incomeStatement.totalRevenue)
-          ).toFixed(2)
-        : "n/a",
     salesPerShareMRQ: incomeStatement.totalRevenue
       ? slicePerShareAnnlz(incomeStatement.totalRevenue).toFixed(2)
       : 0,
@@ -631,8 +651,6 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       enterpriseToRevenue && enterpriseToRevenue.raw
         ? enterpriseToRevenue.raw
         : Boolean(enterpriseValue) && enterpriseValue.raw / totalRevenueTTM,
-
-    // non-numbers:
     upgradeDowngradeHistory: upgradeDowngradeHistory
       ? getUpgradeDowngradeHistory(upgradeDowngradeHistory)
       : "n/a",
@@ -644,13 +662,16 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     institutionsCount: institutionsCount ? institutionsCount.longFmt : null,
     nonIndexOwners: getNonIndexOwners(ownershipList),
     earliestEarningsDate: getEarningsChartCurrentEstimateData().earningsDates,
-    dividendChart: cashFlowStatementsUpToDate
-      ? [
-          ...getDividendChart(annualCashFlowStatements),
-          0,
-          ...getDividendChart(cashflowStatements, 4),
-        ]
-      : [],
+    dividendChart:
+      cashflowChartsAnnu.dividendsPaidAnnuChart && cashflowCharts.dividendsPaidQuartChart
+        ? [
+            ...cashflowChartsAnnu.dividendsPaidAnnuChart.map(
+              payment => Math.abs(payment) / 4
+            ),
+            0,
+            ...cashflowCharts.dividendsPaidQuartChart.map(payment => Math.abs(payment)),
+          ]
+        : [],
     quarterlyEPSActualEstimateChart: validateEarningsChart(earningsChart, fiscalMRQStr)
       .reduce((acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0], [])
       .concat(

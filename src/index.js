@@ -19,7 +19,7 @@ const {
   prevSiblingTextContains,
   followingSiblingTextIs,
   hasCFRA,
-  writeOut,
+  scrapbookWriteOut,
   promptForTickers,
   promptLogin,
   pauseExecution,
@@ -326,5 +326,5 @@ puppeteer.connect(CONNECTION).then(async browser => {
     console.log(`* COMPLETED OK: ${ticker}`)
   }
 
-  writeOut(newStockData)
+  scrapbookWriteOut(newStockData)
 })

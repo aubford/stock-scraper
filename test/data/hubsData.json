@@ -225,9 +225,9 @@
                         },
                         {
                             "period": "-1m",
-                            "strongBuy": 7,
-                            "buy": 11,
-                            "hold": 6,
+                            "strongBuy": 8,
+                            "buy": 12,
+                            "hold": 5,
                             "sell": 0,
                             "strongSell": 0
                         },
@@ -632,47 +632,47 @@
                     "maxAge": 1,
                     "symbol": "SP5",
                     "peRatio": {
-                        "raw": 12.8605,
-                        "fmt": "12.86"
+                        "raw": 12.8711,
+                        "fmt": "12.87"
                     },
                     "pegRatio": {
-                        "raw": 0.548675,
-                        "fmt": "0.55"
+                        "raw": 0.599505,
+                        "fmt": "0.60"
                     },
                     "estimates": [
                         {
                             "period": "0q",
                             "growth": {
-                                "raw": 0.42400002,
-                                "fmt": "0.42"
+                                "raw": 0.42700002,
+                                "fmt": "0.43"
                             }
                         },
                         {
                             "period": "+1q",
                             "growth": {
-                                "raw": 0.703,
-                                "fmt": "0.70"
+                                "raw": 0.671,
+                                "fmt": "0.67"
                             }
                         },
                         {
                             "period": "0y",
                             "growth": {
-                                "raw": 0.244,
+                                "raw": 0.24,
                                 "fmt": "0.24"
                             }
                         },
                         {
                             "period": "+1y",
                             "growth": {
-                                "raw": 0.133,
+                                "raw": 0.134,
                                 "fmt": "0.13"
                             }
                         },
                         {
                             "period": "+5y",
                             "growth": {
-                                "raw": 0.0954084,
-                                "fmt": "0.10"
+                                "raw": 0.0906712,
+                                "fmt": "0.09"
                             }
                         },
                         {
@@ -689,13 +689,13 @@
                         "longFmt": "2"
                     },
                     "enterpriseValue": {
-                        "raw": 21651353600,
-                        "fmt": "21.65B",
-                        "longFmt": "21,651,353,600"
+                        "raw": 20305780736,
+                        "fmt": "20.31B",
+                        "longFmt": "20,305,780,736"
                     },
                     "forwardPE": {
-                        "raw": 206.56387,
-                        "fmt": "206.56"
+                        "raw": 197.45375,
+                        "fmt": "197.45"
                     },
                     "profitMargins": {
                         "raw": -0.0963,
@@ -762,8 +762,8 @@
                         "fmt": "16.54"
                     },
                     "priceToBook": {
-                        "raw": 28.352884,
-                        "fmt": "28.35"
+                        "raw": 27.10243,
+                        "fmt": "27.10"
                     },
                     "annualReportExpenseRatio": {},
                     "ytdReturn": {},
@@ -804,22 +804,22 @@
                         "fmt": "2.27"
                     },
                     "pegRatio": {
-                        "raw": 12.55,
-                        "fmt": "12.55"
+                        "raw": 13.65,
+                        "fmt": "13.65"
                     },
                     "lastSplitFactor": null,
                     "lastSplitDate": {},
                     "enterpriseToRevenue": {
-                        "raw": 24.519,
-                        "fmt": "24.52"
+                        "raw": 22.996,
+                        "fmt": "23.00"
                     },
                     "enterpriseToEbitda": {
-                        "raw": -727.337,
-                        "fmt": "-727.34"
+                        "raw": -682.135,
+                        "fmt": "-682.14"
                     },
                     "52WeekChange": {
-                        "raw": 3.557922,
-                        "fmt": "355.79%"
+                        "raw": 3.149417,
+                        "fmt": "314.94%"
                     },
                     "SandP52WeekChange": {
                         "raw": 0.652609,
@@ -1431,36 +1431,36 @@
                         "longFmt": "2"
                     },
                     "previousClose": {
-                        "raw": 477.26,
-                        "fmt": "477.26"
+                        "raw": 431.31,
+                        "fmt": "431.31"
                     },
                     "open": {
-                        "raw": 473.63,
-                        "fmt": "473.63"
+                        "raw": 438.18,
+                        "fmt": "438.18"
                     },
                     "dayLow": {
-                        "raw": 463.36,
-                        "fmt": "463.36"
+                        "raw": 429.07,
+                        "fmt": "429.07"
                     },
                     "dayHigh": {
-                        "raw": 492.26,
-                        "fmt": "492.26"
+                        "raw": 457.49,
+                        "fmt": "457.49"
                     },
                     "regularMarketPreviousClose": {
-                        "raw": 477.26,
-                        "fmt": "477.26"
+                        "raw": 431.31,
+                        "fmt": "431.31"
                     },
                     "regularMarketOpen": {
-                        "raw": 473.63,
-                        "fmt": "473.63"
+                        "raw": 438.18,
+                        "fmt": "438.18"
                     },
                     "regularMarketDayLow": {
-                        "raw": 463.36,
-                        "fmt": "463.36"
+                        "raw": 429.07,
+                        "fmt": "429.07"
                     },
                     "regularMarketDayHigh": {
-                        "raw": 492.26,
-                        "fmt": "492.26"
+                        "raw": 457.49,
+                        "fmt": "457.49"
                     },
                     "dividendRate": {},
                     "dividendYield": {},
@@ -1475,41 +1475,41 @@
                         "fmt": "1.72"
                     },
                     "forwardPE": {
-                        "raw": 206.56387,
-                        "fmt": "206.56"
+                        "raw": 197.45375,
+                        "fmt": "197.45"
                     },
                     "volume": {
-                        "raw": 325381,
-                        "fmt": "325.38k",
-                        "longFmt": "325,381"
+                        "raw": 1281340,
+                        "fmt": "1.28M",
+                        "longFmt": "1,281,340"
                     },
                     "regularMarketVolume": {
-                        "raw": 325381,
-                        "fmt": "325.38k",
-                        "longFmt": "325,381"
+                        "raw": 1281340,
+                        "fmt": "1.28M",
+                        "longFmt": "1,281,340"
                     },
                     "averageVolume": {
-                        "raw": 533755,
-                        "fmt": "533.75k",
-                        "longFmt": "533,755"
+                        "raw": 536401,
+                        "fmt": "536.4k",
+                        "longFmt": "536,401"
                     },
                     "averageVolume10days": {
-                        "raw": 637420,
-                        "fmt": "637.42k",
-                        "longFmt": "637,420"
+                        "raw": 686700,
+                        "fmt": "686.7k",
+                        "longFmt": "686,700"
                     },
                     "averageDailyVolume10Day": {
-                        "raw": 637420,
-                        "fmt": "637.42k",
-                        "longFmt": "637,420"
+                        "raw": 686700,
+                        "fmt": "686.7k",
+                        "longFmt": "686,700"
                     },
                     "bid": {
-                        "raw": 0.0,
-                        "fmt": "0.00"
+                        "raw": 425.05,
+                        "fmt": "425.05"
                     },
                     "ask": {
-                        "raw": 0.0,
-                        "fmt": "0.00"
+                        "raw": 448.22,
+                        "fmt": "448.22"
                     },
                     "bidSize": {
                         "raw": 800,
@@ -1522,9 +1522,9 @@
                         "longFmt": "800"
                     },
                     "marketCap": {
-                        "raw": 21726574592,
-                        "fmt": "21.73B",
-                        "longFmt": "21,726,574,592"
+                        "raw": 20768362496,
+                        "fmt": "20.77B",
+                        "longFmt": "20,768,362,496"
                     },
                     "yield": {},
                     "ytdReturn": {},
@@ -1533,24 +1533,24 @@
                     "strikePrice": {},
                     "openInterest": {},
                     "fiftyTwoWeekLow": {
-                        "raw": 90.835,
-                        "fmt": "90.83"
+                        "raw": 105.02,
+                        "fmt": "105.02"
                     },
                     "fiftyTwoWeekHigh": {
                         "raw": 547.47,
                         "fmt": "547.47"
                     },
                     "priceToSalesTrailing12Months": {
-                        "raw": 24.604683,
-                        "fmt": "24.60"
+                        "raw": 23.519537,
+                        "fmt": "23.52"
                     },
                     "fiftyDayAverage": {
-                        "raw": 457.61148,
-                        "fmt": "457.61"
+                        "raw": 467.88528,
+                        "fmt": "467.89"
                     },
                     "twoHundredDayAverage": {
-                        "raw": 371.96326,
-                        "fmt": "371.96"
+                        "raw": 375.30884,
+                        "fmt": "375.31"
                     },
                     "trailingAnnualDividendRate": {},
                     "trailingAnnualDividendYield": {},
@@ -2912,75 +2912,75 @@
                         "raw": 0.0,
                         "fmt": "0.00"
                     },
-                    "postMarketTime": 1615926960,
+                    "postMarketTime": 1616198062,
                     "postMarketPrice": {
-                        "raw": 468.9,
-                        "fmt": "468.90"
+                        "raw": 448.22,
+                        "fmt": "448.22"
                     },
-                    "postMarketSource": "FREE_REALTIME",
+                    "postMarketSource": "DELAYED",
                     "regularMarketChangePercent": {
-                        "raw": -0.017516691,
-                        "fmt": "-1.75%"
+                        "raw": 0.039206147,
+                        "fmt": "3.92%"
                     },
                     "regularMarketChange": {
-                        "raw": -8.360016,
-                        "fmt": "-8.36"
+                        "raw": 16.910004,
+                        "fmt": "16.91"
                     },
-                    "regularMarketTime": 1615924802,
+                    "regularMarketTime": 1616184002,
                     "priceHint": {
                         "raw": 2,
                         "fmt": "2",
                         "longFmt": "2"
                     },
                     "regularMarketPrice": {
-                        "raw": 468.9,
-                        "fmt": "468.90"
+                        "raw": 448.22,
+                        "fmt": "448.22"
                     },
                     "regularMarketDayHigh": {
-                        "raw": 492.26,
-                        "fmt": "492.26"
+                        "raw": 457.49,
+                        "fmt": "457.49"
                     },
                     "regularMarketDayLow": {
-                        "raw": 463.36,
-                        "fmt": "463.36"
+                        "raw": 429.07,
+                        "fmt": "429.07"
                     },
                     "regularMarketVolume": {
-                        "raw": 325381,
-                        "fmt": "325.38k",
-                        "longFmt": "325,381.00"
+                        "raw": 1281340,
+                        "fmt": "1.28M",
+                        "longFmt": "1,281,340.00"
                     },
                     "averageDailyVolume10Day": {
-                        "raw": 637420,
-                        "fmt": "637.42k",
-                        "longFmt": "637,420"
+                        "raw": 686700,
+                        "fmt": "686.7k",
+                        "longFmt": "686,700"
                     },
                     "averageDailyVolume3Month": {
-                        "raw": 533755,
-                        "fmt": "533.75k",
-                        "longFmt": "533,755"
+                        "raw": 536401,
+                        "fmt": "536.4k",
+                        "longFmt": "536,401"
                     },
                     "regularMarketPreviousClose": {
-                        "raw": 477.26,
-                        "fmt": "477.26"
+                        "raw": 431.31,
+                        "fmt": "431.31"
                     },
                     "regularMarketSource": "DELAYED",
                     "regularMarketOpen": {
-                        "raw": 473.63,
-                        "fmt": "473.63"
+                        "raw": 438.18,
+                        "fmt": "438.18"
                     },
                     "strikePrice": {},
                     "openInterest": {},
                     "exchange": "NYQ",
                     "exchangeName": "NYSE",
                     "exchangeDataDelayedBy": 0,
-                    "marketState": "PREPRE",
+                    "marketState": "CLOSED",
                     "quoteType": "EQUITY",
                     "symbol": "HUBS",
                     "underlyingSymbol": null,
                     "shortName": "HubSpot, Inc.",
                     "longName": "HubSpot, Inc.",
                     "currency": "USD",
-                    "quoteSourceName": "Nasdaq Real Time Price",
+                    "quoteSourceName": "Delayed Quote",
                     "currencySymbol": "$",
                     "fromCurrency": null,
                     "toCurrency": null,
@@ -2989,9 +2989,9 @@
                     "volumeAllCurrencies": {},
                     "circulatingSupply": {},
                     "marketCap": {
-                        "raw": 21726574592,
-                        "fmt": "21.73B",
-                        "longFmt": "21,726,574,592.00"
+                        "raw": 20768362496,
+                        "fmt": "20.77B",
+                        "longFmt": "20,768,362,496.00"
                     }
                 },
                 "balanceSheetHistory": {
@@ -3624,9 +3624,9 @@
                                     "longFmt": "0"
                                 },
                                 "upLast30days": {
-                                    "raw": 8,
-                                    "fmt": "8",
-                                    "longFmt": "8"
+                                    "raw": 0,
+                                    "fmt": null,
+                                    "longFmt": "0"
                                 },
                                 "downLast30days": {
                                     "raw": 0,
@@ -3712,8 +3712,8 @@
                                     "fmt": "0.33"
                                 },
                                 "30daysAgo": {
-                                    "raw": 0.34,
-                                    "fmt": "0.34"
+                                    "raw": 0.33,
+                                    "fmt": "0.33"
                                 },
                                 "60daysAgo": {
                                     "raw": 0.34,
@@ -3731,9 +3731,9 @@
                                     "longFmt": "0"
                                 },
                                 "upLast30days": {
-                                    "raw": 8,
-                                    "fmt": "8",
-                                    "longFmt": "8"
+                                    "raw": 0,
+                                    "fmt": null,
+                                    "longFmt": "0"
                                 },
                                 "downLast30days": {
                                     "raw": 0,
@@ -3780,14 +3780,14 @@
                             },
                             "revenueEstimate": {
                                 "avg": {
-                                    "raw": 1168020000,
+                                    "raw": 1167850000,
                                     "fmt": "1.17B",
-                                    "longFmt": "1,168,020,000"
+                                    "longFmt": "1,167,850,000"
                                 },
                                 "low": {
-                                    "raw": 1165000000,
-                                    "fmt": "1.17B",
-                                    "longFmt": "1,165,000,000"
+                                    "raw": 1164000000,
+                                    "fmt": "1.16B",
+                                    "longFmt": "1,164,000,000"
                                 },
                                 "high": {
                                     "raw": 1175000000,
@@ -3795,9 +3795,9 @@
                                     "longFmt": "1,175,000,000"
                                 },
                                 "numberOfAnalysts": {
-                                    "raw": 22,
-                                    "fmt": "22",
-                                    "longFmt": "22"
+                                    "raw": 23,
+                                    "fmt": "23",
+                                    "longFmt": "23"
                                 },
                                 "yearAgoRevenue": {
                                     "raw": 883026000,
@@ -3819,8 +3819,8 @@
                                     "fmt": "1.58"
                                 },
                                 "30daysAgo": {
-                                    "raw": 1.4,
-                                    "fmt": "1.4"
+                                    "raw": 1.58,
+                                    "fmt": "1.58"
                                 },
                                 "60daysAgo": {
                                     "raw": 1.38,
@@ -3838,9 +3838,9 @@
                                     "longFmt": "0"
                                 },
                                 "upLast30days": {
-                                    "raw": 19,
-                                    "fmt": "19",
-                                    "longFmt": "19"
+                                    "raw": 1,
+                                    "fmt": "1",
+                                    "longFmt": "1"
                                 },
                                 "downLast30days": {
                                     "raw": 0,
@@ -3887,9 +3887,9 @@
                             },
                             "revenueEstimate": {
                                 "avg": {
-                                    "raw": 1474610000,
+                                    "raw": 1473100000,
                                     "fmt": "1.47B",
-                                    "longFmt": "1,474,610,000"
+                                    "longFmt": "1,473,100,000"
                                 },
                                 "low": {
                                     "raw": 1412000000,
@@ -3902,18 +3902,18 @@
                                     "longFmt": "1,571,800,000"
                                 },
                                 "numberOfAnalysts": {
-                                    "raw": 20,
-                                    "fmt": "20",
-                                    "longFmt": "20"
+                                    "raw": 21,
+                                    "fmt": "21",
+                                    "longFmt": "21"
                                 },
                                 "yearAgoRevenue": {
-                                    "raw": 1168020000,
+                                    "raw": 1167850000,
                                     "fmt": "1.17B",
-                                    "longFmt": "1,168,020,000"
+                                    "longFmt": "1,167,850,000"
                                 },
                                 "growth": {
-                                    "raw": 0.262,
-                                    "fmt": "26.20%"
+                                    "raw": 0.261,
+                                    "fmt": "26.10%"
                                 }
                             },
                             "epsTrend": {
@@ -3926,8 +3926,8 @@
                                     "fmt": "2.27"
                                 },
                                 "30daysAgo": {
-                                    "raw": 1.97,
-                                    "fmt": "1.97"
+                                    "raw": 2.27,
+                                    "fmt": "2.27"
                                 },
                                 "60daysAgo": {
                                     "raw": 1.95,
@@ -3940,14 +3940,14 @@
                             },
                             "epsRevisions": {
                                 "upLast7days": {
-                                    "raw": 0,
-                                    "fmt": null,
-                                    "longFmt": "0"
+                                    "raw": 1,
+                                    "fmt": "1",
+                                    "longFmt": "1"
                                 },
                                 "upLast30days": {
-                                    "raw": 9,
-                                    "fmt": "9",
-                                    "longFmt": "9"
+                                    "raw": 1,
+                                    "fmt": "1",
+                                    "longFmt": "1"
                                 },
                                 "downLast30days": {
                                     "raw": 0,
@@ -5132,32 +5132,32 @@
                         "fmt": "6.00%"
                     },
                     "sellInfoCount": {
-                        "raw": 17,
-                        "fmt": "17",
-                        "longFmt": "17"
+                        "raw": 16,
+                        "fmt": "16",
+                        "longFmt": "16"
                     },
                     "sellInfoShares": {
-                        "raw": 132407,
-                        "fmt": "132.41k",
-                        "longFmt": "132,407"
+                        "raw": 123907,
+                        "fmt": "123.91k",
+                        "longFmt": "123,907"
                     },
                     "sellPercentInsiderShares": {
-                        "raw": 0.055999998,
-                        "fmt": "5.60%"
+                        "raw": 0.053000003,
+                        "fmt": "5.30%"
                     },
                     "netInfoCount": {
-                        "raw": 31,
-                        "fmt": "31",
-                        "longFmt": "31"
+                        "raw": 30,
+                        "fmt": "30",
+                        "longFmt": "30"
                     },
                     "netInfoShares": {
-                        "raw": 8379,
-                        "fmt": "8.38k",
-                        "longFmt": "8,379"
+                        "raw": 16879,
+                        "fmt": "16.88k",
+                        "longFmt": "16,879"
                     },
                     "netPercentInsiderShares": {
-                        "raw": 0.004,
-                        "fmt": "0.40%"
+                        "raw": 0.0069999998,
+                        "fmt": "0.70%"
                     },
                     "totalInsiderShares": {
                         "raw": 2362631,
@@ -9542,24 +9542,24 @@
                 "financialData": {
                     "maxAge": 86400,
                     "currentPrice": {
-                        "raw": 468.9,
-                        "fmt": "468.90"
+                        "raw": 448.22,
+                        "fmt": "448.22"
                     },
                     "targetHighPrice": {
                         "raw": 725.0,
                         "fmt": "725.00"
                     },
                     "targetLowPrice": {
-                        "raw": 421.3,
-                        "fmt": "421.30"
+                        "raw": 510.0,
+                        "fmt": "510.00"
                     },
                     "targetMeanPrice": {
-                        "raw": 559.63,
-                        "fmt": "559.63"
+                        "raw": 566.19,
+                        "fmt": "566.19"
                     },
                     "targetMedianPrice": {
-                        "raw": 550.0,
-                        "fmt": "550.00"
+                        "raw": 559.0,
+                        "fmt": "559.00"
                     },
                     "recommendationMean": {
                         "raw": 1.9,

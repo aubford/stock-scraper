@@ -8,15 +8,18 @@
     "upyw": "npm run updateWs && node --require ./preload.js src/updateYahooWsj.js && npm run prettyStock",
     "upup": "npm run updateWs && node --require ./preload.js src/updateAnalysts.js && npm run prettyStock",
     "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js && npm run prettyStock",
-    "test": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.js",
+    "sandbox": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.node.js",
+    "test": "jest",
     "launch": "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check",
     "updateWs": "curl localhost:9222/json/version > ws.json",
-    "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.js",
-    "prettyStock": "prettier --write ./test/stockData.json"
+    "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.node.js",
+    "prettyStock": "prettier --write ./test/stockData.json",
+    "makeTestData": "node --require ./preload.js test/makeTestData.node.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jest": "^26.0.21",
     "cheerio": "^1.0.0-rc.5",
     "himalaya": "^1.1.0",
     "jest": "^26.6.3",
@@ -38,6 +41,7 @@
     "globals": {
       "fs": true,
       "fetch": true,
+      "test": true,
       "ARGUS_ANALYST_KEY": true,
       "ARGUS_RESEARCH_KEY": true,
       "ZACKS_KEY": true,
