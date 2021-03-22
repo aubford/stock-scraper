@@ -69,12 +69,14 @@ const isObj = value => typeof value === "object" && value !== null
 const keySet = objArr => unionBy(...objArr.map(Object.keys))
 const getRaw = val => (isObj(val) ? val.raw : val) || 0
 
-exports.getStatementCharts = (statement, name = "Chart") =>
+exports.getStatementCharts = (statementSet, name = "Chart") =>
   fromPairs(
-    keySet(statement).map(key => [
+    keySet(statementSet).map(key => [
       key + name,
-      statement.map(statement =>
-        key === "endDate" ? statement[key].fmt || 0 : getRaw(statement[key])
-      ),
+      statementSet
+        .map(statement =>
+          key === "endDate" ? statement[key].fmt || 0 : getRaw(statement[key])
+        )
+        .reverse(),
     ])
   )

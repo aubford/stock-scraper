@@ -1,4 +1,4 @@
-const { sortBy } = require("lodash")
+const { clone, cloneDeep, sortBy, last } = require("lodash")
 const buildCompanyData = require("../src/buildCompanyData")
 const wsjData = require("./data/wsjC.json")
 const citiData = require("./data/citiData.json")
@@ -26,20 +26,36 @@ const uvspData = require("./data/uvspData.json")
 const jdData = require("./data/jdData.json")
 const bflyData = require("./data/bflyData.json")
 
-const sortDates = arr => sortBy(arr, date => new Date(date)).reverse()
+const sortDates = arr => sortBy(arr, date => new Date(date))
 const runTests = data => {
   const o = buildCompanyData(data, wsjData)
 
-  expect(o.mostRecentQuarter).toContain(o.endDateQuartChart[0])
-  expect(o.endDateQuartChart).toEqual(sortDates(o.endDateQuartChart))
+  // last chart item is MRQ
+  if (o.mostRecentQuarter !== "?") {
+    expect(o.mostRecentQuarter).toContain(last(o.endDateIsQuartChart))
+    expect(o.mostRecentQuarter).toContain(last(o.endDateCfQuartChart))
+    expect(o.mostRecentQuarter).toContain(last(o.endDateBsQuartChart))
+  }
+
+  // Charts are sorted correctly
+  expect(o.endDateIsQuartChart).toEqual(sortDates(o.endDateIsQuartChart))
+  expect(o.endDateCfQuartChart).toEqual(sortDates(o.endDateCfQuartChart))
+  expect(o.endDateBsQuartChart).toEqual(sortDates(o.endDateBsQuartChart))
+  if (o.dividendsPaid) {
+    expect(last(o.dividendChart)).toBe(Math.abs(o.dividendsPaid))
+  }
 }
 
 test("Schmangled data", () => {
-  const o = buildCompanyData(citiData, wsjData)
+  const clonedData = cloneDeep(citiData)
+  const { incomeStatementHistoryQuarterly } = clonedData.quoteSummary.result[0]
 
-  const [dateA, dateB, dateC, dateD] = o.endDateQuartChart
-  o.endDateQuartChart = [dateC, dateA, dateB, dateD]
-  expect(o.endDateQuartChart).not.toEqual(sortDates(o.endDateQuartChart))
+  const [a, b, c, d] = incomeStatementHistoryQuarterly.incomeStatementHistory
+  incomeStatementHistoryQuarterly.incomeStatementHistory = [b, c, a, d]
+
+  const o = buildCompanyData(clonedData, wsjData)
+
+  expect(o.endDateIsQuartChart).not.toEqual(sortDates(o.endDateIsQuartChart))
 })
 
 test("C", () => {
@@ -62,7 +78,7 @@ test("BIIB", () => {
   runTests(biibData)
 })
 
-test.skip("BSX", () => {
+test("BSX", () => {
   runTests(bsxData)
 })
 
