@@ -1,4 +1,4 @@
-const { last, sum, isEqual } = require("lodash")
+const { isArray, mapValues, last, sum, isEqual } = require("lodash")
 const {
   maxSecondsInQuarter,
   secondsInYear,
@@ -424,22 +424,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
 
   const anaylstRecommendations = getAnalystRecommendations(recommendationTrend)
 
-  //noinspection JSValidateTypes
-  return {
-    // todo
-    //...(statementDataOk
-    //  ? [
-    //      ...cashFlows,
-    //      ...cashflowChartsAnnu,
-    //      ...cashflowCharts,
-    //      ...incomeStatement,
-    //      ...incomeChartsAnnu,
-    //      ...incomeCharts,
-    //      ...balanceSheet,
-    //      ...balSheetChartsAnnu,
-    //      ...balSheetCharts,
-    //    ]
-    //  : []),
+  const statementData = {
     ...cashFlows,
     ...cashflowChartsAnnu,
     ...cashflowCharts,
@@ -449,6 +434,11 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ...balanceSheet,
     ...balSheetChartsAnnu,
     ...balSheetCharts,
+  }
+
+  //noinspection JSValidateTypes
+  return {
+    ...(statementDataOk ? statementData : mapValues(statementData, () => 0)),
     ...selectValueTypes(
       // RAW //
       {

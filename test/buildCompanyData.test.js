@@ -1,4 +1,4 @@
-const { isArray, cloneDeep, sortBy, last } = require("lodash")
+const { cloneDeep, sortBy, last } = require("lodash")
 const buildCompanyData = require("../src/buildCompanyData")
 const { orZero } = require("../src/buildCompanyDataUtil")
 const wsjData = require("./data/wsjC.json")
@@ -34,37 +34,37 @@ const runTests = data => {
   const o = buildCompanyData(data, wsjData)
   expect(o).toMatchSnapshot()
 
-  // Last chart date item = MRQ/LFY
   if (o.mostRecentQuarter) {
-    expect(o.mostRecentQuarter).toContain(last(o.endDateIsQuartChart))
-    expect(o.mostRecentQuarter).toContain(last(o.endDateCfQuartChart))
-    expect(o.mostRecentQuarter).toContain(last(o.endDateBsQuartChart))
+    if (o.endDateIsQuartChart) {
+      // Last chart date item = MRQ
+      expect(o.mostRecentQuarter).toContain(last(o.endDateIsQuartChart))
+      expect(o.mostRecentQuarter).toContain(last(o.endDateCfQuartChart))
+      expect(o.mostRecentQuarter).toContain(last(o.endDateBsQuartChart))
+      // Last arbitrary chart item is current
+      expect(last(o.netIncomeIsQuartChart)).toBe(o.netIncome)
+      // Last dividend chart item is current
+      if (o.dividendsPaid) {
+        expect(last(o.dividendChart)).toBe(Math.abs(o.dividendsPaid))
+      }
+    }
 
     if (o.endDateIsAnnuChart) {
+      // Last chart date item = LFY
       expect(o.lastFiscalYearEnd).toContain(last(o.endDateIsAnnuChart))
-    }
-    if (o.endDateCfAnnuChart) {
       expect(o.lastFiscalYearEnd).toContain(last(o.endDateCfAnnuChart))
-    }
-    if (o.endDateBsAnnuChart) {
       expect(o.lastFiscalYearEnd).toContain(last(o.endDateBsAnnuChart))
     }
-
-    // Last arbitrary chart item is current
-    expect(last(o.netIncomeIsQuartChart)).toBe(o.netIncome)
-    // Last dividend chart item is current
-    expect(isArray(o.dividendChart) ? last(o.dividendChart) : o.dividendChart).toBe(
-      Math.abs(o.dividendsPaid) || 0
-    )
   } else {
     expect(o.netIncome).toBeUndefined()
     expect(o.dividendsPaid).toBeUndefined()
   }
 
-  // Charts are sorted correctly/predictably
-  expect(o.endDateIsQuartChart).toEqual(sortDates(o.endDateIsQuartChart))
-  expect(o.endDateCfQuartChart).toEqual(sortDates(o.endDateCfQuartChart))
-  expect(o.endDateBsQuartChart).toEqual(sortDates(o.endDateBsQuartChart))
+  if (o.endDateIsQuartChart) {
+    // Charts are sorted correctly/predictably
+    expect(o.endDateIsQuartChart).toEqual(sortDates(o.endDateIsQuartChart))
+    expect(o.endDateCfQuartChart).toEqual(sortDates(o.endDateCfQuartChart))
+    expect(o.endDateBsQuartChart).toEqual(sortDates(o.endDateBsQuartChart))
+  }
 }
 
 test("Schmangled data", () => {
@@ -184,6 +184,7 @@ test("ABC", () => {
 })
 
 test("orZero", () => {
+  //noinspection JSUnusedGlobalSymbols
   const testObj = {
     returnTrue: () => true,
     returnStr: () => "yay",
