@@ -386,6 +386,18 @@ Object {
     -6143457000,
     527882000,
   ],
+  "incomeEPSChartAnnu": Array [
+    1.7805242640665149,
+    8.101399079655701,
+    4.178504782468516,
+    -16.651763993239083,
+  ],
+  "incomeEPSChartQuart": Array [
+    1.7805242640665149,
+    8.101399079655701,
+    4.178504782468516,
+    -16.651763993239083,
+  ],
   "incomeTaxExpense": 149175000,
   "incomeTaxExpenseIsAnnuChart": Array [
     553403000,
@@ -552,7 +564,7 @@ Object {
   "monthsEpsEstimate": 2.48,
   "monthsEpsEstimateFollowingQuarter": 2,
   "monthsEpsEstimateNextYear": 9.1,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -431250000,
   "netBorrowingsCfAnnuChart": Array [
     -749553000,
@@ -1526,6 +1538,18 @@ Object {
     1364000000,
     1858000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    3.4128082823998604,
+    8.595358850978688,
+    8.394167096339395,
+    3.8934330295937274,
+  ],
+  "incomeEPSChartQuart": Array [
+    3.4128082823998604,
+    8.595358850978688,
+    8.394167096339395,
+    3.8934330295937274,
+  ],
   "incomeTaxExpense": 420000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     4677000000,
@@ -1681,7 +1705,7 @@ Object {
   "monthsEpsEstimate": 1.61,
   "monthsEpsEstimateFollowingQuarter": 1.7,
   "monthsEpsEstimateNextYear": 9.03,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -1715000000,
   "netBorrowingsCfAnnuChart": Array [
     6382000000,
@@ -2517,6 +2541,14 @@ Object {
   "incomeBeforeTaxIsQuartChart": Array [
     -40236000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -0.3079242032730405,
+    -0.604730016619961,
+  ],
+  "incomeEPSChartQuart": Array [
+    -0.3079242032730405,
+    -0.604730016619961,
+  ],
   "incomeTaxExpense": 0,
   "incomeTaxExpenseIsAnnuChart": Array [
     0,
@@ -2593,7 +2625,7 @@ Object {
   "monthsEpsEstimate": 0,
   "monthsEpsEstimateFollowingQuarter": 0,
   "monthsEpsEstimateNextYear": 0,
-  "mostRecentQuarter": "2019-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2019-12-31",
   "netIncome": -40236000,
   "netIncomeApplicableToCommonShares": -40236000,
   "netIncomeApplicableToCommonSharesIsAnnuChart": Array [
@@ -3306,6 +3338,18 @@ Object {
     944700000,
     370900000,
   ],
+  "incomeEPSChartAnnu": Array [
+    16.50030542883508,
+    28.79284126798456,
+    38.266333944191004,
+    25.997842502696873,
+  ],
+  "incomeEPSChartQuart": Array [
+    16.50030542883508,
+    28.79284126798456,
+    38.266333944191004,
+    25.997842502696873,
+  ],
   "incomeTaxExpense": 13300000,
   "incomeTaxExpenseIsAnnuChart": Array [
     2458700000,
@@ -3473,7 +3517,7 @@ Object {
   "monthsEpsEstimate": 6.15,
   "monthsEpsEstimateFollowingQuarter": 6.06,
   "monthsEpsEstimateNextYear": 24.33,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 100000,
   "netBorrowingsCfAnnuChart": Array [
     -560900000,
@@ -4490,6 +4534,18 @@ Object {
     1981000000,
     2167000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    32.44362330804408,
+    28.20472502849955,
+    29.325052085380715,
+    32.312590903730495,
+  ],
+  "incomeEPSChartQuart": Array [
+    32.44362330804408,
+    28.20472502849955,
+    29.325052085380715,
+    32.312590903730495,
+  ],
   "incomeTaxExpense": 427000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     270000000,
@@ -4644,7 +4700,7 @@ Object {
   "monthsEpsEstimate": 8.32,
   "monthsEpsEstimateFollowingQuarter": 8.93,
   "monthsEpsEstimateNextYear": 40.99,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 13000000,
   "netBorrowingsCfAnnuChart": Array [
     -3000000,
@@ -5594,6 +5650,18 @@ Object {
     23000000,
     -180000000,
     -227000000,
+  ],
+  "incomeEPSChartAnnu": Array [
+    Infinity,
+    Infinity,
+    Infinity,
+    Infinity,
+  ],
+  "incomeEPSChartQuart": Array [
+    Infinity,
+    Infinity,
+    Infinity,
+    Infinity,
   ],
   "incomeTaxExpenseIsAnnuChart": Array [
     -170000000,
@@ -6671,6 +6739,18 @@ Object {
     4076000000,
     4998000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -3.257790972126206,
+    8.647666680202617,
+    9.29749965434253,
+    5.294030136669344,
+  ],
+  "incomeEPSChartQuart": Array [
+    -3.257790972126206,
+    8.647666680202617,
+    9.29749965434253,
+    5.294030136669344,
+  ],
   "incomeTaxExpense": 1003000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     29388000000,
@@ -6838,7 +6918,7 @@ Object {
   "monthsEpsEstimate": 1.85,
   "monthsEpsEstimateFollowingQuarter": 1.67,
   "monthsEpsEstimateNextYear": 8.12,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -20649000000,
   "netBorrowingsCfAnnuChart": Array [
     55181000000,
@@ -7820,6 +7900,18 @@ Object {
     1250000000,
     425000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    0.39087947882736157,
+    1.205211726384365,
+    0.13680781758957655,
+    4.42128121606949,
+  ],
+  "incomeEPSChartQuart": Array [
+    0.39087947882736157,
+    1.205211726384365,
+    0.13680781758957655,
+    4.42128121606949,
+  ],
   "incomeTaxExpense": 158000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     60000000,
@@ -7975,7 +8067,7 @@ Object {
   "monthsEpsEstimate": 0.76,
   "monthsEpsEstimateFollowingQuarter": 0.89,
   "monthsEpsEstimateNextYear": 4.28,
-  "mostRecentQuarter": "2021-01-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-31",
   "netBorrowings": -40000000,
   "netBorrowingsCfAnnuChart": Array [
     -429000000,
@@ -8921,6 +9013,18 @@ Object {
     2681000000,
     3255000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    2.276048810871773,
+    0.026055299114985435,
+    2.752623918320416,
+    2.6562193115949695,
+  ],
+  "incomeEPSChartQuart": Array [
+    2.276048810871773,
+    0.026055299114985435,
+    2.752623918320416,
+    2.6562193115949695,
+  ],
   "incomeTaxExpense": 710000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     2678000000,
@@ -9089,7 +9193,7 @@ Object {
   "monthsEpsEstimate": 0.81,
   "monthsEpsEstimateFollowingQuarter": 0.85,
   "monthsEpsEstimateNextYear": 3.37,
-  "mostRecentQuarter": "2021-01-23 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-23",
   "netBorrowingsCfAnnuChart": Array [
     5326000000,
     -8000000000,
@@ -10079,6 +10183,18 @@ Object {
     1088000000,
     1532000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    6.888102453412563,
+    7.554898846540505,
+    10.378414673900448,
+    8.77682716504769,
+  ],
+  "incomeEPSChartQuart": Array [
+    6.888102453412563,
+    7.554898846540505,
+    10.378414673900448,
+    8.77682716504769,
+  ],
   "incomeTaxExpense": 308000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     971000000,
@@ -10259,7 +10375,7 @@ Object {
   "monthsEpsEstimate": 3.8,
   "monthsEpsEstimateFollowingQuarter": 3.78,
   "monthsEpsEstimateNextYear": 15.6,
-  "mostRecentQuarter": "2021-01-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-31",
   "netBorrowings": -379000000,
   "netBorrowingsCfAnnuChart": Array [
     4615000000,
@@ -11255,6 +11371,18 @@ Object {
     -580000000,
     46000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    4.946949661038976,
+    6.940052542290537,
+    6.089485696339069,
+    -1.5777353930084217,
+  ],
+  "incomeEPSChartQuart": Array [
+    4.946949661038976,
+    6.940052542290537,
+    6.089485696339069,
+    -1.5777353930084217,
+  ],
   "incomeTaxExpense": 16000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     4422000000,
@@ -11422,7 +11550,7 @@ Object {
   "monthsEpsEstimate": 0.23,
   "monthsEpsEstimateFollowingQuarter": 0.79,
   "monthsEpsEstimateNextYear": 4.77,
-  "mostRecentQuarter": "2021-01-02 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-02",
   "netBorrowings": -317000000,
   "netBorrowingsCfAnnuChart": Array [
     3703000000,
@@ -12353,6 +12481,18 @@ Object {
     -290188000,
     -184399000,
   ],
+  "incomeEPSChartAnnu": Array [
+    0.0962259297368808,
+    -0.09747537850948111,
+    -0.3156695575481405,
+    -5.239728796119359,
+  ],
+  "incomeEPSChartQuart": Array [
+    0.0962259297368808,
+    -0.09747537850948111,
+    -0.3156695575481405,
+    -5.239728796119359,
+  ],
   "incomeTaxExpense": 10929000,
   "incomeTaxExpenseIsAnnuChart": Array [
     0,
@@ -12517,7 +12657,7 @@ Object {
   "monthsEpsEstimate": -0.36,
   "monthsEpsEstimateFollowingQuarter": -0.42,
   "monthsEpsEstimateNextYear": -1,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -12489000,
   "netBorrowingsCfAnnuChart": Array [
     443000,
@@ -13435,6 +13575,18 @@ Object {
     4299000000,
     5541000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    12.39466329177086,
+    30.246333030478635,
+    24.4827856808521,
+    27.354437722085994,
+  ],
+  "incomeEPSChartQuart": Array [
+    12.39466329177086,
+    30.246333030478635,
+    24.4827856808521,
+    27.354437722085994,
+  ],
   "incomeTaxExpense": 1035000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     6846000000,
@@ -13595,7 +13747,7 @@ Object {
   "monthsEpsEstimate": 6.75,
   "monthsEpsEstimateFollowingQuarter": 6.64,
   "monthsEpsEstimateNextYear": 30.64,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -557000000,
   "netBorrowingsCfAnnuChart": Array [
     29131000000,
@@ -14553,6 +14705,18 @@ Object {
     -21572000,
     -13803000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -0.8571021599129819,
+    -1.3775272363127817,
+    -1.1599388801602237,
+    -1.8351275056544485,
+  ],
+  "incomeEPSChartQuart": Array [
+    -0.8571021599129819,
+    -1.3775272363127817,
+    -1.1599388801602237,
+    -1.8351275056544485,
+  ],
   "incomeTaxExpense": 1613000,
   "incomeTaxExpenseIsAnnuChart": Array [
     -10325000,
@@ -14708,7 +14872,7 @@ Object {
   "monthsEpsEstimate": 0.28,
   "monthsEpsEstimateFollowingQuarter": 0.34,
   "monthsEpsEstimateNextYear": 1.95,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -1627000,
   "netBorrowingsCfAnnuChart": Array [
     398946000,
@@ -15702,6 +15866,18 @@ Object {
     8275858000,
     23949833000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -0.09811954144036561,
+    -1.6056922663502007,
+    7.851880054370819,
+    31.838390520757695,
+  ],
+  "incomeEPSChartQuart": Array [
+    -0.09811954144036561,
+    -1.6056922663502007,
+    7.851880054370819,
+    31.838390520757695,
+  ],
   "incomeTaxExpense": -331722000,
   "incomeTaxExpenseIsAnnuChart": Array [
     139593000,
@@ -15882,7 +16058,7 @@ Object {
   "monthsEpsEstimate": 0.51,
   "monthsEpsEstimateFollowingQuarter": 0.63,
   "monthsEpsEstimateNextYear": 3.2,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 2900000000,
   "netBorrowingsCfAnnuChart": Array [
     3953741000,
@@ -16874,6 +17050,18 @@ Object {
     231000000,
     253000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -0.18216157294332297,
+    1.9556591510330334,
+    0.05327366755889634,
+    6.679830509723551,
+  ],
+  "incomeEPSChartQuart": Array [
+    -0.18216157294332297,
+    1.9556591510330334,
+    0.05327366755889634,
+    6.679830509723551,
+  ],
   "incomeTaxExpense": 80000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     -26000000,
@@ -17029,7 +17217,7 @@ Object {
   "monthsEpsEstimate": 0.37,
   "monthsEpsEstimateFollowingQuarter": 0.38,
   "monthsEpsEstimateNextYear": 1.56,
-  "mostRecentQuarter": "2021-01-01 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-01",
   "netBorrowingsCfAnnuChart": Array [
     5979000000,
     -3210000000,
@@ -17954,6 +18142,18 @@ Object {
     149636000000,
     230645000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    107.633981988325,
+    146.47598363864418,
+    203.57947639336425,
+    271.3997770920737,
+  ],
+  "incomeEPSChartQuart": Array [
+    107.633981988325,
+    146.47598363864418,
+    203.57947639336425,
+    271.3997770920737,
+  ],
   "incomeTaxExpense": 67094000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     12147000000,
@@ -18107,7 +18307,7 @@ Object {
   "monthsEpsEstimate": 0,
   "monthsEpsEstimateFollowingQuarter": 0,
   "monthsEpsEstimateNextYear": 0,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:-1 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netIncome": 106641000000,
   "netIncomeApplicableToCommonShares": 163542000000,
   "netIncomeApplicableToCommonSharesIsAnnuChart": Array [
@@ -18890,6 +19090,8 @@ Object {
     -27840000,
     -42192000,
   ],
+  "incomeEPSChartAnnu": Array [],
+  "incomeEPSChartQuart": Array [],
   "incomeTaxExpense": 0,
   "incomeTaxExpenseIsQuartChart": Array [
     0,
@@ -18976,7 +19178,7 @@ Object {
   "monthsEpsEstimate": -0.73,
   "monthsEpsEstimateFollowingQuarter": -0.76,
   "monthsEpsEstimateNextYear": -3.43,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netIncome": -42192000,
   "netIncomeApplicableToCommonShares": -42192000,
   "netIncomeApplicableToCommonSharesIsQuartChart": Array [
@@ -19761,6 +19963,18 @@ Object {
     2410000000,
     2559000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    3.41320978599211,
+    5.587951267187654,
+    5.198465170616569,
+    3.5767141883069336,
+  ],
+  "incomeEPSChartQuart": Array [
+    3.41320978599211,
+    5.587951267187654,
+    5.198465170616569,
+    3.5767141883069336,
+  ],
   "incomeTaxExpense": 460000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     1603000000,
@@ -19940,7 +20154,7 @@ Object {
   "monthsEpsEstimate": 1.58,
   "monthsEpsEstimateFollowingQuarter": 1.62,
   "monthsEpsEstimateNextYear": 6.93,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -1031000000,
   "netBorrowingsCfAnnuChart": Array [
     4101000000,
@@ -20902,6 +21116,18 @@ Object {
     947000000,
     832000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    2.148945445335505,
+    2.1505515331122877,
+    1.8630618210681507,
+    3.28605559129779,
+  ],
+  "incomeEPSChartQuart": Array [
+    2.148945445335505,
+    2.1505515331122877,
+    1.8630618210681507,
+    3.28605559129779,
+  ],
   "incomeTaxExpense": -147000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     543000000,
@@ -21069,7 +21295,7 @@ Object {
   "monthsEpsEstimate": 0,
   "monthsEpsEstimateFollowingQuarter": 0,
   "monthsEpsEstimateNextYear": 0,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 422000000,
   "netBorrowingsCfAnnuChart": Array [
     805000000,
@@ -21992,6 +22218,18 @@ Object {
     -13150000,
     4761000,
   ],
+  "incomeEPSChartAnnu": Array [
+    0.07339147188561577,
+    17.084296072026135,
+    -7.645406740498765,
+    -8.187938664793098,
+  ],
+  "incomeEPSChartQuart": Array [
+    0.07339147188561577,
+    17.084296072026135,
+    -7.645406740498765,
+    -8.187938664793098,
+  ],
   "incomeTaxExpense": 437000,
   "incomeTaxExpenseIsAnnuChart": Array [
     44438000,
@@ -22140,7 +22378,7 @@ Object {
   "monthsEpsEstimate": -0.05,
   "monthsEpsEstimateFollowingQuarter": -0.01,
   "monthsEpsEstimateNextYear": 0.42,
-  "mostRecentQuarter": "2020-11-28 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-11-28",
   "netBorrowings": -310194000,
   "netBorrowingsCfAnnuChart": Array [
     313412000,
@@ -23138,6 +23376,18 @@ Object {
     46159000,
     24807000,
   ],
+  "incomeEPSChartAnnu": Array [
+    1.6318222001643996,
+    2.497654202273679,
+    2.8411100082199856,
+    2.7203886657257628,
+  ],
+  "incomeEPSChartQuart": Array [
+    1.6318222001643996,
+    2.497654202273679,
+    2.8411100082199856,
+    2.7203886657257628,
+  ],
   "incomeTaxExpense": 7152000,
   "incomeTaxExpenseIsAnnuChart": Array [
     16072000,
@@ -23312,7 +23562,7 @@ Object {
   "monthsEpsEstimate": 0.93,
   "monthsEpsEstimateFollowingQuarter": 1.1,
   "monthsEpsEstimateNextYear": 6.28,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 958000,
   "netBorrowingsCfAnnuChart": Array [
     -3786000,
@@ -24296,6 +24546,18 @@ Object {
     872000000,
     824000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    3.831168831168831,
+    4.470266575529734,
+    4.636021872863978,
+    4.268626110731374,
+  ],
+  "incomeEPSChartQuart": Array [
+    3.831168831168831,
+    4.470266575529734,
+    4.636021872863978,
+    4.268626110731374,
+  ],
   "incomeTaxExpense": 53000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     302000000,
@@ -24463,7 +24725,7 @@ Object {
   "monthsEpsEstimate": 0,
   "monthsEpsEstimateFollowingQuarter": 0,
   "monthsEpsEstimateNextYear": 0,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": 855000000,
   "netBorrowingsCfAnnuChart": Array [
     -447000000,
@@ -25404,6 +25666,18 @@ Object {
     3934000000,
     -15553000000,
   ],
+  "incomeEPSChartAnnu": Array [
+    4.125539589759369,
+    2.7134703515666887,
+    1.9476189105746862,
+    -0.7250863469132256,
+  ],
+  "incomeEPSChartQuart": Array [
+    4.125539589759369,
+    2.7134703515666887,
+    1.9476189105746862,
+    -0.7250863469132256,
+  ],
   "incomeTaxExpense": -2038000000,
   "incomeTaxExpenseIsAnnuChart": Array [
     -14708000000,
@@ -25584,7 +25858,7 @@ Object {
   "monthsEpsEstimate": 0.78,
   "monthsEpsEstimateFollowingQuarter": 0.82,
   "monthsEpsEstimateNextYear": 3.3,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -5138000000,
   "netBorrowingsCfAnnuChart": Array [
     35880000000,
@@ -26560,6 +26834,18 @@ Object {
     23197000,
     31647000,
   ],
+  "incomeEPSChartAnnu": Array [
+    1.5040112423936476,
+    1.7239814991677354,
+    2.2416227794908177,
+    1.6002674161595765,
+  ],
+  "incomeEPSChartQuart": Array [
+    1.5040112423936476,
+    1.7239814991677354,
+    2.2416227794908177,
+    1.6002674161595765,
+  ],
   "incomeTaxExpense": 5773000,
   "incomeTaxExpenseIsAnnuChart": Array [
     17717000,
@@ -26728,7 +27014,7 @@ Object {
   "monthsEpsEstimate": 0.56,
   "monthsEpsEstimateFollowingQuarter": 0.44,
   "monthsEpsEstimateNextYear": 1.93,
-  "mostRecentQuarter": "2020-12-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2020-12-31",
   "netBorrowings": -103223000,
   "netBorrowingsCfAnnuChart": Array [
     -60740000,
@@ -27647,6 +27933,18 @@ Object {
     -64765000,
     -80519000,
   ],
+  "incomeEPSChartAnnu": Array [
+    -0.2793375829416366,
+    -0.28053002948908345,
+    -1.1387226429630946,
+    -0.5990588238747356,
+  ],
+  "incomeEPSChartQuart": Array [
+    -0.2793375829416366,
+    -0.28053002948908345,
+    -1.1387226429630946,
+    -0.5990588238747356,
+  ],
   "incomeTaxExpense": 786000,
   "incomeTaxExpenseIsAnnuChart": Array [
     793000,
@@ -27814,7 +28112,7 @@ Object {
   "monthsEpsEstimate": -0.02,
   "monthsEpsEstimateFollowingQuarter": -0.01,
   "monthsEpsEstimateNextYear": 0.12,
-  "mostRecentQuarter": "2021-01-31 BS:0 CF:0 IS:0",
+  "mostRecentQuarter": "2021-01-31",
   "netBorrowingsCfAnnuChart": Array [
     841329000,
     841329000,
