@@ -260,11 +260,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
         earningsDate: earningsChartCurrentEstimateDates,
         quarterly: quarterlyEarningsChart,
       } = {},
-      financialsChart: {
-        quarterly: quarterlyFinancialsChart,
-        // todo
-        // yearly: yearlyFinancialsChart,
-      } = {},
+      financialsChart: { quarterly: quarterlyFinancialsChart } = {},
     } = {},
     earningsTrend: { trend } = {},
     financialData: {
@@ -435,6 +431,10 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ...balSheetChartsAnnu,
     ...balSheetCharts,
   }
+
+  const incomeEPSChartAnnu = incomeChartsAnnu.netIncomeIsAnnuChart
+    ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
+    : []
 
   //noinspection JSValidateTypes
   return {
@@ -658,14 +658,13 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
             ...cashflowCharts.dividendsPaidCfQuartChart.map(payment => Math.abs(payment)),
           ]
         : 0,
-    incomeEPSChartAnnu: incomeChartsAnnu.netIncomeIsAnnuChart
-      ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
-      : [],
+    incomeEPSChartAnnu,
     incomeEPSChartQuart: incomeCharts.netIncomeIsQuartChart
       ? incomeCharts.netIncomeIsQuartChart.map(quart => slicePerShare(quart))
       : [],
     quarterlyEPSActualEstimateChart: earningsChartDataOk()
       ? [
+          ...(statementDataOk ? [...incomeEPSChartAnnu.map(fy => fy / 4), 0] : []),
           ...quarterlyEarningsChart.reduce(
             (acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0],
             []
