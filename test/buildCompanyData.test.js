@@ -32,6 +32,7 @@ const ntlaData = require("./data/NTLAData.json")
 const sortDates = arr => sortBy(arr, date => new Date(date))
 const runTests = data => {
   const o = buildCompanyData(data, wsjData)
+  expect(o).toMatchSnapshot()
 
   // last quarter chart item is same as MRQ value
   if (o.mostRecentQuarter !== "?") {
@@ -100,7 +101,7 @@ test("BSX", () => {
   runTests(bsxData)
 })
 
-test.only("CRM", () => {
+test("CRM", () => {
   runTests(crmData)
 })
 
@@ -180,7 +181,7 @@ test("ABC", () => {
   runTests(abcData)
 })
 
-test("orZero", () => {
+test.skip("orZero", () => {
   const testObj = {
     returnTrue: () => true,
     returnStr: () => "yay",
