@@ -1,4 +1,4 @@
-const { mapValues } = require("lodash")
+const { last, sum, isEqual } = require("lodash")
 const {
   maxSecondsInQuarter,
   secondsInYear,
@@ -7,11 +7,14 @@ const {
   annu,
   getNonIndexOwners,
   getAnalystRecommendations,
-  validateEarningsChart,
   getRecentStatement,
   reduceUpdownGrade,
   dateStrIsBefore,
   getStatementCharts,
+  orZero,
+  raw,
+  fmt,
+  allDatesAreFuture,
 } = require("./buildCompanyDataUtil")
 
 const validateEarningsTrend = trend => {
@@ -113,20 +116,6 @@ const validateEarningsTrend = trend => {
   }
 }
 
-const getMostRecentCompleteStatement = (statementList, mrqSeconds) => {
-  const recentStatement = getRecentStatement(statementList, mrqSeconds)
-
-  if (!recentStatement) {
-    return {}
-  }
-  const selectedStatement =
-    Object.keys(recentStatement).length > 10
-      ? recentStatement
-      : statementList[statementList.indexOf(recentStatement) + 1]
-  const mapped = mapValues(selectedStatement, "raw")
-  return { ...mapped, quartersBack: -statementList.indexOf(selectedStatement) }
-}
-
 const cleanShortInterest = (
   dateShortInterest,
   sharesShortPreviousMonthDate,
@@ -186,21 +175,6 @@ const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
 }
 
 /**
- * @typedef {{
- * mostRecentQuarter:string,
- * endDateIsAnnuChart:string[],
- * endDateIsQuartChart:string[],
- * endDateCfAnnuChart:string[],
- * endDateCfQuartChart:string[],
- * endDateBsAnnuChart:string[],
- * endDateBsQuartChart:string[],
- * capitalExpendituresAnnuChart:number[],
- * dividendChart:number[],
- * country:*, nonIndexOwners:string|*, wsjChartThreeMonthAgo:*, percentRepurchasedMRQ, leveredFreeCashFlowPerShare:*|number, debtToCapital, industry:*, wsjChartCurrentNum:*, payoutRatioMRQ, buybackRatio:string, quarterlyRevenueChart:*, boardRisk:*, upgradeDowngradeHistory:string|string, overallRisk:*, totalCashPerShare:*, sector:*, operatingMargins:*, institutionsCount:*|null, compensationRisk:*, numAnaylstRecommendations:*, operatingCashFlowPerShareMRQ:*, totalDebt:*, wsjChartMonthAgo:*, freeCashFlowPerShareMRQ:*, quarterlyEPSActualEstimateChart:*, wsjChartCurrent:*, freeCashFlowPerShareTTM:*, shareHolderRightsRisk:*, recommendationKey:*, totalRevenueTTM:*|number, anaylstRecommendations:[]|[*, *, *, *, *], longBusinessSummary:*, enterpriseToRevenue:*, salesPerShareMRQ:*|number, salesPerShareTTM:*, auditRisk:*, earliestEarningsDate:number|*}}
- * @name CompanyData
- */
-
-/**
  * @param quoteSummary
  * @param wsjChart
  * @param wsjData
@@ -241,7 +215,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       pegRatio,
       priceToBook,
       profitMargins, // probably TMM
-      sharesOutstanding = { raw: 0 },
+      sharesOutstanding,
       sharesPercentSharesOut, // "Short % of Shares Outstanding"
       sharesShort,
       dateShortInterest,
@@ -278,7 +252,20 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
         earningsDate,
       } = {}, // upcoming quarter-end projections
     } = {},
-    earnings: { earningsChart, financialsChart } = {},
+    earnings: {
+      earningsChart: {
+        currentQuarterEstimate,
+        currentQuarterEstimateDate,
+        currentQuarterEstimateYear,
+        earningsDate: earningsChartCurrentEstimateDates,
+        quarterly: quarterlyEarningsChart,
+      } = {},
+      financialsChart: {
+        quarterly: quarterlyFinancialsChart,
+        // todo
+        // yearly: yearlyFinancialsChart,
+      } = {},
+    } = {},
     earningsTrend: { trend } = {},
     financialData: {
       totalRevenue,
@@ -316,23 +303,25 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     balanceSheetHistoryQuarterly: { balanceSheetStatements },
   } = quoteSummary.result[0]
 
+  /** @type CashFlowCharts */
   const cashflowChartsAnnu = getStatementCharts(cashflowStatementsAnnu, "CfAnnuChart")
+  /** @type CashFlowCharts */
   const cashflowCharts = getStatementCharts(cashflowStatements, "CfQuartChart")
+  /** @type IncomeCharts */
   const incomeChartsAnnu = getStatementCharts(incomeStatementsAnnu, "IsAnnuChart")
+  /** @type IncomeCharts */
   const incomeCharts = getStatementCharts(incomeStatementHistory, "IsQuartChart")
+  /** @type BalanceSheetCharts */
   const balSheetChartsAnnu = getStatementCharts(balanceSheetStatementsAnnu, "BsAnnuChart")
+  /** @type BalanceSheetCharts */
   const balSheetCharts = getStatementCharts(balanceSheetStatements, "BsQuartChart")
 
-  const mrqSeconds = mostRecentQuarter ? mostRecentQuarter.raw : 0
-  const lfyEndSeconds = lastFiscalYearEnd ? lastFiscalYearEnd.raw : 0
-
-  const lastReportedQuarter = Math.round(
-    (mrqSeconds - lfyEndSeconds) / (secondsInYear / 4)
-  )
-  const fiscalMRQQtr =
-    mrqSeconds && lfyEndSeconds === mrqSeconds ? 4 : lastReportedQuarter
-  const fiscalMRQYear = new Date(mrqSeconds * 1000).getFullYear()
-  const fiscalMRQStr = `${fiscalMRQQtr}Q${fiscalMRQYear}`
+  /** @type BalanceSheet */
+  const balanceSheet = getRecentStatement(balanceSheetStatements, mostRecentQuarter)
+  /** @type IncomeStatement */
+  const incomeStatement = getRecentStatement(incomeStatementHistory, mostRecentQuarter)
+  /** @type CashFlows */
+  const cashFlows = getRecentStatement(cashflowStatements, mostRecentQuarter)
 
   // ------------------------------- //
 
@@ -369,102 +358,97 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     earningsEstimateNextYearGrowth,
   } = validateEarningsTrend(trend)
 
-  const {
-    currentQuarterEstimate,
-    currentQuarterEstimateDate,
-    currentQuarterEstimateYear,
-    earningsDate: earningsChartCurrentEstimateDates,
-  } = earningsChart || {}
+  const slicePerShare = val => orZero(() => val / sharesOutstanding.raw)
+  const slicePerShareAnnlz = val => orZero(() => annu(val) / sharesOutstanding.raw)
 
-  const getEarningsChartCurrentEstimateData = () => {
-    if (currentQuarterEstimateDate && currentQuarterEstimateYear) {
-      const mrqNum = `${fiscalMRQYear}${fiscalMRQQtr}`
-      const earliestDateNum = currentQuarterEstimateYear + currentQuarterEstimateDate[0]
+  const statementDataOk =
+    [
+      cashflowCharts.endDateCfQuartChart,
+      balSheetCharts.endDateBsQuartChart,
+      incomeCharts.endDateIsQuartChart,
+    ].every(chart => last(chart) === fmt(mostRecentQuarter)) &&
+    [cashflowStatements, balanceSheetStatements, incomeStatementHistory].every(
+      statement => statement.length === 4
+    ) &&
+    (cashflowCharts.capitalExpendituresCfQuartChart || []).every(num => num <= 0)
 
-      return {
-        earningsDates:
-          earningsChartCurrentEstimateDates && earningsChartCurrentEstimateDates[0]
-            ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).sort()[0]
-            : currentQuarterEstimateDate + currentQuarterEstimateYear,
-        earningsChartDateOk: earliestDateNum > mrqNum,
-      }
+  const earningsChartDataOk = () => {
+    if (
+      quarterlyEarningsChart &&
+      quarterlyFinancialsChart &&
+      quarterlyFinancialsChart.length === 4 &&
+      quarterlyEarningsChart.length === 4 &&
+      currentQuarterEstimateDate &&
+      currentQuarterEstimateYear &&
+      earningsChartCurrentEstimateDates &&
+      earningsChartCurrentEstimateDates.length > 0
+    ) {
+      const currentQuarterLastYear =
+        currentQuarterEstimateDate + (currentQuarterEstimateYear - 1)
+
+      const financialsChartUpToDate =
+        quarterlyFinancialsChart[0].date === currentQuarterLastYear
+      return (
+        allDatesAreFuture(earningsChartCurrentEstimateDates) && financialsChartUpToDate
+      )
     }
 
-    return {
-      earningsDates: 0,
-      earningsChartDateOk: false,
-    }
+    return false
   }
 
-  const earliestRevenueEstimateDate =
-    earningsDate && earningsDate[0] ? earningsDate.map(({ fmt }) => fmt).sort()[0] : 0
-
-  const balanceSheet = getMostRecentCompleteStatement(balanceSheetStatements, mrqSeconds)
-  const incomeStatement = getMostRecentCompleteStatement(
-    incomeStatementHistory,
-    mrqSeconds
-  )
-  const cashFlows = getMostRecentCompleteStatement(cashflowStatements, mrqSeconds)
-
-  const slicePerShareAnnlz = val => annu(val) / sharesOutstanding.raw
-  const slicePerShare = val => val / sharesOutstanding.raw
-
   const mTotalDebt =
-    totalDebt && totalDebt.raw
-      ? totalDebt.raw
-      : (balanceSheet.totalCurrentLiabilities || 0) +
-        (balanceSheet.longTermDebt || 0) +
-        (balanceSheet.shortLongTermDebt || 0)
+    raw(totalDebt) ||
+    orZero(balanceSheet.totalCurrentLiabilities) +
+      orZero(balanceSheet.longTermDebt) +
+      orZero(balanceSheet.shortLongTermDebt)
 
-  const operatingCashFlowMRQ = annu(cashFlows.totalCashFromOperatingActivities)
-
-  const freeCashFlowMRQ = annu(
-    cashFlows.totalCashFromOperatingActivities + cashFlows.capitalExpenditures
+  const operatingCashFlowMRQ = orZero(annu(cashFlows.totalCashFromOperatingActivities))
+  const freeCashFlowMRQ = orZero(
+    annu(cashFlows.totalCashFromOperatingActivities + cashFlows.capitalExpenditures)
+  )
+  const freeCashFlowTTM = orZero(statementDataOk, () =>
+    sum([
+      ...cashflowCharts.capitalExpendituresCfQuartChart,
+      ...cashflowCharts.totalCashFromOperatingActivitiesCfQuartChart,
+    ])
   )
 
-  const freeCashFlowTTM =
-    cashflowStatements.length === 4
-      ? cashflowStatements.reduce(
-          (acc, curr) =>
-            acc +
-            (curr.totalCashFromOperatingActivities
-              ? curr.totalCashFromOperatingActivities.raw
-              : 0) +
-            (curr.capitalExpenditures ? curr.capitalExpenditures.raw : 0),
-          0
-        )
-      : 0
-
-  const statementTotalRevenueSum =
-    incomeStatementHistory.length === 4
-      ? incomeStatementHistory.reduce(
-          (acc, curr) => acc + (curr.totalRevenue ? curr.totalRevenue.raw : 0),
-          0
-        )
-      : 0
-
-  const totalRevenueTTM =
-    totalRevenue && totalRevenue.raw ? totalRevenue.raw : statementTotalRevenueSum
+  const statementTotalRevenueSum = orZero(statementDataOk, () =>
+    sum(incomeCharts.totalRevenueIsQuartChart)
+  )
+  const totalRevenueTTM = raw(totalRevenue) || statementTotalRevenueSum
 
   const cashFlowReStock = -(
-    (cashFlows.issuanceOfStock || 0) + (cashFlows.repurchaseOfStock || 0)
+    orZero(cashFlows.issuanceOfStock) + orZero(cashFlows.repurchaseOfStock)
   )
 
   const anaylstRecommendations = getAnalystRecommendations(recommendationTrend)
 
+  //noinspection JSValidateTypes
   return {
-    mostRecentQuarter: mostRecentQuarter
-      ? `${mostRecentQuarter.fmt} BS:${balanceSheet.quartersBack} CF:${cashFlows.quartersBack} IS:${incomeStatement.quartersBack}`
-      : "?",
+    // todo
+    //...(statementDataOk
+    //  ? [
+    //      ...cashFlows,
+    //      ...cashflowChartsAnnu,
+    //      ...cashflowCharts,
+    //      ...incomeStatement,
+    //      ...incomeChartsAnnu,
+    //      ...incomeCharts,
+    //      ...balanceSheet,
+    //      ...balSheetChartsAnnu,
+    //      ...balSheetCharts,
+    //    ]
+    //  : []),
+    ...cashFlows,
     ...cashflowChartsAnnu,
     ...cashflowCharts,
+    ...incomeStatement,
     ...incomeChartsAnnu,
     ...incomeCharts,
+    ...balanceSheet,
     ...balSheetChartsAnnu,
     ...balSheetCharts,
-    ...balanceSheet,
-    ...incomeStatement,
-    ...cashFlows,
     ...selectValueTypes(
       // RAW //
       {
@@ -557,6 +541,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       {
         // INFO //
 
+        mostRecentQuarter,
         lastFiscalYearEnd,
         nextFiscalYearEnd,
         regularMarketVolume,
@@ -633,31 +618,28 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     shareHolderRightsRisk,
     totalRevenueTTM,
     totalDebt: mTotalDebt,
-    payoutRatioMRQ: -(cashFlows.dividendsPaid / cashFlows.netIncome),
-    percentRepurchasedMRQ: cashFlowReStock / fiftyDayAverage.raw / sharesOutstanding.raw,
+    payoutRatioMRQ: orZero(-(cashFlows.dividendsPaid / cashFlows.netIncome)),
+    percentRepurchasedMRQ: orZero(
+      () => cashFlowReStock / fiftyDayAverage.raw / sharesOutstanding.raw
+    ),
     buybackRatio: cashFlows.netIncome > 0 ? cashFlowReStock / cashFlows.netIncome : "n/a", // validated this data w/ other brokerages
     debtToCapital: mTotalDebt / (mTotalDebt + balanceSheet.totalStockholderEquity),
-    operatingMargins:
-      operatingMargins && operatingMargins.raw
-        ? operatingMargins.raw
-        : incomeStatement.ebit / incomeStatement.totalRevenue,
+    operatingMarginTTM:
+      raw(operatingMargins) ||
+      orZero(
+        sum(incomeCharts.ebitIsQuartChart) / sum(incomeCharts.totalRevenueIsQuartChart)
+      ),
     salesPerShareMRQ: incomeStatement.totalRevenue
       ? slicePerShareAnnlz(incomeStatement.totalRevenue).toFixed(2)
       : 0,
     salesPerShareTTM: slicePerShare(totalRevenueTTM),
-    leveredFreeCashFlowPerShare: leveredFreeCashFlow
-      ? slicePerShare(leveredFreeCashFlow.raw)
-      : 0,
+    leveredFreeCashFlowPerShare: slicePerShare(raw(leveredFreeCashFlow)),
     freeCashFlowPerShareTTM: slicePerShare(freeCashFlowTTM),
     freeCashFlowPerShareMRQ: slicePerShare(freeCashFlowMRQ),
-    totalCashPerShare: totalCashPerShare
-      ? totalCashPerShare.raw
-      : slicePerShare(balanceSheet.cash),
+    totalCashPerShare: raw(totalCashPerShare),
     operatingCashFlowPerShareMRQ: slicePerShare(operatingCashFlowMRQ),
     enterpriseToRevenue:
-      enterpriseToRevenue && enterpriseToRevenue.raw
-        ? enterpriseToRevenue.raw
-        : Boolean(enterpriseValue) && enterpriseValue.raw / totalRevenueTTM,
+      raw(enterpriseToRevenue) || orZero(raw(enterpriseValue) / totalRevenueTTM),
     upgradeDowngradeHistory: upgradeDowngradeHistory
       ? getUpgradeDowngradeHistory(upgradeDowngradeHistory)
       : "n/a",
@@ -666,9 +648,15 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       (acc, curr) => acc + curr,
       0
     ),
-    institutionsCount: institutionsCount ? institutionsCount.longFmt : null,
+    institutionsCount: institutionsCount ? institutionsCount.longFmt : 0,
     nonIndexOwners: getNonIndexOwners(ownershipList),
-    earliestEarningsDate: getEarningsChartCurrentEstimateData().earningsDates,
+    earningsDates:
+      earningsChartCurrentEstimateDates && earningsChartCurrentEstimateDates[0]
+        ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).join("; ") +
+          ` [${currentQuarterEstimateDate + currentQuarterEstimateYear}]`
+        : "?",
+    currentQuarterEstimateDate,
+    currentQuarterEstimateYear,
     dividendChart:
       cashflowChartsAnnu.dividendsPaidCfAnnuChart &&
       cashflowCharts.dividendsPaidCfQuartChart
@@ -679,22 +667,32 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
             0,
             ...cashflowCharts.dividendsPaidCfQuartChart.map(payment => Math.abs(payment)),
           ]
-        : [],
-    quarterlyEPSActualEstimateChart: validateEarningsChart(earningsChart, fiscalMRQStr)
-      .reduce((acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0], [])
-      .concat(
-        currentQuarterEstimate &&
-          getEarningsChartCurrentEstimateData().earningsChartDateOk
-          ? currentQuarterEstimate.raw
-          : []
-      ),
-    quarterlyRevenueChart: validateEarningsChart(financialsChart, fiscalMRQStr)
-      .map(({ revenue }) => revenue.raw)
-      .concat(
-        revenueAverage && !dateStrIsBefore(earliestRevenueEstimateDate, -10)
-          ? [0, revenueAverage.raw]
-          : []
-      ),
+        : 0,
+    incomeEPSChartAnnu: incomeChartsAnnu.netIncomeIsAnnuChart
+      ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
+      : [],
+    incomeEPSChartQuart: incomeCharts.netIncomeIsQuartChart
+      ? incomeCharts.netIncomeIsQuartChart.map(quart => slicePerShare(quart))
+      : [],
+    quarterlyEPSActualEstimateChart: earningsChartDataOk()
+      ? [
+          ...quarterlyEarningsChart.reduce(
+            (acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0],
+            []
+          ),
+          raw(currentQuarterEstimate),
+        ]
+      : [],
+    quarterlyRevenueChart: earningsChartDataOk()
+      ? [
+          ...quarterlyFinancialsChart.map(({ revenue }) => revenue.raw),
+          0,
+          orZero(
+            isEqual(earningsChartCurrentEstimateDates, earningsDate),
+            raw(revenueAverage)
+          ),
+        ]
+      : [],
     wsjChartThreeMonthAgo: wsjChart
       .filter((d, idx) => idx % 3 === 0)
       .map(str => Number(str))
@@ -711,5 +709,9 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       .filter((d, idx) => (idx + 1) % 3 === 0)
       .reduce((acc, curr) => acc + Number(curr), 0),
     ...wsjData,
+    operatingMargins: "deprecated",
+    earliestEarningsDate: "deprecated",
+    earningsChartDataOk: earningsChartDataOk(),
+    statementDataOk,
   }
 }

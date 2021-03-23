@@ -1,4 +1,4 @@
-const { cloneDeep, sortBy, last } = require("lodash")
+const { isArray, cloneDeep, sortBy, last } = require("lodash")
 const buildCompanyData = require("../src/buildCompanyData")
 const { orZero } = require("../src/buildCompanyDataUtil")
 const wsjData = require("./data/wsjC.json")
@@ -34,15 +34,12 @@ const runTests = data => {
   const o = buildCompanyData(data, wsjData)
   expect(o).toMatchSnapshot()
 
-  // last quarter chart item is same as MRQ value
-  if (o.mostRecentQuarter !== "?") {
+  // Last chart date item = MRQ/LFY
+  if (o.mostRecentQuarter) {
     expect(o.mostRecentQuarter).toContain(last(o.endDateIsQuartChart))
     expect(o.mostRecentQuarter).toContain(last(o.endDateCfQuartChart))
     expect(o.mostRecentQuarter).toContain(last(o.endDateBsQuartChart))
-  }
 
-  // last annual item is same as LastFiscalYear value
-  if (o.mostRecentQuarter !== "?") {
     if (o.endDateIsAnnuChart) {
       expect(o.lastFiscalYearEnd).toContain(last(o.endDateIsAnnuChart))
     }
@@ -52,17 +49,22 @@ const runTests = data => {
     if (o.endDateBsAnnuChart) {
       expect(o.lastFiscalYearEnd).toContain(last(o.endDateBsAnnuChart))
     }
+
+    // Last arbitrary chart item is current
+    expect(last(o.netIncomeIsQuartChart)).toBe(o.netIncome)
+    // Last dividend chart item is current
+    expect(isArray(o.dividendChart) ? last(o.dividendChart) : o.dividendChart).toBe(
+      Math.abs(o.dividendsPaid) || 0
+    )
+  } else {
+    expect(o.netIncome).toBeUndefined()
+    expect(o.dividendsPaid).toBeUndefined()
   }
 
-  // Charts are sorted correctly
+  // Charts are sorted correctly/predictably
   expect(o.endDateIsQuartChart).toEqual(sortDates(o.endDateIsQuartChart))
   expect(o.endDateCfQuartChart).toEqual(sortDates(o.endDateCfQuartChart))
   expect(o.endDateBsQuartChart).toEqual(sortDates(o.endDateBsQuartChart))
-
-  // Dividend chart has correct data
-  if (o.dividendsPaid) {
-    expect(last(o.dividendChart)).toBe(Math.abs(o.dividendsPaid))
-  }
 }
 
 test("Schmangled data", () => {
@@ -181,13 +183,12 @@ test("ABC", () => {
   runTests(abcData)
 })
 
-test.skip("orZero", () => {
+test("orZero", () => {
   const testObj = {
     returnTrue: () => true,
     returnStr: () => "yay",
     returnFalse: () => false,
     returnUndefined: () => {
-      console.log("hit")
       return testObj.noop
     },
   }

@@ -1,4 +1,5 @@
-const { fromPairs, unionBy, sortBy } = require("lodash")
+const moment = require("moment")
+const { isFunction, mapValues, fromPairs, unionBy, sortBy } = require("lodash")
 exports.maxSecondsInQuarter = 8121600
 exports.secondsInYear = 525600 * 60
 
@@ -47,15 +48,10 @@ exports.addDays = addDays
 exports.dateStrIsBefore = (dateStr, daysToAdd) =>
   Boolean(new Date(dateStr) < addDays(new Date(), daysToAdd))
 
-exports.validateEarningsChart = (earningsChart, mrq) => {
-  if (!earningsChart || !earningsChart.quarterly.some(({ date }) => date === mrq)) {
-    return []
-  }
-  return earningsChart.quarterly
-}
-
-exports.getRecentStatement = (statements, seconds) =>
-  statements.find(({ endDate }) => endDate && endDate.raw === seconds)
+exports.getRecentStatement = (statements, mrq) =>
+  mrq
+    ? mapValues(statements.find(({ endDate: { fmt } }) => fmt === mrq.fmt) || {}, "raw")
+    : {}
 
 exports.reduceUpdownGrade = upgradeDowngradeHistory =>
   sortBy(upgradeDowngradeHistory, "epochGradeDate")
@@ -67,16 +63,44 @@ exports.reduceUpdownGrade = upgradeDowngradeHistory =>
 const isObj = value => typeof value === "object" && value !== null
 
 const keySet = objArr => unionBy(...objArr.map(Object.keys))
-const getRaw = val => (isObj(val) ? val.raw : val) || 0
+const getNum = (val, key) => (isObj(val) ? val[key] : val) || 0
 
 exports.getStatementCharts = (statementSet, name = "Chart") =>
-  fromPairs(
-    keySet(statementSet).map(key => [
-      key + name,
-      statementSet
-        .map(statement =>
-          key === "endDate" ? statement[key].fmt || 0 : getRaw(statement[key])
-        )
-        .reverse(),
-    ])
-  )
+  statementSet
+    ? fromPairs(
+        keySet(statementSet).map(key => [
+          key + name,
+          statementSet
+            .map(statement =>
+              key === "endDate"
+                ? getNum(statement[key], "fmt")
+                : getNum(statement[key], "raw")
+            )
+            .reverse(),
+        ])
+      )
+    : {}
+
+const orZero = (...args) => {
+  const [conditionVal, value] = args
+  try {
+    const conditionValRes = isFunction(conditionVal) ? conditionVal() : conditionVal
+    if (args.length === 1) {
+      return conditionValRes && conditionValRes !== Infinity ? conditionValRes : 0
+    }
+    if (conditionValRes) {
+      const valueRes = isFunction(value) ? value() : value
+      return valueRes === Infinity ? 0 : valueRes
+    }
+    return 0
+  } catch (err) {
+    return 0
+  }
+}
+
+exports.orZero = orZero
+exports.raw = value => orZero(() => value.raw)
+exports.fmt = value => orZero(() => value.fmt)
+
+exports.allDatesAreFuture = dateArr =>
+  dateArr && dateArr.every(({ fmt }) => moment(fmt).isAfter())
