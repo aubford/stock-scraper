@@ -368,29 +368,18 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ) &&
     (cashflowCharts.capitalExpendituresCfQuartChart || []).every(num => num <= 0)
 
-  const earningsChartDataOk = () => {
-    if (
-      quarterlyEarningsChart &&
-      quarterlyFinancialsChart &&
-      quarterlyFinancialsChart.length === 4 &&
-      quarterlyEarningsChart.length === 4 &&
-      currentQuarterEstimateDate &&
-      currentQuarterEstimateYear &&
-      earningsChartCurrentEstimateDates &&
-      earningsChartCurrentEstimateDates.length > 0
-    ) {
-      const currentQuarterLastYear =
-        currentQuarterEstimateDate + (currentQuarterEstimateYear - 1)
-
-      const financialsChartUpToDate =
-        quarterlyFinancialsChart[0].date === currentQuarterLastYear
-      return (
-        allDatesAreFuture(earningsChartCurrentEstimateDates) && financialsChartUpToDate
-      )
-    }
-
-    return false
-  }
+  const earningsChartDataOk = !!(
+    quarterlyEarningsChart &&
+    quarterlyFinancialsChart &&
+    quarterlyFinancialsChart.length === 4 &&
+    quarterlyEarningsChart.length === 4 &&
+    currentQuarterEstimateDate &&
+    currentQuarterEstimateYear &&
+    earningsChartCurrentEstimateDates &&
+    earningsChartCurrentEstimateDates.length > 0 &&
+    quarterlyFinancialsChart[0].date ===
+      currentQuarterEstimateDate + (currentQuarterEstimateYear - 1)
+  )
 
   const mTotalDebt =
     raw(totalDebt) ||
@@ -434,7 +423,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
 
   const incomeEPSChartAnnu = incomeChartsAnnu.netIncomeIsAnnuChart
     ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
-    : []
+    : 0
 
   //noinspection JSValidateTypes
   return {
@@ -661,25 +650,27 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     incomeEPSChartAnnu,
     incomeEPSChartQuart: incomeCharts.netIncomeIsQuartChart
       ? incomeCharts.netIncomeIsQuartChart.map(quart => slicePerShare(quart))
-      : [],
-    quarterlyEPSActualEstimateChart: earningsChartDataOk()
+      : 0,
+    quarterlyEPSActualEstimateChart: earningsChartDataOk
       ? [
-          ...(statementDataOk ? [...incomeEPSChartAnnu.map(fy => fy / 4), 0] : []),
+          ...(statementDataOk && incomeEPSChartAnnu
+            ? [...incomeEPSChartAnnu.map(fy => fy / 4), 0]
+            : []),
           ...quarterlyEarningsChart.reduce(
             (acc, { actual, estimate }) => [...acc, estimate.raw, actual.raw, 0],
             []
           ),
-          raw(currentQuarterEstimate),
+          orZero(
+            allDatesAreFuture(earningsChartCurrentEstimateDates),
+            raw(currentQuarterEstimate)
+          ),
         ]
       : [],
-    quarterlyRevenueChart: earningsChartDataOk()
+    quarterlyRevenueChart: earningsChartDataOk
       ? [
           ...quarterlyFinancialsChart.map(({ revenue }) => revenue.raw),
           0,
-          orZero(
-            isEqual(earningsChartCurrentEstimateDates, earningsDate),
-            raw(revenueAverage)
-          ),
+          orZero(allDatesAreFuture(earningsDate), raw(revenueAverage)),
         ]
       : [],
     wsjChartThreeMonthAgo: wsjChart
@@ -700,7 +691,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ...wsjData,
     operatingMargins: "deprecated",
     earliestEarningsDate: "deprecated",
-    earningsChartDataOk: earningsChartDataOk(),
+    earningsChartDataOk,
     statementDataOk,
   }
 }

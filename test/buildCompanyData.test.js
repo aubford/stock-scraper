@@ -28,6 +28,7 @@ const uvspData = require("./data/uvspData.json")
 const jdData = require("./data/jdData.json")
 const bflyData = require("./data/bflyData.json")
 const ntlaData = require("./data/NTLAData.json")
+const fateData = require("./data/fateData.json")
 
 const sortDates = arr => sortBy(arr, date => new Date(date))
 const runTests = data => {
@@ -77,6 +78,10 @@ test("Schmangled data", () => {
   const o = buildCompanyData(clonedData, wsjData)
 
   expect(o.endDateIsQuartChart).not.toEqual(sortDates(o.endDateIsQuartChart))
+})
+
+test("FATE", () => {
+  runTests(fateData)
 })
 
 test("C", () => {
