@@ -1,4 +1,4 @@
-const { isArray, mapValues, last, sum, isEqual } = require("lodash")
+const { mapValues, last, sum } = require("lodash")
 const {
   maxSecondsInQuarter,
   secondsInYear,
