@@ -421,9 +421,11 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ...balSheetCharts,
   }
 
-  const incomeEPSChartAnnu = incomeChartsAnnu.netIncomeIsAnnuChart
-    ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
-    : 0
+  const incomeEPSChartAnnu =
+    incomeChartsAnnu.netIncomeIsAnnuChart &&
+    incomeChartsAnnu.endDateIsAnnuChart[3] === fmt(lastFiscalYearEnd)
+      ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
+      : 0
 
   //noinspection JSValidateTypes
   return {
