@@ -2,10 +2,21 @@ const { zip, fromPairs } = require("lodash")
 const { wrapPage, newBrowserPage, evalX } = require("./util")
 
 /**
+ * @typedef {function} FetchPdfData
+ * @param {Object} options
+ * @param {string} options.url
+ * @param {string} options.analystName
+ * @param {string[]} options.xPathArr
+ * @param {string[]} [options.waitForPostScroll]
+ * @param {Number} [options.timeout]
+ * @returns {Promise<*[]>}
+ */
+
+/**
  * @name ScrapeTools
  * @typedef {{
- *   fetchPdfData: FetchPdfData,
- *   getPageCookies: GetPageCookies,
+ *   fetchPdfData(*=): Promise<*[]>,
+ *   getPageCookies(*=): Promise<*[]>,
  *   getPageDataFetcher(analystName: string): PageDataFetcher,
  * }}
  */
@@ -36,9 +47,9 @@ class PageDataFetcher {
     }
   }
 
-  async setPageTrPopup(ticker) {
+  async setPageTrPopup() {
     this.originPage = await this.newPage(
-      `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=${ticker}&c_name=invest_VENDOR`,
+      `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=${this.ticker}&c_name=invest_VENDOR`,
       { waitUntil: "networkidle0" }
     )
 
@@ -50,11 +61,32 @@ class PageDataFetcher {
       .childFrames()
       .find(frame => frame.name() === "tdaxModuleAnalystReportsHighchartsIframe")
 
-    await analystReportsFrame.click(`div.highcharts-footer > button`)
-    this.page = await new Promise(res =>
-      this.browser.once("targetcreated", target => res(target.page()))
-    )
-    wrapPage(this.page)
+    const hasButton = await analystReportsFrame.$(`div.highcharts-footer > button`)
+    if (hasButton) {
+      await analystReportsFrame.click(`div.highcharts-footer > button`).catch(() => {
+        console.log(
+          `analystReportsFrame.click failed for setPageTrPopup -> ticker: ${this.ticker} -> analyst ${this.analystName}`
+        )
+      })
+      this.page = await new Promise(res =>
+        this.browser.once("targetcreated", target => res(target.page()))
+      )
+
+      if (!this.page) {
+        console.error(
+          `PageDataFecther.setPageTrPopup TARGET NOT FOUND -> ticker: ${this.ticker} -> analyst: ${this.analystName}`
+        )
+        return false
+      }
+
+      wrapPage(this.page)
+      return true
+    } else {
+      console.error(
+        `PageDataFetcher.setPageTrPopup (404) -> ticker: ${this.ticker} -> analyst:${this.analystName}`
+      )
+      return false
+    }
   }
 
   async fetchPageData(xPathArr, waitForXpath) {
@@ -62,7 +94,7 @@ class PageDataFetcher {
 
     if (!page) {
       console.error(
-        `*fetchPageData failed (no url) -> ticker: ${ticker} -> analyst:${analystName}`
+        `PageDataFetcher.fetchPageData (404) -> ticker: ${ticker} -> analyst:${analystName}`
       )
       return []
     }
@@ -89,7 +121,9 @@ class PageDataFetcher {
   async fetchFidelityReportData(fidelityReportNameArr) {
     const { page } = this
     if (!page) {
-      console.error(`*fetchFidelityReportData failed for ticker: ${this.ticker}`)
+      console.error(
+        `PageDataFetcher.fetchFidelityReportData (404) -> ticker: ${this.ticker}`
+      )
       return []
     }
     /** @type {array} */
@@ -134,6 +168,11 @@ class PageDataFetcher {
    */
   click(selector) {
     const { page, ticker, analystName } = this
+
+    if (!page) {
+      return Promise.resolve()
+    }
+
     return page.click(selector).catch(() => {
       console.log(
         `page click failed for selector: ${selector} -> ticker: ${ticker} -> analyst ${analystName}`
@@ -189,16 +228,6 @@ module.exports = (ticker, browser) => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
   return {
-    /**
-     * @typedef FetchPdfData
-     * @param {Object} options
-     * @param {string} options.url
-     * @param {string} options.analystName
-     * @param {string[]} options.xPathArr
-     * @param {string[]} [options.waitForPostScroll]
-     * @param {Number} [options.timeout]
-     * @returns {Promise<*[]>}
-     */
     async fetchPdfData({
       url,
       analystName,

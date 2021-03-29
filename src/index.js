@@ -7,6 +7,7 @@ const {
   getMoodysLink,
   fetchYahooData,
   fetchWSJData,
+  fetchTipData,
   fetchFidelityKeyStats,
   fetchFidelityAnalystOpinions,
 } = require("./api")
@@ -220,6 +221,10 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     await moodysFetcher.close()
 
+    // TIPRANKS
+
+    const tipData = await fetchTipData(ticker, scrapeTools)
+
     // ARGUS RESEARCH
 
     const xpathHelper = `text()='M' or text()='H' or text()='L'`
@@ -321,6 +326,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       ...fidelityKeyStats,
       ...fidelityAnalystOpinionsData,
       ...zacksData,
+      ...tipData,
       ...buildCompanyData(yahooData, wsjData),
     }
 

@@ -22,7 +22,11 @@ const fetchText = async (...fetchArgs) => {
  */
 exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   const fetcher = getPageDataFetcher(TIPRANKS)
-  await fetcher.setPageTrPopup(ticker)
+  const setOk = await fetcher.setPageTrPopup(ticker)
+  if (!setOk) {
+    await fetcher.close()
+    return {}
+  }
 
   const [
     tipScore,
@@ -37,7 +41,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
       tipMomentum,
       tipROE,
       tipAssetGrowth,
-    ],
+    ] = [],
     tipTargetStr,
   ] = await fetcher.fetchPageData([
     `//span[@class="single-bar-internal-score selected"]`,
@@ -50,7 +54,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   )
 
   const [
-    [tipYoungHolders, tipMidageHolders, tipOldHolders],
+    [tipYoungHolders, tipMidageHolders, tipOldHolders] = [],
   ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
 
   await fetcher.click(
