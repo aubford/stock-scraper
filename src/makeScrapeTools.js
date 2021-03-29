@@ -58,11 +58,11 @@ class PageDataFetcher {
   }
 
   async fetchPageData(xPathArr, waitForXpath) {
-    const { analystName, page } = this
+    const { analystName, page, ticker } = this
 
     if (!page) {
       console.error(
-        `*fetchPageData failed (no url) -> ticker: ${this.ticker} -> analyst:${analystName}`
+        `*fetchPageData failed (no url) -> ticker: ${ticker} -> analyst:${analystName}`
       )
       return []
     }
@@ -72,9 +72,12 @@ class PageDataFetcher {
       await page.waitForXPath(waitFor, { timeout: XPATH_TIMEOUT })
     } catch (err) {
       if (err.message.includes("is not a valid XPath expression")) {
-        console.log("invalid xpath: " + waitFor)
+        console.log("*** invalid xpath: " + waitFor)
+      } else {
+        console.log(
+          `fetchPageData waitForXpath failed for xpath: ${waitFor} -> ticker ${ticker} -> analyst: ${analystName}`
+        )
       }
-      console.log("fetchPageData waitForXpath failed for xpath: " + waitFor)
       return []
     }
 
@@ -123,6 +126,19 @@ class PageDataFetcher {
       zacksDate,
       zacksLink,
     }
+  }
+
+  /**
+   * @param selector
+   * @returns {Promise}
+   */
+  click(selector) {
+    const { page, ticker, analystName } = this
+    return page.click(selector).catch(() => {
+      console.log(
+        `page click failed for selector: ${selector} -> ticker: ${ticker} -> analyst ${analystName}`
+      )
+    })
   }
 
   /**

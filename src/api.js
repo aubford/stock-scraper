@@ -1,9 +1,9 @@
 const Cheerio = require("cheerio")
+const { zip, flatten } = require("lodash")
 const {
   getFirstLastValue,
   prevSiblingTextContains,
   prevSiblingTextIs,
-  prevSiblingTextIsStar,
   millBillStrToNum,
 } = require("./util")
 
@@ -38,14 +38,53 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
       tipROE,
       tipAssetGrowth,
     ],
+    tipTargetStr,
   ] = await fetcher.fetchPageData([
     `//span[@class="single-bar-internal-score selected"]`,
     `//div[@class="tipranks-smart-score-factors-container"]//div[contains(@class,"sub-factor-single-value")]`,
+    `//span[@class="sub-factor-single-info"][contains(text(),"Average price target")]`,
   ])
 
-  console.log(tipScore)
+  await fetcher.click(
+    `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
+  )
+
+  const [
+    [tipYoungHolders, tipMidageHolders, tipOldHolders],
+  ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
+
+  await fetcher.click(
+    `div.tipranks-top-row > .tipranks-widget section[aria-label="Blogger Opinions"] > div > span > button`
+  )
+
+  const [tipBlogArticleDates] = await fetcher.fetchPageData([
+    `//table[@id="tipranks-blogger-table"]/tbody/tr/td/span[@data-test-id="date-cell"]`,
+  ])
+
+  const tipBlogArticles = await fetcher.fetchHref(
+    `//table[@id="tipranks-blogger-table"]/tbody/tr/td/a`
+  )
 
   await fetcher.close()
+
+  return {
+    tipScore,
+    tipAnalystRatings,
+    tipInsiderActivity,
+    tipHedgeActivity,
+    tipNewSent,
+    tipBloggers,
+    tipInvestors,
+    tipTechnicals,
+    tipMomentum,
+    tipROE,
+    tipAssetGrowth,
+    tipYoungHolders,
+    tipMidageHolders,
+    tipOldHolders,
+    tipTarget: tipTargetStr.split("$")[1],
+    tipBlogArticles: flatten(zip(tipBlogArticleDates, tipBlogArticles)),
+  }
 }
 
 /**

@@ -17,7 +17,11 @@ const delay = ms => new Promise(res => setTimeout(res, ms))
 
 puppeteer.connect(connection).then(async browser => {
   const scrapeTools = makeScrapeTools("C", browser)
-  await fetchTipData("C", scrapeTools)
+  const tipData = await fetchTipData("C", scrapeTools)
+
+  console.log(tipData)
+
+  process.exit(0)
 
   //const output = await testFunc()
   //fs.writeFile("./testOutput.json", JSON.stringify(output), err => {

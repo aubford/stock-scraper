@@ -5,6 +5,7 @@ const {
   fetchFidelityKeyStats,
   fetchNewConstructs,
   fetchZacks,
+  fetchTipData,
 } = require("./api")
 const {
   getFidelitySecretUrl,
@@ -15,12 +16,13 @@ const {
   backupReturnStockDataFile,
 } = require("./util")
 
-/** @type {Object<ApiCall>} */
+/** @type {Object<function>} */
 const analystMap = {
   [NEW_CONSTRUCTS]: fetchNewConstructs,
   [ZACKS]: fetchZacks,
   [FIDELITY_STATS]: fetchFidelityKeyStats,
   [FIDELITY]: fetchFidelityAnalystOpinions,
+  [TIPRANKS]: fetchTipData,
 }
 
 const { magicTickers, buffetData, ...stockData } = backupReturnStockDataFile()
