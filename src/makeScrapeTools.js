@@ -1,142 +1,185 @@
 const { zip, fromPairs } = require("lodash")
-const { newBrowserPage, evalX } = require("./util")
+const { wrapPage, newBrowserPage, evalX } = require("./util")
 
 /**
- * @typedef ScrapeTools
- * @property {PageDataFetcher} PageDataFetcher
- * @property {getPageCookies} getPageCookies
- * @property {fetchPdfData} fetchPdfData
+ * @name ScrapeTools
+ * @typedef {{
+ *   fetchPdfData: FetchPdfData,
+ *   getPageCookies: GetPageCookies,
+ *   getPageDataFetcher(analystName: string): PageDataFetcher,
+ * }}
  */
 
+class PageDataFetcher {
+  /**
+   * @param analystName
+   * @param ticker
+   * @param browser
+   * @param existingPage
+   */
+  constructor(analystName, ticker, browser, existingPage) {
+    this.analystName = analystName
+    this.ticker = ticker
+    this.browser = browser
+
+    this.page = existingPage
+    this.originPage = null
+  }
+
+  newPage(url, options) {
+    return newBrowserPage(this.browser, url, options)
+  }
+
+  async setPage(url, options) {
+    if (url) {
+      this.page = await this.newPage(url, { waitUntil: "domcontentloaded", ...options })
+    }
+  }
+
+  async setPageTrPopup(ticker) {
+    this.originPage = await this.newPage(
+      `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=${ticker}&c_name=invest_VENDOR`,
+      { waitUntil: "networkidle0" }
+    )
+
+    const frameMain = await this.originPage
+      .frames()
+      .find(frame => frame.name() === "main")
+
+    const analystReportsFrame = frameMain
+      .childFrames()
+      .find(frame => frame.name() === "tdaxModuleAnalystReportsHighchartsIframe")
+
+    await analystReportsFrame.click(`div.highcharts-footer > button`)
+    this.page = await new Promise(res =>
+      this.browser.once("targetcreated", target => res(target.page()))
+    )
+    wrapPage(this.page)
+  }
+
+  async fetchPageData(xPathArr, waitForXpath) {
+    const { analystName, page } = this
+
+    if (!page) {
+      console.error(
+        `*fetchPageData failed (no url) -> ticker: ${this.ticker} -> analyst:${analystName}`
+      )
+      return []
+    }
+
+    const waitFor = waitForXpath || xPathArr[0]
+    try {
+      await page.waitForXPath(waitFor, { timeout: XPATH_TIMEOUT })
+    } catch (err) {
+      if (err.message.includes("is not a valid XPath expression")) {
+        console.log("invalid xpath: " + waitFor)
+      }
+      console.log("fetchPageData waitForXpath failed for xpath: " + waitFor)
+      return []
+    }
+
+    const values = await Promise.all(xPathArr.map(page.getTextByX))
+    console.log(`${this.ticker} - ${analystName} Page: done`)
+    return values
+  }
+
+  async fetchFidelityReportData(fidelityReportNameArr) {
+    const { page } = this
+    if (!page) {
+      console.error(`*fetchFidelityReportData failed for ticker: ${this.ticker}`)
+      return []
+    }
+    /** @type {array} */
+    const reportHrefsHandles = await page.$x(
+      `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
+    )
+
+    const reportLinks = await Promise.all(
+      reportHrefsHandles.map(handle =>
+        evalX(handle, "a", node => {
+          const href = node.href
+          const text = node.textContent
+
+          if (href === "javascript:void(0);") {
+            return { text, href: node.getAttribute("onclick").split(`'`)[1] }
+          }
+
+          return { text, href }
+        })
+      )
+    )
+
+    const {
+      [ARGUS_ANALYST_KEY]: { href: argusAnalystLink, text: argusAnalystDate } = {},
+      [ARGUS_RESEARCH_KEY]: { href: argusResearchLink, text: argusResearchDate } = {},
+      [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {},
+    } = fromPairs(zip(fidelityReportNameArr, reportLinks))
+
+    return {
+      argusAnalystDate,
+      argusAnalystLink,
+      argusResearchDate,
+      argusResearchLink,
+      zacksDate,
+      zacksLink,
+    }
+  }
+
+  /**
+   * @param selector
+   * @returns {Promise<string|string[]>}
+   */
+  async fetchHref(selector) {
+    const { page } = this
+    if (page) {
+      return await evalX(page, selector, node => node.href)
+    }
+  }
+
+  /**
+   * @param {String} selector
+   * @param {String} attribute
+   * @returns {Promise<string|string[]>}
+   */
+  async fetchAttribute(selector, attribute) {
+    const { page } = this
+    if (page) {
+      return await evalX(
+        page,
+        selector,
+        (node, attr) => node.getAttribute(attr),
+        attribute
+      )
+    }
+  }
+
+  async close() {
+    const { page, originPage } = this
+    if (originPage && !originPage.isClosed()) {
+      await originPage.closeSafe()
+    }
+    if (page && !page.isClosed()) {
+      await page.closeSafe()
+    }
+  }
+}
+
 /**
- * @param {string} ticker
- * @param {*} browser
+ * @param ticker
+ * @param browser
  * @returns {ScrapeTools}
  */
 module.exports = (ticker, browser) => {
   const newPage = (url, options) => newBrowserPage(browser, url, options)
 
-  class PageDataFetcher {
-    constructor(analystName, existingPage) {
-      this.analystName = analystName
-      this.page = existingPage
-    }
-
-    async setPage(url) {
-      if (url) {
-        this.page = await newPage(url, { waitUntil: "domcontentloaded" })
-      }
-    }
-
-    async fetchPageData(xPathArr, waitForXpath) {
-      const { analystName, page } = this
-
-      if (!page) {
-        console.error(
-          `*fetchPageData failed (no url) -> ticker: ${ticker} -> analyst:${analystName}`
-        )
-        return []
-      }
-
-      const waitFor = waitForXpath || xPathArr[0]
-      try {
-        await page.waitForXPath(waitFor, { timeout: XPATH_TIMEOUT })
-      } catch (err) {
-        console.log("fetchPageData waitForXpath failed for url: " + waitFor)
-        return []
-      }
-
-      const values = await Promise.all(xPathArr.map(page.getTextByX))
-      console.log(`${ticker} - ${analystName} Page: done`)
-      return values
-    }
-
-    async fetchFidelityReportData(fidelityReportNameArr) {
-      const { page } = this
-      if (!page) {
-        console.error(`*fetchFidelityReportData failed for ticker: ${ticker}`)
-        return []
-      }
-      /** @type {array} */
-      const reportHrefsHandles = await page.$x(
-        `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
-      )
-
-      const reportLinks = await Promise.all(
-        reportHrefsHandles.map(handle =>
-          evalX(handle, "a", node => {
-            const href = node.href
-            const text = node.textContent
-
-            if (href === "javascript:void(0);") {
-              return { text, href: node.getAttribute("onclick").split(`'`)[1] }
-            }
-
-            return { text, href }
-          })
-        )
-      )
-
-      const {
-        [ARGUS_ANALYST_KEY]: { href: argusAnalystLink, text: argusAnalystDate } = {},
-        [ARGUS_RESEARCH_KEY]: { href: argusResearchLink, text: argusResearchDate } = {},
-        [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {},
-      } = fromPairs(zip(fidelityReportNameArr, reportLinks))
-
-      return {
-        argusAnalystDate,
-        argusAnalystLink,
-        argusResearchDate,
-        argusResearchLink,
-        zacksDate,
-        zacksLink,
-      }
-    }
-
-    /**
-     * @param selector
-     * @returns {Promise<string|string[]>}
-     */
-    async fetchHref(selector) {
-      const { page } = this
-      if (page) {
-        return await evalX(page, selector, node => node.href)
-      }
-    }
-
-    /**
-     * @param {String} selector
-     * @param {String} attribute
-     * @returns {Promise<string|string[]>}
-     */
-    async fetchAttribute(selector, attribute) {
-      const { page } = this
-      if (page) {
-        return await evalX(
-          page,
-          selector,
-          (node, attr) => node.getAttribute(attr),
-          attribute
-        )
-      }
-    }
-
-    async close() {
-      const { page } = this
-      if (page && !page.isClosed()) {
-        await page.closeSafe()
-      }
-    }
-  }
-
   return {
     /**
-     * @typedef fetchPdfData
+     * @typedef FetchPdfData
      * @param {Object} options
-     * @param {String} options.url
-     * @param {String} options.analystName
-     * @param {String[]} options.xPathArr
-     * @param {String[]} [options.waitForPostScroll]
+     * @param {string} options.url
+     * @param {string} options.analystName
+     * @param {string[]} options.xPathArr
+     * @param {string[]} [options.waitForPostScroll]
      * @param {Number} [options.timeout]
      * @returns {Promise<*[]>}
      */
@@ -197,7 +240,7 @@ module.exports = (ticker, browser) => {
     },
 
     /**
-     * @typedef getPageCookies
+     * @typedef GetPageCookies
      * @param url
      * @returns {Promise<string>}
      */
@@ -207,6 +250,9 @@ module.exports = (ticker, browser) => {
       await page.closeSafe()
       return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
     },
-    PageDataFetcher,
+
+    getPageDataFetcher(analystName) {
+      return new PageDataFetcher(analystName, ticker, browser)
+    },
   }
 }

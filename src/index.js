@@ -47,13 +47,14 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   for (const ticker of tickers) {
     const scrapeTools = makeScrapeTools(ticker, browser)
-    const { PageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
+    const { getPageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
 
     // FIDELITY
-    const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(ticker, {
-      PageDataFetcher,
-    })
-    const fidelityKeyStats = await fetchFidelityKeyStats(ticker, { PageDataFetcher })
+    const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(
+      ticker,
+      scrapeTools
+    )
+    const fidelityKeyStats = await fetchFidelityKeyStats(ticker, scrapeTools)
 
     const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
@@ -90,7 +91,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     // B of A
 
-    const boaFetcher = new PageDataFetcher(BOA)
+    const boaFetcher = getPageDataFetcher(BOA)
     await boaFetcher.setPage(
       `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
     )
@@ -200,7 +201,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const moodysCookies = await getPageCookies("https://www.moodys.com/")
     const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
-    const moodysFetcher = new PageDataFetcher("moodys")
+    const moodysFetcher = getPageDataFetcher("moodys")
     await moodysFetcher.setPage(
       moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
     )

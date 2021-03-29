@@ -3,6 +3,7 @@ const {
   getFirstLastValue,
   prevSiblingTextContains,
   prevSiblingTextIs,
+  prevSiblingTextIsStar,
   millBillStrToNum,
 } = require("./util")
 
@@ -15,17 +16,41 @@ const fetchText = async (...fetchArgs) => {
 }
 
 /**
- * @typedef ApiCall
- * @param {string} ticker
- * @param {ScrapeTools} scrapeTools
- * @param {string} [url]
+ * @param ticker
+ * @param {ScrapeTools} getPageDataFetcher
  * @returns {Promise<Object>}
  */
+exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
+  const fetcher = getPageDataFetcher(TIPRANKS)
+  await fetcher.setPageTrPopup(ticker)
+
+  const [
+    tipScore,
+    [
+      tipAnalystRatings,
+      tipInsiderActivity,
+      tipHedgeActivity,
+      tipNewSent,
+      tipBloggers,
+      tipInvestors,
+      tipTechnicals,
+      tipMomentum,
+      tipROE,
+      tipAssetGrowth,
+    ],
+  ] = await fetcher.fetchPageData([
+    `//span[@class="single-bar-internal-score selected"]`,
+    `//div[@class="tipranks-smart-score-factors-container"]//div[contains(@class,"sub-factor-single-value")]`,
+  ])
+
+  console.log(tipScore)
+
+  await fetcher.close()
+}
 
 /**
- * @type ApiCall
  * @param ticker
- * @param {ScrapeTools} scrapeTools
+ * @param {ScrapeTools} fetchPdfData
  * @returns {Promise<{}|{ncRoic:*, ncPB:*, ncRating:*, ncFCF:*, ncGap:*, ncEps:*}>}
  */
 exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
@@ -58,9 +83,8 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
 }
 
 /**
- * @type ApiCall
  * @param ticker
- * @param {ScrapeTools} scrapeTools
+ * @param {ScrapeTools} fetchPdfData
  * @param url
  * @returns {Promise<Object>}
  */
@@ -176,16 +200,15 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
 }
 
 /**
- * @type ApiCall
  * @param ticker
- * @param PageDataFetcher
+ * @param {ScrapeTools} getPageDataFetcher
  * @returns Promise<{fidelityEVIndustry:*, fidelityRevChngIndustryPct:*, fidelityOpMarginIndustryPct:*, fidelityRoAMrqIndustryPct:*, fidelityCurrentIndustry:*, fidelityIncomeEmploy:*, fidelityRevChngIndustry:*, fidelityPeFiveYrIndustry:*, fidelityPretaxMarginMrqIndustry:*, fidelityRoIIndustry:*, fidelityPayoutIndustryPct:*, fidelityDAMrqIndustry:*, fidelityPcf:*, fidelityRoAIndustry:*, fidelityRoIMrqIndustry:*, fidelityPayoutIndustry:*, fidelityPEGFiveYrIndustryPct:*, fidelityEpsGrowthYoYIndustryPct:*, fidelityEV:*, fidelityEpsGrowthYoY:*, fidelityEpsGrowthProj:*, fidelityPcfMrqIndustry:*, fidelityEpsGrowthProjIndustryPct:*, fidelityIncomeEmployIndustry:*, fidelityPBookIndustry:*, fidelityDA:*, fidelityEpsGrowthProjIndustry:*, fidelityLongDEMrqIndustryPct:*, fidelityDC:*, fidelityDE:*, fidelityRoIMrqIndustryPct:*, fidelityPEGFiveYrIndustry:*, fidelityPeIndustryPct:*, fidelityPayout:*, fidelityPeFiveYrIndustryPct:*, fidelityRoE:*, fidelityPBook:*, fidelityLongDEIndustry:*, fidelityRoEIndustryPct:*, fidelityRoI:*, fidelityLongDEMrq:*, fidelityLongDE:*, fidelityPeIndustry:*, fidelityProfitMarginMrqIndustryPct:*, fidelityCurrent:*, fidelityPSalesMrq:*, fidelityBookValueIndustryPct:*, fidelityGMargin:*, fidelityPretaxMarginMrqIndustryPct:*, fidelityEpsGrowth:*, fidelityPeFiveYr:*, fidelityEbitdMarginIndustryPct:*, fidelityDCIndustry:*, fidelityPSalesIndustry:*, fidelityRoeMrqIndustryPct:*, fidelityIncomeEmployIndustryPct:*, fidelityProfitMarginMrqIndustry:*, fidelityDEMrqIndustry:*, fidelityEVIndustryPct:*, fidelityEpsGrowthFiveYrIndustryPct:*, fidelityDCIndustryPct:*, fidelityPSalesMrqIndustry:*, fidelityGMarginIndustryPct:*, fidelityRevEmploy:*, fidelityDAMrq:*, fidelityRevChngYoYIndustry:*, fidelityRoAIndustryPct:*, fidelityDAMrqIndustryPct:*, fidelityCurrentIndustryPct:*, fidelityDEIndustryPct:*, fidelityCFlowGrowthFiveYrIndustryPct:*, fidelityLongDEIndustryPct:*, fidelityEpsGrowthProjLongIndustry:*, fidelityDCMrqIndustry:*, fidelityRevGrowthFiveYrIndustryPct:*, fidelityDEMrqIndustryPct:*, fidelityFcFIndustryPct:*, fidelityPretaxMargin:*, fidelityPSales:*, fidelityRevEmployIndustryPct:*, fidelityOpMarginMrq:*, fidelityGMarginMrqIndustry:*, fidelityBookGrowthFiveYr:*, fidelityRevChngYoY:*, fidelityRevChng:*, fidelityLongDEMrqIndustry:*, fidelityPSalesIndustryPct:*, fidelityEpsGrowthFiveYr:*, fidelityEpsGrowthProjLongIndustryPct:*, fidelityPBookIndustryPct:*, fidelityFcFIndustry:*, fidelityEpsGrowthIndustry:*, fidelityRoAMrqIndustry:*, fidelityBookGrowthFiveYrIndustry:*, fidelityDCMrq:*, fidelityBookValueIndustry:*, fidelityEpsGrowthYoYIndustry:*, fidelityBookValue:*, fidelityEbitdMarginIndustry:*, fidelityRevGrowthFiveYrIndustry:*, fidelityOpMargin:*, fidelityPretaxMarginIndustryPct:*, fidelityRoeMrq:*, fidelityPe:*, fidelityPcfIndustryPct:*, fidelityPretaxMarginIndustry:*, fidelityPcfMrq:*, fidelityGMarginMrqIndustryPct:*, fidelityDCMrqIndustryPct:*, fidelityFcF:*, fidelityPcfIndustry:*, fidelityOpMarginMrqIndustryPct:*, fidelityOpMarginMrqIndustry:*, fidelityDAIndustryPct:*, fidelityEbitdMargin:*, fidelityEpsGrowthFiveYrIndustry:*, fidelityBookGrowthFiveYrIndustryPct:*, fidelityCompustatLink:*, fidelityRoAMrq:*, fidelityRoA:*, fidelityRoIMrq:*, fidelityEpsGrowthIndustryPct:*, fidelityEpsGrowthProjLong:*, fidelityDAIndustry:*, fidelityProfitMarginMrq:*, fidelityCFlowGrowthFiveYrIndustry:*, fidelityRevChngYoYIndustryPct:*, fidelityGMarginMrq:*, fidelityOpMarginIndustry:*, fidelityDEMrq:*, fidelityPEGFiveYr:*, fidelityPcfMrqIndustryPct:*, fidelityRevGrowthFiveYr:*, fidelityRoeMrqIndustry:*, fidelityDEIndustry:*, fidelityPSalesMrqIndustryPct:*, fidelityCFlowGrowthFiveYr:*, fidelityPretaxMarginMrq:*, fidelityGMarginIndustry:*, fidelityRoEIndustry:*, fidelityRoIIndustryPct:*, fidelityRevEmployIndustry:*}>
  */
-exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
+exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
   const fidelityKeyStatXpath = name =>
     `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
-  const fetcher = new PageDataFetcher(FIDELITY_STATS)
+  const fetcher = getPageDataFetcher(FIDELITY_STATS)
   await fetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/evaluate/fundamentals/keyStatistics.jhtml?stockspage=keyStatistics&symbols=${ticker}`
   )
@@ -523,16 +546,15 @@ exports.fetchFidelityKeyStats = async (ticker, { PageDataFetcher }) => {
 }
 
 /**
- * @type ApiCall
  * @param ticker
- * @param PageDataFetcher
+ * @param  {ScrapeTools} getPageDataFetcher
  * @returns Promise<Object>
  */
-exports.fetchFidelityAnalystOpinions = async (ticker, { PageDataFetcher }) => {
+exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) => {
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
-  const fidelityFetcher = new PageDataFetcher(FIDELITY)
+  const fidelityFetcher = getPageDataFetcher(FIDELITY)
   await fidelityFetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
   )

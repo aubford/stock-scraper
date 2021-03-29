@@ -30,12 +30,16 @@ const getTextByX = async (page, selector) => {
   )
 }
 
+const wrapPage = page => {
+  page.getTextByX = text => getTextByX(page, text)
+  page.closeSafe = () => page.close().catch(err => err)
+}
+
 /** @returns {Promise<MyPage>} */
 const newBrowserPage = async (browser, url, options = {}) => {
   /** @type {MyPage} */
   const page = await browser.newPage()
-  page.getTextByX = text => getTextByX(page, text)
-  page.closeSafe = () => page.close().catch(err => err)
+  wrapPage(page)
 
   try {
     await page.goto(url, options)
@@ -114,6 +118,12 @@ const prevSiblingTextIs = (text, num = 1) =>
 
 const followingSiblingTextIs = (text, num = 1) =>
   `//span[${matchChars(text)}]/preceding-sibling::span[${num}]`
+
+const prevSiblingTextIsStar = (text, num = 1) =>
+  `//*[${matchChars(text)}]/following-sibling::*[${num}]`
+
+const followingSiblingTextIsStar = (text, num = 1) =>
+  `//*[${matchChars(text)}]/preceding-sibling::*[${num}]`
 
 const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
@@ -237,6 +247,8 @@ module.exports = {
   evalX,
   extractNumbers,
   followingSiblingTextIs,
+  followingSiblingTextIsStar,
+  prevSiblingTextIsStar,
   getFidelitySecretUrl,
   getFirstLastValue,
   getTextByX,
@@ -253,4 +265,5 @@ module.exports = {
   promptUser,
   scrapbookWriteOut,
   writeFile,
+  wrapPage,
 }

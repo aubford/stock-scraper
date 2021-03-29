@@ -63,7 +63,8 @@
       "STOCK_DATA_BACKUP_LOCATION": true,
       "YAHOO_MODULES": true,
       "CONNECTION": true,
-      "FIDELITY_STATS": true
+      "FIDELITY_STATS": true,
+      "TIPRANKS": true
     },
     "extends": [
       "eslint:recommended"
