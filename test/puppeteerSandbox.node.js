@@ -1,7 +1,5 @@
 const puppeteer = require("puppeteer-core")
-const fs = require("fs")
 const { webSocketDebuggerUrl } = require("../ws.json")
-const { newBrowserPage } = require("../src/util")
 const makeScrapeTools = require("../src/makeScrapeTools")
 const { fetchTipData } = require("../src/api")
 
@@ -12,8 +10,6 @@ const connection = {
     height: 1800,
   },
 }
-
-const delay = ms => new Promise(res => setTimeout(res, ms))
 
 puppeteer.connect(connection).then(async browser => {
   const scrapeTools = makeScrapeTools("C", browser)
