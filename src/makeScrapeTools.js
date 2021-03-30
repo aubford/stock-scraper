@@ -89,6 +89,21 @@ class PageDataFetcher {
     }
   }
 
+  async waitForXpath(xpath, { timeout = XPATH_TIMEOUT } = {}) {
+    const { page, ticker, analystName } = this
+    try {
+      await page.waitForXPath(xpath, { timeout })
+    } catch (err) {
+      if (err.message.includes("is not a valid XPath expression")) {
+        console.log("*** INVALID XPATH *** xpath: " + xpath)
+      } else {
+        console.log(
+          `PageDataFetcher.waitForXpath failed for xpath: ${xpath} -> ticker ${ticker} -> analyst: ${analystName}`
+        )
+      }
+    }
+  }
+
   async fetchPageData(xPathArr, waitForXpath) {
     const { analystName, page, ticker } = this
 
@@ -163,13 +178,13 @@ class PageDataFetcher {
   }
 
   /**
-   * @param selector
-   * @returns {Promise}
+   * @param {string} selector
+   * @returns {Promise<void>|*}
    */
   click(selector) {
     const { page, ticker, analystName } = this
 
-    if (!page) {
+    if (!page || !selector) {
       return Promise.resolve()
     }
 

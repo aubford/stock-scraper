@@ -21,8 +21,9 @@ const fetchText = async (...fetchArgs) => {
  * @returns {Promise<Object>}
  */
 exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
+  /** @type PageDataFetcher */
   const fetcher = getPageDataFetcher(TIPRANKS)
-  const setOk = await fetcher.setPageTrPopup(ticker)
+  const setOk = await fetcher.setPageTrPopup()
   if (!setOk) {
     await fetcher.close()
     return {}
@@ -52,22 +53,52 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   await fetcher.click(
     `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
   )
-
   const [
     [tipYoungHolders, tipMidageHolders, tipOldHolders] = [],
   ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
 
-  await fetcher.click(
-    `div.tipranks-top-row > .tipranks-widget section[aria-label="Blogger Opinions"] > div > span > button`
-  )
+  const shouldGetBloggers = tipBloggers !== "N/A"
+  if (shouldGetBloggers) {
+    await fetcher.click(
+      `div.tipranks-top-row > .tipranks-widget section[aria-label="Blogger Opinions"] > div > span > button`
+    )
+  }
+  const [tipBlogArticleDates] = shouldGetBloggers
+    ? await fetcher.fetchPageData([
+        `//table[@id="tipranks-blogger-table"]/tbody/tr/td/span[@data-test-id="date-cell"]`,
+      ])
+    : []
+  const tipBlogArticles = shouldGetBloggers
+    ? await fetcher.fetchHref(`//table[@id="tipranks-blogger-table"]/tbody/tr/td/a`)
+    : []
 
-  const [tipBlogArticleDates] = await fetcher.fetchPageData([
-    `//table[@id="tipranks-blogger-table"]/tbody/tr/td/span[@data-test-id="date-cell"]`,
-  ])
+  const shouldGetHedgeActivity = tipHedgeActivity !== "N/A"
+  if (shouldGetHedgeActivity) {
+    await fetcher.click(
+      `div.tipranks-top-row > .tipranks-widget section[aria-label="Hedge Fund Activity"] > div > span > button`
+    )
+  }
 
-  const tipBlogArticles = await fetcher.fetchHref(
-    `//table[@id="tipranks-blogger-table"]/tbody/tr/td/a`
-  )
+  const [tipHedgeStrings] = shouldGetHedgeActivity
+    ? await fetcher.fetchPageData([
+        `//table[@id="tipranks-hedge-fund-activity"]/tbody/tr`,
+      ])
+    : []
+
+  const tipHedgeMoves = tipHedgeStrings
+    ? []
+        .concat(tipHedgeStrings)
+        .map(str => {
+          const trimmed = str.replace("hedgeFundManagerName", "")
+          const splitName = trimmed.split("action")
+          const splitAction = splitName[1].split("holdingChange")
+          const splitHoldingChange = splitAction[1].split("valueReported")
+          const splitPctPortfolio = splitHoldingChange[1].split("percentageOfPortfolio")
+
+          return `${splitName[0]}\n${splitAction[0]}: ${splitHoldingChange[0]}, portfolio: ${splitPctPortfolio[1]}`
+        })
+        .join("\n")
+    : ""
 
   await fetcher.close()
 
@@ -86,8 +117,12 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
     tipYoungHolders,
     tipMidageHolders,
     tipOldHolders,
-    tipTarget: tipTargetStr.split("$")[1],
-    tipBlogArticles: flatten(zip(tipBlogArticleDates, tipBlogArticles)),
+    tipTarget: tipTargetStr ? tipTargetStr.split("$")[1] : "",
+    tipBlogArticles:
+      tipBlogArticles && tipBlogArticleDates
+        ? flatten(zip(tipBlogArticleDates, tipBlogArticles))
+        : [],
+    tipHedgeMoves,
   }
 }
 
