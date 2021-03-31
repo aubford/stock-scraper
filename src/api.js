@@ -50,6 +50,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
     `//span[@class="sub-factor-single-info"][contains(text(),"Average price target")]`,
   ])
 
+  // Investors
   await fetcher.click(
     `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
   )
@@ -57,6 +58,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
     [tipYoungHolders, tipMidageHolders, tipOldHolders] = [],
   ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
 
+  // Bloggers
   const shouldGetBloggers = tipBloggers !== "N/A"
   if (shouldGetBloggers) {
     await fetcher.click(
@@ -72,37 +74,62 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
     ? await fetcher.fetchHref(`//table[@id="tipranks-blogger-table"]/tbody/tr/td/a`)
     : []
 
+  // Hedge Funds
   const shouldGetHedgeActivity = tipHedgeActivity !== "N/A"
   if (shouldGetHedgeActivity) {
     await fetcher.click(
       `div.tipranks-top-row > .tipranks-widget section[aria-label="Hedge Fund Activity"] > div > span > button`
     )
   }
-
   const [tipHedgeStrings] = shouldGetHedgeActivity
     ? await fetcher.fetchPageData([
         `//table[@id="tipranks-hedge-fund-activity"]/tbody/tr`,
       ])
     : []
+  const tipHedgeMoves =
+    shouldGetHedgeActivity && tipHedgeStrings
+      ? []
+          .concat(tipHedgeStrings)
+          .map(str => {
+            const trimmed = str.replace("hedgeFundManagerName", "")
+            const splitName = trimmed.split("action")
+            const splitAction = splitName[1].split("holdingChange")
+            const splitHoldingChange = splitAction[1].split("valueReported")
+            const splitPctPortfolio = splitHoldingChange[1].split("percentageOfPortfolio")
 
-  const tipHedgeMoves = tipHedgeStrings
-    ? []
-        .concat(tipHedgeStrings)
-        .map(str => {
-          const trimmed = str.replace("hedgeFundManagerName", "")
-          const splitName = trimmed.split("action")
-          const splitAction = splitName[1].split("holdingChange")
-          const splitHoldingChange = splitAction[1].split("valueReported")
-          const splitPctPortfolio = splitHoldingChange[1].split("percentageOfPortfolio")
+            return `${splitName[0]}\n[${splitAction[0].toUpperCase()}, ${
+              splitHoldingChange[0]
+            } -> ${splitPctPortfolio[1]}]`
+          })
+          .join("\n\n")
+      : ""
 
-          return `${splitName[0]}\n${splitAction[0]}: ${splitHoldingChange[0]}, portfolio: ${splitPctPortfolio[1]}`
-        })
-        .join("\n")
-    : ""
+  // Insiders
+  const shouldGetInsiders = tipInsiderActivity !== "N/A"
+  if (shouldGetInsiders) {
+    await fetcher.click(
+      `div.tipranks-top-row > .tipranks-widget section[aria-label="Corporate Insider Activity"] > div > span > button`
+    )
+  }
+  const [tipInsiderActions, tipInsiderActionDates] = shouldGetInsiders
+    ? await fetcher.fetchPageData([
+        `//table[@id="tipranks-insider-activity"]/tbody/tr/td/div[@data-test-id="insiders-action"]`,
+        `//table[@id="tipranks-insider-activity"]/tbody/tr/td/span[@data-test-id="date-cell"]`,
+      ])
+    : []
+
+  const tipInsiderEvents =
+    shouldGetInsiders && tipInsiderActions && tipInsiderActionDates
+      ? zip(tipInsiderActionDates, tipInsiderActions)
+          .filter(([, action]) => !action.includes("Uninformative"))
+          .map(event => event.join(" -> "))
+          .join("\n\n")
+      : []
 
   await fetcher.close()
 
   return {
+    tipInsiderEvents,
     tipScore,
     tipAnalystRatings,
     tipInsiderActivity,

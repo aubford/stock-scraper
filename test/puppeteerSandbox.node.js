@@ -12,8 +12,8 @@ const connection = {
 }
 
 puppeteer.connect(connection).then(async browser => {
-  const scrapeTools = makeScrapeTools("C", browser)
-  const tipData = await fetchTipData("C", scrapeTools)
+  const scrapeTools = makeScrapeTools("TPX", browser)
+  const tipData = await fetchTipData("TPX", scrapeTools)
 
   console.log(tipData)
 
