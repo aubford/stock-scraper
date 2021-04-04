@@ -10,6 +10,7 @@ const {
   fetchTipData,
   fetchFidelityKeyStats,
   fetchFidelityAnalystOpinions,
+  fetchCFRAData,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -17,9 +18,7 @@ const {
   parseStreetBulletData,
   getFidelitySecretUrl,
   prevSiblingTextIs,
-  prevSiblingTextContains,
   followingSiblingTextIs,
-  hasCFRA,
   scrapbookWriteOut,
   promptForTickers,
   promptLogin,
@@ -47,6 +46,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const newStockData = {}
 
   for (const ticker of tickers) {
+    /** @type ScrapeTools */
     const scrapeTools = makeScrapeTools(ticker, browser)
     const { getPageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
 
@@ -202,12 +202,19 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const moodysCookies = await getPageCookies("https://www.moodys.com/")
     const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
-    const moodysFetcher = getPageDataFetcher("moodys")
+    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 3 * 1000 })
     await moodysFetcher.setPage(
       moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
     )
 
-    const [[moodysRating, moodysOutlook], yahooData, wsjData] = await Promise.all([
+    const [
+      [moodysRating, moodysOutlook],
+      yahooData,
+      wsjData,
+      ncData,
+      zacksSecretUrl,
+      cfraData,
+    ] = await Promise.all([
       moodysFetcher.fetchPageData(
         [
           "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
@@ -217,13 +224,12 @@ puppeteer.connect(CONNECTION).then(async browser => {
       ),
       fetchYahooData(ticker),
       fetchWSJData(ticker),
+      fetchNewConstructs(ticker, scrapeTools),
+      getFidelitySecretUrl(zacksLink, browser),
+      fetchCFRAData(ticker, cfraRating, cfraLink, scrapeTools),
     ])
 
     await moodysFetcher.close()
-
-    // TIPRANKS
-
-    const tipData = await fetchTipData(ticker, scrapeTools)
 
     // ARGUS RESEARCH
 
@@ -248,29 +254,28 @@ puppeteer.connect(CONNECTION).then(async browser => {
       ],
     })
 
-    // NEW CONSTRUCTS
-
-    const ncData = await fetchNewConstructs(ticker, scrapeTools)
-
     // CFRA
 
-    const [cfraTarget, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
-      ? await fetchPdfData({
-          analystName: CFRA,
-          url: cfraLink,
-          xPathArr: [
-            prevSiblingTextContains("12-Mo.  Target  Price"),
-            prevSiblingTextContains("Calculation", 2),
-            prevSiblingTextContains("Analysis prepared by", 3),
-          ],
-          waitForPostScroll: prevSiblingTextContains("Calculation", 2),
-        })
-      : []
+    //const [cfraTarget, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
+    //  ? await fetchPdfData({
+    //      analystName: CFRA,
+    //      url: cfraLink,
+    //      xPathArr: [
+    //        prevSiblingTextContains("12-Mo.  Target  Price"),
+    //        prevSiblingTextContains("Calculation", 2),
+    //        prevSiblingTextContains("Analysis prepared by", 3),
+    //      ],
+    //      waitForPostScroll: prevSiblingTextContains("Calculation", 2),
+    //    })
+    //  : []
 
     // ZACKS
 
-    const zacksUrl = await getFidelitySecretUrl(zacksLink, browser)
-    const zacksData = await fetchZacks(ticker, scrapeTools, zacksUrl)
+    const zacksData = await fetchZacks(ticker, scrapeTools, zacksSecretUrl)
+
+    // TIPRANKS
+
+    const tipData = await fetchTipData(ticker, scrapeTools)
 
     // RESULT
 
@@ -292,11 +297,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
       boaInvestment,
       boaRating,
       boaVolatility,
-      cfraDate,
-      cfraFairValue,
       cfraLink,
       cfraRating,
-      cfraTarget: extractNumbers(cfraTarget),
       fordEarningsStrength,
       fordPriceMovement,
       fordRating,
@@ -327,6 +329,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
       ...fidelityAnalystOpinionsData,
       ...zacksData,
       ...tipData,
+      ...cfraData,
       ...buildCompanyData(yahooData, wsjData),
     }
 

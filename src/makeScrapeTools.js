@@ -17,23 +17,24 @@ const { wrapPage, newBrowserPage, evalX } = require("./util")
  * @typedef {{
  *   fetchPdfData(*=): Promise<*[]>,
  *   getPageCookies(*=): Promise<*[]>,
- *   getPageDataFetcher(analystName: string): PageDataFetcher,
+ *   getPageDataFetcher(analystName: string, options: Object): PageDataFetcher,
  * }}
  */
 
 class PageDataFetcher {
   /**
-   * @param analystName
-   * @param ticker
-   * @param browser
-   * @param existingPage
+   * @param {string} analystName
+   * @param {string} ticker
+   * @param {*} browser
+   * @param {number} timeout
    */
-  constructor(analystName, ticker, browser, existingPage) {
+  constructor(analystName, ticker, browser, { timeout } = {}) {
     this.analystName = analystName
     this.ticker = ticker
     this.browser = browser
+    this.timeout = timeout || XPATH_TIMEOUT
 
-    this.page = existingPage
+    this.page = null
     this.originPage = null
   }
 
@@ -83,16 +84,17 @@ class PageDataFetcher {
       return true
     } else {
       console.error(
-        `PageDataFetcher.setPageTrPopup (404) -> ticker: ${this.ticker} -> analyst:${this.analystName}`
+        `PageDataFetcher.setPageTrPopup (TIPRANKS BUTTON NOT FOUND) -> ticker: ${this.ticker} -> analyst:${this.analystName}`
       )
       return false
     }
   }
 
-  async waitForXpath(xpath, { timeout = XPATH_TIMEOUT } = {}) {
-    const { page, ticker, analystName } = this
+  async waitForXpath(xpath) {
+    const { page, ticker, analystName, timeout } = this
     try {
       await page.waitForXPath(xpath, { timeout })
+      return true
     } catch (err) {
       if (err.message.includes("is not a valid XPath expression")) {
         console.log("*** INVALID XPATH *** xpath: " + xpath)
@@ -101,30 +103,22 @@ class PageDataFetcher {
           `PageDataFetcher.waitForXpath failed for xpath: ${xpath} -> ticker ${ticker} -> analyst: ${analystName}`
         )
       }
+      return false
     }
   }
 
-  async fetchPageData(xPathArr, waitForXpath) {
+  async fetchPageData(xPathArr, selectorToWaitFor) {
     const { analystName, page, ticker } = this
 
     if (!page) {
       console.error(
-        `PageDataFetcher.fetchPageData (404) -> ticker: ${ticker} -> analyst:${analystName}`
+        `PageDataFetcher.fetchPageData (this.page IS NULL) -> ticker: ${ticker} -> analyst:${analystName}`
       )
       return []
     }
 
-    const waitFor = waitForXpath || xPathArr[0]
-    try {
-      await page.waitForXPath(waitFor, { timeout: XPATH_TIMEOUT })
-    } catch (err) {
-      if (err.message.includes("is not a valid XPath expression")) {
-        console.log("*** invalid xpath: " + waitFor)
-      } else {
-        console.log(
-          `fetchPageData waitForXpath failed for xpath: ${waitFor} -> ticker ${ticker} -> analyst: ${analystName}`
-        )
-      }
+    const xpathFound = await this.waitForXpath(selectorToWaitFor || xPathArr[0])
+    if (!xpathFound) {
       return []
     }
 
@@ -137,7 +131,7 @@ class PageDataFetcher {
     const { page } = this
     if (!page) {
       console.error(
-        `PageDataFetcher.fetchFidelityReportData (404) -> ticker: ${this.ticker}`
+        `PageDataFetcher.fetchFidelityReportData (this.page IS NULL) -> ticker: ${this.ticker}`
       )
       return []
     }
@@ -257,8 +251,8 @@ class PageDataFetcher {
 }
 
 /**
- * @param ticker
- * @param browser
+ * @param {string} ticker
+ * @param {*} browser
  * @returns {ScrapeTools}
  */
 module.exports = (ticker, browser) => {
@@ -322,9 +316,8 @@ module.exports = (ticker, browser) => {
     },
 
     /**
-     * @typedef GetPageCookies
-     * @param url
-     * @returns {Promise<string>}
+     * @param {String} url
+     * @returns {Promise<*>}
      */
     async getPageCookies(url) {
       const page = await newPage(url)
@@ -333,8 +326,13 @@ module.exports = (ticker, browser) => {
       return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
     },
 
-    getPageDataFetcher(analystName) {
-      return new PageDataFetcher(analystName, ticker, browser)
+    /**
+     * @param {string} analystName
+     * @param {{timeout:string}} options
+     * @returns {PageDataFetcher}
+     */
+    getPageDataFetcher(analystName, options) {
+      return new PageDataFetcher(analystName, ticker, browser, options)
     },
   }
 }

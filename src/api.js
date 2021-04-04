@@ -5,6 +5,8 @@ const {
   prevSiblingTextContains,
   prevSiblingTextIs,
   millBillStrToNum,
+  hasCFRA,
+  extractNumbers,
 } = require("./util")
 
 const cleanFidelityStrings = val =>
@@ -811,6 +813,23 @@ exports.fetchYahooData = async ticker => {
   )}`
   const text = await fetchText(url)
   return JSON.parse(text)
+}
+
+exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) => {
+  const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
+    ? await fetchPdfData({
+        analystName: CFRA,
+        url: cfraLink,
+        xPathArr: [
+          prevSiblingTextContains("12-Mo.  Target  Price"),
+          prevSiblingTextContains("Calculation", 2),
+          prevSiblingTextContains("Analysis prepared by", 3),
+        ],
+        waitForPostScroll: prevSiblingTextContains("Calculation", 2),
+      })
+    : []
+
+  return { cfraTarget: extractNumbers(cfraTargetStr), cfraFairValue, cfraDate }
 }
 
 const avApiKey = "1FSCTLZ457VMJH2F"
