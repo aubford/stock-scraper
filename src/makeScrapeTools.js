@@ -196,6 +196,28 @@ class PageDataFetcher {
   }
 
   /**
+   * @param {string} selector
+   * @returns {Promise<void>}
+   */
+  async clickWhile(selector) {
+    const { page, ticker, analystName } = this
+
+    if (!page || !selector) {
+      return
+    }
+
+    while (await page.$(selector)) {
+      await page.click(selector).catch(() => {
+        console.log(
+          `clickIF failed for selector: ${selector} -> ticker: ${ticker} -> analyst ${analystName}`
+        )
+      })
+
+      await new Promise(res => setTimeout(res, 100))
+    }
+  }
+
+  /**
    * @param selector
    * @returns {Promise<string|string[]>}
    */
