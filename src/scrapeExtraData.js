@@ -2,6 +2,7 @@ const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
 const { newBrowserPage, scrapbookWriteOut } = require("./util")
 const { webSocketDebuggerUrl } = require("../ws.json")
+const { fromPairs, findIndex, uniq } = require("lodash")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -53,7 +54,7 @@ const aggregateMagicFormulaTickers = async cookies => {
   const microCap = await getMagicFormulaData(50, cookies)
   const midCap = await getMagicFormulaData(2000, cookies)
   const largeCap = await getMagicFormulaData(10 * 1000, cookies)
-  return _.uniq([...microCap, ...midCap, ...largeCap])
+  return uniq([...microCap, ...midCap, ...largeCap])
 }
 
 const getBuffetData = async () => {
@@ -75,9 +76,9 @@ const getBuffetData = async () => {
 
   const chunk = dataArr.slice(
     0,
-    _.findIndex(dataArr, val => val[0] === "" && val[1] === "")
+    findIndex(dataArr, val => val[0] === "" && val[1] === "")
   )
-  return _.fromPairs(chunk)
+  return fromPairs(chunk)
 }
 
 puppeteer.connect(connection).then(async browser => {
