@@ -10,7 +10,14 @@ const {
 } = require("./util")
 
 const cleanFidelityStrings = val =>
-  isString(val) ? val.replace("+", "").replace("th", "").replace("rd", "") : val
+  isString(val)
+    ? val
+        .replace("+", "")
+        .replace("th", "")
+        .replace("rd", "")
+        .replace("nd", "")
+        .replace("st", "")
+    : val
 
 /**
  * @returns {Promise<string>}
