@@ -134,7 +134,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
       ? zip(tipInsiderActionDates, tipInsiderActions)
           .filter(([, action]) => !action.includes("Uninformative"))
           .map(event => event.join(" -> "))
-          .join("\n\n")
+          .join("\n")
       : []
 
   await fetcher.close()
