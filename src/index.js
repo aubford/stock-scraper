@@ -37,7 +37,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   const promptResponse = await promptForTickers()
   const tickers = promptResponse
-    ? promptResponse.split(/[^A-Z]/)
+    ? promptResponse.split(/[^A-Z]/).filter(a => a)
     : Object.keys(omit(backupReturnStockDataFile(), ["buffetData", "magicTickers"]))
   console.log("Searching for tickers:", tickers)
 
