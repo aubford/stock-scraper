@@ -3,13 +3,17 @@ global.fetch = require("node-fetch")
 global._ = require("lodash")
 global.fs = require("fs")
 
-const { webSocketDebuggerUrl } = require("./ws.json")
-global.CONNECTION = {
-  browserWSEndpoint: webSocketDebuggerUrl,
-  defaultViewport: {
-    width: 1400,
-    height: 1800,
-  },
+try {
+  const { webSocketDebuggerUrl } = require("./ws.json")
+  global.CONNECTION = {
+    browserWSEndpoint: webSocketDebuggerUrl,
+    defaultViewport: {
+      width: 1400,
+      height: 1800,
+    },
+  }
+} catch (err) {
+  console.log("skipped ws connection")
 }
 
 // Constants

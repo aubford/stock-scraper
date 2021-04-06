@@ -12,6 +12,7 @@ const bsxData = require("./data/bsxData.json")
 const crmData = require("./data/crmData.json")
 const cscoData = require("./data/cscoData.json")
 const deData = require("./data/deData.json")
+const rtxData = require("./data/rtxData.json")
 const disData = require("./data/disData.json")
 const fuboData = require("./data/fuboData.json")
 const gsData = require("./data/gsData.json")
@@ -33,6 +34,9 @@ const fateData = require("./data/fateData.json")
 const sortDates = arr => sortBy(arr, date => new Date(date))
 const runTests = data => {
   const o = buildCompanyData(data, wsjData)
+
+  o.quarterlyEPSActualEstimateChart /* ? */
+
   expect(o).toMatchSnapshot()
 
   if (o.mostRecentQuarter) {
@@ -78,6 +82,10 @@ test("Schmangled data", () => {
   const o = buildCompanyData(clonedData, wsjData)
 
   expect(o.endDateIsQuartChart).not.toEqual(sortDates(o.endDateIsQuartChart))
+})
+
+test.only("RTX", () => {
+  runTests(rtxData)
 })
 
 test("FATE", () => {
