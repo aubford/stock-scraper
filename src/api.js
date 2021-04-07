@@ -776,8 +776,12 @@ exports.getMoodysLink = async (ticker, cookie) => {
       mode: "cors",
     }
   )
-  const data = JSON.parse(text).data.organizations[0]
-  return data && data.ticker === ticker ? data : null
+  try {
+    const data = JSON.parse(text).data.organizations[0]
+    return data && data.ticker === ticker ? data : null
+  } catch (error) {
+    return null
+  }
 }
 
 /**
