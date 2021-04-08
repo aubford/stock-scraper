@@ -16,3 +16,5 @@ const stockData = omit(stockJson, ["magicTickers", "buffetData"])
 
 const testData = require("../test/data/rtxData.json")
 const yahooData = testData.quoteSummary.result[0]
+
+stockData["TTD"] /*?*/
