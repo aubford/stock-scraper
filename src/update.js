@@ -6,11 +6,10 @@ const {
   promptLogin,
   backupReturnStockDataFile,
   promptUser,
+  promptForPause,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("./introspectStockData")
-
-global.PAUSE_MS = 1000 * 60 * 3
 
 const exit = () => {
   console.log("** All Updates Completed Successfully **")
@@ -18,6 +17,8 @@ const exit = () => {
 }
 
 puppeteer.connect(CONNECTION).then(async browser => {
+  await promptForPause()
+
   const closeLoginPages = await promptLogin((url, options) =>
     newBrowserPage(browser, url, options)
   )
