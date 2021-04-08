@@ -102,4 +102,5 @@ puppeteer.connect(connection).then(async browser => {
     magicTickers,
     buffetData,
   })
+  process.exit(0)
 })

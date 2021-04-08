@@ -58,4 +58,5 @@ puppeteer.connect(CONNECTION).then(async browser => {
   }
 
   scrapbookWriteOut({ ...stockData, magicTickers, buffetData })
+  process.exit(0)
 })

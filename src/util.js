@@ -1,5 +1,5 @@
 require("puppeteer-core")
-const { first, last, endsWith, fromPairs, zip, chunk, zipWith } = require("lodash")
+const { merge, first, last, endsWith, fromPairs, zip, chunk, zipWith } = require("lodash")
 const readline = require("readline")
 /**
  * @typedef {Page} MyPage
@@ -134,24 +134,26 @@ const hasCFRA = (rating, ticker, analystName) => {
 }
 
 const writeFile = (location, data) => {
-  fs.writeFile(location, JSON.stringify(data), err => {
-    console.log("** COMPLETE, WRITING TO FILE **")
-    if (err) {
-      console.log("File Write Error: " + err)
-    }
-    process.exit(0)
-  })
+  try {
+    fs.writeFileSync(location, JSON.stringify(data))
+    console.log("** COMPLETE, WRITE TO FILE SUCCESSFUL **")
+  } catch (err) {
+    console.log("File Write Error: " + err)
+    process.exit(1)
+  }
 }
 
-const scrapbookWriteOut = data => {
+const scrapbookWriteOut = (data, shouldMerge) => {
   const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
   /** @type {*} */
   const stockDataFile = fs.readFileSync(stockDataLocation)
   const existingData = JSON.parse(stockDataFile)
-  const writeToFile = {
-    ...existingData,
-    ...data,
-  }
+  const writeToFile = shouldMerge
+    ? merge(existingData, data)
+    : {
+        ...existingData,
+        ...data,
+      }
 
   writeFile(stockDataLocation, writeToFile)
 }
@@ -192,7 +194,7 @@ const pauseExecution = async (ticker, tickers) => {
   // Pause every 5 tickers
   const tickerIndex = tickers.indexOf(ticker)
   if ((tickerIndex + 1) % 6 === 0) {
-    console.log("((pause))")
+    console.log(`((pause for ${PAUSE_MS}))`)
     await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
   }
 }

@@ -1,4 +1,4 @@
-const {fromPairs} = require("lodash")
+const { fromPairs } = require("lodash")
 const { fetchYahooData, fetchWSJData } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const { scrapbookWriteOut, backupReturnStockDataFile } = require("./util")
@@ -24,4 +24,5 @@ Promise.all(tickers.map(fetchData)).then(companyData => {
   const updatedStockData = fromPairs(companyData)
   const updatedData = { magicTickers, buffetData, ...updatedStockData }
   scrapbookWriteOut(updatedData)
+  process.exit(0)
 })

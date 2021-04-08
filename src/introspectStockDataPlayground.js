@@ -2,20 +2,26 @@
 //noinspection BadExpressionStatementJS
 /* eslint-disable no-unused-vars */
 const {
-  sectorIndexWithDesc,
-  sectorIndex,
+  getSectorIndexWithDesc,
+  getIndustryIndex,
+  getSectorIndex,
   getTickers,
   getDesc,
-  earningsDates,
+  getEarningsDates,
+  sectorMap,
 } = require("./introspectStockData")
-const { omit, mapValues, groupBy } = require("lodash")
+const { merge, sortBy, omit, mapValues, groupBy } = require("lodash")
 const stockJson = require("../test/stockData.json")
 const data = omit(stockJson, ["magicTickers", "buffetData"])
 
 const testData = require("../test/data/rtxData.json")
 const yahooData = testData.quoteSummary.result[0]
 
-//earningsDates(data) /*?*/
+//getEarningsDates(data) /*?*/
 //getDesc(data) /* ?+*/
-//sectorIndex(data) /* ?+*/
-//data["MU"] /*?+*/
+const sectorIndex = getSectorIndex(data)
+const sectors = Object.keys(sectorIndex)
+
+const financials = sectorIndex[sectorMap.get("F")] /*?*/
+
+financials.slice(0, Number("asdg")) /*?*/
