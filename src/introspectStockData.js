@@ -54,6 +54,18 @@ const getEarningsDates = stockData =>
     stocks => stocks.map(stock => stock.ticker) /*?*/
   )
 
+const getUpdateCalendar = stockData => {
+  const groupedByDate = groupBy(stockData, ({ scrapeDataUpdatedAt }) => {
+    const date = new Date(scrapeDataUpdatedAt)
+    const month = date.getMonth()
+    if (month) {
+      return `[${month}-${date.getDate()}]-${date.getHours()}:00`
+    }
+    return "None"
+  })
+  return mapValues(groupedByDate, dateStocks => dateStocks.map(({ ticker }) => ticker))
+}
+
 module.exports = {
   getSectorIndexWithDesc,
   getSectorIndex,
@@ -61,5 +73,6 @@ module.exports = {
   getTickers,
   getDesc,
   getEarningsDates,
+  getUpdateCalendar,
   sectorMap,
 }
