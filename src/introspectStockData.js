@@ -1,4 +1,4 @@
-const { mapValues, groupBy } = require("lodash")
+const { min, mapValues, groupBy } = require("lodash")
 
 const getFirstSentence = str =>
   str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null
@@ -59,12 +59,23 @@ const getUpdateCalendar = stockData => {
     const date = new Date(scrapeDataUpdatedAt)
     const month = date.getMonth()
     if (month) {
-      return `[${month}-${date.getDate()}]-${date.getHours()}:00`
+      return `${month + 1}/${date.getDate()}  ${date.getHours()}:00`
     }
     return "None"
   })
   return mapValues(groupedByDate, dateStocks => dateStocks.map(({ ticker }) => ticker))
 }
+
+const getSectorLastUpdatedIndex = stockData =>
+  mapValues(getSectorIndex(stockData), sector => {
+    const date = new Date(
+      min(sector.map(ticker => stockData[ticker].scrapeDataUpdatedAt))
+    )
+    const month = date.getMonth()
+    if (month) {
+      return `${month + 1}/${date.getDate()}`
+    }
+  })
 
 module.exports = {
   getSectorIndexWithDesc,
@@ -74,5 +85,6 @@ module.exports = {
   getDesc,
   getEarningsDates,
   getUpdateCalendar,
+  getSectorLastUpdatedIndex,
   sectorMap,
 }

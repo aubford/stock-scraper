@@ -3,11 +3,13 @@
 /* eslint-disable no-unused-vars */
 const {
   getSectorIndexWithDesc,
-  getIndustryIndex,
   getSectorIndex,
+  getIndustryIndex,
   getTickers,
   getDesc,
   getEarningsDates,
+  getUpdateCalendar,
+  getSectorLastUpdatedIndex,
   sectorMap,
 } = require("./introspectStockData")
 const { toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
@@ -17,4 +19,6 @@ const stockData = omit(stockJson, ["magicTickers", "buffetData"])
 const testData = require("../test/data/rtxData.json")
 const yahooData = testData.quoteSummary.result[0]
 
-stockData["TTD"] /*?*/
+getSectorLastUpdatedIndex(stockData) /*?*/
+getEarningsDates(stockData) /*?*/
+getUpdateCalendar(stockData) /*?*/
