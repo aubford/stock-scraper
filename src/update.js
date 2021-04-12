@@ -37,7 +37,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const newStockData = await scrapeDataForTickers(tickers, browser)
 
     scrapbookWriteOut(newStockData, true)
-    console.log(`** Updated OK: ${sector} **`)
+    console.log(`*************** SECTOR UPDATED OK: ${sector} *****************`)
   }
 
   const selectedSingleSector = sectorMap.get(sectorUserInputVal)

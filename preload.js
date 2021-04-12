@@ -72,7 +72,7 @@ global.YAHOO_MODULES = [
   "upgradeDowngradeHistory",
 ]
 
-global.SCRAPBOOK_LOCATION = "/Users/aubrey/Google Drive/stock-scrapbook"
+global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
 global.STOCK_DATA_BACKUP_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataBackup.json`
 
