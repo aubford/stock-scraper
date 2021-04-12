@@ -14,15 +14,17 @@ exports.selectValueTypes = (multiValues, type) =>
 
 exports.annu = val => val * 4
 
-exports.getNonIndexOwners = ownershipList => {
+exports.getOwners = (ownershipList, indexFundOwners) => {
   if (!ownershipList) {
     return ""
   }
-  const indexFundTags = ["index", "500", "russel", "spdr", "s&p"]
+  const indexFundTags = ["index", "500", "russel", "spdr", "s&p", "nasdaq"]
 
   return ownershipList
     .filter(owner =>
-      indexFundTags.every(name => !owner.organization.toLowerCase().includes(name))
+      indexFundOwners
+        ? indexFundTags.some(name => owner.organization.toLowerCase().includes(name))
+        : indexFundTags.every(name => !owner.organization.toLowerCase().includes(name))
     )
     .map(({ organization, pctHeld }) => `${organization}: ${pctHeld.fmt}`)
     .join("\n")

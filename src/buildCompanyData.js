@@ -5,7 +5,7 @@ const {
   addDays,
   selectValueTypes,
   annu,
-  getNonIndexOwners,
+  getOwners,
   getAnalystRecommendations,
   getRecentStatement,
   reduceUpdownGrade,
@@ -630,7 +630,8 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       0
     ),
     institutionsCount: institutionsCount ? institutionsCount.longFmt : 0,
-    nonIndexOwners: getNonIndexOwners(ownershipList),
+    nonIndexOwners: getOwners(ownershipList),
+    indexOwners: getOwners(ownershipList, true),
     earningsDates:
       earningsChartCurrentEstimateDates && earningsChartCurrentEstimateDates[0]
         ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).join("; ") +

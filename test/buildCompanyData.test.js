@@ -35,8 +35,6 @@ const sortDates = arr => sortBy(arr, date => new Date(date))
 const runTests = data => {
   const o = buildCompanyData(data, wsjData)
 
-  o.quarterlyEPSActualEstimateChart /* ? */
-
   expect(o).toMatchSnapshot()
 
   if (o.mostRecentQuarter) {
@@ -84,7 +82,7 @@ test("Schmangled data", () => {
   expect(o.endDateIsQuartChart).not.toEqual(sortDates(o.endDateIsQuartChart))
 })
 
-test.only("RTX", () => {
+test("RTX", () => {
   runTests(rtxData)
 })
 

@@ -415,6 +415,12 @@ Object {
     -1298952000,
     149175000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 1.97%
+Vanguard Mid-Cap Index Fund: 1.58%
+Vanguard 500 Index Fund: 1.44%
+SPDR S&P 500 ETF Trust: 0.73%
+Vanguard Specialized-Dividend Appreciation Index Fund: 0.69%
+Fidelity 500 Index Fund: 0.65%",
   "industry": "Medical Distribution",
   "institutionsCount": "1,050",
   "intangibleAssets": 1862190000,
@@ -946,9 +952,7 @@ John Hancock Mutual Fds III-Disciplined Value Fd: 0.61%",
   "shareHolderRightsRisk": 9,
   "sharesOutstanding": 204706000,
   "sharesPercentSharesOut": "1.24%",
-  "sharesShort": 2539992,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 2733514,
   "shortLongTermDebt": 59371000,
   "shortLongTermDebtBsAnnuChart": Array [
     12121000,
@@ -962,7 +966,7 @@ John Hancock Mutual Fds III-Disciplined Value Fd: 0.61%",
     501259000,
     59371000,
   ],
-  "shortPercentOfFloat": 0.0172,
+  "shortPercentOfFloat": "1.72%",
   "shortRatio": "2.3",
   "statementDataOk": true,
   "targetHighPrice": 153,
@@ -1576,6 +1580,13 @@ Object {
     291000000,
     420000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.11%
+Vanguard 500 Index Fund: 1.62%
+SPDR S&P 500 ETF Trust: 0.82%
+Fidelity 500 Index Fund: 0.73%
+Select Sector SPDR Fund-Financial: 0.71%
+SPDR Dow Jones Industrial Average ETF: 0.68%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.67%",
   "industry": "Credit Services",
   "institutionsCount": "2,053",
   "intangibleAssets": 265000000,
@@ -2096,10 +2107,8 @@ Vanguard/Wellington Fund Inc.: 1.03%",
   "shareHolderRightsRisk": 4,
   "sharesOutstanding": 805201984,
   "sharesPercentSharesOut": "1.09%",
-  "sharesShort": 8786627,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 8450774,
-  "shortPercentOfFloat": 0.0134000005,
+  "shortPercentOfFloat": "1.34%",
   "shortRatio": "2.25",
   "shortTermInvestments": 92000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -2460,6 +2469,7 @@ Object {
   "incomeTaxExpense": 0,
   "incomeTaxExpenseIsAnnuChart": 0,
   "incomeTaxExpenseIsQuartChart": 0,
+  "indexOwners": "",
   "industry": "Medical Devices",
   "institutionsCount": undefined,
   "interestExpense": 0,
@@ -2599,9 +2609,7 @@ Object {
   "shareHolderRightsRisk": undefined,
   "sharesOutstanding": 164862000,
   "sharesPercentSharesOut": "1.69%",
-  "sharesShort": 3230240,
   "sharesShortPreviousMonthDate": undefined,
-  "sharesShortPriorMonth": undefined,
   "shortPercentOfFloat": undefined,
   "shortRatio": "0.62",
   "statementDataOk": false,
@@ -3086,6 +3094,11 @@ Object {
     240800000,
     13300000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.85%
+Vanguard 500 Index Fund: 2.02%
+SPDR S&P 500 ETF Trust: 1.02%
+Fidelity 500 Index Fund: 0.92%
+iShares NASDAQ Biotechnology ETF: 0.87%",
   "industry": "Drug Manufacturers—General",
   "institutionsCount": "1,515",
   "intangibleAssets": 3084300000,
@@ -3337,8 +3350,7 @@ Object {
 Vanguard Specialized-Health Care Fund: 2.62%
 Vanguard Horizon Fund-Capital Opportunity Portfolio: 1.36%
 Invesco ETF Tr-Invesco QQQ Tr, Series 1 ETF: 1.26%
-Legg Mason Clearbridge Aggressive Growth Fd: 1.01%
-iShares NASDAQ Biotechnology ETF: 0.87%",
+Legg Mason Clearbridge Aggressive Growth Fd: 1.01%",
   "nonRecurring": undefined,
   "nonRecurringIsAnnuChart": Array [
     0,
@@ -3621,9 +3633,7 @@ iShares NASDAQ Biotechnology ETF: 0.87%",
   "shareHolderRightsRisk": 2,
   "sharesOutstanding": 153882000,
   "sharesPercentSharesOut": "2.34%",
-  "sharesShort": 3571963,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 3666202,
   "shortLongTermDebtBsAnnuChart": Array [
     3200000,
     0,
@@ -3636,7 +3646,7 @@ iShares NASDAQ Biotechnology ETF: 0.87%",
     0,
     0,
   ],
-  "shortPercentOfFloat": 0.023599999,
+  "shortPercentOfFloat": "2.36%",
   "shortRatio": "2.6",
   "shortTermInvestments": 1278900000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -4292,6 +4302,12 @@ Object {
     464000000,
     427000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.54%
+Vanguard 500 Index Fund: 1.86%
+SPDR S&P 500 ETF Trust: 0.94%
+Fidelity 500 Index Fund: 0.84%
+Select Sector SPDR Fund-Financial: 0.81%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.76%",
   "industry": "Asset Management",
   "institutionsCount": "1,911",
   "intangibleAssets": 18263000000,
@@ -4799,9 +4815,7 @@ JP Morgan Equity Income Fund: 0.81%",
   "shareHolderRightsRisk": 9,
   "sharesOutstanding": 152634000,
   "sharesPercentSharesOut": "0.96%",
-  "sharesShort": 1467870,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 1745984,
   "shortLongTermDebt": 800000000,
   "shortLongTermDebtBsAnnuChart": Array [
     0,
@@ -4815,7 +4829,7 @@ JP Morgan Equity Income Fund: 0.81%",
     10000000,
     800000000,
   ],
-  "shortPercentOfFloat": 0.0126,
+  "shortPercentOfFloat": "1.26%",
   "shortRatio": "2.02",
   "statementDataOk": true,
   "targetHighPrice": 890,
@@ -4998,7 +5012,6 @@ _____-2 Qtr_____
  JP Morgan:  => Overweight
  Wells Fargo:  => Overweight
  Credit Suisse:  => Outperform
- UBS:  => Buy
 ",
   "weekEpsEstimate": 8.34,
   "weekEpsEstimateFollowingQuarter": 8.94,
@@ -5148,6 +5161,10 @@ Object {
   ],
   "incomeTaxExpenseIsAnnuChart": 0,
   "incomeTaxExpenseIsQuartChart": 0,
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.80%
+Vanguard 500 Index Fund: 2.05%
+SPDR S&P 500 ETF Trust: 1.05%
+Fidelity 500 Index Fund: 0.91%",
   "industry": undefined,
   "institutionsCount": 0,
   "intangibleAssetsBsAnnuChart": 0,
@@ -5777,6 +5794,14 @@ Object {
     815000000,
     1003000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.81%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.90%
+Select Sector SPDR Fund-Financial: 0.87%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+iShares Core S&P 500 ETF: 0.74%
+Vanguard Index-Value Index Fund: 0.67%",
   "industry": "Banks—Diversified",
   "institutionsCount": "2,010",
   "intangibleAssets": 4747000000,
@@ -6308,9 +6333,7 @@ Washington Mutual Investors Fund: 0.78%",
   "shareHolderRightsRisk": 1,
   "sharesOutstanding": 2086690048,
   "sharesPercentSharesOut": "1.26%",
-  "sharesShort": 26363976,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 22221835,
   "shortLongTermDebt": 50821000000,
   "shortLongTermDebtBsAnnuChart": Array [
     53400000000,
@@ -6324,7 +6347,7 @@ Washington Mutual Investors Fund: 0.78%",
     47500000000,
     50821000000,
   ],
-  "shortPercentOfFloat": 0.0126,
+  "shortPercentOfFloat": "1.26%",
   "shortRatio": "1.4",
   "shortTermInvestments": 563775000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -6948,6 +6971,13 @@ Object {
     169000000,
     158000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.66%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.91%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+Vanguard Growth Index Fund: 0.75%
+iShares Core S&P 500 ETF: 0.75%",
   "industry": "Software—Application",
   "institutionsCount": "2,513",
   "intangibleAssets": 4114000000,
@@ -7429,9 +7459,7 @@ Fidelity Growth Company Fund: 0.75%",
   "shareHolderRightsRisk": 1,
   "sharesOutstanding": 921000000,
   "sharesPercentSharesOut": "2.15%",
-  "sharesShort": 19739173,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 23220061,
   "shortLongTermDebt": 4000000,
   "shortLongTermDebtBsAnnuChart": Array [
     1025000000,
@@ -7445,7 +7473,7 @@ Fidelity Growth Company Fund: 0.75%",
     4000000,
     4000000,
   ],
-  "shortPercentOfFloat": 0.0249,
+  "shortPercentOfFloat": "2.49%",
   "shortRatio": "2.94",
   "shortTermInvestments": 5771000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -8089,6 +8117,13 @@ Object {
     507000000,
     710000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.54%
+Vanguard 500 Index Fund: 2.01%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.91%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+iShares Core S&P 500 ETF: 0.75%
+Vanguard Index-Value Index Fund: 0.61%",
   "industry": "Communication Equipment",
   "institutionsCount": "3,214",
   "intangibleAssets": 1462000000,
@@ -8621,9 +8656,7 @@ Vanguard Fenway Funds-Equity Income Fund: 0.53%",
   "shareHolderRightsRisk": 6,
   "sharesOutstanding": 4221789952,
   "sharesPercentSharesOut": "1.04%",
-  "sharesShort": 43841227,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 47755079,
   "shortLongTermDebt": 5000000000,
   "shortLongTermDebtBsAnnuChart": Array [
     4747000000,
@@ -8637,7 +8670,7 @@ Vanguard Fenway Funds-Equity Income Fund: 0.53%",
     5002000000,
     5000000000,
   ],
-  "shortPercentOfFloat": 0.0104,
+  "shortPercentOfFloat": "1.04%",
   "shortRatio": "2.07",
   "shortTermInvestments": 18795000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -9286,6 +9319,11 @@ Object {
     330000000,
     308000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.54%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.91%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%",
   "industry": "Farm & Heavy Construction Machinery",
   "institutionsCount": "1,733",
   "intangibleAssets": 1342000000,
@@ -9833,9 +9871,7 @@ Fundamental Investors Inc: 0.77%",
   "shareHolderRightsRisk": 9,
   "sharesOutstanding": 313439008,
   "sharesPercentSharesOut": "0.88%",
-  "sharesShort": 2745216,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 2220684,
   "shortLongTermDebt": 290000000,
   "shortLongTermDebtBsAnnuChart": Array [
     286000000,
@@ -9849,7 +9885,7 @@ Fundamental Investors Inc: 0.77%",
     168000000,
     290000000,
   ],
-  "shortPercentOfFloat": 0.0097,
+  "shortPercentOfFloat": "0.97%",
   "shortRatio": "1.44",
   "shortTermInvestments": 8000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -10484,6 +10520,16 @@ Object {
     49000000,
     16000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.81%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.90%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+iShares Core S&P 500 ETF: 0.74%
+Vanguard Specialized-Dividend Appreciation Index Fund: 0.69%
+Vanguard Index-Value Index Fund: 0.67%
+SPDR Dow Jones Industrial Average ETF: 0.30%
+iShares Russell 1000 Value ETF: 0.25%",
   "industry": "Entertainment",
   "institutionsCount": "3,474",
   "intangibleAssets": 18642000000,
@@ -11007,9 +11053,7 @@ Object {
   "shareHolderRightsRisk": 8,
   "sharesOutstanding": 1815260032,
   "sharesPercentSharesOut": "1.28%",
-  "sharesShort": 23243654,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 18442384,
   "shortLongTermDebt": 3551000000,
   "shortLongTermDebtBsAnnuChart": Array [
     3400000000,
@@ -11023,7 +11067,7 @@ Object {
     3688000000,
     3551000000,
   ],
-  "shortPercentOfFloat": 0.0128,
+  "shortPercentOfFloat": "1.28%",
   "shortRatio": "1.73",
   "statementDataOk": true,
   "targetHighPrice": 230,
@@ -11210,14 +11254,13 @@ _____-1 Qtr_____
  Morgan Stanley:  => Overweight
  RBC Capital: Sector Perform => Outperform
  B of A Securities:  => Buy
- MoffettNathanson:  => Neutral
 _____-2 Qtr_____
+ MoffettNathanson:  => Neutral
  Consumer Edge Research: Overweight => Equal-Weight
  Imperial Capital: In-Line => Underperform
  Loop Capital: Buy => Hold
  Bernstein:  => Market Perform
  LightShed Partners: Neutral => Sell
- CFRA:  => Buy
 ",
   "weekEpsEstimate": 0.28,
   "weekEpsEstimateFollowingQuarter": 0.74,
@@ -11616,6 +11659,10 @@ Object {
     0,
     0,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.23%
+Vanguard Small-Cap Index Fund: 1.87%
+iShares Russell 2000 ETF: 1.86%
+Vanguard Small-Cap Growth Index Fund: 1.22%",
   "industry": "Biotechnology",
   "institutionsCount": "298",
   "interestExpense": undefined,
@@ -12072,16 +12119,14 @@ Price (T.Rowe) New Horizons Fund: 1.15%",
   "shareHolderRightsRisk": 8,
   "sharesOutstanding": 93783400,
   "sharesPercentSharesOut": "10.98%",
-  "sharesShort": 10301406,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 10077496,
   "shortLongTermDebtBsAnnuChart": Array [
     0,
     2438000,
     0,
     0,
   ],
-  "shortPercentOfFloat": 0.14899999,
+  "shortPercentOfFloat": "14.90%",
   "shortRatio": "11",
   "shortTermInvestments": 315569000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -12275,1065 +12320,6 @@ _____-1 Qtr_____
  BMO Capital:  => Market Perform
 _____-2 Qtr_____
  HC Wainwright & Co.:  => Buy
- Oppenheimer:  => Outperform
-",
-  "weekEpsEstimate": -0.43,
-  "weekEpsEstimateFollowingQuarter": -0.45,
-  "weekEpsEstimateNextYear": -2.24,
-  "wsjChartCurrent": Array [
-    0,
-    0,
-    7,
-    1,
-    18,
-  ],
-  "wsjChartCurrentNum": 26,
-  "wsjChartMonthAgo": Array [
-    0,
-    0,
-    5,
-    1,
-    21,
-  ],
-  "wsjChartThreeMonthAgo": Array [
-    0,
-    0,
-    5,
-    2,
-    19,
-  ],
-  "wsjShortChange": "15.94%",
-  "wsjShortDate": "(02/26/21)",
-  "wsjShortPct": "1.27%",
-}
-`;
-
-exports[`FATE 2`] = `
-Object {
-  "accountsPayable": 6283000,
-  "accountsPayableBsAnnuChart": Array [
-    1678000,
-    4205000,
-    5822000,
-    6283000,
-  ],
-  "accountsPayableBsQuartChart": Array [
-    5173000,
-    13563000,
-    3717000,
-    6283000,
-  ],
-  "anaylstRecommendations": Array [
-    0,
-    0,
-    0,
-    3,
-    3,
-  ],
-  "auditRisk": 7,
-  "beta": "1.65",
-  "boardRisk": 8,
-  "bookValue": "4.38",
-  "buybackRatio": "n/a",
-  "capitalExpenditures": -2272000,
-  "capitalExpendituresCfAnnuChart": Array [
-    -1725000,
-    -2303000,
-    -7395000,
-    -4932000,
-  ],
-  "capitalExpendituresCfQuartChart": Array [
-    -1070000,
-    -636000,
-    -954000,
-    -2272000,
-  ],
-  "capitalSurplus": 941216000,
-  "capitalSurplusBsAnnuChart": Array [
-    295934000,
-    445799000,
-    628200000,
-    941216000,
-  ],
-  "capitalSurplusBsQuartChart": Array [
-    636062000,
-    918535000,
-    927784000,
-    941216000,
-  ],
-  "cash": 167347000,
-  "cashBsAnnuChart": Array [
-    88952000,
-    190514000,
-    99814000,
-    167347000,
-  ],
-  "cashBsQuartChart": Array [
-    83366000,
-    433074000,
-    349130000,
-    167347000,
-  ],
-  "changeInCash": -181783000,
-  "changeInCashCfAnnuChart": Array [
-    343000,
-    101667000,
-    -90700000,
-    82533000,
-  ],
-  "changeInCashCfQuartChart": Array [
-    -1448000,
-    349708000,
-    -83944000,
-    -181783000,
-  ],
-  "changeToAccountReceivables": -2272000,
-  "changeToAccountReceivablesCfAnnuChart": Array [
-    -500000,
-    -500000,
-    500000,
-    -5515000,
-  ],
-  "changeToAccountReceivablesCfQuartChart": Array [
-    -1717000,
-    -1717000,
-    -1526000,
-    -2272000,
-  ],
-  "changeToLiabilities": 1072000,
-  "changeToLiabilitiesCfAnnuChart": Array [
-    2511000,
-    4254000,
-    4277000,
-    -1554000,
-  ],
-  "changeToLiabilitiesCfQuartChart": Array [
-    -3316000,
-    8120000,
-    -7430000,
-    1072000,
-  ],
-  "changeToNetincome": 30340000,
-  "changeToNetincomeCfAnnuChart": Array [
-    3000000,
-    24882000,
-    8406000,
-    140734000,
-  ],
-  "changeToNetincomeCfQuartChart": Array [
-    6669000,
-    70751000,
-    32974000,
-    30340000,
-  ],
-  "changeToOperatingActivities": 596000,
-  "changeToOperatingActivitiesCfAnnuChart": Array [
-    -428000,
-    -2010000,
-    -1137000,
-    -5704000,
-  ],
-  "changeToOperatingActivitiesCfQuartChart": Array [
-    2621000,
-    -11465000,
-    2544000,
-    596000,
-  ],
-  "commonStock": 88000,
-  "commonStockBsAnnuChart": Array [
-    53000,
-    65000,
-    76000,
-    88000,
-  ],
-  "commonStockBsQuartChart": Array [
-    76000,
-    87000,
-    87000,
-    88000,
-  ],
-  "compensationRisk": 9,
-  "costOfRevenue": 38982000,
-  "costOfRevenueIsAnnuChart": Array [
-    34358000,
-    56024000,
-    87770000,
-    125623000,
-  ],
-  "costOfRevenueIsQuartChart": Array [
-    29278000,
-    26669000,
-    30694000,
-    38982000,
-  ],
-  "country": "United States",
-  "currentEpsEstimate": -0.43,
-  "currentEpsEstimateFollowingQuarter": -0.45,
-  "currentEpsEstimateNextYear": -2.17,
-  "currentPrice": 87.19,
-  "currentQuarterEstimateDate": "1Q",
-  "currentQuarterEstimateYear": 2021,
-  "currentRatio": "5.78",
-  "dateShortInterest": "2021-02-26",
-  "debtToCapital": 0.20197201810105037,
-  "deferredLongTermLiab": 13506000,
-  "deferredLongTermLiabBsAnnuChart": Array [
-    0,
-    1958000,
-    1338000,
-    13506000,
-  ],
-  "deferredLongTermLiabBsQuartChart": Array [
-    1170000,
-    13972000,
-    13357000,
-    13506000,
-  ],
-  "depreciation": 861000,
-  "depreciationCfAnnuChart": Array [
-    971000,
-    1204000,
-    2193000,
-    3087000,
-  ],
-  "depreciationCfQuartChart": Array [
-    705000,
-    748000,
-    773000,
-    861000,
-  ],
-  "discontinuedOperations": undefined,
-  "discontinuedOperationsIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "discontinuedOperationsIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "dividendChart": 0,
-  "dividendRate": undefined,
-  "dividendYield": undefined,
-  "earliestEarningsDate": "deprecated",
-  "earningsAverage": -0.43,
-  "earningsChartDataOk": true,
-  "earningsDate": undefined,
-  "earningsDates": "2021-02-24 [1Q2021]",
-  "earningsEstimateFollowingQuarterGrowth": "-28.60%",
-  "earningsEstimateGrowth": "2.30%",
-  "earningsEstimateNextYearGrowth": "-16.70%",
-  "earningsGrowth": undefined,
-  "earningsHigh": -0.31,
-  "earningsLow": -0.52,
-  "earningsQuarterlyGrowth": undefined,
-  "ebit": -33399000,
-  "ebitIsAnnuChart": Array [
-    -42125000,
-    -67092000,
-    -100727000,
-    -128085000,
-  ],
-  "ebitIsQuartChart": Array [
-    -34492000,
-    -28707000,
-    -31487000,
-    -33399000,
-  ],
-  "ebitda": -124998000,
-  "ebitdaMargins": "0.00%",
-  "effectOfAccountingCharges": undefined,
-  "effectOfAccountingChargesIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "effectOfAccountingChargesIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "endDate": 1609372800,
-  "endDateBsAnnuChart": Array [
-    "2017-12-31",
-    "2018-12-31",
-    "2019-12-31",
-    "2020-12-31",
-  ],
-  "endDateBsQuartChart": Array [
-    "2020-03-31",
-    "2020-06-30",
-    "2020-09-30",
-    "2020-12-31",
-  ],
-  "endDateCfAnnuChart": Array [
-    "2017-12-31",
-    "2018-12-31",
-    "2019-12-31",
-    "2020-12-31",
-  ],
-  "endDateCfQuartChart": Array [
-    "2020-03-31",
-    "2020-06-30",
-    "2020-09-30",
-    "2020-12-31",
-  ],
-  "endDateIsAnnuChart": Array [
-    "2017-12-31",
-    "2018-12-31",
-    "2019-12-31",
-    "2020-12-31",
-  ],
-  "endDateIsQuartChart": Array [
-    "2020-03-31",
-    "2020-06-30",
-    "2020-09-30",
-    "2020-12-31",
-  ],
-  "enterpriseToEbitda": "-65.88",
-  "enterpriseToRevenue": 261.976,
-  "enterpriseValue": 8234952704,
-  "exDividendDate": undefined,
-  "extraordinaryItems": undefined,
-  "extraordinaryItemsIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "extraordinaryItemsIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "fiftyDayAverage": 95.51,
-  "fiveYearAvgDividendYield": undefined,
-  "floatShares": 79705552,
-  "forwardEps": -2.17,
-  "forwardPE": "-40.18",
-  "freeCashFlowPerShareMRQ": -0.9782541473224473,
-  "freeCashFlowPerShareTTM": -0.47088290678307676,
-  "grossMargins": "-299.64%",
-  "grossProfit": -23086000,
-  "grossProfitIsAnnuChart": Array [
-    -30252000,
-    -51284000,
-    -77090000,
-    -94189000,
-  ],
-  "grossProfitIsQuartChart": Array [
-    -26763000,
-    -21204000,
-    -23136000,
-    -23086000,
-  ],
-  "grossProfits": -94189000,
-  "heldPercentInsiders": 0.01787,
-  "heldPercentInstitutions": "100.89%",
-  "incomeBeforeTax": -53111000,
-  "incomeBeforeTaxIsAnnuChart": Array [
-    -42952000,
-    -66598000,
-    -98149000,
-    -173387000,
-  ],
-  "incomeBeforeTaxIsQuartChart": Array [
-    -33520000,
-    -28072000,
-    -58684000,
-    -53111000,
-  ],
-  "incomeEPSChartAnnu": Array [
-    -0.4579914995617561,
-    -0.7101256725603892,
-    -1.0465498158522724,
-    -1.84880266656999,
-  ],
-  "incomeEPSChartQuart": Array [
-    -0.3574193300733392,
-    -0.2993280260685793,
-    -0.6257397364565584,
-    -0.5663155739715131,
-  ],
-  "incomeTaxExpense": 0,
-  "incomeTaxExpenseIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "incomeTaxExpenseIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "industry": "Biotechnology",
-  "institutionsCount": "298",
-  "interestExpense": undefined,
-  "interestExpenseIsAnnuChart": Array [
-    -1268000,
-    -1696000,
-    -1752000,
-    0,
-  ],
-  "interestExpenseIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "investments": -163757000,
-  "investmentsCfAnnuChart": Array [
-    -8471000,
-    1840000,
-    -150058000,
-    -156144000,
-  ],
-  "investmentsCfQuartChart": Array [
-    24844000,
-    35956000,
-    -53187000,
-    -163757000,
-  ],
-  "issuanceOfStock": 4860000,
-  "issuanceOfStockCfAnnuChart": Array [
-    43411000,
-    137270000,
-    164928000,
-    282348000,
-  ],
-  "issuanceOfStockCfQuartChart": Array [
-    1011000,
-    275547000,
-    930000,
-    4860000,
-  ],
-  "lastDividendDate": undefined,
-  "lastDividendValue": undefined,
-  "lastFiscalYearEnd": "2020-12-31",
-  "leveredFreeCashFlow": 2314875,
-  "leveredFreeCashFlowPerShare": 0.02468320619640576,
-  "longBusinessSummary": "Fate Therapeutics, Inc., a clinical-stage biopharmaceutical company, develops programmed cellular immunotherapies for cancer and immune disorders worldwide. Its NK- and T-cell immuno-oncology programs under development include FT516 for the treatment of acute myeloid leukemia (AML) B-cell lymphoma, and advanced solid tumor; FT596 to treat B-cell lymphoma and chronic lymphocytic leukemia; FT538 to treat AML and multiple myeloma; FT576 to treat multiple myeloma; FT819 to treat hematologic malignancies and solid tumors; FT536 to treat solid tumors; and FT500 for the treatment of advanced solid tumors, as well as ProTmune for the treatment of hematologic malignancies and rare genetic disorders. The company has a collaboration and option agreement with Ono Pharmaceutical Co. Ltd. for the development and commercialization of two off-the-shelf iPSC-derived CAR T-cell product candidates; strategic research collaboration and license agreement with Juno Therapeutics, Inc. to screen for and identify small molecule modulators that enhance the therapeutic properties of genetically-engineered T-cell immunotherapies; and a collaboration and option agreement with Janssen Biotech, Inc. Fate Therapeutics, Inc. was incorporated in 2007 and is headquartered in San Diego, California.",
-  "longTermDebtBsAnnuChart": Array [
-    14808000,
-    12446000,
-    0,
-    0,
-  ],
-  "longTermInvestmentsBsAnnuChart": Array [
-    0,
-    0,
-    39440000,
-    0,
-  ],
-  "longTermInvestmentsBsQuartChart": Array [
-    16139000,
-    0,
-    13233000,
-    0,
-  ],
-  "maxAge": undefined,
-  "maxAgeBsAnnuChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "maxAgeBsQuartChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "maxAgeCfAnnuChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "maxAgeCfQuartChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "maxAgeIsAnnuChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "maxAgeIsQuartChart": Array [
-    1,
-    1,
-    1,
-    1,
-  ],
-  "minorityInterest": undefined,
-  "minorityInterestIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "minorityInterestIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "monthEpsEstimate": -0.41,
-  "monthEpsEstimateFollowingQuarter": -0.42,
-  "monthEpsEstimateNextYear": -2.09,
-  "monthsEpsEstimate": -0.42,
-  "monthsEpsEstimateFollowingQuarter": -0.43,
-  "monthsEpsEstimateNextYear": -2.06,
-  "mostRecentQuarter": "2020-12-31",
-  "netBorrowingsCfAnnuChart": Array [
-    4236000,
-    -15000000,
-    -15000000,
-    0,
-  ],
-  "netIncome": -53111000,
-  "netIncomeApplicableToCommonShares": -53111000,
-  "netIncomeApplicableToCommonSharesIsAnnuChart": Array [
-    -42952000,
-    -66598000,
-    -98149000,
-    -173387000,
-  ],
-  "netIncomeApplicableToCommonSharesIsQuartChart": Array [
-    -33520000,
-    -28072000,
-    -58684000,
-    -53111000,
-  ],
-  "netIncomeCfAnnuChart": Array [
-    -42952000,
-    -66598000,
-    -98149000,
-    -173387000,
-  ],
-  "netIncomeCfQuartChart": Array [
-    -33520000,
-    -28072000,
-    -58684000,
-    -53111000,
-  ],
-  "netIncomeFromContinuingOps": -53111000,
-  "netIncomeFromContinuingOpsIsAnnuChart": Array [
-    -42952000,
-    -66598000,
-    -98149000,
-    -173387000,
-  ],
-  "netIncomeFromContinuingOpsIsQuartChart": Array [
-    -33520000,
-    -28072000,
-    -58684000,
-    -53111000,
-  ],
-  "netIncomeIsAnnuChart": Array [
-    -42952000,
-    -66598000,
-    -98149000,
-    -173387000,
-  ],
-  "netIncomeIsQuartChart": Array [
-    -33520000,
-    -28072000,
-    -58684000,
-    -53111000,
-  ],
-  "netIncomeToCommon": -173387008,
-  "netReceivables": 7015000,
-  "netReceivablesBsAnnuChart": Array [
-    0,
-    500000,
-    1000000,
-    7015000,
-  ],
-  "netReceivablesBsQuartChart": Array [
-    0,
-    1717000,
-    3243000,
-    7015000,
-  ],
-  "netTangibleAssets": 384442000,
-  "netTangibleAssetsBsAnnuChart": Array [
-    77186000,
-    160466000,
-    244753000,
-    384442000,
-  ],
-  "netTangibleAssetsBsQuartChart": Array [
-    219215000,
-    474108000,
-    424362000,
-    384442000,
-  ],
-  "nextFiscalYearEnd": "2022-12-31",
-  "nonIndexOwners": "ARK ETF Tr-ARK Genomic Revolution ETF: 4.20%
-Fidelity Growth Company Fund: 2.48%
-ARK ETF Tr-ARK Innovation ETF: 1.42%
-Janus Henderson Triton Fund: 1.39%
-Price (T.Rowe) Health Sciences Fund: 1.26%
-Price (T.Rowe) New Horizons Fund: 1.15%",
-  "nonRecurring": undefined,
-  "nonRecurringIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "nonRecurringIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "numAnaylstRecommendations": 6,
-  "numberOfAnalystOpinions": 17,
-  "operatingCashFlowPerShareMRQ": -0.8813500043717758,
-  "operatingCashflowTTM": -39229000,
-  "operatingIncome": -33399000,
-  "operatingIncomeIsAnnuChart": Array [
-    -42125000,
-    -67092000,
-    -100727000,
-    -128085000,
-  ],
-  "operatingIncomeIsQuartChart": Array [
-    -34492000,
-    -28707000,
-    -31487000,
-    -33399000,
-  ],
-  "operatingMarginTTM": -4.07473,
-  "operatingMargins": "deprecated",
-  "otherAssets": 28742000,
-  "otherAssetsBsAnnuChart": Array [
-    146000,
-    2711000,
-    1574000,
-    28742000,
-  ],
-  "otherAssetsBsQuartChart": Array [
-    16406000,
-    29208000,
-    28593000,
-    28742000,
-  ],
-  "otherCashflowsFromFinancingActivities": 50000,
-  "otherCashflowsFromFinancingActivitiesCfAnnuChart": Array [
-    -291000,
-    3510000,
-    490000,
-    490000,
-  ],
-  "otherCashflowsFromFinancingActivitiesCfQuartChart": Array [
-    440000,
-    50000,
-    50000,
-    50000,
-  ],
-  "otherCurrentLiab": 60362000,
-  "otherCurrentLiabBsAnnuChart": Array [
-    2117000,
-    9694000,
-    5595000,
-    60362000,
-  ],
-  "otherCurrentLiabBsQuartChart": Array [
-    6083000,
-    17786000,
-    33366000,
-    60362000,
-  ],
-  "otherItems": undefined,
-  "otherItemsIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "otherItemsIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "otherLiab": 58505000,
-  "otherLiabBsAnnuChart": Array [
-    2246000,
-    12854000,
-    4477000,
-    58505000,
-  ],
-  "otherLiabBsQuartChart": Array [
-    3914000,
-    55478000,
-    64727000,
-    58505000,
-  ],
-  "otherOperatingExpenses": undefined,
-  "otherOperatingExpensesIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "otherOperatingExpensesIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "otherStockholderEquity": 70000,
-  "otherStockholderEquityBsAnnuChart": Array [
-    -3000,
-    -2000,
-    22000,
-    70000,
-  ],
-  "otherStockholderEquityBsQuartChart": Array [
-    142000,
-    623000,
-    312000,
-    70000,
-  ],
-  "overallRisk": 8,
-  "payoutRatio": "0.00%",
-  "payoutRatioMRQ": 0,
-  "pegRatio": "4.09",
-  "percentRepurchasedMRQ": -0.000542577088404327,
-  "priceToBook": "19.90",
-  "priceToSalesTrailing12Months": "260.13",
-  "profitMargins": "0.00%",
-  "propertyPlantEquipment": 99392000,
-  "propertyPlantEquipmentBsAnnuChart": Array [
-    2550000,
-    5125000,
-    34171000,
-    99392000,
-  ],
-  "propertyPlantEquipmentBsQuartChart": Array [
-    81096000,
-    84161000,
-    87840000,
-    99392000,
-  ],
-  "quarterEpsEstimate": -0.42,
-  "quarterEpsEstimateFollowingQuarter": -0.43,
-  "quarterEpsEstimateNextYear": -2.03,
-  "quarterlyEPSActualEstimateChart": Array [
-    -0.11449787489043903,
-    -0.1775314181400973,
-    -0.2616374539630681,
-    -0.4622006666424975,
-    0,
-    -0.39,
-    -0.44,
-    0,
-    -0.27,
-    -0.35,
-    0,
-    -0.36,
-    -0.68,
-    0,
-    -0.39,
-    -0.61,
-    0,
-    0,
-  ],
-  "quarterlyRevenueChart": Array [
-    2515000,
-    5465000,
-    7558000,
-    15896000,
-    0,
-    0,
-  ],
-  "quickRatio": "5.73",
-  "recommendationKey": "buy",
-  "regularMarketPrice": 87.19,
-  "regularMarketVolume": "687.21k",
-  "researchDevelopment": undefined,
-  "researchDevelopmentIsAnnuChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "researchDevelopmentIsQuartChart": Array [
-    0,
-    0,
-    0,
-    0,
-  ],
-  "retainedEarnings": -556932000,
-  "retainedEarningsBsAnnuChart": Array [
-    -218798000,
-    -285396000,
-    -383545000,
-    -556932000,
-  ],
-  "retainedEarningsBsQuartChart": Array [
-    -417065000,
-    -445137000,
-    -503821000,
-    -556932000,
-  ],
-  "returnOnAssets": "-17.31%",
-  "returnOnEquity": "-55.11%",
-  "revenueAverage": 5900000,
-  "revenueEstimateAvg": 5900000,
-  "revenueEstimateFollowingQuarterAvg": 5930000,
-  "revenueEstimateFollowingQuarterGrowth": "-55.20%",
-  "revenueEstimateFollowingQuarterHigh": 16200000,
-  "revenueEstimateFollowingQuarterLow": 750000,
-  "revenueEstimateGrowth": "134.60%",
-  "revenueEstimateHigh": 16100000,
-  "revenueEstimateLow": 750000,
-  "revenueEstimateNextYearAvg": 28820000,
-  "revenueEstimateNextYearGrowth": "16.40%",
-  "revenueEstimateNextYearHigh": 69000000,
-  "revenueEstimateNextYearLow": 0,
-  "revenueGrowth": "467.30%",
-  "revenueHigh": 16100000,
-  "revenueLow": 750000,
-  "revenuePerShare": 0.382,
-  "salesPerShareMRQ": "0.68",
-  "salesPerShareTTM": 0.33517658775433606,
-  "sector": "Healthcare",
-  "sellingGeneralAdministrative": 10313000,
-  "sellingGeneralAdministrativeIsAnnuChart": Array [
-    11873000,
-    15808000,
-    23637000,
-    33896000,
-  ],
-  "sellingGeneralAdministrativeIsQuartChart": Array [
-    7729000,
-    7503000,
-    8351000,
-    10313000,
-  ],
-  "shareHolderRightsRisk": 8,
-  "sharesOutstanding": 93783400,
-  "sharesPercentSharesOut": "10.98%",
-  "sharesShort": 10301406,
-  "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 10077496,
-  "shortLongTermDebtBsAnnuChart": Array [
-    0,
-    2438000,
-    0,
-    0,
-  ],
-  "shortPercentOfFloat": 0.14899999,
-  "shortRatio": "11",
-  "shortTermInvestments": 315569000,
-  "shortTermInvestmentsBsAnnuChart": Array [
-    11997000,
-    10493000,
-    121613000,
-    315569000,
-  ],
-  "shortTermInvestmentsBsQuartChart": Array [
-    119918000,
-    100335000,
-    139675000,
-    315569000,
-  ],
-  "statementDataOk": true,
-  "targetHighPrice": 135,
-  "targetLowPrice": 88,
-  "targetMeanPrice": 113.65,
-  "totalAssets": 622457000,
-  "totalAssetsBsAnnuChart": Array [
-    105292000,
-    213032000,
-    302274000,
-    622457000,
-  ],
-  "totalAssetsBsQuartChart": Array [
-    321890000,
-    653594000,
-    626443000,
-    622457000,
-  ],
-  "totalCash": 482916000,
-  "totalCashFromFinancingActivities": 4910000,
-  "totalCashFromFinancingActivitiesCfAnnuChart": Array [
-    47356000,
-    140780000,
-    149928000,
-    282838000,
-  ],
-  "totalCashFromFinancingActivitiesCfQuartChart": Array [
-    1451000,
-    275547000,
-    930000,
-    4910000,
-  ],
-  "totalCashFromOperatingActivities": -20664000,
-  "totalCashFromOperatingActivitiesCfAnnuChart": Array [
-    -36817000,
-    -38650000,
-    -83175000,
-    -39229000,
-  ],
-  "totalCashFromOperatingActivitiesCfQuartChart": Array [
-    -26673000,
-    38841000,
-    -30733000,
-    -20664000,
-  ],
-  "totalCashPerShare": 5.149,
-  "totalCashflowsFromInvestingActivities": -166029000,
-  "totalCashflowsFromInvestingActivitiesCfAnnuChart": Array [
-    -10196000,
-    -463000,
-    -157453000,
-    -161076000,
-  ],
-  "totalCashflowsFromInvestingActivitiesCfQuartChart": Array [
-    23774000,
-    35320000,
-    -54141000,
-    -166029000,
-  ],
-  "totalCurrentAssets": 494323000,
-  "totalCurrentAssetsBsAnnuChart": Array [
-    102596000,
-    205196000,
-    227089000,
-    494323000,
-  ],
-  "totalCurrentAssetsBsQuartChart": Array [
-    208249000,
-    540225000,
-    496777000,
-    494323000,
-  ],
-  "totalCurrentLiabilities": 85564000,
-  "totalCurrentLiabilitiesBsAnnuChart": Array [
-    11049000,
-    27263000,
-    27806000,
-    85564000,
-  ],
-  "totalCurrentLiabilitiesBsQuartChart": Array [
-    24924000,
-    45322000,
-    54195000,
-    85564000,
-  ],
-  "totalDebt": 97298000,
-  "totalLiab": 238012000,
-  "totalLiabBsAnnuChart": Array [
-    28103000,
-    52563000,
-    57518000,
-    238012000,
-  ],
-  "totalLiabBsQuartChart": Array [
-    102672000,
-    179483000,
-    202078000,
-    238012000,
-  ],
-  "totalOperatingExpenses": 49295000,
-  "totalOperatingExpensesIsAnnuChart": Array [
-    46231000,
-    71832000,
-    111407000,
-    159519000,
-  ],
-  "totalOperatingExpensesIsQuartChart": Array [
-    37007000,
-    34172000,
-    39045000,
-    49295000,
-  ],
-  "totalOtherIncomeExpenseNet": -19712000,
-  "totalOtherIncomeExpenseNetIsAnnuChart": Array [
-    -827000,
-    494000,
-    2578000,
-    -45302000,
-  ],
-  "totalOtherIncomeExpenseNetIsQuartChart": Array [
-    972000,
-    635000,
-    -27197000,
-    -19712000,
-  ],
-  "totalRevenue": 15896000,
-  "totalRevenueIsAnnuChart": Array [
-    4106000,
-    4740000,
-    10680000,
-    31434000,
-  ],
-  "totalRevenueIsQuartChart": Array [
-    2515000,
-    5465000,
-    7558000,
-    15896000,
-  ],
-  "totalRevenueTTM": 31434000,
-  "totalStockholderEquity": 384442000,
-  "totalStockholderEquityBsAnnuChart": Array [
-    77186000,
-    160466000,
-    244753000,
-    384442000,
-  ],
-  "totalStockholderEquityBsQuartChart": Array [
-    219215000,
-    474108000,
-    424362000,
-    384442000,
-  ],
-  "trailingAnnualDividendRate": undefined,
-  "trailingAnnualDividendYield": undefined,
-  "trailingEps": -2.105,
-  "trailingPE": 0,
-  "treasuryStock": 70000,
-  "treasuryStockBsAnnuChart": Array [
-    -3000,
-    -2000,
-    22000,
-    70000,
-  ],
-  "treasuryStockBsQuartChart": Array [
-    142000,
-    623000,
-    312000,
-    70000,
-  ],
-  "twoHundredDayAverage": 72.944046,
-  "upgradeDowngradeHistory": " SVB Leerink:  => Outperform
- Wells Fargo:  => Overweight
- Wedbush: Outperform => Neutral
- Cantor Fitzgerald:  => Overweight
- Mizuho:  => Buy
- Piper Sandler:  => Overweight
-_____-1 Qtr_____
- BMO Capital:  => Market Perform
-_____-2 Qtr_____
- HC Wainwright & Co.:  => Buy
- Oppenheimer:  => Outperform
 ",
   "weekEpsEstimate": -0.43,
   "weekEpsEstimateFollowingQuarter": -0.45,
@@ -13732,6 +12718,12 @@ Object {
     -16071000,
     10929000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.26%
+Vanguard Small-Cap Index Fund: 1.89%
+Vanguard Extended Market Index Fund: 1.06%
+Vanguard Small-Cap Growth Index Fund: 0.62%
+Vanguard Small Cap Value Index Fund: 0.56%
+Fidelity Extended Market Index Fund: 0.38%",
   "industry": "Broadcasting",
   "institutionsCount": "5",
   "intangibleAssets": 216449000,
@@ -14208,9 +13200,7 @@ American Century Small Cap Growth Fund: 0.22%",
   "shareHolderRightsRisk": undefined,
   "sharesOutstanding": 108848000,
   "sharesPercentSharesOut": "14.55%",
-  "sharesShort": 15837784,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 20358358,
   "shortLongTermDebt": 24255000,
   "shortLongTermDebtBsAnnuChart": Array [
     0,
@@ -14224,7 +13214,7 @@ American Century Small Cap Growth Fund: 0.22%",
     9696000,
     24255000,
   ],
-  "shortPercentOfFloat": 0.1665,
+  "shortPercentOfFloat": "16.65%",
   "shortRatio": "0.86",
   "statementDataOk": true,
   "targetHighPrice": 60,
@@ -14818,6 +13808,13 @@ Object {
     932000000,
     1035000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.81%
+Vanguard 500 Index Fund: 1.99%
+SPDR Dow Jones Industrial Average ETF: 1.59%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.90%
+Select Sector SPDR Fund-Financial: 0.87%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%",
   "industry": "Capital Markets",
   "institutionsCount": "1,751",
   "intangibleAssets": 630000000,
@@ -15520,8 +14517,8 @@ Price (T.Rowe) Blue Chip Growth Fund Inc.: 0.95%",
   "upgradeDowngradeHistory": " Morgan Stanley:  => Underweight
  Citigroup:  => Buy
  Credit Suisse:  => Outperform
- Barclays: Equal-Weight => Overweight
 _____-1 Qtr_____
+ Barclays: Equal-Weight => Overweight
  BMO Capital:  => Outperform
  B of A Securities:  => Buy
  JMP Securities:  => Market Outperform
@@ -15531,7 +14528,6 @@ _____-2 Qtr_____
  Deutsche Bank: Buy => Hold
  Oppenheimer:  => Outperform
  CFRA: Sell => Hold
- Wells Fargo:  => Overweight
 ",
   "weekEpsEstimate": 7.72,
   "weekEpsEstimateFollowingQuarter": 7.49,
@@ -15956,6 +14952,10 @@ Object {
     926000,
     1613000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.64%
+Vanguard Extended Market Index Fund: 1.28%
+Vanguard Small-Cap Index Fund: 1.11%
+Vanguard Mid-Cap Index Fund: 1.06%",
   "industry": "Software—Application",
   "institutionsCount": "496",
   "intangibleAssets": 35225000,
@@ -16472,9 +15472,7 @@ Fidelity Growth Company Fund: 1.15%",
   "shareHolderRightsRisk": 5,
   "sharesOutstanding": 46335200,
   "sharesPercentSharesOut": "2.30%",
-  "sharesShort": 1065949,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 1102508,
   "shortLongTermDebt": 7837000,
   "shortLongTermDebtBsAnnuChart": Array [
     0,
@@ -16488,7 +15486,7 @@ Fidelity Growth Company Fund: 1.15%",
     0,
     7837000,
   ],
-  "shortPercentOfFloat": 0.0276,
+  "shortPercentOfFloat": "2.76%",
   "shortRatio": "1.83",
   "shortTermInvestments": 873073000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -16682,8 +15680,8 @@ Fidelity Growth Company Fund: 1.15%",
  Raymond James: Outperform => Strong Buy
  Piper Sandler:  => Overweight
  BMO Capital:  => Outperform
- Wells Fargo: Equal-Weight => Overweight
 _____-1 Qtr_____
+ Wells Fargo: Equal-Weight => Overweight
  KeyBanc:  => Overweight
  UBS:  => Neutral
 _____-2 Qtr_____
@@ -17127,6 +16125,8 @@ Object {
     690373000,
     -331722000,
   ],
+  "indexOwners": "Vanguard International Stock Index-Total Intl Stock Indx: 0.97%
+Vanguard International Stock Index-Emerging Markets Stk: 0.84%",
   "industry": "Internet Retail",
   "institutionsCount": "1,131",
   "intangibleAssets": 17587801000,
@@ -17674,9 +16674,7 @@ ACAP Strategic Fund: 0.20%",
   "shareHolderRightsRisk": 9,
   "sharesOutstanding": 1551750016,
   "sharesPercentSharesOut": "1.81%",
-  "sharesShort": 28051819,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 30242872,
   "shortLongTermDebt": 3259882000,
   "shortLongTermDebtBsAnnuChart": Array [
     12684881000,
@@ -17875,8 +16873,8 @@ ACAP Strategic Fund: 0.20%",
   "twoHundredDayAverage": 86.15759,
   "upgradeDowngradeHistory": " HSBC:  => Buy
  Bernstein:  => Outperform
- Stifel: Hold => Buy
 _____-1 Qtr_____
+ Stifel: Hold => Buy
 _____-2 Qtr_____
  Mizuho:  => Buy
  CFRA:  => Buy
@@ -18323,6 +17321,12 @@ Object {
     65000000,
     80000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.73%
+Vanguard Mid-Cap Index Fund: 2.18%
+Vanguard 500 Index Fund: 2.04%
+SPDR S&P 500 ETF Trust: 1.03%
+Fidelity 500 Index Fund: 0.92%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.84%",
   "industry": "Software—Infrastructure",
   "institutionsCount": "788",
   "intangibleAssets": 999000000,
@@ -18816,9 +17820,7 @@ Growth Fund Of America Inc: 1.11%",
   "shareHolderRightsRisk": 1,
   "sharesOutstanding": 581900992,
   "sharesPercentSharesOut": "3.23%",
-  "sharesShort": 18802829,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 19643600,
   "shortLongTermDebt": 63000000,
   "shortLongTermDebtBsAnnuChart": Array [
     1310000000,
@@ -18832,7 +17834,7 @@ Growth Fund Of America Inc: 1.11%",
     47000000,
     63000000,
   ],
-  "shortPercentOfFloat": 0.045,
+  "shortPercentOfFloat": "4.50%",
   "shortRatio": "3",
   "shortTermInvestments": 27000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -19399,6 +18401,7 @@ Object {
     42989000000,
     67094000000,
   ],
+  "indexOwners": "",
   "industry": "Electronic Gaming & Multimedia",
   "institutionsCount": "75",
   "intangibleAssets": 14210000000,
@@ -20328,6 +19331,12 @@ Object {
     0,
     0,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.27%
+Vanguard Small-Cap Index Fund: 1.90%
+SPDR (R) Ser Tr-SPDR (R) S&P (R) Biotech ETF: 1.77%
+iShares Russell 2000 ETF: 1.71%
+Vanguard Small-Cap Growth Index Fund: 1.24%
+Vanguard Extended Market Index Fund: 1.19%",
   "industry": "Biotechnology",
   "institutionsCount": "249",
   "interestExpense": undefined,
@@ -20628,10 +19637,8 @@ Price (T.Rowe) New Horizons Fund: 0.87%",
   "shareHolderRightsRisk": 8,
   "sharesOutstanding": 67726304,
   "sharesPercentSharesOut": "11.94%",
-  "sharesShort": 8086760,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 9450530,
-  "shortPercentOfFloat": 0.1586,
+  "shortPercentOfFloat": "15.86%",
   "shortRatio": "5.09",
   "shortTermInvestments": 437351000,
   "shortTermInvestmentsBsQuartChart": Array [
@@ -20757,8 +19764,8 @@ Price (T.Rowe) New Horizons Fund: 0.87%",
   "twoHundredDayAverage": 46.114338,
   "upgradeDowngradeHistory": " JMP Securities:  => Outperform
  Chardan Capital:  => Buy
- Raymond James:  => Outperform
 _____-1 Qtr_____
+ Raymond James:  => Outperform
  Baird: Outperform => Neutral
  Truist Securities:  => Buy
  Wells Fargo:  => Overweight
@@ -21224,6 +20231,7 @@ Object {
     478000000,
     460000000,
   ],
+  "indexOwners": "",
   "industry": "Drug Manufacturers—General",
   "institutionsCount": "1,220",
   "intangibleAssets": 32109000000,
@@ -21749,9 +20757,7 @@ John Hancock Mutual Fds III-Disciplined Value Fd: 0.09%",
   "shareHolderRightsRisk": 7,
   "sharesOutstanding": 2256819968,
   "sharesPercentSharesOut": "0.30%",
-  "sharesShort": 6696425,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 5352366,
   "shortLongTermDebt": 2466000000,
   "shortLongTermDebtBsAnnuChart": Array [
     466000000,
@@ -22363,6 +21369,9 @@ Object {
     49000000,
     -147000000,
   ],
+  "indexOwners": "Vanguard International Stock Index-Total Intl Stock Indx: 1.35%
+Vanguard Tax Managed Fund-Vanguard Developed Markets Index Fund: 0.56%
+Vanguard Intl Equity Index Fds-FTSE All World ex U.S. Index Fund: 0.16%",
   "industry": "Insurance—Life",
   "institutionsCount": "247",
   "intangibleAssets": 7132000000,
@@ -23470,6 +22479,14 @@ Object {
     47000,
     437000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.63%
+iShares Russell 2000 ETF: 2.31%
+Vanguard Small-Cap Index Fund: 2.29%
+Vanguard Extended Market Index Fund: 1.38%
+Vanguard Small Cap Value Index Fund: 1.33%
+iShares Russell 2000 Value ETF: 1.02%
+Vanguard Consumer Staples Index Fund: 0.80%
+Fidelity Small Cap Index Fund: 0.67%",
   "industry": "Pharmaceutical Retailers",
   "institutionsCount": "247",
   "intangibleAssets": 291013000,
@@ -23982,16 +22999,14 @@ PIMCO Equity Series-PIMCO RAE U.S. Small  Fd: 2.26%",
   "shareHolderRightsRisk": 1,
   "sharesOutstanding": 55224400,
   "sharesPercentSharesOut": "13.59%",
-  "sharesShort": 7507622,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 9726994,
   "shortLongTermDebtBsAnnuChart": Array [
     90000,
     90000,
     0,
     0,
   ],
-  "shortPercentOfFloat": 0.1529,
+  "shortPercentOfFloat": "15.29%",
   "shortRatio": "2.43",
   "shortTermInvestmentsBsAnnuChart": Array [
     6874000,
@@ -24662,6 +23677,12 @@ Object {
     152000000,
     -178000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.82%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.02%
+Fidelity 500 Index Fund: 0.91%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+iShares Core S&P 500 ETF: 0.77%",
   "industry": "Aerospace & Defense",
   "institutionsCount": "2,440",
   "intangibleAssets": 40539000000,
@@ -25817,6 +24838,11 @@ Object {
     2408000,
     7152000,
   ],
+  "indexOwners": "iShares Core S&P Midcap ETF: 2.61%
+Vanguard Extended Market Index Fund: 1.38%
+SPDR S&P Mid Cap 400 ETF Trust: 0.89%
+IShares S&P Mid Cap 400 Growth ETF: 0.73%
+First Trust Nasdaq (R) Clean Edge (R) Green Energy Index Fund: 0.69%",
   "industry": "Solar",
   "institutionsCount": "652",
   "intangibleAssets": 67818000,
@@ -26345,9 +25371,7 @@ JP Morgan  Mid Cap Growth Fund: 0.52%",
   "shareHolderRightsRisk": 5,
   "sharesOutstanding": 51581600,
   "sharesPercentSharesOut": "4.79%",
-  "sharesShort": 2469931,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 2442051,
   "shortLongTermDebt": 16894000,
   "shortLongTermDebtBsAnnuChart": Array [
     0,
@@ -26361,7 +25385,7 @@ JP Morgan  Mid Cap Growth Fund: 0.52%",
     15642000,
     16894000,
   ],
-  "shortPercentOfFloat": 0.048800003,
+  "shortPercentOfFloat": "4.88%",
   "shortRatio": "2.16",
   "shortTermInvestments": 203783000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -26994,6 +26018,9 @@ Object {
     102000000,
     53000000,
   ],
+  "indexOwners": "Vanguard International Stock Index-Total Intl Stock Indx: 1.52%
+Vanguard Tax Managed Fund-Vanguard Developed Markets Index Fund: 0.64%
+First Tr Exchange Traded Fd-First Tr Value Line Dividend Index: 0.21%",
   "industry": "Insurance—Diversified",
   "institutionsCount": "594",
   "intangibleAssets": 2627000000,
@@ -27490,9 +26517,7 @@ iShares MSCI Canada ETF: 0.19%",
   "shareHolderRightsRisk": 1,
   "sharesOutstanding": 585200000,
   "sharesPercentSharesOut": "0.50%",
-  "sharesShort": 2928296,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 1261006,
   "shortPercentOfFloat": undefined,
   "shortRatio": "4.36",
   "shortTermInvestments": 2873000000,
@@ -28114,6 +27139,14 @@ Object {
     766000000,
     -2038000000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.82%
+Vanguard 500 Index Fund: 2.00%
+SPDR S&P 500 ETF Trust: 1.01%
+Fidelity 500 Index Fund: 0.91%
+Vanguard Institutional Index Fund-Institutional Index Fund: 0.82%
+iShares Core S&P 500 ETF: 0.75%
+Vanguard Index-Value Index Fund: 0.67%
+Vanguard Whitehall Funds-High Dividend Yield Index Fund: 0.35%",
   "industry": "Telecom Services",
   "institutionsCount": "3,006",
   "intangibleAssets": 146316000000,
@@ -28651,9 +27684,7 @@ DFA U.S. Large Cap Value Series: 0.35%",
   "shareHolderRightsRisk": 3,
   "sharesOutstanding": 7138460160,
   "sharesPercentSharesOut": "1.62%",
-  "sharesShort": 115573551,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 113555497,
   "shortLongTermDebt": 3281000000,
   "shortLongTermDebtBsAnnuChart": Array [
     38372000000,
@@ -28667,7 +27698,7 @@ DFA U.S. Large Cap Value Series: 0.35%",
     5444000000,
     3281000000,
   ],
-  "shortPercentOfFloat": 0.0162,
+  "shortPercentOfFloat": "1.62%",
   "shortRatio": "2.71",
   "shortTermInvestments": 29000000,
   "shortTermInvestmentsBsAnnuChart": Array [
@@ -28853,12 +27884,12 @@ DFA U.S. Large Cap Value Series: 0.35%",
   "twoHundredDayAverage": 28.819927,
   "upgradeDowngradeHistory": " Oppenheimer: Outperform => Perform
  Credit Suisse:  => Neutral
- Raymond James: Market Perform => Outperform
 _____-1 Qtr_____
+ Raymond James: Market Perform => Outperform
  Morgan Stanley: Overweight => Equal-Weight
  Wolfe Research:  => Peer Perform
- KeyBanc: Sector Weight => Underweight
 _____-2 Qtr_____
+ KeyBanc: Sector Weight => Underweight
  ScotiaBank: Sector Perform => Sector Underperform
  Deutsche Bank:  => Buy
  DZ Bank: Hold => Sell
@@ -29287,6 +28318,10 @@ Object {
     5078000,
     5773000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.68%
+iShares Russell 2000 ETF: 2.31%
+Vanguard Extended Market Index Fund: 1.44%
+iShares Russell 2000 Value ETF: 1.06%",
   "industry": "Banks—Regional",
   "institutionsCount": "184",
   "intangibleAssets": 8866000,
@@ -29789,9 +28824,7 @@ DFA U.S. Micro Cap Series: 0.80%",
   "shareHolderRightsRisk": 7,
   "sharesOutstanding": 29317600,
   "sharesPercentSharesOut": "1.34%",
-  "sharesShort": 392677,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 369375,
   "shortLongTermDebt": 15000000,
   "shortLongTermDebtBsAnnuChart": Array [
     20228000,
@@ -29805,7 +28838,7 @@ DFA U.S. Micro Cap Series: 0.80%",
     15010000,
     15000000,
   ],
-  "shortPercentOfFloat": 0.0137,
+  "shortPercentOfFloat": "1.37%",
   "shortRatio": "2.59",
   "shortTermInvestmentsBsAnnuChart": Array [
     28288000,
@@ -30398,6 +29431,10 @@ Object {
     -1162000,
     786000,
   ],
+  "indexOwners": "Vanguard Total Stock Market Index Fund: 2.58%
+Vanguard Mid-Cap Index Fund: 2.07%
+Vanguard Extended Market Index Fund: 1.36%
+Vanguard Growth Index Fund: 0.73%",
   "industry": "Software—Application",
   "institutionsCount": "682",
   "intangibleAssets": 17885000,
@@ -30911,10 +29948,8 @@ Price (T.Rowe) Growth Stock Trust: 0.63%",
   "shareHolderRightsRisk": 10,
   "sharesOutstanding": 501489984,
   "sharesPercentSharesOut": "7.64%",
-  "sharesShort": 44354775,
   "sharesShortPreviousMonthDate": "2021-01-29",
-  "sharesShortPriorMonth": 39937633,
-  "shortPercentOfFloat": 0.121199995,
+  "shortPercentOfFloat": "12.12%",
   "shortRatio": "5.54",
   "shortTermInvestments": 505895000,
   "shortTermInvestmentsBsAnnuChart": Array [
