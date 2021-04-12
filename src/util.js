@@ -190,18 +190,22 @@ const promptLogin = newPage => {
     )
 }
 
-const pauseExecution = async (ticker, tickers) => {
-  // Pause every 5 tickers
+const pause = async ms => {
+  return await new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const pauseExecutionPerNTickers = async (ticker, tickers) => {
+  // Pause every 10 tickers
   const tickerIndex = tickers.indexOf(ticker)
-  if ((tickerIndex + 1) % 6 === 0) {
+  if ((tickerIndex + 1) % 11 === 0) {
     console.log(`((pause for ${PAUSE_MS}))`)
-    await new Promise(resolve => setTimeout(resolve, PAUSE_MS))
+    await pause(PAUSE_MS)
   }
 }
 
 const promptForPause = async () => {
   const pauseTimeout = await promptUser("Pause Timeout: ")
-  global.PAUSE_MS = pauseTimeout ? pauseTimeout * 1000 * 60 : PAUSE_MS
+  global.PAUSE_MS = pauseTimeout ? pauseTimeout * 1000 : PAUSE_MS
   console.log("PAUSE MS", PAUSE_MS)
 }
 
@@ -259,7 +263,8 @@ module.exports = {
   millBillStrToNum,
   newBrowserPage,
   parseStreetBulletData,
-  pauseExecution,
+  pauseExecutionPerNTickers,
+  pause,
   prevSiblingTextContains,
   prevSiblingTextIs,
   promptForPause,

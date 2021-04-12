@@ -16,7 +16,7 @@ const {
   getFidelitySecretUrl,
   prevSiblingTextIs,
   followingSiblingTextIs,
-  pauseExecution,
+  pauseExecutionPerNTickers,
   extractNumbers,
 } = require("./util")
 
@@ -67,7 +67,7 @@ module.exports = async (tickers, browser) => {
       : ""
 
     // PAUSE
-    await pauseExecution(ticker, tickers)
+    await pauseExecutionPerNTickers(ticker, tickers)
 
     // B of A
 

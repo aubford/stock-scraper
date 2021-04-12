@@ -9,7 +9,7 @@ const {
 } = require("./api")
 const {
   getFidelitySecretUrl,
-  pauseExecution,
+  pauseExecutionPerNTickers,
   scrapbookWriteOut,
   promptForTickers,
   promptUser,
@@ -38,7 +38,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   console.log("Searching for tickers:", tickers)
 
   for (const ticker of tickers) {
-    await pauseExecution(ticker, tickers)
+    await pauseExecutionPerNTickers(ticker, tickers)
 
     let url
     if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {

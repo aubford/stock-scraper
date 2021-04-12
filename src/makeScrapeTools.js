@@ -1,5 +1,5 @@
 const { zip, fromPairs } = require("lodash")
-const { wrapPage, newBrowserPage, evalX } = require("./util")
+const { wrapPage, pause, newBrowserPage, evalX } = require("./util")
 
 /**
  * @typedef {function} FetchPdfData
@@ -54,11 +54,20 @@ class PageDataFetcher {
       { waitUntil: "networkidle0" }
     )
 
-    const frameMain = await this.originPage
-      .frames()
-      .find(frame => frame.name() === "main")
+    const getMainFrame = async () => {
+      const frameMain = this.originPage.frames().find(frame => frame.name() === "main")
+      if (!frameMain) {
+        console.error("****** FRAME MAIN NOT FOUND ISSUE ******")
+        await pause(5000)
+        return this.originPage.frames().find(frame => frame.name() === "main")
+      } else {
+        return frameMain
+      }
+    }
 
-    const analystReportsFrame = frameMain
+    const mainFrame = await getMainFrame()
+
+    const analystReportsFrame = mainFrame
       .childFrames()
       .find(frame => frame.name() === "tdaxModuleAnalystReportsHighchartsIframe")
 
