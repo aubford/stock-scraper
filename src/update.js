@@ -19,13 +19,10 @@ const exit = () => {
 puppeteer.connect(CONNECTION).then(async browser => {
   await promptForPause()
 
-  const closeLoginPages = await promptLogin((url, options) =>
-    newBrowserPage(browser, url, options)
-  )
+  await promptLogin((url, options) => newBrowserPage(browser, url, options))
   const sectorUserInputVal = await promptUser("Sectors:")
 
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
-  closeLoginPages()
 
   const oldFile = backupReturnStockDataFile()
   const stockData = omit(oldFile, ["buffetData", "magicTickers"])
@@ -50,7 +47,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const sectorsSortedByUpdateDate = sortBy(
     sectors,
     sector => sectorIndex[sector][0].scrapeDataUpdatedAt
-  )
+  ).reverse()
 
   const sectorsToFetch = sectorUserInputVal
     ? sectorsSortedByUpdateDate.slice(0, sectorUserInputVal)
