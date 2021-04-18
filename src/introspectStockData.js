@@ -63,7 +63,9 @@ const getUpdateCalendar = stockData => {
     }
     return "None"
   })
-  return mapValues(groupedByDate, dateStocks => dateStocks.map(({ ticker }) => ticker))
+  return mapValues(groupedByDate, dateStocks =>
+    dateStocks.map(({ ticker }) => ticker).sort()
+  )
 }
 
 const getSectorLastUpdatedIndex = stockData =>
