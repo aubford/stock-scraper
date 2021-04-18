@@ -115,7 +115,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
               splitHoldingChange[0]
             } -> ${splitPctPortfolio[1]}]`
           })
-          .join("\n\n")
+          .join("\n")
       : ""
 
   // Insiders
