@@ -1,5 +1,14 @@
 require("puppeteer-core")
-const { merge, first, last, endsWith, fromPairs, zip, chunk, zipWith } = require("lodash")
+const {
+  assignWith,
+  first,
+  last,
+  endsWith,
+  fromPairs,
+  zip,
+  chunk,
+  zipWith,
+} = require("lodash")
 const readline = require("readline")
 /**
  * @typedef {Page} MyPage
@@ -149,7 +158,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   const stockDataFile = fs.readFileSync(stockDataLocation)
   const existingData = JSON.parse(stockDataFile)
   const writeToFile = shouldMerge
-    ? merge(existingData, data)
+    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
     : {
         ...existingData,
         ...data,

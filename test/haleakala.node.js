@@ -27,7 +27,7 @@ const waitForSeven = () => {
   return nowMillis <= sevenAM
 }
 
-const dateStr = moment(now).add(7, "days").format("dddd, MMMM D, YYYY")
+const dateStr = moment(now).add(2, "days").format("dddd, MMMM D, YYYY")
 
 const tourCalendarSelector = `#tourCalendarWithKey`
 const dateSquareSelector = `//*[@id="page-content"]/main/div[2]//td[@aria-label="${dateStr}"]`
