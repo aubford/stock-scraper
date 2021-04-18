@@ -16,9 +16,11 @@ const { toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
 const stockJson = require("../test/stockData.json")
 const stockData = omit(stockJson, ["magicTickers", "buffetData"])
 
-const testData = require("../test/data/rtxData.json")
+const testData = require("../test/data/dhrData.json")
 const yahooData = testData.quoteSummary.result[0]
 
-getSectorLastUpdatedIndex(stockData) /*?*/
-getEarningsDates(stockData) /*?*/
-getUpdateCalendar(stockData) /*?*/
+//getSectorLastUpdatedIndex(stockData) /*?*/
+//getEarningsDates(stockData) /*?*/
+//getUpdateCalendar(stockData) /*?*/
+
+//stockData["DHR"].quarterlyEPSActualEstimateChart /*?*/
