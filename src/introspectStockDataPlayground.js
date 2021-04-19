@@ -19,8 +19,7 @@ const stockData = omit(stockJson, ["magicTickers", "buffetData"])
 const testData = require("../test/data/dhrData.json")
 const yahooData = testData.quoteSummary.result[0]
 
-//getSectorLastUpdatedIndex(stockData) /*?*/
 //getEarningsDates(stockData) /*?*/
 //getUpdateCalendar(stockData) /*?*/
-
-//stockData["DHR"].quarterlyEPSActualEstimateChart /*?*/
+//getSectorIndex(stockData) /*?*/
+//getSectorLastUpdatedIndex(stockData) /*?+*/
