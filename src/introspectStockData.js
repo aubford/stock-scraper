@@ -22,7 +22,7 @@ const sectorMap = new Map([
   ["CC", "Consumer Cyclical"],
   ["CD", "Consumer Defensive"],
   ["U", "Utilities"],
-  ["B", "Basic Materials"],
+  ["M", "Basic Materials"],
   ["E", "Energy"],
   ["R", "Real Estate"],
 ])

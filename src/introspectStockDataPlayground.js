@@ -22,4 +22,4 @@ const yahooData = testData.quoteSummary.result[0]
 //getEarningsDates(stockData) /*?*/
 //getUpdateCalendar(stockData) /*?*/
 //getSectorIndex(stockData) /*?*/
-//getSectorLastUpdatedIndex(stockData) /*?+*/
+getSectorLastUpdatedIndex(stockData) /*?+*/
