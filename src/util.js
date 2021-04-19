@@ -1,4 +1,5 @@
 require("puppeteer-core")
+const moment = require("moment")
 const {
   assignWith,
   first,
@@ -258,6 +259,8 @@ const millBillStrToNum = str => {
   return num
 }
 
+const makePrettyDate = () => moment().format("MMM DD h:mma")
+
 module.exports = {
   backupReturnStockDataFile,
   evalX,
@@ -283,4 +286,5 @@ module.exports = {
   scrapbookWriteOut,
   writeFile,
   wrapPage,
+  makePrettyDate,
 }

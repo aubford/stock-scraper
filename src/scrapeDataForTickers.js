@@ -18,6 +18,7 @@ const {
   followingSiblingTextIs,
   pauseExecutionPerNTickers,
   extractNumbers,
+  makePrettyDate,
 } = require("./util")
 
 module.exports = async (tickers, browser) => {
@@ -260,6 +261,7 @@ module.exports = async (tickers, browser) => {
 
     newStockData[ticker] = {
       scrapeDataUpdatedAt: Date.now(),
+      updatedAt: makePrettyDate(),
       argusAnalystFinancialStrength,
       argusAnalystFiveYrEpsGrowth,
       argusAnalystOneYrDivGrowth,

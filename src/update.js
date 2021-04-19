@@ -29,11 +29,11 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const sectorIndex = getSectorIndex(stockData)
 
   const updateSector = async sector => {
-    console.log(`** Updating Sector: ${sector} **`)
+    console.log(`+++++++ Updating Sector: ${sector} +++++++`)
     const tickers = sectorIndex[sector]
     const newStockData = await scrapeDataForTickers(tickers, browser)
 
-    scrapbookWriteOut(newStockData, true)
+    scrapbookWriteOut(newStockData)
     console.log(`*************** SECTOR UPDATED OK: ${sector} *****************`)
   }
 
@@ -45,9 +45,9 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   const sectors = Object.keys(sectorIndex)
   const sectorsSortedByUpdateDate = sortBy(
-    sectors,
+    [...sectors],
     sector => sectorIndex[sector][0].scrapeDataUpdatedAt
-  ).reverse()
+  )
 
   const sectorsToFetch = sectorUserInputVal
     ? sectorsSortedByUpdateDate.slice(0, sectorUserInputVal)

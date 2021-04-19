@@ -7,6 +7,7 @@ const {
   millBillStrToNum,
   hasCFRA,
   extractNumbers,
+  makePrettyDate,
 } = require("./util")
 
 const cleanFidelityStrings = val =>
@@ -147,6 +148,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   await fetcher.close()
 
   return {
+    tipUpdatedAt: makePrettyDate(),
     tipInsiderEvents,
     tipScore,
     tipAnalystRatings,
@@ -196,6 +198,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   }
 
   return {
+    ncUpdatedAt: makePrettyDate(),
     ncEps,
     ncFCF,
     ncGap,
@@ -285,9 +288,11 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
     ],
   })
 
-  const zacksPrice = zacksPriceStr ? zacksPriceStr.replace("$", "") : 0
+  const zacksPriceStrClean = zacksPriceStr ? zacksPriceStr.replace("$", "") : ""
+  const zacksPrice = Number(zacksPriceStrClean) || ""
 
   return {
+    zacksUpdatedAt: makePrettyDate(),
     zacksRank,
     zacksTarget,
     zacksRecommendation,
@@ -516,6 +521,7 @@ exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
 
   return mapValues(
     {
+      fidelityStatsUpdatedAt: makePrettyDate(),
       fidelityPrice,
       fidelityTimeAndDate,
       fidelityPe,
@@ -722,6 +728,7 @@ exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) =>
   await fidelityFetcher.close()
 
   return {
+    fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityStarmineFive: formatFidelityStarmine(
       fidelityStarmineFiveName,
       fidelityStarmineFiveRating
@@ -800,6 +807,7 @@ exports.fetchWSJData = async ticker => {
 
     const mainPageDoc = Cheerio.load(mainPage)
     return {
+      wsjUpdatedAt: makePrettyDate(),
       wsjChart: html
         .contents()
         .get()
@@ -840,7 +848,12 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
       })
     : []
 
-  return { cfraTarget: extractNumbers(cfraTargetStr), cfraFairValue, cfraDate }
+  return {
+    cfraTarget: extractNumbers(cfraTargetStr),
+    cfraFairValue,
+    cfraDate,
+    cfraUpdatedAt: makePrettyDate(),
+  }
 }
 
 const avApiKey = "1FSCTLZ457VMJH2F"
