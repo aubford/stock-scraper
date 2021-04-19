@@ -15,7 +15,7 @@
     "launch": "killall Google\\ Chrome; /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-features=site-per-process",
     "updateWs": "curl localhost:9222/json/version > ws.json",
     "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.node.js",
-    "prettyStock": "prettier --write ./test/stockData.json",
+    "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js"
   },
   "author": "",
