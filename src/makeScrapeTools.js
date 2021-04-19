@@ -71,7 +71,10 @@ class PageDataFetcher {
       .childFrames()
       .find(frame => frame.name() === "tdaxModuleAnalystReportsHighchartsIframe")
 
-    const hasButton = await analystReportsFrame.$(`div.highcharts-footer > button`)
+    const hasButton =
+      analystReportsFrame &&
+      (await analystReportsFrame.$(`div.highcharts-footer > button`))
+
     if (hasButton) {
       await analystReportsFrame.click(`div.highcharts-footer > button`).catch(() => {
         console.log(
@@ -167,7 +170,7 @@ class PageDataFetcher {
     const {
       [ARGUS_ANALYST_KEY]: { href: argusAnalystLink, text: argusAnalystDate } = {},
       [ARGUS_RESEARCH_KEY]: { href: argusResearchLink, text: argusResearchDate } = {},
-      [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {},
+      [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {}
     } = fromPairs(zip(fidelityReportNameArr, reportLinks))
 
     return {
@@ -176,7 +179,7 @@ class PageDataFetcher {
       argusResearchDate,
       argusResearchLink,
       zacksDate,
-      zacksLink,
+      zacksLink
     }
   }
 
@@ -273,7 +276,7 @@ module.exports = (ticker, browser) => {
       analystName,
       xPathArr,
       waitForPostScroll,
-      timeout = XPATH_TIMEOUT,
+      timeout = XPATH_TIMEOUT
     }) {
       if (!url) {
         console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
@@ -342,6 +345,6 @@ module.exports = (ticker, browser) => {
      */
     getPageDataFetcher(analystName, options) {
       return new PageDataFetcher(analystName, ticker, browser, options)
-    },
+    }
   }
 }
