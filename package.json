@@ -18,7 +18,7 @@
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
     "earnings": "node --require ./src/introspectStockDataPlayground.js --eval 'getEarnings()'",
-    "sectorUpdated": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'"
+    "uplog": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'"
   },
   "author": "",
   "license": "ISC",
