@@ -16,12 +16,15 @@
     "updateWs": "curl localhost:9222/json/version > ws.json",
     "haleakala": "npm run updateWs && node --require ./preload.js test/haleakala.node.js",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
-    "makeTestData": "node --require ./preload.js test/makeTestData.node.js"
+    "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
+    "earnings": "node --require ./src/introspectStockDataPlayground.js --eval 'getEarnings()'",
+    "sectorUpdated": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/jest": "^26.0.21",
+    "chalk": "^4.1.0",
     "cheerio": "^1.0.0-rc.5",
     "himalaya": "^1.1.0",
     "jest": "^26.6.3",
