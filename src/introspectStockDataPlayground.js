@@ -29,7 +29,7 @@ global.getSectorUpdated = () => {
 }
 global.getEarnings = () => {
   const earningsDates = getEarningsDates(stockData)
-  const fourDaysAgo = moment().subtract(5, "days")
+  const fourDaysAgo = moment().subtract(10, "days")
   const pairs = toPairs(earningsDates).filter(([date]) => new Date(date) > fourDaysAgo)
 
   const res = sortBy(pairs, 0)
