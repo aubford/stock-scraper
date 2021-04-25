@@ -8,6 +8,7 @@ const {
   hasCFRA,
   extractNumbers,
   makePrettyDate,
+  getFidelitySecretUrl,
 } = require("./util")
 
 const cleanFidelityStrings = val =>
@@ -885,6 +886,82 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
     cfraUpdatedAt: makePrettyDate(),
   }
 }
+
+exports.fetchBoaData = async (ticker, { getPageDataFetcher }) => {
+  const boaFetcher = getPageDataFetcher(BOA)
+  await boaFetcher.setPage(
+    `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
+  )
+  const [
+    boaRating,
+    [boaVolatility, boaInvestment, boaIncome] = [],
+  ] = await boaFetcher.fetchPageData([
+    `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
+    `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+  ])
+
+  const morningstarLink = await boaFetcher.fetchHref(
+    `//a[contains(@aria-label,"View latest Morningstar")]`
+  )
+  const cfraLink = await boaFetcher.fetchHref(
+    `//a[contains(@aria-label,"View latest CFRA")]`
+  )
+  const [morningstarRating, cfraRating] = await boaFetcher.fetchAttribute(
+    `//span[contains(@class,"morningStarRating")]`,
+    "aria-label"
+  )
+
+  await boaFetcher.close()
+  return {
+    boaRating,
+    boaVolatility,
+    boaIncome,
+    boaInvestment,
+    morningstarRating,
+    morningstarLink,
+    cfraRating,
+    cfraLink,
+  }
+}
+
+exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
+  const [
+    argusAnalystRating,
+    argusAnalystTargetStr,
+    argusAnalystFinancialStrength,
+    argusAnalystOneYrEpsGrowth,
+    argusAnalystFiveYrEpsGrowth,
+    argusAnalystOneYrDivGrowth,
+  ] = await fetchPdfData({
+    analystName: ARGUS_ANALYST,
+    url,
+    xPathArr: [
+      prevSiblingTextIs("ARGUS RATING: "),
+      prevSiblingTextIs("Target Price"),
+      prevSiblingTextIs("Financial Strength Rating"),
+      prevSiblingTextIs("1 Year EPS Growth Forecast"),
+      prevSiblingTextIs("5 Year EPS Growth Forecast"),
+      prevSiblingTextIs("1 Year Dividend Growth Forecast"),
+    ],
+  })
+
+  const argusAnalystTarget = argusAnalystTargetStr
+    ? argusAnalystTargetStr.includes("Thousand")
+      ? extractNumbers(argusAnalystTargetStr) * 1000
+      : extractNumbers(argusAnalystTargetStr)
+    : ""
+
+  return {
+    argusAnalystRating,
+    argusAnalystFinancialStrength,
+    argusAnalystOneYrEpsGrowth,
+    argusAnalystFiveYrEpsGrowth,
+    argusAnalystOneYrDivGrowth,
+    argusAnalystTarget,
+  }
+}
+
+//  UNUSED
 
 const avApiKey = "1FSCTLZ457VMJH2F"
 const avUrl = "https://www.alphavantage.co/query?function="

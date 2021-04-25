@@ -10,6 +10,8 @@ const {
   fetchFidelityAnalystOpinions,
   fetchCFRAData,
   fetchFordData,
+  fetchBoaData,
+  fetchArgusAnalyst,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -18,7 +20,6 @@ const {
   prevSiblingTextIs,
   followingSiblingTextIs,
   pauseExecutionPerNTickers,
-  extractNumbers,
   makePrettyDate,
 } = require("./util")
 
@@ -54,58 +55,24 @@ module.exports = async (tickers, browser) => {
 
     // B of A
 
-    const boaFetcher = getPageDataFetcher(BOA)
-    await boaFetcher.setPage(
-      `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
-    )
-    const [
+    const {
       boaRating,
-      [boaVolatility, boaInvestment, boaIncome] = [],
-    ] = await boaFetcher.fetchPageData([
-      `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
-      `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
-    ])
-
-    const morningstarLink = await boaFetcher.fetchHref(
-      `//a[contains(@aria-label,"View latest Morningstar")]`
-    )
-    const cfraLink = await boaFetcher.fetchHref(
-      `//a[contains(@aria-label,"View latest CFRA")]`
-    )
-    const [morningstarRating, cfraRating] = await boaFetcher.fetchAttribute(
-      `//span[contains(@class,"morningStarRating")]`,
-      "aria-label"
-    )
-
-    await boaFetcher.close()
+      boaVolatility,
+      boaIncome,
+      boaInvestment,
+      morningstarRating,
+      morningstarLink,
+      cfraRating,
+      cfraLink,
+    } = await fetchBoaData(ticker, scrapeTools)
 
     // ARGUS ANALYST
 
-    const [
-      argusAnalystRating,
-      argusAnalystTargetStr,
-      argusAnalystFinancialStrength,
-      argusAnalystOneYrEpsGrowth,
-      argusAnalystFiveYrEpsGrowth,
-      argusAnalystOneYrDivGrowth,
-    ] = await fetchPdfData({
-      analystName: ARGUS_ANALYST,
-      url: await getFidelitySecretUrl(argusAnalystLink, browser),
-      xPathArr: [
-        prevSiblingTextIs("ARGUS RATING: "),
-        prevSiblingTextIs("Target Price"),
-        prevSiblingTextIs("Financial Strength Rating"),
-        prevSiblingTextIs("1 Year EPS Growth Forecast"),
-        prevSiblingTextIs("5 Year EPS Growth Forecast"),
-        prevSiblingTextIs("1 Year Dividend Growth Forecast"),
-      ],
-    })
-
-    const argusAnalystTarget = argusAnalystTargetStr
-      ? argusAnalystTargetStr.includes("Thousand")
-        ? extractNumbers(argusAnalystTargetStr) * 1000
-        : extractNumbers(argusAnalystTargetStr)
-      : ""
+    const argusAnalystData = await fetchArgusAnalyst(
+      ticker,
+      await getFidelitySecretUrl(argusAnalystLink, browser),
+      scrapeTools
+    )
 
     // THE STREET
 
@@ -229,12 +196,6 @@ module.exports = async (tickers, browser) => {
     newStockData[ticker] = {
       scrapeDataUpdatedAt: Date.now(),
       updatedAt: makePrettyDate(),
-      argusAnalystFinancialStrength,
-      argusAnalystFiveYrEpsGrowth,
-      argusAnalystOneYrDivGrowth,
-      argusAnalystOneYrEpsGrowth,
-      argusAnalystRating,
-      argusAnalystTarget,
       argusResearchFinancialStrength,
       argusResearchGrowth,
       argusResearchManagement,
@@ -274,6 +235,7 @@ module.exports = async (tickers, browser) => {
       tickerSearch: `//${ticker}`,
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
       ...ncData,
+      ...argusAnalystData,
       ...fidelityKeyStats,
       ...fidelityAnalystOpinionsData,
       ...zacksData,
