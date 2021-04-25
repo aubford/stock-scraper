@@ -58,7 +58,7 @@ class PageDataFetcher {
       const frameMain = this.originPage.frames().find(frame => frame.name() === "main")
       if (!frameMain) {
         console.error("****** FRAME MAIN NOT FOUND ISSUE ******")
-        await pause(5000)
+        await pause(3500)
         return this.originPage.frames().find(frame => frame.name() === "main")
       } else {
         return frameMain
@@ -170,7 +170,7 @@ class PageDataFetcher {
     const {
       [ARGUS_ANALYST_KEY]: { href: argusAnalystLink, text: argusAnalystDate } = {},
       [ARGUS_RESEARCH_KEY]: { href: argusResearchLink, text: argusResearchDate } = {},
-      [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {}
+      [ZACKS_KEY]: { href: zacksLink, text: zacksDate } = {},
     } = fromPairs(zip(fidelityReportNameArr, reportLinks))
 
     return {
@@ -179,7 +179,7 @@ class PageDataFetcher {
       argusResearchDate,
       argusResearchLink,
       zacksDate,
-      zacksLink
+      zacksLink,
     }
   }
 
@@ -276,7 +276,7 @@ module.exports = (ticker, browser) => {
       analystName,
       xPathArr,
       waitForPostScroll,
-      timeout = XPATH_TIMEOUT
+      timeout = XPATH_TIMEOUT,
     }) {
       if (!url) {
         console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
@@ -345,6 +345,6 @@ module.exports = (ticker, browser) => {
      */
     getPageDataFetcher(analystName, options) {
       return new PageDataFetcher(analystName, ticker, browser, options)
-    }
+    },
   }
 }

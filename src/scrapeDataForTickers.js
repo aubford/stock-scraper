@@ -9,6 +9,7 @@ const {
   fetchFidelityKeyStats,
   fetchFidelityAnalystOpinions,
   fetchCFRAData,
+  fetchFordData,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -41,31 +42,12 @@ module.exports = async (tickers, browser) => {
 
     // FORD
 
-    const [
-      fordRatingSentence = "",
+    const {
       fordEarningsStrength,
       fordRelativeValuation,
       fordPriceMovement,
-    ] = await fetchPdfData({
-      analystName: FORD,
-      url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
-      xPathArr: [
-        `//span[contains(text(),"We project that")]`,
-        prevSiblingTextIs("Earnings Strength"),
-        prevSiblingTextIs("Relative Valuation"),
-        prevSiblingTextIs("Price Movement"),
-      ],
-    })
-
-    const fordRating = fordRatingSentence
-      ? [
-          "will strongly outperform the market",
-          "will outperform the market",
-          "will perform in line with the market",
-          "will underperform the market",
-          "will strongly underperform the market",
-        ].findIndex(str => fordRatingSentence.includes(str)) + 1 || "?"
-      : ""
+      fordRating,
+    } = await fetchFordData(ticker, scrapeTools)
 
     // PAUSE
     await pauseExecutionPerNTickers(ticker, tickers)
@@ -233,21 +215,6 @@ module.exports = async (tickers, browser) => {
         `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
     })
-
-    // CFRA
-
-    //const [cfraTarget, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
-    //  ? await fetchPdfData({
-    //      analystName: CFRA,
-    //      url: cfraLink,
-    //      xPathArr: [
-    //        prevSiblingTextContains("12-Mo.  Target  Price"),
-    //        prevSiblingTextContains("Calculation", 2),
-    //        prevSiblingTextContains("Analysis prepared by", 3),
-    //      ],
-    //      waitForPostScroll: prevSiblingTextContains("Calculation", 2),
-    //    })
-    //  : []
 
     // ZACKS
 

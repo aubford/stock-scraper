@@ -7,6 +7,7 @@ const {
   backupReturnStockDataFile,
   promptUser,
   promptForPause,
+  getOnlyStockTickerData,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("./introspectStockData")
@@ -25,7 +26,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
 
   const oldFile = backupReturnStockDataFile()
-  const stockData = omit(oldFile, ["buffetData", "magicTickers"])
+  const stockData = getOnlyStockTickerData(oldFile)
   const sectorIndex = getSectorIndex(stockData)
 
   const updateSector = async sector => {

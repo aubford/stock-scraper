@@ -634,7 +634,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     indexOwners: getOwners(ownershipList, true),
     earningsDates:
       earningsChartCurrentEstimateDates && earningsChartCurrentEstimateDates[0]
-        ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).join("; ") +
+        ? earningsChartCurrentEstimateDates.map(({ fmt }) => fmt).join(" ") +
           ` [${currentQuarterEstimateDate + currentQuarterEstimateYear}]`
         : "?",
     currentQuarterEstimateDate,

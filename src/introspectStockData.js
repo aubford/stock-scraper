@@ -1,4 +1,4 @@
-const { min, mapValues, groupBy } = require("lodash")
+const { min, mapValues, isPlainObject, groupBy } = require("lodash")
 
 const getFirstSentence = str =>
   str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null
@@ -79,6 +79,15 @@ const getSectorLastUpdatedIndex = stockData =>
     }
   })
 
+const searchKeys = (data, sch) => {
+  const keys = Object.keys(data)
+  const foundKeys = keys.filter(key => key.toLowerCase().includes(sch.toLowerCase()))
+  const objects = keys.filter(key => isPlainObject(data[key])).map(key => data[key])
+  return foundKeys.concat(
+    objects.reduce((acc, curr) => acc.concat(searchKeys(curr, sch)), [])
+  )
+}
+
 module.exports = {
   getSectorIndexWithDesc,
   getSectorIndex,
@@ -89,4 +98,5 @@ module.exports = {
   getUpdateCalendar,
   getSectorLastUpdatedIndex,
   sectorMap,
+  searchKeys,
 }

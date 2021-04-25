@@ -6,6 +6,7 @@ const {
   last,
   endsWith,
   fromPairs,
+  omit,
   zip,
   chunk,
   zipWith,
@@ -261,8 +262,12 @@ const millBillStrToNum = str => {
 
 const makePrettyDate = () => moment().format("MMM DD h:mma")
 
+const getOnlyStockTickerData = stockJsonData =>
+  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates"])
+
 module.exports = {
   backupReturnStockDataFile,
+  getOnlyStockTickerData,
   evalX,
   extractNumbers,
   followingSiblingTextIs,

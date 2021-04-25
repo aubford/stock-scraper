@@ -12,12 +12,13 @@ const {
   getSectorLastUpdatedIndex,
   sectorMap,
 } = require("./introspectStockData")
+const { getOnlyStockTickerData } = require("./util")
 const moment = require("moment")
 const { greenBright, green, cyan, bgGreen, yellow } = require("chalk")
 
 const { toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
 const stockJson = require("../test/stockData.json")
-const stockData = omit(stockJson, ["magicTickers", "buffetData"])
+const stockData = getOnlyStockTickerData(stockJson)
 
 global.getSectorUpdated = () => {
   const updatedIndex = getSectorLastUpdatedIndex(stockData)

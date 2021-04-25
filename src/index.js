@@ -7,6 +7,7 @@ const {
   promptLogin,
   backupReturnStockDataFile,
   promptForPause,
+  getOnlyStockTickerData,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 
@@ -22,7 +23,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   const tickers = promptResponse
     ? promptResponse.split(/[^A-Z]/).filter(a => a)
-    : Object.keys(omit(backupReturnStockDataFile(), ["buffetData", "magicTickers"]))
+    : Object.keys(getOnlyStockTickerData(backupReturnStockDataFile()))
 
   closeLoginPages()
 
