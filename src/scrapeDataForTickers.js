@@ -12,6 +12,7 @@ const {
   fetchFordData,
   fetchBoaData,
   fetchArgusAnalyst,
+  fetchMorningstarData,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -54,36 +55,17 @@ module.exports = async (tickers, browser) => {
       cfraLink,
     } = await fetchBoaData(ticker, scrapeTools)
 
-    // ARGUS ANALYST & FORD
+    // ARGUS ANALYST & FORD & MORNINGSTAR
 
-    const [argusAnalystData, fordData] = await Promise.all([
+    const [argusAnalystData, fordData, morningstarData] = await Promise.all([
       fetchArgusAnalyst(
         ticker,
         await getFidelitySecretUrl(argusAnalystLink, browser),
         scrapeTools
       ),
       fetchFordData(ticker, scrapeTools),
+      fetchMorningstarData(ticker, morningstarLink, scrapeTools),
     ])
-
-    // MORNINGSTAR
-
-    const [
-      [morningstarFairValue] = [],
-      morningstarMoat,
-      morningstarUncertainty,
-      morningstarCapitalAllocation,
-      [morningstarDate] = [],
-    ] = await fetchPdfData({
-      analystName: MORNINGSTAR,
-      url: morningstarLink,
-      xPathArr: [
-        prevSiblingTextIs("Capital Allocation", 4),
-        followingSiblingTextIs("Price vs. Fair Value ", 4),
-        followingSiblingTextIs("Price vs. Fair Value ", 2),
-        followingSiblingTextIs("Price vs. Fair Value ", 1),
-        prevSiblingTextIs("Capital Allocation", 6),
-      ],
-    })
 
     // THE STREET
 
@@ -206,13 +188,8 @@ module.exports = async (tickers, browser) => {
       moodysLink: moodysLink ? moodysLink.link : "",
       moodysOutlook,
       moodysRating,
-      morningstarCapitalAllocation,
-      morningstarDate,
-      morningstarFairValue,
       morningstarLink,
-      morningstarMoat,
       morningstarRating,
-      morningstarUncertainty,
       streetEfficiency,
       streetGrowth,
       streetIncome,
@@ -225,6 +202,7 @@ module.exports = async (tickers, browser) => {
       tickerSearch: `//${ticker}`,
       ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
       ...ncData,
+      ...morningstarData,
       ...argusAnalystData,
       ...fidelityKeyStats,
       ...fidelityAnalystOpinionsData,

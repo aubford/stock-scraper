@@ -3,12 +3,12 @@ const { zip, mapValues, isString, flatten } = require("lodash")
 const {
   getFirstLastValue,
   prevSiblingTextContains,
+  followingSiblingTextIs,
   prevSiblingTextIs,
   millBillStrToNum,
   hasCFRA,
   extractNumbers,
   makePrettyDate,
-  getFidelitySecretUrl,
 } = require("./util")
 
 const cleanFidelityStrings = val =>
@@ -958,6 +958,34 @@ exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
     argusAnalystFiveYrEpsGrowth,
     argusAnalystOneYrDivGrowth,
     argusAnalystTarget,
+  }
+}
+
+exports.fetchMorningstarData = async (ticker, url, { fetchPdfData }) => {
+  const [
+    [morningstarFairValue] = [],
+    morningstarMoat,
+    morningstarUncertainty,
+    morningstarCapitalAllocation,
+    [morningstarDate] = [],
+  ] = await fetchPdfData({
+    analystName: MORNINGSTAR,
+    url,
+    xPathArr: [
+      prevSiblingTextIs("Capital Allocation", 4),
+      followingSiblingTextIs("Price vs. Fair Value ", 4),
+      followingSiblingTextIs("Price vs. Fair Value ", 2),
+      followingSiblingTextIs("Price vs. Fair Value ", 1),
+      prevSiblingTextIs("Capital Allocation", 6),
+    ],
+  })
+
+  return {
+    morningstarFairValue,
+    morningstarMoat,
+    morningstarUncertainty,
+    morningstarCapitalAllocation,
+    morningstarDate,
   }
 }
 
