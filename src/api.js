@@ -94,6 +94,22 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
     `//span[@class="sub-factor-single-info"][contains(text(),"Average price target")]`,
   ])
 
+  // Analysts
+  await fetcher.click(
+    `div.tipranks-top-row > .tipranks-widget section[aria-label="Analyst Ratings"] > div > span > button`
+  )
+  await fetcher.waitForXpath(`//table[@id="tipranks-analyst-ratings"]/tbody/tr`)
+  await fetcher.clickWhile(`button[data-test-id="tipranksanalystratings_showmore"]`)
+  const analystStrings = await fetcher.fetchPageData([
+    `//table[@id="tipranks-analyst-ratings"]/tbody/tr/th/div/div/button/span`,
+    `//table[@id="tipranks-analyst-ratings"]/tbody/tr//*[@data-test-id="converted-target-price"]`,
+    `//table[@id="tipranks-analyst-ratings"]/tbody/tr//*[@data-test-id="stock-rating"]`,
+    `//table[@id="tipranks-analyst-ratings"]/tbody/tr//*[@data-test-id="analyst-action"]`,
+    `//table[@id="tipranks-analyst-ratings"]/tbody/tr//*[@data-test-id="latest-report"]`,
+  ])
+
+  const tipAnalysts = zip(...analystStrings).join("\n")
+
   // Investors
   await fetcher.click(
     `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
@@ -180,6 +196,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
 
   return {
     tipUpdatedAt: makePrettyDate(),
+    tipAnalysts,
     tipInsiderEvents,
     tipScore,
     tipAnalystRatings,
