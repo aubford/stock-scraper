@@ -41,9 +41,6 @@ module.exports = async (tickers, browser) => {
 
     const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
-    // PAUSE
-    await pauseExecutionPerNTickers(ticker, tickers)
-
     // B of A
 
     const {
@@ -154,6 +151,9 @@ module.exports = async (tickers, browser) => {
 
     await moodysFetcher.close()
 
+    // PAUSE
+    await pauseExecutionPerNTickers(ticker, tickers)
+
     // ARGUS RESEARCH
 
     const xpathHelper = `text()='M' or text()='H' or text()='L'`
@@ -177,15 +177,15 @@ module.exports = async (tickers, browser) => {
       ],
     })
 
-    // ZACKS
-
-    const zacksData = await fetchZacks(ticker, scrapeTools, zacksSecretUrl)
-
     // TIPRANKS
 
     const tipData = await fetchTipData(ticker, scrapeTools)
 
-    // RESULT
+    // ZACKS
+
+    const zacksData = await fetchZacks(ticker, scrapeTools, zacksSecretUrl)
+
+    // ** RESULT **
 
     newStockData[ticker] = {
       scrapeDataUpdatedAt: Date.now(),
