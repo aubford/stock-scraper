@@ -41,15 +41,6 @@ module.exports = async (tickers, browser) => {
 
     const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
-    // FORD
-
-    const {
-      fordEarningsStrength,
-      fordRelativeValuation,
-      fordPriceMovement,
-      fordRating,
-    } = await fetchFordData(ticker, scrapeTools)
-
     // PAUSE
     await pauseExecutionPerNTickers(ticker, tickers)
 
@@ -66,13 +57,36 @@ module.exports = async (tickers, browser) => {
       cfraLink,
     } = await fetchBoaData(ticker, scrapeTools)
 
-    // ARGUS ANALYST
+    // ARGUS ANALYST & FORD
 
-    const argusAnalystData = await fetchArgusAnalyst(
-      ticker,
-      await getFidelitySecretUrl(argusAnalystLink, browser),
-      scrapeTools
-    )
+    const [argusAnalystData, fordData] = await Promise.all([
+      fetchArgusAnalyst(
+        ticker,
+        await getFidelitySecretUrl(argusAnalystLink, browser),
+        scrapeTools
+      ),
+      fetchFordData(ticker, scrapeTools),
+    ])
+
+    // MORNINGSTAR
+
+    const [
+      [morningstarFairValue] = [],
+      morningstarMoat,
+      morningstarUncertainty,
+      morningstarCapitalAllocation,
+      [morningstarDate] = [],
+    ] = await fetchPdfData({
+      analystName: MORNINGSTAR,
+      url: morningstarLink,
+      xPathArr: [
+        prevSiblingTextIs("Capital Allocation", 4),
+        followingSiblingTextIs("Price vs. Fair Value ", 4),
+        followingSiblingTextIs("Price vs. Fair Value ", 2),
+        followingSiblingTextIs("Price vs. Fair Value ", 1),
+        prevSiblingTextIs("Capital Allocation", 6),
+      ],
+    })
 
     // THE STREET
 
@@ -106,32 +120,12 @@ module.exports = async (tickers, browser) => {
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
-    // MORNINGSTAR
-
-    const [
-      [morningstarFairValue] = [],
-      morningstarMoat,
-      morningstarUncertainty,
-      morningstarCapitalAllocation,
-      [morningstarDate] = [],
-    ] = await fetchPdfData({
-      analystName: MORNINGSTAR,
-      url: morningstarLink,
-      xPathArr: [
-        prevSiblingTextIs("Capital Allocation", 4),
-        followingSiblingTextIs("Price vs. Fair Value ", 4),
-        followingSiblingTextIs("Price vs. Fair Value ", 2),
-        followingSiblingTextIs("Price vs. Fair Value ", 1),
-        prevSiblingTextIs("Capital Allocation", 6),
-      ],
-    })
-
     // MOODYS / YAHOO / WSJ
 
     const moodysCookies = await getPageCookies("https://www.moodys.com/")
     const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
-    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 3 * 1000 })
+    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 2 * 1000 })
     await moodysFetcher.setPage(
       moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
     )
@@ -209,10 +203,6 @@ module.exports = async (tickers, browser) => {
       boaVolatility,
       cfraLink,
       cfraRating,
-      fordEarningsStrength,
-      fordPriceMovement,
-      fordRating,
-      fordRelativeValuation,
       moodysLink: moodysLink ? moodysLink.link : "",
       moodysOutlook,
       moodysRating,
@@ -239,6 +229,7 @@ module.exports = async (tickers, browser) => {
       ...fidelityKeyStats,
       ...fidelityAnalystOpinionsData,
       ...zacksData,
+      ...fordData,
       ...tipData,
       ...cfraData,
       ...buildCompanyData(yahooData, wsjData),
