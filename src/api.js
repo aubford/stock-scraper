@@ -160,10 +160,10 @@ exports.fetchFordData = async (ticker, { fetchPdfData }) => {
 const getHedgeRating = tipHedgeMoves => {
   const getChangePct = str => Number(str.split(", ")[1].split(" ")[0].replace("%", ""))
   const getMovementValue = movement => {
-    const sellThreshold = -1.5,
+    const sellThreshold = -2.5,
       sellVal = -1,
       rebalanceVal = -0.25,
-      holdVal = 0.5,
+      holdVal = 0.25,
       buyVal = 1
     const getNegativeVal = num => (num < sellThreshold ? sellVal : rebalanceVal)
     const getPositiveVal = num => (num === 0 ? holdVal : buyVal)
