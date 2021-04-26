@@ -9,6 +9,9 @@ const pairs = Object.values(stockData).map(({ ticker, earningsDates }) => [
   earningsDates,
 ])
 
-const writeToFile = { ...existingData, earningsDates: fromPairs(pairs) }
+const writeToFile = {
+  ...existingData,
+  earningsDates: { ...fromPairs(pairs), ...existingData.earningsDates },
+}
 
 writeFile(STOCK_DATA_LOCATION, writeToFile)

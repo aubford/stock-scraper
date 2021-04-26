@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "npm run updateWs && node --require ./preload.js src/index.js && npm run prettyStock",
+    "start": "npm run updateWs && node --require ./preload.js src/index.js && npm run prettyStock && npm run freezeEarningsDates",
     "update": "npm run updateWs && node --require ./preload.js src/update.js && npm run prettyStock",
     "update-yahoo-wsj": "npm run updateWs && node --require ./preload.js src/updateYahooWsj.js && npm run prettyStock",
     "update-analysts": "npm run updateWs && node --require ./preload.js src/updateAnalysts.js && npm run prettyStock",
