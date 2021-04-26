@@ -155,9 +155,8 @@ const writeFile = (location, data) => {
 }
 
 const scrapbookWriteOut = (data, shouldMerge) => {
-  const stockDataLocation = `${SCRAPBOOK_LOCATION}/stockData.json`
   /** @type {*} */
-  const stockDataFile = fs.readFileSync(stockDataLocation)
+  const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
   const existingData = JSON.parse(stockDataFile)
   const writeToFile = shouldMerge
     ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
@@ -166,7 +165,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
         ...data,
       }
 
-  writeFile(stockDataLocation, writeToFile)
+  writeFile(STOCK_DATA_LOCATION, writeToFile)
 }
 
 const promptUser = async question => {

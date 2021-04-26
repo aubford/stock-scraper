@@ -15,6 +15,7 @@ const {
   promptUser,
   promptForPause,
   backupReturnStockDataFile,
+  getOnlyStockTickerData,
 } = require("./util")
 
 /** @type {Object<function>} */
@@ -26,7 +27,8 @@ const analystMap = {
   [TIPRANKS]: fetchTipData,
 }
 
-const { magicTickers, buffetData, ...stockData } = backupReturnStockDataFile()
+const stockDataFile = backupReturnStockDataFile()
+const stockData = getOnlyStockTickerData(stockDataFile)
 
 puppeteer.connect(CONNECTION).then(async browser => {
   await promptForPause()
@@ -37,6 +39,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const tickers = promptResponse ? promptResponse.split(/[^A-Z]/) : Object.keys(stockData)
   console.log("Searching for tickers:", tickers)
 
+  const newData = {}
   for (const ticker of tickers) {
     await pauseExecutionPerNTickers(ticker, tickers)
 
@@ -49,14 +52,9 @@ puppeteer.connect(CONNECTION).then(async browser => {
     }
 
     const scrapeTools = makeScrapeTools(ticker, browser)
-    const analystData = await fetchAnalystData(ticker, scrapeTools, url)
-
-    stockData[ticker] = {
-      ...stockData[ticker],
-      ...analystData,
-    }
+    newData[ticker] = await fetchAnalystData(ticker, scrapeTools, url)
   }
 
-  scrapbookWriteOut({ ...stockData, magicTickers, buffetData })
+  scrapbookWriteOut(stockData, true)
   process.exit(0)
 })
