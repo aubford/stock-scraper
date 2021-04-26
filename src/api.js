@@ -30,99 +30,101 @@ const fetchText = async (...fetchArgs) => {
 }
 
 const hedgeFundValues = [
+  { first: "warren", last: "buffett", value: 5 },
+  { first: "daniel", last: "loeb", value: 5 },
+  { first: "meridian", last: "", value: 5 },
+  { first: "david", last: "tepper", value: 5 },
+  { first: "chuck", last: "akre", value: 5 },
+  { first: "prem", last: "watsa", value: 5 },
+  { first: "frank", last: "sands", value: 5 },
+  { first: "ron", last: "baron", value: 5 },
   { first: "cedar", last: "rock", value: 4 },
   { first: "andy", last: "brown", value: 4 }, // cedar rock
   { first: "andrew", last: "brown", value: 4 }, // cedar rock
-  { first: "night", last: "owl", value: 3 },
-  { first: "john", last: "kim", value: 3 }, // night owl
-  { first: "philippe", last: "laffont", value: 4 },
   { first: "brad", last: "gerstner", value: 4 },
+  { first: "philippe", last: "laffont", value: 4 },
   { first: "david", last: "blood", value: 4 },
   { first: "steve", last: "mandel", value: 4 },
+  { first: "eagle", last: "capital", value: 4 }, // eagle capital
+  { first: "boykin", last: "curry", value: 4 }, // eagle capital
+  { first: "chase", last: "coleman", value: 4 },
+  { first: "lee", last: "ainslie", value: 4 },
+  { first: "", last: "chilton", value: 4 },
+  { first: "george", last: "soros", value: 4 },
+  { first: "bill", last: "ackman", value: 4 },
+  { first: "fairholme", last: "", value: 4 }, // fairholme
+  { first: "bruce", last: "berkowitz", value: 4 }, // fairholme
+  { first: "vanguard", last: "health", value: 4 }, // vanguard health
+  { first: "edward", last: "owens", value: 4 }, // vanguard health
+  { first: "cathie", last: "wood", value: 4 }, // cathie wood
+  { first: "catherine", last: "wood", value: 4 }, // cathie wood
+  { first: "sequoia", last: "", value: 4 }, // sequoia
+  { first: "ruane", last: "cunniff", value: 4 }, // sequoia
+  { first: "primecap", last: "", value: 4 },
+  { first: "nuveen", last: "", value: 4 },
+  { first: "tom", last: "russo", value: 4 },
+  { first: "david", last: "rolfe", value: 4 },
+  { first: "chuck", last: "royce", value: 4 },
+  { first: "harbor", last: "capital", value: 4 }, // harbor capital
+  { first: "spiros", last: "segalas", value: 4 }, // harbor capital
+  { first: "elfun", last: "", value: 4 },
+  { first: "parnassus", last: "endeavor", value: 4 },
+  { first: "manning", last: "napier", value: 4 },
+  { first: "night", last: "owl", value: 3 }, // night owl
+  { first: "john", last: "kim", value: 3 }, // night owl
   { first: "steven", last: "mandel", value: 3 }, // match
   { first: "christopher", last: "lord", value: 3 },
   { first: "alok", last: "agrawal", value: 3 },
-  { first: "eagle", last: "capital", value: 4 },
-  { first: "boykin", last: "curry", value: 4 }, // eagle capital
-  { first: "chase", last: "coleman", value: 4 },
   { first: "william", last: "duhamel", value: 3 },
   { first: "zhang", last: "lei", value: 3 },
-  { first: "ted", last: "kang", value: 2 },
-  { first: "", last: "chilton", value: 4 },
+  { first: "steven", last: "romick", value: 3 },
   { first: "edgar", last: "wchenheim", value: 3 },
   { first: "pasco", last: "alfaro", value: 3 },
-  { first: "arthur", last: "cohen", value: 2 },
-  { first: "lee", last: "ainslie", value: 4 },
   { first: "ray", last: "dalio", value: 3 },
+  { first: "mario", last: "gabelli", value: 3 },
+  { first: "robert", last: "rodriguez", value: 3 },
+  { first: "can-am", last: "small", value: 3 },
+  { first: "bill", last: "nygren", value: 3 },
+  { first: "jeff", last: "auxier", value: 3 },
+  { first: "ian", last: "cumming", value: 3 },
+  { first: "tom", last: "gayner", value: 3 },
+  { first: "donald", last: "yacktman", value: 3 },
+  { first: "jerome", last: "dodson", value: 3 },
+  { first: "hennessy", last: "japan", value: 3 },
+  { first: "seth", last: "klarman", value: 3 },
+  { first: "arthur", last: "cohen", value: 2 },
   { first: "joel", last: "greenblatt", value: 2 },
-  { first: "george", last: "soros", value: 4 },
-  { first: "bill", last: "ackman", value: 4 },
-  { first: "warren", last: "buffett", value: 4 },
-  { first: "daniel", last: "loeb", value: 4 },
   { first: "westport", last: "asset", value: 2 },
   { first: "diamond", last: "hill", value: 2 },
-  { first: "can-am", last: "small", value: 3 },
-  { first: "meridian", last: "", value: 4 },
-  { first: "david", last: "tepper", value: 4 },
-  { first: "bruce", last: "berkowitz", value: 4 }, // fairholme
-  { first: "jeff", last: "auxier", value: 3 },
-  { first: "prem", last: "watsa", value: 4 },
-  { first: "sequoia", last: "", value: 4 },
-  { first: "ruane", last: "cunniff", value: 4 }, // sequoia
-  { first: "chuck", last: "akre", value: 4 },
-  { first: "nuveen", last: "", value: 4 },
-  { first: "tom", last: "russo", value: 4 },
-  { first: "primecap", last: "", value: 4 },
   { first: "ken", last: "heebner", value: 2 }, // more research needed
-  { first: "manning", last: "napier", value: 4 },
-  { first: "ian", last: "cumming", value: 3 },
   { first: "john", last: "paulson", value: 2 },
-  { first: "robert", last: "rodriguez", value: 3 },
   { first: "ken", last: "fisher", value: 2 },
-  { first: "frank", last: "sands", value: 4 },
-  { first: "david", last: "rolfe", value: 4 },
-  { first: "steven", last: "romick", value: 3 },
-  { first: "mario", last: "gabelli", value: 3 },
   { first: "leith", last: "wheeler", value: 2 },
-  { first: "ron", last: "baron", value: 4 },
-  { first: "chuck", last: "royce", value: 4 },
   { first: "murray", last: "stahl", value: 2 },
+  { first: "ted", last: "kang", value: 2 },
   { first: "james", last: "barrow", value: 2 },
   { first: "", last: "eveillard", value: 3 },
   { first: "bill", last: "frels", value: 2 },
-  { first: "bill", last: "nygren", value: 3 },
   { first: "richard", last: "snow", value: 2 },
   { first: "chris", last: "davis", value: 2 },
-  { first: "tweedy", last: "browne", value: 1 },
   { first: "wallace", last: "weitz", value: 2 },
-  { first: "donald", last: "yacktman", value: 3 },
   { first: "brian", last: "rogers", value: 2 },
   { first: "ronald", last: "muhlenkamp", value: 2 },
   { first: "john", last: "keeley", value: 2 },
   { first: "arnold", last: "schneider", value: 2 },
-  { first: "francis", last: "chou", value: 1 },
   { first: "dodge", last: "cox", value: 2 },
-  { first: "mason", last: "hawkins", value: 1 },
-  { first: "john", last: "hussman", value: 1 },
   { first: "robert", last: "olstein", value: 2 },
   { first: "john", last: "buckingham", value: 2 },
   { first: "robert", last: "bruce", value: 2 },
   { first: "john", last: "rogers", value: 2 },
+  { first: "tweedy", last: "browne", value: 1 },
   { first: "martin", last: "whitman", value: 1 },
+  { first: "mason", last: "hawkins", value: 1 },
+  { first: "john", last: "hussman", value: 1 },
   { first: "jeremy", last: "grantham", value: 1 },
   { first: "charles", last: "brandes", value: 1 },
+  { first: "francis", last: "chou", value: 1 },
   { first: "louis", last: "bacon", value: 1 },
-  { first: "harbor", last: "capital", value: 4 },
-  { first: "spiros", last: "segalas", value: 4 }, // harbor capital
-  { first: "elfun", last: "", value: 4 },
-  { first: "parnassus", last: "endeavor", value: 4 },
-  { first: "jerome", last: "dodson", value: 3 },
-  { first: "vanguard", last: "health", value: 4 },
-  { first: "edward", last: "owens", value: 4 }, // vanguard health
-  { first: "cathie", last: "wood", value: 4 },
-  { first: "catherine", last: "wood", value: 4 }, // match above
-  { first: "hennessy", last: "japan", value: 3 },
-  { first: "seth", last: "klarman", value: 3 },
 ]
 
 exports.fetchFordData = async (ticker, { fetchPdfData }) => {
