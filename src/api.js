@@ -973,14 +973,17 @@ exports.getMoodysLink = async (ticker, cookie) => {
 exports.fetchWSJData = async ticker => {
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   try {
-    const [mainPage, researchPage] = await Promise.all([
+    const [mainPage, researchPage, financialsPage] = await Promise.all([
       fetchText(url),
       fetchText(url + "/research-ratings"),
+      fetchText(url + "/financials"),
     ])
     const researchPageDoc = Cheerio.load(researchPage)
     const html = researchPageDoc(".cr_analystRatings .data_data")
 
     const mainPageDoc = Cheerio.load(mainPage)
+    const financialsPageDoc = Cheerio.load(financialsPage)
+
     return {
       wsjUpdatedAt: makePrettyDate(),
       wsjChart: html
@@ -990,6 +993,12 @@ exports.fetchWSJData = async ticker => {
       wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
       wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
       wsjShortDate: mainPageDoc(`h3:contains("Short Interest ") span`).text(),
+      wsjLastEarningsDate: financialsPageDoc(`span.data_lbl:contains("Last Report")`)
+        .next()
+        .text(),
+      wsjNextEarningsDate: financialsPageDoc(`span.data_lbl:contains("Next Report")`)
+        .next()
+        .text(),
     }
   } catch (err) {
     console.error("WSJ ERROR: ", err)
