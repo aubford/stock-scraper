@@ -30,7 +30,8 @@ const fetchText = async (...fetchArgs) => {
 }
 
 const hedgeFundValues = [
-  { first: "warren", last: "buffett", value: 5 },
+  { first: "warren", last: "buffett", value: 6 },
+  { first: "bill", last: "gates", value: 5 },
   { first: "daniel", last: "loeb", value: 5 },
   { first: "meridian", last: "", value: 5 },
   { first: "david", last: "tepper", value: 5 },
@@ -161,10 +162,10 @@ const getHedgeRating = tipHedgeMoves => {
   const getChangePct = str => Number(str.split(", ")[1].split(" ")[0].replace("%", ""))
   const getMovementValue = movement => {
     const sellThreshold = -2.5,
-      sellVal = -1,
+      sellVal = -0.75,
       rebalanceVal = -0.25,
-      holdVal = 0.25,
-      buyVal = 1
+      holdVal = 0.5,
+      buyVal = 1.25
     const getNegativeVal = num => (num < sellThreshold ? sellVal : rebalanceVal)
     const getPositiveVal = num => (num === 0 ? holdVal : buyVal)
     return movement >= 0 ? getPositiveVal(movement) : getNegativeVal(movement)
