@@ -58,8 +58,9 @@ const hedgeFundValues = [
   { first: "bruce", last: "berkowitz", value: 4 }, // fairholme
   { first: "vanguard", last: "health", value: 4 }, // vanguard health
   { first: "edward", last: "owens", value: 4 }, // vanguard health
-  { first: "cathie", last: "wood", value: 4 }, // cathie wood
-  { first: "catherine", last: "wood", value: 4 }, // cathie wood
+  { first: "arkk", last: "", value: 0 }, // cathie wood
+  { first: "cathie", last: "wood", value: 0 }, // cathie wood
+  { first: "catherine", last: "wood", value: 0 }, // cathie wood
   { first: "sequoia", last: "", value: 4 }, // sequoia
   { first: "ruane", last: "cunniff", value: 4 }, // sequoia
   { first: "primecap", last: "", value: 4 },
