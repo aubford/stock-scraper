@@ -160,13 +160,16 @@ exports.fetchFordData = async (ticker, { fetchPdfData }) => {
 
 const getHedgeRating = tipHedgeMoves => {
   const getChangePct = str => Number(str.split(", ")[1].split(" ")[0].replace("%", ""))
-  const getMovementValue = movement => {
-    const sellThreshold = -2.5,
-      sellVal = -0.75,
+  const getMovementValue = (movement, hedgeCoeff) => {
+    const trimThreshold = -3,
+      sellThreshold = -15,
+      sellVal = -1,
+      trimVal = -0.5,
       rebalanceVal = -0.25,
-      holdVal = 0.5,
+      holdVal = hedgeCoeff > 3 ? 0.5 : 0,
       buyVal = 1.25
-    const getNegativeVal = num => (num < sellThreshold ? sellVal : rebalanceVal)
+    const getNegativeVal = num =>
+      num < sellThreshold ? sellVal : num < trimThreshold ? trimVal : rebalanceVal
     const getPositiveVal = num => (num === 0 ? holdVal : buyVal)
     return movement >= 0 ? getPositiveVal(movement) : getNegativeVal(movement)
   }
@@ -180,7 +183,7 @@ const getHedgeRating = tipHedgeMoves => {
       })
       const hedgeCoeff = mapData ? mapData.value : 1
 
-      return sum + getMovementValue(movement) * hedgeCoeff
+      return sum + getMovementValue(movement, hedgeCoeff) * hedgeCoeff
     }, 0)
 }
 /**
@@ -1157,4 +1160,8 @@ exports.fetchIEXData = async (ticker, datum) => {
   const url = `https://sandbox.iexapis.com/stable/data-points/${ticker}/${datum}?token=${iexToken}`
   const text = await fetchText(url)
   return JSON.parse(text)
+}
+
+exports.exportsForTest = {
+  getHedgeRating,
 }

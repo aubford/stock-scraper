@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
 const { newBrowserPage, scrapbookWriteOut } = require("./util")
 const { webSocketDebuggerUrl } = require("../ws.json")
-const { fromPairs, findIndex, uniq } = require("lodash")
+const { fromPairs, isArray, findIndex, uniq } = require("lodash")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -97,6 +97,10 @@ puppeteer.connect(connection).then(async browser => {
 
   const magicTickers = await aggregateMagicFormulaTickers(cookies)
   const buffetData = await getBuffetData()
+
+  if (!isArray(magicTickers)) {
+    throw new Error("***  FAILURE: magicTickers is not an Array ***")
+  }
 
   scrapbookWriteOut({
     magicTickers,

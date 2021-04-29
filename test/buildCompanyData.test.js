@@ -1,5 +1,8 @@
 const { cloneDeep, sortBy, last } = require("lodash")
 const buildCompanyData = require("../src/buildCompanyData")
+const {
+  exportsForTest: { getHedgeRating },
+} = require("../src/api")
 const { orZero } = require("../src/buildCompanyDataUtil")
 const wsjData = require("./data/wsjC.json")
 const bflyData = require("./data/bflyData.json")
@@ -150,4 +153,12 @@ test("orZero", () => {
   expect(orZero(testObj.returnTrue(), () => testObj.returnUndefined())).toBe(undefined)
   expect(orZero((5 + testObj.noop) * 4)).toBe(0)
   expect(orZero(5 + testObj.noop)).toBe(0)
+})
+
+test.only("hedgeRatings", () => {
+  const tipHedgeMoves =
+    "Ken Fisher\n[ADDED, +5.65% -> 0.60%]\nBill Gates\n[NO CHANGE, 0.00% -> 0.00%]\nTESTNAME\n[REDUCED, -0.20% -> 0.30%]\nTESTNAME\n[REDUCED, -7.12% -> 0.00%]\nWarren Buffett\n[SOLD OUT, -100.00% -> 0.00%]"
+  // Ken(2) * buy(1.25) + Gates(5) * hold(.5) + rebalance(-.25) + trim(-.5) + Buffet(6) * sell(-1)  = -2.75
+  const hedgeRating = getHedgeRating(tipHedgeMoves)
+  expect(hedgeRating).toBe(-1.75)
 })
