@@ -388,7 +388,9 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
     ncPB,
     ncRating,
     ncRoic,
-    ncPeriodEndDate: ncPeriodEndDateStr.replace("Period End Date: ", ""),
+    ncPeriodEndDate: ncPeriodEndDateStr
+      ? ncPeriodEndDateStr.replace("Period End Date: ", "")
+      : "",
   }
 }
 

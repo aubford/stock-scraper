@@ -141,6 +141,9 @@ const cleanShortInterest = (
 }
 
 const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
+  if (!upgradeDowngradeHistory) {
+    return ""
+  }
   const filterDoubles = upgradeDowngradeHistory.filter(({ firm, epochGradeDate }) =>
     upgradeDowngradeHistory.every(
       comparison =>
@@ -621,9 +624,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     operatingCashFlowPerShareMRQ: slicePerShare(operatingCashFlowMRQ),
     enterpriseToRevenue:
       raw(enterpriseToRevenue) || orZero(raw(enterpriseValue) / totalRevenueTTM),
-    upgradeDowngradeHistory: upgradeDowngradeHistory
-      ? getUpgradeDowngradeHistory(upgradeDowngradeHistory)
-      : "n/a",
+    upgradeDowngradeHistory: getUpgradeDowngradeHistory(upgradeDowngradeHistory),
     anaylstRecommendations,
     numAnaylstRecommendations: anaylstRecommendations.reduce(
       (acc, curr) => acc + curr,
@@ -677,20 +678,28 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
         ]
       : [],
     wsjChartThreeMonthAgo: wsjChart
-      .filter((d, idx) => idx % 3 === 0)
-      .map(str => Number(str))
-      .reverse(),
+      ? wsjChart
+          .filter((d, idx) => idx % 3 === 0)
+          .map(str => Number(str))
+          .reverse()
+      : "",
     wsjChartMonthAgo: wsjChart
-      .filter((d, idx) => (idx + 2) % 3 === 0)
-      .map(str => Number(str))
-      .reverse(),
+      ? wsjChart
+          .filter((d, idx) => (idx + 2) % 3 === 0)
+          .map(str => Number(str))
+          .reverse()
+      : "",
     wsjChartCurrent: wsjChart
-      .filter((d, idx) => (idx + 1) % 3 === 0)
-      .map(str => Number(str))
-      .reverse(),
+      ? wsjChart
+          .filter((d, idx) => (idx + 1) % 3 === 0)
+          .map(str => Number(str))
+          .reverse()
+      : "",
     wsjChartCurrentNum: wsjChart
-      .filter((d, idx) => (idx + 1) % 3 === 0)
-      .reduce((acc, curr) => acc + Number(curr), 0),
+      ? wsjChart
+          .filter((d, idx) => (idx + 1) % 3 === 0)
+          .reduce((acc, curr) => acc + Number(curr), 0)
+      : "",
     ...wsjData,
     operatingMargins: "deprecated",
     earliestEarningsDate: "deprecated",
