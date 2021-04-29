@@ -3,6 +3,7 @@ const { chunk, zip, mapValues, isString, flatten } = require("lodash")
 const {
   getFirstLastValue,
   prevSiblingTextContains,
+  selfTextContains,
   followingSiblingTextIs,
   prevSiblingTextIs,
   millBillStrToNum,
@@ -361,12 +362,14 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   const [
     ncRating,
     [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
+    ncPeriodEndDateStr,
   ] = await fetchPdfData({
     analystName: NEW_CONSTRUCTS,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [
       prevSiblingTextContains("(MM)"),
       `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
+      selfTextContains("Period End Date: "),
     ],
     waitForPostScroll: `//span[contains(text(),"Price-to-EBV Ratio is")]`,
   })
@@ -384,6 +387,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
     ncPB,
     ncRating,
     ncRoic,
+    ncPeriodEndDate: ncPeriodEndDateStr.replace("Period End Date: ", ""),
   }
 }
 

@@ -121,6 +121,8 @@ const matchChars = text => `translate(text()," ","")="${chars(text)}"`
 
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 
+const selfTextContains = text => `//*[${containsChars(text)}]`
+
 const prevSiblingTextContains = (text, num = 1) =>
   `//span[${containsChars(text)}]/following-sibling::span[${num}]`
 
@@ -291,4 +293,5 @@ module.exports = {
   writeFile,
   wrapPage,
   makePrettyDate,
+  selfTextContains,
 }
