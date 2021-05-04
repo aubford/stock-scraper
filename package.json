@@ -19,7 +19,8 @@
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
     "earnings": "node --require ./src/introspectStockDataPlayground.js --eval 'getEarnings()'",
     "uplog": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'",
-    "reset-db": "./src/reset-db.sh"
+    "reset-db": "./src/reset-db.sh",
+    "addTickers":  "node --require ./preload.js ./src/addTicker.js && npm run prettyStock"
   },
   "author": "",
   "license": "ISC",
