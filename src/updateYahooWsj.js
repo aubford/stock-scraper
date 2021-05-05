@@ -1,4 +1,4 @@
-const { fromPairs } = require("lodash")
+const { chunk, fromPairs } = require("lodash")
 const { fetchYahooData, fetchWSJData } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -26,14 +26,14 @@ const fetchData = async ticker => {
 
 const run = async () => {
   const res = []
-  for (const ticker of tickers) {
-    const companyData = await fetchData(ticker)
+  const tickerChunks = chunk(tickers, 15)
+  for (const chunk of tickerChunks) {
+    const companyData = await Promise.all(chunk.map(fetchData))
     res.push(companyData)
   }
   return res
 }
 
-// todo: could chunk if we need it faster...
 run().then(companyData => {
   const updatedData = fromPairs(companyData)
   scrapbookWriteOut(updatedData)

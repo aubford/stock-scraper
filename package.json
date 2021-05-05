@@ -20,7 +20,7 @@
     "earnings": "node --require ./src/introspectStockDataPlayground.js --eval 'getEarnings()'",
     "uplog": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'",
     "reset-db": "./src/reset-db.sh",
-    "addTickers":  "node --require ./preload.js ./src/addTicker.js && npm run prettyStock"
+    "add": "node --require ./preload.js src/addTickers.js && npm run prettyStock"
   },
   "author": "",
   "license": "ISC",
