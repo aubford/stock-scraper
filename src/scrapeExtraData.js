@@ -102,6 +102,9 @@ puppeteer.connect(connection).then(async browser => {
     throw new Error("***  FAILURE: magicTickers is not an Array ***")
   }
 
+  console.log("Magic Tickers: ", magicTickers)
+  console.log("Buffett Data: ", buffetData)
+
   scrapbookWriteOut({
     magicTickers,
     buffetData,
