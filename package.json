@@ -20,7 +20,8 @@
     "earnings": "node --require ./src/introspectStockDataPlayground.js --eval 'getEarnings()'",
     "uplog": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'",
     "reset-db": "./src/reset-db.sh",
-    "add": "node --require ./preload.js src/addTickers.js && npm run prettyStock"
+    "add": "node --require ./preload.js src/addTickers.js && npm run prettyStock",
+    "start-over": "npm run reset-db && npm run add && npm run update-yahoo-wsj && npm run extra && npm run update"
   },
   "author": "",
   "license": "ISC",

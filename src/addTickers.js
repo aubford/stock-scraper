@@ -7,7 +7,7 @@ promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/).filter(a => a)
   const toAdd = tickers.reduce(
     (acc, ticker) => ({
-      [ticker]: { sector: "NEW_STOCKS", scrapeDataUpdatedAt: randomOldDate },
+      [ticker]: { sector: "NEW_STOCKS", scrapeDataUpdatedAt: randomOldDate, ticker },
       ...acc,
     }),
     {}
