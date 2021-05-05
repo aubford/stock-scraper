@@ -371,18 +371,15 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     ) &&
     (cashflowCharts.capitalExpendituresCfQuartChart || []).every(num => num <= 0)
 
-  const earningsChartDataOk = !!(
-    quarterlyEarningsChart &&
-    quarterlyFinancialsChart &&
-    quarterlyFinancialsChart.length === 4 &&
-    quarterlyEarningsChart.length === 4 &&
-    currentQuarterEstimateDate &&
-    currentQuarterEstimateYear &&
-    earningsChartCurrentEstimateDates &&
-    earningsChartCurrentEstimateDates.length > 0 &&
-    quarterlyFinancialsChart[0].date ===
-      currentQuarterEstimateDate + (currentQuarterEstimateYear - 1)
+  const earningsChartDataOk = Boolean(
+    quarterlyEarningsChart && quarterlyEarningsChart.length === 4
   )
+  const revenueChartLengthOk = Boolean(
+    quarterlyFinancialsChart && quarterlyFinancialsChart.length === 4
+  )
+  const epsChartDate = earningsChartDataOk ? quarterlyEarningsChart[3].date : "???"
+  const revenueChartDate = revenueChartLengthOk ? quarterlyFinancialsChart[3].date : "???"
+  const revenueChartDataOk = revenueChartLengthOk && revenueChartDate === epsChartDate
 
   const mTotalDebt =
     raw(totalDebt) ||
@@ -655,6 +652,7 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
     incomeEPSChartQuart: incomeCharts.netIncomeIsQuartChart
       ? incomeCharts.netIncomeIsQuartChart.map(quart => slicePerShare(quart))
       : 0,
+    epsChartDate,
     quarterlyEPSActualEstimateChart: earningsChartDataOk
       ? [
           ...(statementDataOk && incomeEPSChartAnnu
@@ -670,7 +668,8 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
           ),
         ]
       : [],
-    quarterlyRevenueChart: earningsChartDataOk
+    revenueChartDate,
+    quarterlyRevenueChart: revenueChartDataOk
       ? [
           ...quarterlyFinancialsChart.map(({ revenue }) => revenue.raw),
           0,
