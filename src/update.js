@@ -47,7 +47,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const sectors = Object.keys(sectorIndex)
   const sectorsSortedByUpdateDate = sortBy(
     [...sectors],
-    sector => stockData[sectorIndex[sector][0]].scrapeDataUpdatedAt
+    sector => new Date(stockData[sectorIndex[sector][0]].scrapeDataUpdatedAt)
   )
 
   const sectorsToFetch = sectorUserInputVal
