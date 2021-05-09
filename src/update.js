@@ -44,21 +44,22 @@ puppeteer.connect(CONNECTION).then(async browser => {
     exit()
   }
 
-  const sectors = Object.keys(sectorIndex)
+  const sectors = sectorUserInputVal
+    ? sectorUserInputVal
+        .split(/[^A-Z]/)
+        .filter(a => a)
+        .map(abbrev => sectorMap.get(abbrev))
+    : Object.keys(sectorIndex)
   const sectorsSortedByUpdateDate = sortBy(
     [...sectors],
     sector => new Date(stockData[sectorIndex[sector][0]].scrapeDataUpdatedAt)
   )
 
-  const sectorsToFetch = sectorUserInputVal
-    ? sectorsSortedByUpdateDate.slice(0, sectorUserInputVal)
-    : sectorsSortedByUpdateDate
-
   if (sectors.length === 0) {
     throw new Error(":-( ERROR: NO SECTORS SELECTED :-(")
   }
 
-  for (const sector of sectorsToFetch) {
+  for (const sector of sectorsSortedByUpdateDate) {
     await updateSector(sector)
   }
   exit()
