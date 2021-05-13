@@ -29,6 +29,8 @@ module.exports = async (tickers, browser) => {
 
   const newStockData = {}
   for (const ticker of tickers) {
+    console.log(`* STARTING: ${ticker}`)
+
     /** @type ScrapeTools */
     const scrapeTools = makeScrapeTools(ticker, browser)
     const { getPageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
