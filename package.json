@@ -21,6 +21,7 @@
     "uplog": "node --require ./src/introspectStockDataPlayground.js --eval 'getSectorUpdated()'",
     "reset-db": "./src/reset-db.sh",
     "add": "node --require ./preload.js src/addTickers.js && npm run prettyStock",
+    "remove": "node --require ./preload.js src/removeTickers.js && npm run prettyStock",
     "start-over": "npm run reset-db && npm run add && npm run update-yahoo-wsj && npm run extra && npm run update",
     "sectors": "node --require ./preload.js ./src/showSectorMap.js"
   },
