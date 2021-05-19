@@ -172,8 +172,8 @@ const getHedgeRating = tipHedgeMoves => {
       buyVal = 1.25
     const getNegativeVal = num =>
       num < sellThreshold ? sellVal : num < trimThreshold ? trimVal : rebalanceVal
-    const getPositiveVal = num => (num === 0 ? holdVal : buyVal)
-    return movement >= 0 ? getPositiveVal(movement) : getNegativeVal(movement)
+    const getPositiveVal = num => (num > 0.25 ? buyVal : holdVal)
+    return movement > -0.75 ? getPositiveVal(movement) : getNegativeVal(movement)
   }
 
   return chunk(tipHedgeMoves.split("\n"), 2)
