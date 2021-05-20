@@ -167,7 +167,7 @@ const getHedgeRating = tipHedgeMoves => {
       sellThreshold = -15,
       sellVal = -1,
       trimVal = -0.5,
-      rebalanceVal = -0.25,
+      rebalanceVal = hedgeCoeff > 3 ? 0 : -0.25,
       holdVal = hedgeCoeff > 3 ? 0.5 : 0,
       buyVal = 1.25
     const getNegativeVal = num =>
