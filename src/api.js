@@ -166,8 +166,8 @@ const getHedgeRating = tipHedgeMoves => {
     const isPrimo = hedgeCoeff > 3
 
     const buyThreshold = 0.25,
-      holdThreshold = -0.25,
-      trimThreshold = -1.5,
+      holdThreshold = -0.5,
+      trimThreshold = -2.5,
       sellThreshold = -15,
       buyVal = 1.25,
       holdVal = isPrimo ? 0.5 : 0,
