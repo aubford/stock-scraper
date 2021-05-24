@@ -52,7 +52,7 @@ const hedgeFundValues = [
   { first: "chase", last: "coleman", value: 4 },
   { first: "lee", last: "ainslie", value: 4 },
   { first: "", last: "chilton", value: 4 },
-  { first: "george", last: "soros", value: 4 },
+  { first: "george", last: "soros", value: 2 },
   { first: "bill", last: "ackman", value: 4 },
   { first: "fairholme", last: "", value: 4 }, // fairholme
   { first: "bruce", last: "berkowitz", value: 4 }, // fairholme
