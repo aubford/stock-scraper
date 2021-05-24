@@ -163,17 +163,21 @@ exports.fetchFordData = async (ticker, { fetchPdfData }) => {
 const getHedgeRating = tipHedgeMoves => {
   const getChangePct = str => Number(str.split(", ")[1].split(" ")[0].replace("%", ""))
   const getMovementValue = (movement, hedgeCoeff) => {
-    const trimThreshold = -3,
+    const isPrimo = hedgeCoeff > 3
+
+    const buyThreshold = 0.25,
+      holdThreshold = -0.25,
+      trimThreshold = -1.5,
       sellThreshold = -15,
-      sellVal = -1,
+      buyVal = 1.25,
+      holdVal = isPrimo ? 0.5 : 0,
+      rebalanceVal = isPrimo ? 0.25 : 0,
       trimVal = -0.5,
-      rebalanceVal = hedgeCoeff > 3 ? 0 : -0.25,
-      holdVal = hedgeCoeff > 3 ? 0.5 : 0,
-      buyVal = 1.25
-    const getNegativeVal = num =>
-      num < sellThreshold ? sellVal : num < trimThreshold ? trimVal : rebalanceVal
-    const getPositiveVal = num => (num > 0.25 ? buyVal : holdVal)
-    return movement > -0.75 ? getPositiveVal(movement) : getNegativeVal(movement)
+      sellVal = -1
+    const getNegativeVal = x =>
+      x < sellThreshold ? sellVal : x < trimThreshold ? trimVal : rebalanceVal
+    const getPositiveVal = x => (x > buyThreshold ? buyVal : holdVal)
+    return movement > holdThreshold ? getPositiveVal(movement) : getNegativeVal(movement)
   }
 
   return chunk(tipHedgeMoves.split("\n"), 2)
