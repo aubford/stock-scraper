@@ -2,10 +2,12 @@ const { writeFile, promptForTickers, backupReturnStockDataFile } = require("./ut
 
 promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/).filter(a => a)
-  const writeToFile = backupReturnStockDataFile()
+  const stockDataFile = backupReturnStockDataFile()
   for (const ticker of tickers) {
-    delete writeToFile[ticker]
+    if (!tickers.includes(ticker)) {
+      delete stockDataFile[ticker]
+    }
   }
-  writeFile(STOCK_DATA_LOCATION, writeToFile)
+  writeFile(STOCK_DATA_LOCATION, stockDataFile)
   process.exit(0)
 })
