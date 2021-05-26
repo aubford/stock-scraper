@@ -999,7 +999,7 @@ exports.fetchWSJData = async ticker => {
     const mainPageDoc = Cheerio.load(mainPage)
     const financialsPageDoc = Cheerio.load(financialsPage)
 
-    return {
+    const retVal = {
       wsjUpdatedAt: makePrettyDate(),
       wsjChart: html
         .contents()
@@ -1015,6 +1015,12 @@ exports.fetchWSJData = async ticker => {
         .next()
         .text(),
     }
+
+    if (retVal.wsjChart.length === 0) {
+      console.error(ticker + ": NO CHART!")
+    }
+
+    return retVal
   } catch (err) {
     console.error("WSJ ERROR: ", err)
     return []
