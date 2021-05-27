@@ -987,12 +987,40 @@ exports.getMoodysLink = async (ticker, cookie) => {
  */
 exports.fetchWSJData = async ticker => {
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
+  const fetchOpts = {
+    headers: {
+      accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+      "accept-language": "en-US,en;q=0.9,es;q=0.8",
+      "cache-control": "max-age=0",
+      "sec-ch-ua": '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+      "user-agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36",
+      cookie:
+        "DJSESSION=country%3Dus%7C%7Ccontinent%3Dna%7C%7Cregion%3Dhi%7C%7Ccity%3Dkihei%7C%7Clatitude%3D20.7651%7C%7Clongitude%3D-156.4251%7C%7Ctimezone%3Dpst-2%7C%7Czip%3D96753; wsjregion=na%2Cus; gdprApplies=false; ccpaApplies=false; usr_prof_v2=eyJpYyI6MH0%3D; ab_uuid=bd821314-99a1-477b-836c-7a83b3d36ed8; usr_bkt=2qgQ1WCa3A; ResponsiveConditional_initialBreakpoint=md; utag_main=v_id:0179afce50a4001ce3455aa65aff02078003907000fb8$_sn:1$_se:1$_ss:1$_st:1622154004452$ses_id:1622152204452%3Bexp-session$_pn:1%3Bexp-session$_prevpage:WSJ_ResearchTools_Market%20Data%20Center_Quotes_Researchratings%3Bexp-1622155804456$vapi_domain:wsj.com; _sp_v1_uid=1:149:d02407b3-c14e-4ae1-a2a9-bdbd23e45430; _sp_v1_data=2:340193:1622152204:0:1:0:1:0:0:_:-1; _sp_v1_ss=1:H4sIAAAAAAAAAItWqo5RKimOUbLKK83J0YlRSkVil4AlqmtrlXSoqiwWACMYp9h2AAAA; _sp_v1_opt=1:; _sp_v1_csv=null; _sp_v1_lt=1:; consentUUID=bc259348-69d0-4893-afad-da8305c4a419; AMCVS_CB68E4BA55144CAA0A4C98A5%40AdobeOrg=1; permutive-session=%7B%22session_id%22%3A%22d3677466-185f-43f9-bc21-e40fd8efb012%22%2C%22last_updated%22%3A%222021-05-27T21%3A50%3A04.677Z%22%7D; permutive-id=7ecc14fd-8d5f-48d4-946a-ee6fe8c28e6e; _am_sp_djcsses.1fc3=*; _am_sp_djcsid.1fc3=a65b9bd4-d954-4e49-970d-1d313458f009.1622152205.1.1622152205.1622152205.431ce6a2-45a6-480b-aef0-a1325bf2e162; _ncg_sp_ses.5378=*; _ncg_sp_id.5378=295a20eb-cf77-4251-b089-fe2637465a98.1622152205.1.1622152205.1622152205.f13b22b9-2c2c-4d09-9ea8-9eedd45b912d; _ncg_id_=295a20eb-cf77-4251-b089-fe2637465a98; s_tp=2789; s_ppv=WSJ_ResearchTools_Market%2520Data%2520Center_Quotes_Researchratings%2C17%2C17%2C479; s_cc=true; AMCV_CB68E4BA55144CAA0A4C98A5%40AdobeOrg=1585540135%7CMCIDTS%7C18775%7CMCMID%7C27052068151931275412311428146918813678%7CMCAAMLH-1622757004%7C9%7CMCAAMB-1622757004%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1622159405s%7CNONE%7CMCAID%7CNONE%7CvVersion%7C4.4.0; _scid=a071c56a-1acc-4a3d-aa43-4e4fcfa42253; _fbp=fb.1.1622152205389.1369215719; _rdt_uuid=1622152205483.c41b5bc0-ce19-4f99-abf0-a5e36fd82c36; _li_dcdm_c=.wsj.com; _lc2_fpi=7880a1137012--01f6qwwndfwmdrnpdy0ywh3v2y; cX_P=klcrh8nrz2qzn14h; cX_S=kp7fjgo13ttzqu1a; outbrain_cid_fetch=true; OB-USER-TOKEN=237c2e28-a501-460f-aea9-dd939e019726; _tq_id.TV-63639009-1.1fc3=05e3354fb19bde5a.1622152206.0.1622152206..; _sctr=1|1622109600000",
+    },
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+  }
+
   try {
-    const [mainPage, researchPage, financialsPage] = await Promise.all([
-      fetchText(url),
-      fetchText(url + "/research-ratings"),
-      fetchText(url + "/financials"),
-    ])
+    const [mainPage, researchPage, financialsPage] = await Promise.stagger(
+      fetchText,
+      [
+        [url, fetchOpts],
+        [url + "/research-ratings", fetchOpts],
+        [url + "/financials", fetchOpts],
+      ],
+      350
+    )
     const researchPageDoc = Cheerio.load(researchPage)
     const html = researchPageDoc(".cr_analystRatings .data_data")
 

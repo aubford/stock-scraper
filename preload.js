@@ -76,6 +76,15 @@ global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
 global.STOCK_DATA_BACKUP_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataBackup.json`
 
+Promise.stagger = async (asyncFunc, paramArr, ms) => {
+  const staggered = paramArr.map(async (params, idx) => {
+    await new Promise(resolve => setTimeout(resolve, idx * ms))
+    const normalized = [].concat(params)
+    return asyncFunc(...normalized)
+  })
+  return await Promise.all(staggered)
+}
+
 /**
  * @name CashFlows
  * @typedef {{

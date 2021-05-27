@@ -26,9 +26,9 @@ const fetchData = async ticker => {
 
 const run = async () => {
   let res = []
-  const tickerChunks = chunk(tickers, 5)
+  const tickerChunks = chunk(tickers, 8)
   for (const chunk of tickerChunks) {
-    const companyData = await Promise.all(chunk.map(fetchData))
+    const companyData = await Promise.stagger(fetchData, chunk, 350)
     res = res.concat(companyData)
   }
   return res
