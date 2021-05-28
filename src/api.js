@@ -368,16 +368,22 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   const [
     ncPeriodEndDateStr,
     [ncRating, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
+    isSuspended,
   ] = await fetchPdfData({
     analystName: NEW_CONSTRUCTS,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [
       selfTextContains("Period End Date: "),
       `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
+      selfTextContains("Suspended"),
     ],
     waitForPostScroll: `//span[contains(text(),"Price-to-EBV Ratio is")]`,
     timeout: 45 * 1000,
   })
+
+  const periodEndDate = ncPeriodEndDateStr
+    ? ncPeriodEndDateStr.replace("Period End Date: ", "")
+    : ""
 
   return {
     ncUpdatedAt: makePrettyDate(),
@@ -385,11 +391,9 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
     ncFCF,
     ncGap,
     ncPB,
-    ncRating,
     ncRoic,
-    ncPeriodEndDate: ncPeriodEndDateStr
-      ? ncPeriodEndDateStr.replace("Period End Date: ", "")
-      : "",
+    ncRating,
+    ncPeriodEndDate: isSuspended ? "***SUSPENDED***" : periodEndDate,
   }
 }
 
