@@ -167,8 +167,8 @@ const getHedgeRating = tipHedgeMoves => {
 
     const buyThreshold = 0.25,
       holdThreshold = -0.5,
-      trimThreshold = -2.5,
-      sellThreshold = -15,
+      trimThreshold = -1.9,
+      sellThreshold = -8,
       buyVal = 1.25,
       holdVal = isPrimo ? 0.5 : 0,
       rebalanceVal = isPrimo ? 0.25 : 0,
