@@ -106,10 +106,23 @@ module.exports = async (tickers, browser) => {
     const moodysCookies = await getPageCookies("https://www.moodys.com/")
     const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
-    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 2 * 1000 })
-    await moodysFetcher.setPage(
-      moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
-    )
+    let moodysFetcher
+    let moodysPromise = Promise.resolve([])
+    if (moodysLink) {
+      moodysFetcher = getPageDataFetcher("moodys", { timeout: 2 * 1000 })
+      await moodysFetcher.setPage(
+        moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
+      )
+      moodysPromise = moodysFetcher.fetchPageData(
+        [
+          "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
+          "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+        ],
+        `//div[@class="mis-ratings-container"]`
+      )
+    } else {
+      console.log(ticker + ": No Moodys Link")
+    }
 
     const [
       [moodysRating, moodysOutlook],
@@ -119,13 +132,7 @@ module.exports = async (tickers, browser) => {
       zacksSecretUrl,
       cfraData,
     ] = await Promise.all([
-      moodysFetcher.fetchPageData(
-        [
-          "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
-          "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
-        ],
-        `//div[@class="mis-ratings-container"]`
-      ),
+      moodysPromise,
       fetchYahooData(ticker),
       fetchWSJData(ticker),
       fetchNewConstructs(ticker, scrapeTools),
@@ -134,9 +141,6 @@ module.exports = async (tickers, browser) => {
     ])
 
     await moodysFetcher.close()
-
-    // PAUSE
-    await pauseExecutionPerNTickers(ticker, tickers)
 
     // ARGUS RESEARCH
 
@@ -159,6 +163,7 @@ module.exports = async (tickers, browser) => {
         prevSiblingTextIs("Argus Rating:", 3),
         `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
+      timeout: 10 * 1000,
     })
 
     // TIPRANKS

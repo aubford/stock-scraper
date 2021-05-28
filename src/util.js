@@ -44,6 +44,7 @@ const getTextByX = async (page, selector) => {
 const wrapPage = page => {
   page.getTextByX = text => getTextByX(page, text)
   page.closeSafe = () => page.close().catch(err => err)
+  page.setDefaultNavigationTimeout(60000)
 }
 
 /** @returns {Promise<MyPage>} */

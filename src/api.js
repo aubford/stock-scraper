@@ -145,6 +145,7 @@ exports.fetchFordData = async (ticker, { fetchPdfData }) => {
       prevSiblingTextIs("Relative Valuation"),
       prevSiblingTextIs("Price Movement"),
     ],
+    timeout: 10 * 1000,
   })
 
   const fordRating = fordRatingSentence
@@ -199,7 +200,7 @@ const getHedgeRating = tipHedgeMoves => {
  */
 exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   /** @type PageDataFetcher */
-  const fetcher = getPageDataFetcher(TIPRANKS)
+  const fetcher = getPageDataFetcher(TIPRANKS, { timeout: 30 * 1000 })
   const setOk = await fetcher.setPageTrPopup()
   if (!setOk) {
     await fetcher.close()
@@ -365,24 +366,18 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
  */
 exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
   const [
-    ncRating,
-    [ncRatingB, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
     ncPeriodEndDateStr,
+    [ncRating, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
   ] = await fetchPdfData({
     analystName: NEW_CONSTRUCTS,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [
-      prevSiblingTextContains("(MM)"),
-      `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
       selfTextContains("Period End Date: "),
+      `//span[text()="1 - Very Attractive" or text()="2 - Attractive" or text()="3 - Neutral"  or text()="4 - Unattractive" or text()="5 - Very Unattractive"]`,
     ],
     waitForPostScroll: `//span[contains(text(),"Price-to-EBV Ratio is")]`,
+    timeout: 45 * 1000,
   })
-
-  if (ncRating !== ncRatingB) {
-    console.error("New Constructs rating mismatch!!!!!!")
-    return {}
-  }
 
   return {
     ncUpdatedAt: makePrettyDate(),
@@ -476,6 +471,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
       prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
       `//div[@id="viewer"]//div[@data-page-number=1]//span[2]`,
     ],
+    timeout: 10 * 1000,
   })
 
   const zacksPriceStrClean = zacksPriceStr ? zacksPriceStr.replace("$", "") : ""
@@ -529,7 +525,7 @@ exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
   const fidelityKeyStatXpath = name =>
     `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
-  const fetcher = getPageDataFetcher(FIDELITY_STATS)
+  const fetcher = getPageDataFetcher(FIDELITY_STATS, { timeout: 10 * 1000 })
   await fetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/evaluate/fundamentals/keyStatistics.jhtml?stockspage=keyStatistics&symbols=${ticker}`
   )
@@ -879,7 +875,7 @@ exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) =>
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
-  const fidelityFetcher = getPageDataFetcher(FIDELITY)
+  const fidelityFetcher = getPageDataFetcher(FIDELITY, { timeout: 10 * 1000 })
   await fidelityFetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
   )
@@ -1078,6 +1074,7 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
           prevSiblingTextContains("Analysis prepared by", 3),
         ],
         waitForPostScroll: prevSiblingTextContains("Calculation", 2),
+        timeout: 10 * 1000,
       })
     : []
 
@@ -1090,7 +1087,7 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
 }
 
 exports.fetchBoaData = async (ticker, { getPageDataFetcher }) => {
-  const boaFetcher = getPageDataFetcher(BOA)
+  const boaFetcher = getPageDataFetcher(BOA, { timeout: 10 * 1000 })
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
   )
@@ -1145,6 +1142,7 @@ exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
       prevSiblingTextIs("5 Year EPS Growth Forecast"),
       prevSiblingTextIs("1 Year Dividend Growth Forecast"),
     ],
+    timeout: 10 * 1000,
   })
 
   const argusAnalystTarget = argusAnalystTargetStr
@@ -1180,6 +1178,7 @@ exports.fetchMorningstarData = async (ticker, url, { fetchPdfData }) => {
       followingSiblingTextIs("Price vs. Fair Value ", 1),
       prevSiblingTextIs("Capital Allocation", 6),
     ],
+    timeout: 10 * 1000,
   })
 
   return {
