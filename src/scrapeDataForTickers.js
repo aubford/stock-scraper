@@ -120,6 +120,7 @@ module.exports = async (tickers, browser) => {
         ],
         `//div[@class="mis-ratings-container"]`
       )
+      await moodysFetcher.close()
     } else {
       console.log(ticker + ": No Moodys Link")
     }
@@ -139,8 +140,6 @@ module.exports = async (tickers, browser) => {
       getFidelitySecretUrl(zacksLink, browser),
       fetchCFRAData(ticker, cfraRating, cfraLink, scrapeTools),
     ])
-
-    await moodysFetcher.close()
 
     // ARGUS RESEARCH
 
