@@ -387,6 +387,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
 
   return {
     ncUpdatedAt: makePrettyDate(),
+    ncRatingB: "DEPRECATED",
     ncEps,
     ncFCF,
     ncGap,

@@ -10,7 +10,7 @@
     "update-analyst": "npm run updateWs && node --require ./preload.js src/updateAnalyst.js && npm run prettyStock",
     "extra": "npm run updateWs && node --require ./preload.js src/scrapeExtraData.js && npm run prettyStock",
     "sandbox": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.node.js",
-    "check": "node --eval 'console.log(Boolean(require(`./test/stockData.json`)[process.argv[1]]))'",
+    "check": "node --eval \"console.log(Boolean(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]]))\"",
     "test": "jest",
     "launch": "killall Google\\ Chrome; /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-features=site-per-process",
     "updateWs": "curl localhost:9222/json/version > ws.json",
