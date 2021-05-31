@@ -13,7 +13,7 @@ const {
   sectorMap,
 } = require("../src/introspectStockData")
 const { getOnlyStockTickerData } = require("../src/util")
-const { toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
+const { isArray, toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
 
 const stockJson = require("./stockData.json")
 const stockData = getOnlyStockTickerData(stockJson)
