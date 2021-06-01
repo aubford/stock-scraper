@@ -362,7 +362,7 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
 
 /**
  * @param ticker
- * @param {ScrapeTools} fetchPdfData
+ * @param {ScrapeTools} scrapeTools
  * @returns {Promise<{}|{ncRoic:*, ncPB:*, ncRating:*, ncFCF:*, ncGap:*, ncEps:*}>}
  */
 exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
@@ -401,7 +401,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
 
 /**
  * @param ticker
- * @param {ScrapeTools} fetchPdfData
+ * @param {ScrapeTools} scrapeTools
  * @param url
  * @returns {Promise<Object>}
  */
@@ -874,7 +874,7 @@ exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
 
 /**
  * @param ticker
- * @param  {ScrapeTools} getPageDataFetcher
+ * @param  {ScrapeTools} scrapeTools
  * @returns Promise<Object>
  */
 exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) => {
@@ -951,7 +951,7 @@ exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) =>
  * @param cookie
  * @returns {Promise<*|null>}
  */
-exports.getMoodysLink = async (ticker, cookie) => {
+const getMoodysLink = async (ticker, cookie) => {
   const text = await fetchText(
     "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
     {
@@ -980,6 +980,35 @@ exports.getMoodysLink = async (ticker, cookie) => {
     return data && data.ticker === ticker ? data : null
   } catch (error) {
     return null
+  }
+}
+
+/**
+ * @param ticker
+ * @param {ScrapeTools} scrapeTools
+ * @returns Promise<Object>
+ */
+exports.fetchMoodysData = async (ticker, { getPageCookies, getPageDataFetcher }) => {
+  const logger = new Logger(ticker, "Moodys")
+
+  const moodysCookies = await getPageCookies("https://www.moodys.com/")
+  const moodysLink = await getMoodysLink(ticker, moodysCookies)
+
+  if (moodysLink) {
+    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 3 * 1000 })
+    await moodysFetcher.setPage(`https://www.moodys.com${moodysLink.link}`)
+    const moodysData = await moodysFetcher.fetchPageData(
+      [
+        "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
+        "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+      ],
+      `//div[@class="mis-ratings-container"]`
+    )
+    await moodysFetcher.close()
+    return [...moodysData, moodysLink.link]
+  } else {
+    logger.warn("No Moodys link")
+    return []
   }
 }
 

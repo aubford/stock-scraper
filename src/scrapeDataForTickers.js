@@ -2,7 +2,6 @@ const makeScrapeTools = require("./makeScrapeTools")
 const {
   fetchZacks,
   fetchNewConstructs,
-  getMoodysLink,
   fetchYahooData,
   fetchWSJData,
   fetchTipData,
@@ -13,6 +12,7 @@ const {
   fetchBoaData,
   fetchArgusAnalyst,
   fetchMorningstarData,
+  fetchMoodysData,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -22,7 +22,6 @@ const {
   followingSiblingTextIs,
   makePrettyDate,
 } = require("./util")
-const Logger = require("./Logger")
 
 module.exports = async (tickers, browser) => {
   console.log("Searching for tickers:", tickers)
@@ -33,7 +32,7 @@ module.exports = async (tickers, browser) => {
 
     /** @type ScrapeTools */
     const scrapeTools = makeScrapeTools(ticker, browser)
-    const { getPageDataFetcher, fetchPdfData, getPageCookies } = scrapeTools
+    const { fetchPdfData } = scrapeTools
 
     // FIDELITY
     const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(
@@ -101,39 +100,17 @@ module.exports = async (tickers, browser) => {
       waitForPostScroll: "//span[contains(text(),'• ')]",
     })
 
-    // MOODYS / YAHOO / WSJ
-
-    const moodysCookies = await getPageCookies("https://www.moodys.com/")
-    const moodysLink = await getMoodysLink(ticker, moodysCookies)
-
-    let moodysFetcher
-    let moodysPromise = Promise.resolve([])
-    if (moodysLink) {
-      moodysFetcher = getPageDataFetcher("moodys", { timeout: 2 * 1000 })
-      await moodysFetcher.setPage(
-        moodysLink ? `https://www.moodys.com${moodysLink.link}` : null
-      )
-      moodysPromise = moodysFetcher.fetchPageData(
-        [
-          "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
-          "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
-        ],
-        `//div[@class="mis-ratings-container"]`
-      )
-      await moodysFetcher.close()
-    } else {
-      new Logger(ticker, "Moodys").warn("No Moodys link")
-    }
+    // MULTI
 
     const [
-      [moodysRating, moodysOutlook],
+      [moodysRating, moodysOutlook, moodysLink],
       yahooData,
       wsjData,
       ncData,
       zacksSecretUrl,
       cfraData,
     ] = await Promise.all([
-      moodysPromise,
+      fetchMoodysData(ticker, scrapeTools),
       fetchYahooData(ticker),
       fetchWSJData(ticker),
       fetchNewConstructs(ticker, scrapeTools),
@@ -191,7 +168,7 @@ module.exports = async (tickers, browser) => {
       boaVolatility,
       cfraLink,
       cfraRating,
-      moodysLink: moodysLink ? moodysLink.link : "",
+      moodysLink: moodysLink || "",
       moodysOutlook,
       moodysRating,
       morningstarLink,
