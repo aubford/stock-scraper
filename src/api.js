@@ -37,6 +37,7 @@ const hedgeFundValues = [
   { first: "daniel", last: "loeb", value: 5 },
   { first: "meridian", last: "", value: 5 },
   { first: "david", last: "tepper", value: 5 },
+  { first: "carl", last: "icahn", value: 5 },
   { first: "chuck", last: "akre", value: 5 },
   { first: "prem", last: "watsa", value: 5 },
   { first: "frank", last: "sands", value: 5 },
