@@ -47,7 +47,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
     if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
       const link = stockData[ticker][analyst + "Link"]
       if (link) {
-        url = await getFidelitySecretUrl(link, browser)
+        url = await getFidelitySecretUrl(link, browser, ticker)
       }
     }
 

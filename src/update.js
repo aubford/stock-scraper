@@ -13,7 +13,7 @@ const scrapeDataForTickers = require("./scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("./introspectStockData")
 
 const exit = () => {
-  console.log("** All Updates Completed Successfully **")
+  console.log("Update Complete: SUCCESS 🎉")
   process.exit(0)
 }
 
@@ -35,7 +35,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const newStockData = await scrapeDataForTickers(tickers, browser)
 
     scrapbookWriteOut(newStockData)
-    console.log(`*************** SECTOR UPDATED OK: ${sector} *****************`)
+    console.log(`SECTOR UPDATED: ${sector} ✅`)
   }
 
   const selectedSingleSector = sectorMap.get(sectorUserInputVal)

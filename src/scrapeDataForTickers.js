@@ -20,9 +20,9 @@ const {
   getFidelitySecretUrl,
   prevSiblingTextIs,
   followingSiblingTextIs,
-  pauseExecutionPerNTickers,
   makePrettyDate,
 } = require("./util")
+const Logger = require("./Logger")
 
 module.exports = async (tickers, browser) => {
   console.log("Searching for tickers:", tickers)
@@ -62,7 +62,7 @@ module.exports = async (tickers, browser) => {
     const [argusAnalystData, fordData, morningstarData] = await Promise.all([
       fetchArgusAnalyst(
         ticker,
-        await getFidelitySecretUrl(argusAnalystLink, browser),
+        await getFidelitySecretUrl(argusAnalystLink, browser, ticker),
         scrapeTools
       ),
       fetchFordData(ticker, scrapeTools),
@@ -122,7 +122,7 @@ module.exports = async (tickers, browser) => {
       )
       await moodysFetcher.close()
     } else {
-      console.log(ticker + ": No Moodys Link")
+      new Logger(ticker, "Moodys").warn("No Moodys link")
     }
 
     const [
@@ -137,7 +137,7 @@ module.exports = async (tickers, browser) => {
       fetchYahooData(ticker),
       fetchWSJData(ticker),
       fetchNewConstructs(ticker, scrapeTools),
-      getFidelitySecretUrl(zacksLink, browser),
+      getFidelitySecretUrl(zacksLink, browser, ticker),
       fetchCFRAData(ticker, cfraRating, cfraLink, scrapeTools),
     ])
 
@@ -219,7 +219,7 @@ module.exports = async (tickers, browser) => {
       ...buildCompanyData(yahooData, wsjData),
     }
 
-    console.log(`* COMPLETED OK: ${ticker}`)
+    console.log(`* TICKER COMPLETED OK: ${ticker}`)
   }
   return newStockData
 }

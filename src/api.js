@@ -11,6 +11,7 @@ const {
   extractNumbers,
   makePrettyDate,
 } = require("./util")
+const Logger = require("./Logger")
 
 const cleanFidelityStrings = val =>
   isString(val)
@@ -987,6 +988,7 @@ exports.getMoodysLink = async (ticker, cookie) => {
  * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}>}
  */
 exports.fetchWSJData = async ticker => {
+  const logger = new Logger(ticker, "WSJ")
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   const fetchOpts = {
     headers: {
@@ -1046,12 +1048,12 @@ exports.fetchWSJData = async ticker => {
     }
 
     if (retVal.wsjChart.length === 0) {
-      console.error(ticker + ": NO CHART!")
+      logger.error("NO CHART!")
     }
 
     return retVal
   } catch (err) {
-    console.error("WSJ ERROR: ", err)
+    logger.error("General script error: " + err)
     return []
   }
 }

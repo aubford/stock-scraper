@@ -12,6 +12,7 @@ const {
   zipWith,
 } = require("lodash")
 const readline = require("readline")
+const Logger = require("./Logger")
 /**
  * @typedef {Page} MyPage
  * @property getTextByX
@@ -56,7 +57,8 @@ const newBrowserPage = async (browser, url, options = {}) => {
   try {
     await page.goto(url, options)
   } catch (error) {
-    console.log("Error loading page:" + error)
+    const msg = `🚨 PAGE LOAD ERROR -> ${error}`
+    options.logger ? options.logger.error(msg) : console.error(msg)
     page.error = error
     return page
   }
@@ -142,7 +144,7 @@ const followingSiblingTextIsStar = (text, num = 1) =>
 const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
   if (!hasReport) {
-    console.log(`no report -> ticker: ${ticker} -> analyst:${analystName}`)
+    new Logger(ticker, analystName).warn(`NO REPORT`)
   }
   return hasReport
 }
@@ -150,7 +152,7 @@ const hasCFRA = (rating, ticker, analystName) => {
 const writeFile = (location, data) => {
   try {
     fs.writeFileSync(location, JSON.stringify(data))
-    console.log("** COMPLETE, WRITE TO FILE SUCCESSFUL **")
+    console.log(`** WRITE TO FILE: ${location} -> SUCCESS **`)
   } catch (err) {
     console.log("File Write Error: " + err)
     process.exit(1)
@@ -222,16 +224,17 @@ const promptForPause = async () => {
   console.log("PAUSE MS", PAUSE_MS)
 }
 
-const getFidelitySecretUrl = async (fidelityLink, browser) => {
+const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
+  const logger = new Logger(ticker, "Fidelity Secret URL")
   if (!fidelityLink) {
     return null
   }
-  const page = await newBrowserPage(browser, fidelityLink)
+  const page = await newBrowserPage(browser, fidelityLink, { logger })
   try {
     const src = await page.$eval("frame", node => node.getAttribute("src"))
     return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
   } catch (err) {
-    console.error("failed to getFidelitySecretUrl")
+    logger.error("failed to getFidelitySecretUrl")
     return null
   } finally {
     await page.closeSafe()
