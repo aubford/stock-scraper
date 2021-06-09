@@ -41,5 +41,6 @@
     <orderEntry type="library" name="@types/puppeteer" level="application" />
     <orderEntry type="library" name="@types/node-fetch" level="application" />
     <orderEntry type="library" name="@types/cheerio" level="application" />
+    <orderEntry type="library" name="@types/moment-jalaali" level="application" />
   </component>
 </module>

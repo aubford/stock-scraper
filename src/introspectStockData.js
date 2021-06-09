@@ -1,3 +1,4 @@
+const moment = require("moment")
 const { min, mapValues, isPlainObject, groupBy } = require("lodash")
 
 const getFirstSentence = str =>
@@ -75,7 +76,7 @@ const getSectorLastUpdatedIndex = stockData =>
     )
     const month = date.getMonth()
     if (month) {
-      return `${month + 1}/${date.getDate()}`
+      return moment(date).format("MM/DD HH:mm")
     }
   })
 
