@@ -977,7 +977,11 @@ const getMoodysLink = async (ticker, cookie) => {
     }
   )
   try {
-    return JSON.parse(text).data.organizations.find(org => org.ticker === ticker) || null
+    const { data } = JSON.parse(text)
+    if (data.ticker) {
+      return `https://www.moodys.com/search?keyword=${ticker}`
+    }
+    return data.organizations.find(org => org.ticker === ticker) || null
   } catch (error) {
     return null
   }
