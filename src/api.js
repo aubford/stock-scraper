@@ -979,9 +979,10 @@ const getMoodysLink = async (ticker, cookie) => {
   try {
     const { data } = JSON.parse(text)
     if (data.ticker) {
-      return `https://www.moodys.com/search?keyword=${ticker}`
+      return `/search?keyword=${ticker}`
     }
-    return data.organizations.find(org => org.ticker === ticker) || null
+    const org = data.organizations.find(org => org.ticker === ticker)
+    return org ? org.link : null
   } catch (error) {
     return null
   }
@@ -1000,7 +1001,7 @@ exports.fetchMoodysData = async (ticker, { getPageCookies, getPageDataFetcher })
 
   if (moodysLink) {
     const moodysFetcher = getPageDataFetcher("moodys", { timeout: 3 * 1000 })
-    await moodysFetcher.setPage(`https://www.moodys.com${moodysLink.link}`)
+    await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
     const moodysData = await moodysFetcher.fetchPageData(
       [
         "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
@@ -1009,7 +1010,7 @@ exports.fetchMoodysData = async (ticker, { getPageCookies, getPageDataFetcher })
       `//div[@class="mis-ratings-container"]`
     )
     await moodysFetcher.close()
-    return [...moodysData, moodysLink.link]
+    return [...moodysData, moodysLink]
   } else {
     logger.warn("No Moodys link")
     return []
