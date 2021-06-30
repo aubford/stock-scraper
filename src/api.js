@@ -1213,7 +1213,7 @@ exports.fetchMorningstarData = async (ticker, url, { fetchPdfData }) => {
     analystName: MORNINGSTAR,
     url,
     xPathArr: [
-      prevSiblingTextIs("Capital Allocation", 4),
+      prevSiblingTextIs("USD", 2),
       followingSiblingTextIs("Price vs. Fair Value ", 4),
       followingSiblingTextIs("Price vs. Fair Value ", 2),
       followingSiblingTextIs("Price vs. Fair Value ", 1),
