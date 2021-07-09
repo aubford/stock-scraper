@@ -1064,6 +1064,11 @@ exports.fetchWSJData = async ticker => {
     const mainPageDoc = Cheerio.load(mainPage)
     const financialsPageDoc = Cheerio.load(financialsPage)
 
+    const wsjShortDateRaw = mainPageDoc(`h3:contains("Short Interest ") span`).text()
+    const wsjShortDate = wsjShortDateRaw
+      ? wsjShortDateRaw.replace("(", "").replace(")", "")
+      : wsjShortDateRaw
+
     const retVal = {
       wsjUpdatedAt: makePrettyDate(),
       wsjChart: html
@@ -1072,7 +1077,7 @@ exports.fetchWSJData = async ticker => {
         .map(node => node.data),
       wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
       wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
-      wsjShortDate: mainPageDoc(`h3:contains("Short Interest ") span`).text(),
+      wsjShortDate,
       wsjLastEarningsDate: financialsPageDoc(`span.data_lbl:contains("Last Report")`)
         .next()
         .text(),
