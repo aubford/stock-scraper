@@ -27,6 +27,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   closeLoginPages()
 
   const newStockData = await scrapeDataForTickers(tickers, browser)
+  newStockData.wsjShortDate
 
   scrapbookWriteOut(newStockData)
   process.exit(0)

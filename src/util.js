@@ -162,12 +162,19 @@ const writeFile = (location, data) => {
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-  const existingData = JSON.parse(stockDataFile)
+  const { wsjShortDateList, ...existingData } = JSON.parse(stockDataFile)
+
+  const wsjShortDateListNew = wsjShortDateList.includes(data.wsjShortDate)
+    ? wsjShortDateList
+    : wsjShortDateList.concat(data.wsjShortDate)
+
   const writeToFile = shouldMerge
     ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
     : {
         ...existingData,
         ...data,
+        wsjShortDateList: wsjShortDateListNew,
+        wsjShortDatePrev: wsjShortDateListNew[wsjShortDateListNew.length - 2],
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
