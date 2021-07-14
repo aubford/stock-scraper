@@ -67,6 +67,7 @@
       "CFRA": true,
       "BOA": true,
       "SCRAPBOOK_LOCATION": true,
+      "META_LOCATION": true,
       "PAUSE_MS": true,
       "STOCK_DATA_LOCATION": true,
       "STOCK_DATA_BACKUP_LOCATION": true,

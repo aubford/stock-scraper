@@ -171,6 +171,29 @@ const scrapbookWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
+  metaWriteOut(writeToFile)
+}
+
+const metaWriteOut = data => {
+  /** @type {*} */
+  const existingFile = fs.readFileSync(META_LOCATION)
+  const existingMeta = JSON.parse(existingFile)
+
+  const wsjShortDateList = makeWsjShortDateList(data, existingMeta)
+
+  writeFile(META_LOCATION, {
+    wsjShortDateList,
+    wsjShortDatePrev: wsjShortDateList[wsjShortDateList.length - 2],
+  })
+}
+
+const makeWsjShortDateList = (data, existingMeta) => {
+  const { wsjShortDate } = Object.values(data).find(({ wsjShortDate }) => !!wsjShortDate)
+  const { wsjShortDateList } = existingMeta
+
+  return wsjShortDateList.includes(wsjShortDate)
+    ? wsjShortDateList
+    : wsjShortDateList.concat(wsjShortDate)
 }
 
 const promptUser = async question => {
