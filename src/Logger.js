@@ -1,6 +1,11 @@
 class Logger {
   constructor(ticker, analystName) {
     this.lineStart = `${ticker} - ${analystName}: `
+    this.log("Start")
+  }
+
+  log(msg) {
+    console.log(this.lineStart + `ℹ️ -> ${msg}`)
   }
 
   error(msg) {

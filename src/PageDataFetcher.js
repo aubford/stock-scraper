@@ -40,6 +40,10 @@ class PageDataFetcher {
       { waitUntil: "networkidle0", logger: this.logger }
     )
 
+    if (this.originPage.error) {
+      return false
+    }
+
     const getMainFrame = async () => {
       let frameMain = this.originPage.frames().find(frame => frame.name() === "main")
       if (!frameMain) {

@@ -44,7 +44,10 @@ const getTextByX = async (page, selector) => {
 
 const wrapPage = page => {
   page.getTextByX = text => getTextByX(page, text)
-  page.closeSafe = () => page.close().catch(err => err)
+  page.closeSafe = () =>
+    page && !page.isClosed()
+      ? page.close().catch(err => console.log("Page Close Error: ", err))
+      : Promise.resolve()
   page.setDefaultNavigationTimeout(60000)
 }
 
@@ -249,12 +252,14 @@ const promptForPause = async () => {
 
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   const logger = new Logger(ticker, "Fidelity Secret URL")
+  logger.log(`getFidelitySecretUrl browser = ${browser}`)
   if (!fidelityLink) {
     return null
   }
   const page = await newBrowserPage(browser, fidelityLink, { logger })
   try {
     const src = await page.$eval("frame", node => node.getAttribute("src"))
+    logger.completeOk("getFidelitySecretUrl: Done")
     return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
   } catch (err) {
     logger.error("failed to getFidelitySecretUrl")

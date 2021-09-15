@@ -16,8 +16,8 @@ const Logger = require("./Logger")
 /**
  * @name ScrapeTools
  * @typedef {{
- *   fetchPdfData(*=): Promise<*[]>,
- *   getPageCookies(*=): Promise<*[]>,
+ *   fetchPdfData(*): Promise<*[]>,
+ *   getPageCookies(*): Promise<*[]>,
  *   getPageDataFetcher(analystName: string, options: Object): PageDataFetcher,
  * }}
  */
