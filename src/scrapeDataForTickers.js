@@ -23,6 +23,11 @@ const {
   makePrettyDate,
 } = require("./util")
 
+/**
+ * @param tickers
+ * @param browser
+ * @returns {Promise<{}>}
+ */
 module.exports = async (tickers, browser) => {
   console.log("Searching for tickers:", tickers)
 
@@ -37,9 +42,9 @@ module.exports = async (tickers, browser) => {
     // FIDELITY
     const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(
       ticker,
-      scrapeTools
+      browser
     )
-    const fidelityKeyStats = await fetchFidelityKeyStats(ticker, scrapeTools)
+    const fidelityKeyStats = await fetchFidelityKeyStats(ticker, browser)
 
     const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
@@ -54,7 +59,7 @@ module.exports = async (tickers, browser) => {
       morningstarLink,
       cfraRating,
       cfraLink,
-    } = await fetchBoaData(ticker, scrapeTools)
+    } = await fetchBoaData(ticker, browser)
 
     // ARGUS ANALYST & FORD & MORNINGSTAR
 
@@ -62,10 +67,10 @@ module.exports = async (tickers, browser) => {
       fetchArgusAnalyst(
         ticker,
         await getFidelitySecretUrl(argusAnalystLink, browser, ticker),
-        scrapeTools
+        browser
       ),
-      fetchFordData(ticker, scrapeTools),
-      fetchMorningstarData(ticker, morningstarLink, scrapeTools),
+      fetchFordData(ticker, browser),
+      fetchMorningstarData(ticker, morningstarLink, browser),
     ])
 
     // THE STREET
@@ -110,12 +115,12 @@ module.exports = async (tickers, browser) => {
       zacksSecretUrl,
       cfraData,
     ] = await Promise.all([
-      fetchMoodysData(ticker, scrapeTools),
+      fetchMoodysData(ticker, browser),
       fetchYahooData(ticker),
       fetchWSJData(ticker),
-      fetchNewConstructs(ticker, scrapeTools),
+      fetchNewConstructs(ticker, browser),
       getFidelitySecretUrl(zacksLink, browser, ticker),
-      fetchCFRAData(ticker, cfraRating, cfraLink, scrapeTools),
+      fetchCFRAData(ticker, cfraRating, cfraLink, browser),
     ])
 
     // ARGUS RESEARCH
@@ -144,11 +149,11 @@ module.exports = async (tickers, browser) => {
 
     // TIPRANKS
 
-    const tipData = await fetchTipData(ticker, scrapeTools)
+    const tipData = await fetchTipData(ticker, browser)
 
     // ZACKS
 
-    const zacksData = await fetchZacks(ticker, scrapeTools, zacksSecretUrl)
+    const zacksData = await fetchZacks(ticker, browser, zacksSecretUrl)
 
     // ** RESULT **
 

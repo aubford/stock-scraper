@@ -24,7 +24,7 @@ const Logger = require("./Logger")
 
 /**
  * @param {string} ticker
- * @param {*} browser
+ * @param {Browser} browser
  * @returns {ScrapeTools}
  */
 module.exports = (ticker, browser) => {

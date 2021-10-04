@@ -1,4 +1,5 @@
 const Cheerio = require("cheerio")
+const makeScrapeTools = require("./makeScrapeTools")
 const { chunk, zip, mapValues, isString, flatten } = require("lodash")
 const {
   getFirstLastValue,
@@ -132,7 +133,14 @@ const hedgeFundValues = [
   { first: "louis", last: "bacon", value: 1 },
 ]
 
-exports.fetchFordData = async (ticker, { fetchPdfData }) => {
+/**
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @returns {Promise<{fordRating:(number|string), fordRelativeValuation:*, fordEarningsStrength:*, fordPriceMovement:*}>}
+ */
+exports.fetchFordData = async (ticker, browser) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [
     fordRatingSentence = "",
     fordEarningsStrength,
@@ -195,13 +203,15 @@ const getHedgeRating = tipHedgeMoves => {
       return sum + getMovementValue(movement, hedgeCoeff) * hedgeCoeff
     }, 0)
 }
+
 /**
  * @param ticker
- * @param {ScrapeTools} getPageDataFetcher
+ * @param {Browser} browser
  * @returns {Promise<Object>}
  */
-exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
-  /** @type PageDataFetcher */
+exports.fetchTipData = async (ticker, browser) => {
+  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
+
   const fetcher = getPageDataFetcher(TIPRANKS, { timeout: TIPRANKS_TIMEOUT })
   const setOk = await fetcher.setPageTrPopup()
   if (!setOk) {
@@ -362,11 +372,13 @@ exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
 }
 
 /**
- * @param ticker
- * @param {ScrapeTools} scrapeTools
+ * @param {string} ticker
+ * @param {Browser} browser
  * @returns {Promise<{}|{ncRoic:*, ncPB:*, ncRating:*, ncFCF:*, ncGap:*, ncEps:*}>}
  */
-exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
+exports.fetchNewConstructs = async (ticker, browser) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [
     ncPeriodEndDateStr,
     [ncRating, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
@@ -401,12 +413,14 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
 }
 
 /**
- * @param ticker
- * @param {ScrapeTools} scrapeTools
- * @param url
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @param {string} url
  * @returns {Promise<Object>}
  */
-exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
+exports.fetchZacks = async (ticker, browser, url) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [
     zacksRank,
     zacksTarget,
@@ -524,11 +538,13 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
 }
 
 /**
- * @param ticker
- * @param {ScrapeTools} getPageDataFetcher
+ * @param {string} ticker
+ * @param {Browser} browser
  * @returns Promise<{fidelityEVIndustry:*, fidelityRevChngIndustryPct:*, fidelityOpMarginIndustryPct:*, fidelityRoAMrqIndustryPct:*, fidelityCurrentIndustry:*, fidelityIncomeEmploy:*, fidelityRevChngIndustry:*, fidelityPeFiveYrIndustry:*, fidelityPretaxMarginMrqIndustry:*, fidelityRoIIndustry:*, fidelityPayoutIndustryPct:*, fidelityDAMrqIndustry:*, fidelityPcf:*, fidelityRoAIndustry:*, fidelityRoIMrqIndustry:*, fidelityPayoutIndustry:*, fidelityPEGFiveYrIndustryPct:*, fidelityEpsGrowthYoYIndustryPct:*, fidelityEV:*, fidelityEpsGrowthYoY:*, fidelityEpsGrowthProj:*, fidelityPcfMrqIndustry:*, fidelityEpsGrowthProjIndustryPct:*, fidelityIncomeEmployIndustry:*, fidelityPBookIndustry:*, fidelityDA:*, fidelityEpsGrowthProjIndustry:*, fidelityLongDEMrqIndustryPct:*, fidelityDC:*, fidelityDE:*, fidelityRoIMrqIndustryPct:*, fidelityPEGFiveYrIndustry:*, fidelityPeIndustryPct:*, fidelityPayout:*, fidelityPeFiveYrIndustryPct:*, fidelityRoE:*, fidelityPBook:*, fidelityLongDEIndustry:*, fidelityRoEIndustryPct:*, fidelityRoI:*, fidelityLongDEMrq:*, fidelityLongDE:*, fidelityPeIndustry:*, fidelityProfitMarginMrqIndustryPct:*, fidelityCurrent:*, fidelityPSalesMrq:*, fidelityBookValueIndustryPct:*, fidelityGMargin:*, fidelityPretaxMarginMrqIndustryPct:*, fidelityEpsGrowth:*, fidelityPeFiveYr:*, fidelityEbitdMarginIndustryPct:*, fidelityDCIndustry:*, fidelityPSalesIndustry:*, fidelityRoeMrqIndustryPct:*, fidelityIncomeEmployIndustryPct:*, fidelityProfitMarginMrqIndustry:*, fidelityDEMrqIndustry:*, fidelityEVIndustryPct:*, fidelityEpsGrowthFiveYrIndustryPct:*, fidelityDCIndustryPct:*, fidelityPSalesMrqIndustry:*, fidelityGMarginIndustryPct:*, fidelityRevEmploy:*, fidelityDAMrq:*, fidelityRevChngYoYIndustry:*, fidelityRoAIndustryPct:*, fidelityDAMrqIndustryPct:*, fidelityCurrentIndustryPct:*, fidelityDEIndustryPct:*, fidelityCFlowGrowthFiveYrIndustryPct:*, fidelityLongDEIndustryPct:*, fidelityEpsGrowthProjLongIndustry:*, fidelityDCMrqIndustry:*, fidelityRevGrowthFiveYrIndustryPct:*, fidelityDEMrqIndustryPct:*, fidelityFcFIndustryPct:*, fidelityPretaxMargin:*, fidelityPSales:*, fidelityRevEmployIndustryPct:*, fidelityOpMarginMrq:*, fidelityGMarginMrqIndustry:*, fidelityBookGrowthFiveYr:*, fidelityRevChngYoY:*, fidelityRevChng:*, fidelityLongDEMrqIndustry:*, fidelityPSalesIndustryPct:*, fidelityEpsGrowthFiveYr:*, fidelityEpsGrowthProjLongIndustryPct:*, fidelityPBookIndustryPct:*, fidelityFcFIndustry:*, fidelityEpsGrowthIndustry:*, fidelityRoAMrqIndustry:*, fidelityBookGrowthFiveYrIndustry:*, fidelityDCMrq:*, fidelityBookValueIndustry:*, fidelityEpsGrowthYoYIndustry:*, fidelityBookValue:*, fidelityEbitdMarginIndustry:*, fidelityRevGrowthFiveYrIndustry:*, fidelityOpMargin:*, fidelityPretaxMarginIndustryPct:*, fidelityRoeMrq:*, fidelityPe:*, fidelityPcfIndustryPct:*, fidelityPretaxMarginIndustry:*, fidelityPcfMrq:*, fidelityGMarginMrqIndustryPct:*, fidelityDCMrqIndustryPct:*, fidelityFcF:*, fidelityPcfIndustry:*, fidelityOpMarginMrqIndustryPct:*, fidelityOpMarginMrqIndustry:*, fidelityDAIndustryPct:*, fidelityEbitdMargin:*, fidelityEpsGrowthFiveYrIndustry:*, fidelityBookGrowthFiveYrIndustryPct:*, fidelityCompustatLink:*, fidelityRoAMrq:*, fidelityRoA:*, fidelityRoIMrq:*, fidelityEpsGrowthIndustryPct:*, fidelityEpsGrowthProjLong:*, fidelityDAIndustry:*, fidelityProfitMarginMrq:*, fidelityCFlowGrowthFiveYrIndustry:*, fidelityRevChngYoYIndustryPct:*, fidelityGMarginMrq:*, fidelityOpMarginIndustry:*, fidelityDEMrq:*, fidelityPEGFiveYr:*, fidelityPcfMrqIndustryPct:*, fidelityRevGrowthFiveYr:*, fidelityRoeMrqIndustry:*, fidelityDEIndustry:*, fidelityPSalesMrqIndustryPct:*, fidelityCFlowGrowthFiveYr:*, fidelityPretaxMarginMrq:*, fidelityGMarginIndustry:*, fidelityRoEIndustry:*, fidelityRoIIndustryPct:*, fidelityRevEmployIndustry:*}>
  */
-exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
+exports.fetchFidelityKeyStats = async (ticker, browser) => {
+  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
+
   const fidelityKeyStatXpath = name =>
     `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
@@ -874,11 +890,13 @@ exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
 }
 
 /**
- * @param ticker
- * @param  {ScrapeTools} scrapeTools
+ * @param {string} ticker
+ * @param  {Browser} browser
  * @returns Promise<Object>
  */
-exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) => {
+exports.fetchFidelityAnalystOpinions = async (ticker, browser) => {
+  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
+
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
@@ -950,8 +968,8 @@ exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) =>
 }
 
 /**
- * @param ticker
- * @param cookie
+ * @param {string} ticker
+ * @param {Object} cookie
  * @returns {Promise<*|null>}
  */
 const getMoodysLink = async (ticker, cookie) => {
@@ -991,11 +1009,13 @@ const getMoodysLink = async (ticker, cookie) => {
 }
 
 /**
- * @param ticker
- * @param {ScrapeTools} scrapeTools
+ * @param {string} ticker
+ * @param {Browser} browser
  * @returns Promise<Object>
  */
-exports.fetchMoodysData = async (ticker, { getPageCookies, getPageDataFetcher }) => {
+exports.fetchMoodysData = async (ticker, browser) => {
+  const { getPageCookies, getPageDataFetcher } = makeScrapeTools(ticker, browser)
+
   const logger = new Logger(ticker, "Moodys")
 
   const moodysCookies = await getPageCookies("https://www.moodys.com/")
@@ -1111,7 +1131,16 @@ exports.fetchYahooData = async ticker => {
   return JSON.parse(text)
 }
 
-exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) => {
+/**
+ * @param {string} ticker
+ * @param {string} cfraRating
+ * @param {string} cfraLink
+ * @param {Browser} browser
+ * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
+ */
+exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, browser) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
     ? await fetchPdfData({
         analystName: CFRA,
@@ -1134,7 +1163,14 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
   }
 }
 
-exports.fetchBoaData = async (ticker, { getPageDataFetcher }) => {
+/**
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @returns {Promise<{boaIncome:*, morningstarLink:(string|string[]), boaInvestment:*, cfraRating:*, boaRating:*, morningstarRating:*, boaVolatility:*, cfraLink:(string|string[])}>}
+ */
+exports.fetchBoaData = async (ticker, browser) => {
+  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
+
   const boaFetcher = getPageDataFetcher(BOA, { timeout: BOA_TIMEOUT })
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
@@ -1171,7 +1207,16 @@ exports.fetchBoaData = async (ticker, { getPageDataFetcher }) => {
   }
 }
 
-exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
+/**
+ *
+ * @param {string} ticker
+ * @param {string} url
+ * @param {Browser} browser
+ * @returns {Promise<{argusAnalystOneYrDivGrowth:*, argusAnalystFiveYrEpsGrowth:*, argusAnalystRating:*, argusAnalystTarget:(number|string), argusAnalystFinancialStrength:*, argusAnalystOneYrEpsGrowth:*}>}
+ */
+exports.fetchArgusAnalyst = async (ticker, url, browser) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [
     argusAnalystRating,
     argusAnalystTargetStr,
@@ -1209,7 +1254,15 @@ exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
   }
 }
 
-exports.fetchMorningstarData = async (ticker, url, { fetchPdfData }) => {
+/**
+ * @param {string} ticker
+ * @param {string} url
+ * @param {Browser} browser
+ * @returns {Promise<{morningstarFairValue:*, morningstarUncertainty:*, morningstarDate:*, morningstarCapitalAllocation:*, morningstarMoat:*}>}
+ */
+exports.fetchMorningstarData = async (ticker, url, browser) => {
+  const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
   const [
     [morningstarFairValue] = [],
     morningstarMoat,
