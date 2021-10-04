@@ -71,7 +71,7 @@ module.exports = (ticker, browser) => {
         const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
         await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
         try {
-          await page.waitForXPath(waitForPostScroll, { timeout: XPATH_TIMEOUT })
+          await page.waitForXPath(waitForPostScroll, { timeout })
         } catch (err) {
           logger.error(`waitForXpath after scroll timed out -> url: ${url}`)
         }

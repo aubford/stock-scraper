@@ -139,7 +139,7 @@ module.exports = async (tickers, browser) => {
         prevSiblingTextIs("Argus Rating:", 3),
         `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
       ],
-      timeout: 10 * 1000,
+      timeout: ARGUS_RESEARCH_TIMEOUT,
     })
 
     // TIPRANKS

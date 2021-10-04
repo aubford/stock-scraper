@@ -55,7 +55,7 @@ const hedgeFundValues = [
   { first: "lee", last: "ainslie", value: 4 },
   { first: "", last: "chilton", value: 4 },
   { first: "george", last: "soros", value: 2 },
-  { first: "bill", last: "ackman", value: 3 },
+  { first: "bill", last: "ackman", value: 5 },
   { first: "fairholme", last: "", value: 4 }, // fairholme
   { first: "bruce", last: "berkowitz", value: 4 }, // fairholme
   { first: "vanguard", last: "health", value: 4 }, // vanguard health
@@ -147,7 +147,7 @@ exports.fetchFordData = async (ticker, { fetchPdfData }) => {
       prevSiblingTextIs("Relative Valuation"),
       prevSiblingTextIs("Price Movement"),
     ],
-    timeout: 10 * 1000,
+    timeout: FORD_TIMEOUT,
   })
 
   const fordRating = fordRatingSentence
@@ -202,7 +202,7 @@ const getHedgeRating = tipHedgeMoves => {
  */
 exports.fetchTipData = async (ticker, { getPageDataFetcher }) => {
   /** @type PageDataFetcher */
-  const fetcher = getPageDataFetcher(TIPRANKS, { timeout: 30 * 1000 })
+  const fetcher = getPageDataFetcher(TIPRANKS, { timeout: TIPRANKS_TIMEOUT })
   const setOk = await fetcher.setPageTrPopup()
   if (!setOk) {
     await fetcher.close()
@@ -380,7 +380,7 @@ exports.fetchNewConstructs = async (ticker, { fetchPdfData }) => {
       selfTextContains("Suspended"),
     ],
     waitForPostScroll: `//span[contains(text(),"Price-to-EBV Ratio is")]`,
-    timeout: 45 * 1000,
+    timeout: NEW_CONSTRUCTS_TIMEOUT,
   })
 
   const periodEndDate = ncPeriodEndDateStr
@@ -478,7 +478,7 @@ exports.fetchZacks = async (ticker, { fetchPdfData }, url) => {
       prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
       `//div[@id="viewer"]//div[@data-page-number=1]//span[2]`,
     ],
-    timeout: 10 * 1000,
+    timeout: ZACKS_TIMEOUT,
   })
 
   const zacksPriceStrClean = zacksPriceStr ? zacksPriceStr.replace("$", "") : ""
@@ -532,7 +532,7 @@ exports.fetchFidelityKeyStats = async (ticker, { getPageDataFetcher }) => {
   const fidelityKeyStatXpath = name =>
     `//div[@id="audit-integrity"]/table//tr[contains(td,"${name}")]/td[contains(@class,"right")]`
 
-  const fetcher = getPageDataFetcher(FIDELITY_STATS, { timeout: 10 * 1000 })
+  const fetcher = getPageDataFetcher(FIDELITY_STATS, { timeout: FIDELITY_STATS_TIMEOUT })
   await fetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/evaluate/fundamentals/keyStatistics.jhtml?stockspage=keyStatistics&symbols=${ticker}`
   )
@@ -882,7 +882,9 @@ exports.fetchFidelityAnalystOpinions = async (ticker, { getPageDataFetcher }) =>
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
-  const fidelityFetcher = getPageDataFetcher(FIDELITY, { timeout: 10 * 1000 })
+  const fidelityFetcher = getPageDataFetcher(FIDELITY, {
+    timeout: FIDELITY_ANALYST_TIMEOUT,
+  })
   await fidelityFetcher.setPage(
     `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
   )
@@ -1000,7 +1002,7 @@ exports.fetchMoodysData = async (ticker, { getPageCookies, getPageDataFetcher })
   const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
   if (moodysLink) {
-    const moodysFetcher = getPageDataFetcher("moodys", { timeout: 3 * 1000 })
+    const moodysFetcher = getPageDataFetcher("moodys", { timeout: MOODYS_TIMEOUT })
     await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
     const moodysData = await moodysFetcher.fetchPageData(
       [
@@ -1120,7 +1122,7 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
           prevSiblingTextContains("Analysis prepared by", 3),
         ],
         waitForPostScroll: prevSiblingTextContains("Calculation", 2),
-        timeout: 10 * 1000,
+        timeout: CFRA_TIMEOUT,
       })
     : []
 
@@ -1133,7 +1135,7 @@ exports.fetchCFRAData = async (ticker, cfraRating, cfraLink, { fetchPdfData }) =
 }
 
 exports.fetchBoaData = async (ticker, { getPageDataFetcher }) => {
-  const boaFetcher = getPageDataFetcher(BOA, { timeout: 10 * 1000 })
+  const boaFetcher = getPageDataFetcher(BOA, { timeout: BOA_TIMEOUT })
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
   )
@@ -1188,7 +1190,7 @@ exports.fetchArgusAnalyst = async (ticker, url, { fetchPdfData }) => {
       prevSiblingTextIs("5 Year EPS Growth Forecast"),
       prevSiblingTextIs("1 Year Dividend Growth Forecast"),
     ],
-    timeout: 10 * 1000,
+    timeout: ARGUS_ANALYST_TIMEOUT,
   })
 
   const argusAnalystTarget = argusAnalystTargetStr
@@ -1224,7 +1226,7 @@ exports.fetchMorningstarData = async (ticker, url, { fetchPdfData }) => {
       followingSiblingTextIs("Price vs. Fair Value ", 1),
       prevSiblingTextIs("Capital Allocation", 6),
     ],
-    timeout: 10 * 1000,
+    timeout: MORNINGSTAR_TIMEOUT,
   })
 
   return {

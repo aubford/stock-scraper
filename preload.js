@@ -19,7 +19,21 @@ try {
 // Constants
 
 global.PAUSE_MS = 200
-global.XPATH_TIMEOUT = 20000
+global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000
+global.XPATH_TIMEOUT = 30 * 1000
+
+global.NEW_CONSTRUCTS_TIMEOUT = 60 * 1000
+global.TIPRANKS_TIMEOUT = 30 * 1000
+global.FORD_TIMEOUT = 10 * 1000
+global.ZACKS_TIMEOUT = 10 * 1000
+global.FIDELITY_STATS_TIMEOUT = 10 * 1000
+global.FIDELITY_ANALYST_TIMEOUT = 10 * 1000
+global.MOODYS_TIMEOUT = 10 * 1000
+global.CFRA_TIMEOUT = 10 * 1000
+global.BOA_TIMEOUT = 10 * 1000
+global.ARGUS_ANALYST_TIMEOUT = 10 * 1000
+global.MORNINGSTAR_TIMEOUT = 10 * 1000
+global.ARGUS_RESEARCH_TIMEOUT = 10 * 1000
 
 global.ARGUS_ANALYST_KEY = "Argus Analyst"
 global.ARGUS_RESEARCH_KEY = "Argus Research A6/Quantitative (i)"
@@ -72,6 +86,7 @@ global.YAHOO_MODULES = [
   "upgradeDowngradeHistory",
 ]
 
+global.BAD_FETCHES = []
 global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
@@ -237,12 +252,11 @@ Promise.stagger = async (asyncFunc, paramArr, ms) => {
  *   capitalExpendituresCfQuartChart: number[],
  *   investmentsCfQuartChart: number[],
  *   totalCashflowsFromInvestingActivitiesCfQuartChart: number[],
- *   totalCashFromFinancingActivitiesCfQuartChart: number[]
- *   issuanceOfStockCfQuartChart: number[]
- *   netBorrowingsCfQuartChart: number[]
- *   otherCashflowsFromFinancingActivitiesCfQuartChart: number[]
+ *   totalCashFromFinancingActivitiesCfQuartChart: number[],
+ *   issuanceOfStockCfQuartChart: number[],
+ *   netBorrowingsCfQuartChart: number[],
+ *   otherCashflowsFromFinancingActivitiesCfQuartChart: number[],
  *   changeInCashCfQuartChart: number[],
- *
  *   endDateCfAnnuChart: string[],
  *   dividendsPaidCfAnnuChart: number[],
  *   maxAgeCfAnnuChart: number[],
@@ -256,10 +270,10 @@ Promise.stagger = async (asyncFunc, paramArr, ms) => {
  *   capitalExpendituresCfAnnuChart: number[],
  *   investmentsCfAnnuChart: number[],
  *   totalCashflowsFromInvestingActivitiesCfAnnuChart: number[],
- *   totalCashFromFinancingActivitiesCfAnnuChart: number[]
- *   issuanceOfStockCfAnnuChart: number[]
- *   netBorrowingsCfAnnuChart: number[]
- *   otherCashflowsFromFinancingActivitiesCfAnnuChart: number[]
+ *   totalCashFromFinancingActivitiesCfAnnuChart: number[],
+ *   issuanceOfStockCfAnnuChart: number[],
+ *   netBorrowingsCfAnnuChart: number[],
+ *   otherCashflowsFromFinancingActivitiesCfAnnuChart: number[],
  *   changeInCashCfAnnuChart: number[]
  * }}
  */
