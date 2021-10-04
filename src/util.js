@@ -43,12 +43,25 @@ const getTextByX = async (page, selector) => {
 }
 
 const wrapPage = page => {
-  page.getTextByX = text => getTextByX(page, text)
-  page.closeSafe = () =>
-    page && !page.isClosed()
-      ? page.close().catch(err => console.log("Page Close Error: ", err))
-      : Promise.resolve()
-  page.setDefaultNavigationTimeout(60000)
+  page.getTextByX = text =>
+    getTextByX(page, text).catch(err => console.error("🚨 getTextByX: ", err))
+
+  page.closeSafe = () => {
+    const isOpen = page && !page.isClosed()
+
+    if (isOpen) {
+      return page.close().catch(err => {
+        console.error("🚨 Page Close Error: ", err)
+      })
+    }
+    return Promise.resolve()
+  }
+
+  try {
+    page.setDefaultNavigationTimeout(DEFAULT_NAVIGATION_TIMEOUT)
+  } catch (err) {
+    console.error("🚨 setDefaultNavigationTimeout:" + err)
+  }
 }
 
 /** @returns {Promise<MyPage>} */
