@@ -97,7 +97,7 @@ module.exports = (ticker, browser) => {
 
     /**
      * @param {string} analystName
-     * @param {{timeout:string}} options
+     * @param {{timeout:number}} options
      * @returns {PageDataFetcher}
      */
     getPageDataFetcher(analystName, options) {

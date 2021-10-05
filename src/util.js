@@ -187,10 +187,24 @@ const scrapbookWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
-  metaWriteOut(writeToFile)
+  writeShortDatesToMeta(writeToFile)
 }
 
-const metaWriteOut = data => {
+const metaWriteBadFetches = badFetches => {
+  /** @type {*} */
+  const existingFile = fs.readFileSync(META_LOCATION)
+  const existingMeta = JSON.parse(existingFile)
+
+  writeFile(META_LOCATION, {
+    ...existingMeta,
+    badFetches: existingMeta.badFetches.concat({
+      date: moment().format("MMM D YY: h:mm a"),
+      tickers: badFetches,
+    }),
+  })
+}
+
+const writeShortDatesToMeta = data => {
   /** @type {*} */
   const existingFile = fs.readFileSync(META_LOCATION)
   const existingMeta = JSON.parse(existingFile)
@@ -198,6 +212,7 @@ const metaWriteOut = data => {
   const wsjShortDateList = makeWsjShortDateList(data, existingMeta)
 
   writeFile(META_LOCATION, {
+    ...existingMeta,
     wsjShortDateList,
     wsjShortDatePrev: wsjShortDateList[wsjShortDateList.length - 2],
   })
@@ -337,6 +352,7 @@ module.exports = {
   scrapbookWriteOut,
   writeFile,
   wrapPage,
+  metaWriteBadFetches,
   makePrettyDate,
   selfTextContains,
 }

@@ -87,7 +87,8 @@
       "YAHOO_MODULES": true,
       "CONNECTION": true,
       "FIDELITY_STATS": true,
-      "TIPRANKS": true
+      "TIPRANKS": true,
+      "BAD_FETCHES": true
     },
     "extends": [
       "eslint:recommended"

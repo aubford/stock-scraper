@@ -1,5 +1,6 @@
 const puppeteer = require("puppeteer-core")
-const { omit, sortBy } = require("lodash")
+const { exec } = require("child_process")
+const { sortBy } = require("lodash")
 const {
   newBrowserPage,
   scrapbookWriteOut,
@@ -8,6 +9,8 @@ const {
   promptUser,
   promptForPause,
   getOnlyStockTickerData,
+  pause,
+  metaWriteBadFetches,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("./introspectStockData")
@@ -24,6 +27,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const sectorUserInputVal = await promptUser("Sectors:")
 
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
+  exec("caffeinate")
 
   const oldFile = backupReturnStockDataFile()
   const stockData = getOnlyStockTickerData(oldFile)
@@ -62,5 +66,25 @@ puppeteer.connect(CONNECTION).then(async browser => {
   for (const sector of sectorsSortedByUpdateDate) {
     await updateSector(sector)
   }
+
+  // Try one more time to fetch bad fetches
+  if (BAD_FETCHES.length) {
+    console.log(`Fetching BAD_FETCHES: ${BAD_FETCHES.join(", ")}`)
+
+    await pause(60000)
+
+    const badFetchesToFetch = [...global.BAD_FETCHES]
+    global.BAD_FETCHES = []
+
+    const newStockData = await scrapeDataForTickers(badFetchesToFetch, browser)
+    scrapbookWriteOut(newStockData)
+
+    if (BAD_FETCHES.length) {
+      metaWriteBadFetches(BAD_FETCHES)
+    }
+  }
+
+  exec("killall caffeinate")
+
   exit()
 })

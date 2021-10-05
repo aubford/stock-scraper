@@ -170,6 +170,7 @@ class PageDataFetcher {
     const { page } = this
 
     if (!page || !selector) {
+      this.logger.error(`Page click: No page/selector for ${selector}`)
       return Promise.resolve()
     }
 
