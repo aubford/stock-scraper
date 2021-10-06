@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
+    "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json",
     "start": "npm run updateWs && node --require ./preload.js src/index.js && npm run prettyStock",
     "update": "npm run updateWs && node --require ./preload.js src/update.js && npm run prettyStock",
     "update-yahoo-wsj": "node --require ./preload.js src/updateYahooWsj.js && npm run prettyStock",

@@ -35,12 +35,14 @@
     <orderEntry type="library" name="@types/node" level="application" />
     <orderEntry type="library" name="@types/puppeteer-core" level="application" />
     <orderEntry type="library" name="@types/react" level="application" />
-    <orderEntry type="library" name="@types/react-addons-create-fragment" level="application" />
     <orderEntry type="library" name="@types/react-dom" level="application" />
     <orderEntry type="library" name="@types/underscore" level="application" />
     <orderEntry type="library" name="@types/puppeteer" level="application" />
     <orderEntry type="library" name="@types/node-fetch" level="application" />
     <orderEntry type="library" name="@types/cheerio" level="application" />
     <orderEntry type="library" name="@types/moment-jalaali" level="application" />
+    <orderEntry type="library" name="@types/babel__plugin-transform-runtime" level="application" />
+    <orderEntry type="library" name="@types/babel__preset-env" level="application" />
+    <orderEntry type="library" name="@types/eslint" level="application" />
   </component>
 </module>

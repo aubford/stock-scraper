@@ -5,3 +5,6 @@ ws.json
 testOutput.json
 test/scratch.js
 .DS_Store
+
+/stockData.json
+/stockDataMeta.json
