@@ -16,9 +16,9 @@ const Logger = require("./Logger")
 /**
  * @name ScrapeTools
  * @typedef {{
- *   fetchPdfData(*): Promise<*[]>,
+ *   fetchPdfData({url: string, analystName: string, xPathArr: string[], waitForPostScroll: *, timeout?: number}): Promise<*[]>,
  *   getPageCookies(*): Promise<*[]>,
- *   getPageDataFetcher(analystName: string, options: Object): PageDataFetcher,
+ *   getPageDataFetcher(analystName: string, options: {timeout:number}): PageDataFetcher,
  * }}
  */
 

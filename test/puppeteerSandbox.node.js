@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
+// noinspection JSUnusedLocalSymbols
+
 const puppeteer = require("puppeteer-core")
 const { webSocketDebuggerUrl } = require("../ws.json")
 const makeScrapeTools = require("../src/makeScrapeTools")
-const { fetchTipData } = require("../src/api")
 
 const connection = {
   browserWSEndpoint: webSocketDebuggerUrl,
@@ -13,9 +15,6 @@ const connection = {
 
 puppeteer.connect(connection).then(async browser => {
   const scrapeTools = makeScrapeTools("TPX", browser)
-  const tipData = await fetchTipData("TPX", scrapeTools)
-
-  console.log(tipData)
 
   process.exit(0)
 

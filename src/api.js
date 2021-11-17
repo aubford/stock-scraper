@@ -28,7 +28,7 @@ const cleanFidelityStrings = val =>
  * @returns {Promise<string>}
  */
 const fetchText = async (...fetchArgs) => {
-  const response = await fetch(...fetchArgs)
+  const response = await fetch(/**@type * */ ...fetchArgs)
   return await response.text()
 }
 
@@ -1041,7 +1041,7 @@ exports.fetchMoodysData = async (ticker, browser) => {
 
 /**
  * @param ticker
- * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}>}
+ * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}> | []}
  */
 exports.fetchWSJData = async ticker => {
   const logger = new Logger(ticker, "WSJ")
@@ -1080,11 +1080,11 @@ exports.fetchWSJData = async ticker => {
       ],
       350
     )
-    const researchPageDoc = Cheerio.load(researchPage)
+    const researchPageDoc = Cheerio.load(/**@type * */ researchPage)
     const html = researchPageDoc(".cr_analystRatings .data_data")
 
-    const mainPageDoc = Cheerio.load(mainPage)
-    const financialsPageDoc = Cheerio.load(financialsPage)
+    const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
+    const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
 
     const wsjShortDateRaw = mainPageDoc(`h3:contains("Short Interest ") span`).text()
     const wsjShortDate = wsjShortDateRaw

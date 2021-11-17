@@ -9,7 +9,3 @@
 //const {
 //  quoteSummary: { result },
 //} = yahooData
-const _ = require("lodash")
-const arr = [5, 6, 7]
-
-arr[arr.length - 2] /*?*/
