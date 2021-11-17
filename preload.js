@@ -18,22 +18,24 @@ try {
 
 // Constants
 
-global.PAUSE_MS = 200
-global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000
-global.XPATH_TIMEOUT = 30 * 1000
+const timeoutCoeff = 1
 
-global.NEW_CONSTRUCTS_TIMEOUT = 60 * 1000
-global.TIPRANKS_TIMEOUT = 30 * 1000
-global.FORD_TIMEOUT = 10 * 1000
-global.ZACKS_TIMEOUT = 10 * 1000
-global.FIDELITY_STATS_TIMEOUT = 10 * 1000
-global.FIDELITY_ANALYST_TIMEOUT = 10 * 1000
-global.MOODYS_TIMEOUT = 10 * 1000
-global.CFRA_TIMEOUT = 10 * 1000
-global.BOA_TIMEOUT = 10 * 1000
-global.ARGUS_ANALYST_TIMEOUT = 10 * 1000
-global.MORNINGSTAR_TIMEOUT = 10 * 1000
-global.ARGUS_RESEARCH_TIMEOUT = 10 * 1000
+global.PAUSE_MS = 1000 * timeoutCoeff
+global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
+global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
+
+global.NEW_CONSTRUCTS_TIMEOUT = 60 * 1000 * timeoutCoeff
+global.TIPRANKS_TIMEOUT = 30 * 1000 * timeoutCoeff
+global.FORD_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.FIDELITY_STATS_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.FIDELITY_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.MOODYS_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.CFRA_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.MORNINGSTAR_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.ARGUS_RESEARCH_TIMEOUT = 10 * 1000 * timeoutCoeff
 
 global.ARGUS_ANALYST_KEY = "Argus Analyst"
 global.ARGUS_RESEARCH_KEY = "Argus Research A6/Quantitative (i)"

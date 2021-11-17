@@ -272,12 +272,6 @@ const pauseExecutionPerNTickers = async (ticker, tickers) => {
   }
 }
 
-const promptForPause = async () => {
-  const pauseTimeout = await promptUser("Pause Timeout: ")
-  global.PAUSE_MS = pauseTimeout ? pauseTimeout * 1000 : PAUSE_MS
-  console.log("PAUSE MS", PAUSE_MS)
-}
-
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   const logger = new Logger(ticker, "Fidelity Secret URL")
   logger.log(`getFidelitySecretUrl browser = ${browser}`)
@@ -345,7 +339,6 @@ module.exports = {
   pause,
   prevSiblingTextContains,
   prevSiblingTextIs,
-  promptForPause,
   promptForTickers,
   promptLogin,
   promptUser,

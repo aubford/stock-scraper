@@ -7,7 +7,6 @@ const {
   promptLogin,
   backupReturnStockDataFile,
   promptUser,
-  promptForPause,
   getOnlyStockTickerData,
   pause,
   metaWriteBadFetches,
@@ -21,8 +20,6 @@ const exit = () => {
 }
 
 puppeteer.connect(CONNECTION).then(async browser => {
-  await promptForPause()
-
   await promptLogin((url, options) => newBrowserPage(browser, url, options))
   const sectorUserInputVal = await promptUser("Sectors:")
 

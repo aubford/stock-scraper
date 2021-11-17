@@ -5,14 +5,11 @@ const {
   promptForTickers,
   promptLogin,
   backupReturnStockDataFile,
-  promptForPause,
   getOnlyStockTickerData,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 
 puppeteer.connect(CONNECTION).then(async browser => {
-  await promptForPause()
-
   const newPage = (url, options) => newBrowserPage(browser, url, options)
   const closeLoginPages = await promptLogin(newPage)
 

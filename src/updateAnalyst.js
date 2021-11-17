@@ -13,7 +13,6 @@ const {
   scrapbookWriteOut,
   promptForTickers,
   promptUser,
-  promptForPause,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
 } = require("./util")
@@ -31,7 +30,6 @@ const stockDataFile = backupReturnStockDataFile()
 const stockData = getOnlyStockTickerData(stockDataFile)
 
 puppeteer.connect(CONNECTION).then(async browser => {
-  await promptForPause()
   const analyst = await promptUser("Analyst: ")
   const fetchAnalystData = analystMap[analyst]
 
