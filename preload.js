@@ -18,7 +18,7 @@ try {
 
 // Constants
 
-const timeoutCoeff = 1
+const timeoutCoeff = 2
 
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
@@ -31,7 +31,7 @@ global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_STATS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MOODYS_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.CFRA_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MORNINGSTAR_TIMEOUT = 10 * 1000 * timeoutCoeff
