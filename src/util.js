@@ -74,9 +74,7 @@ const newBrowserPage = async (browser, url, options = {}) => {
     await page.goto(url, options)
   } catch (error) {
     const msg = `🚨 PAGE LOAD ERROR -> ${error}`
-    options.logger ? options.logger.error(msg) : console.error(msg)
-    page.error = error
-    return page
+    throw new Error(msg)
   }
 
   return page
