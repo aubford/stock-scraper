@@ -7,9 +7,9 @@ const {
   backupReturnStockDataFile,
   promptUser,
   getOnlyStockTickerData,
-} = require("./util")
-const scrapeDataForTickers = require("./scrapeDataForTickers")
-const { getSectorIndex, sectorMap } = require("./introspectStockData")
+} = require("../util")
+const scrapeDataForTickers = require("../scrapeDataForTickers")
+const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
 const exit = () => {
   exec("killall caffeinate")

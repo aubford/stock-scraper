@@ -1,4 +1,4 @@
-require("../preload")
+require("../../preload")
 const {
   sectorMap,
   getEarningsDates,
@@ -7,7 +7,7 @@ const {
 const moment = require("moment")
 const { cyan, yellow } = require("chalk")
 const { toPairs, sortBy } = require("lodash")
-const { getOnlyStockTickerData } = require("../src/util")
+const { getOnlyStockTickerData } = require("../util")
 
 const stockDataJson = require(STOCK_DATA_LOCATION)
 const stockData = getOnlyStockTickerData(stockDataJson)

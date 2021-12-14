@@ -12,7 +12,7 @@ const {
   searchKeys,
   getSectorLastUpdatedIndex,
   sectorMap,
-} = require("../src/introspectStockData")
+} = require("../src/database/introspectStockData")
 const { getOnlyStockTickerData } = require("../src/util")
 const { isArray, toPairs, merge, sortBy, omit, mapValues, groupBy } = require("lodash")
 

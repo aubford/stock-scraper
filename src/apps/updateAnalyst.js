@@ -1,12 +1,12 @@
 const puppeteer = require("puppeteer-core")
-const makeScrapeTools = require("./makeScrapeTools")
+const makeScrapeTools = require("../makeScrapeTools")
 const {
   fetchFidelityAnalystOpinions,
   fetchFidelityKeyStats,
   fetchNewConstructs,
   fetchZacks,
   fetchTipData,
-} = require("./api")
+} = require("../api")
 const {
   getFidelitySecretUrl,
   scrapbookWriteOut,
@@ -14,7 +14,7 @@ const {
   promptUser,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
-} = require("./util")
+} = require("../util")
 
 /** @type {Object<function>} */
 const analystMap = {

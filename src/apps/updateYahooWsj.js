@@ -1,11 +1,11 @@
 const { chunk, fromPairs } = require("lodash")
-const { fetchYahooData, fetchWSJData } = require("./api")
-const buildCompanyData = require("./buildCompanyData")
+const { fetchYahooData, fetchWSJData } = require("../api")
+const buildCompanyData = require("../buildCompanyData")
 const {
   getOnlyStockTickerData,
   scrapbookWriteOut,
   backupReturnStockDataFile,
-} = require("./util")
+} = require("../util")
 
 const stockFile = backupReturnStockDataFile()
 const stockData = getOnlyStockTickerData(stockFile)

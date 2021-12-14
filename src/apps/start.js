@@ -5,8 +5,8 @@ const {
   promptLogin,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
-} = require("./util")
-const scrapeDataForTickers = require("./scrapeDataForTickers")
+} = require("../util")
+const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { exec } = require("child_process")
 
 const exit = () => {

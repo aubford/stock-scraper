@@ -1,4 +1,4 @@
-const { writeFile, promptForTickers, backupReturnStockDataFile } = require("./util")
+const { writeFile, promptForTickers, backupReturnStockDataFile } = require("../util")
 
 promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/).filter(a => a)

@@ -1,4 +1,4 @@
-const { scrapbookWriteOut, promptForTickers } = require("./util")
+const { scrapbookWriteOut, promptForTickers } = require("../util")
 
 // want new tickers to update first when running update.js script
 const randomOldDate = new Date(2000, 7, 24)
