@@ -1,5 +1,5 @@
 const moment = require("moment")
-const { min, mapValues, isPlainObject, groupBy } = require("lodash")
+const { max, mapValues, isPlainObject, groupBy } = require("lodash")
 
 const getFirstSentence = str =>
   str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null
@@ -72,7 +72,7 @@ const getUpdateCalendar = stockData => {
 const getSectorLastUpdatedIndex = stockData =>
   mapValues(getSectorIndex(stockData), sector => {
     const date = new Date(
-      min(sector.map(ticker => stockData[ticker].scrapeDataUpdatedAt))
+      max(sector.map(ticker => stockData[ticker].scrapeDataUpdatedAt))
     )
     const month = date.getMonth()
     if (month) {

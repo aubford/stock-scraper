@@ -21,7 +21,11 @@ const {
   prevSiblingTextIs,
   followingSiblingTextIs,
   makePrettyDate,
+  scrapbookWriteOut,
+  pause,
+  writeFile,
 } = require("./util")
+const moment = require("moment")
 
 const scrapeDataForTicker = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
@@ -187,23 +191,56 @@ const scrapeDataForTicker = async (ticker, browser) => {
   }
 }
 
-/**
- * @param {string[]} tickers
- * @param {Browser} browser
- * @returns {Promise<{}>}
- */
-module.exports = async (tickers, browser) => {
-  console.log("Searching for tickers:", tickers)
+const metaWriteBadFetches = badFetches => {
+  /** @type {*} */
+  const existingFile = fs.readFileSync(META_LOCATION)
+  const existingMeta = JSON.parse(existingFile)
 
+  writeFile(META_LOCATION, {
+    ...existingMeta,
+    badFetches: existingMeta.badFetches.concat({
+      date: moment().format("MMM D YY: h:mm a"),
+      tickers: badFetches,
+    }),
+  })
+}
+
+module.exports = async (allTickers, browser) => {
+  let badFetches = []
   const newStockData = {}
-  for (const ticker of tickers) {
-    try {
-      newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
-      console.log(`* TICKER COMPLETED OK: ${ticker}`)
-    } catch (err) {
-      console.log(`${ticker}: xxx FAIL xxx`, err)
-      BAD_FETCHES.push(ticker)
+
+  const scrapeDataForTickers = async tickers => {
+    console.log("Searching for tickers:", tickers)
+
+    for (const ticker of tickers) {
+      try {
+        newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
+        console.log(`* TICKER COMPLETED OK: ${ticker}`)
+      } catch (error) {
+        console.log(`${ticker}: xxx FAIL xxx`, error)
+        badFetches.push(ticker)
+        newStockData[ticker] = { error }
+      }
     }
   }
-  return newStockData
+
+  await scrapeDataForTickers(allTickers)
+
+  if (badFetches.length) {
+    console.log(`Fetching badFetches: ${badFetches.join(", ")}`)
+
+    await pause(30 * 1000)
+
+    const refetchTickers = [...badFetches]
+    badFetches = []
+
+    await scrapeDataForTickers(refetchTickers)
+
+    // if there are still bad fetches after second pass, log them in meta
+    if (badFetches.length) {
+      metaWriteBadFetches(badFetches)
+    }
+  }
+
+  scrapbookWriteOut(newStockData)
 }

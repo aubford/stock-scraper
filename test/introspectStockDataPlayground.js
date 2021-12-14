@@ -9,6 +9,7 @@ const {
   getDesc,
   getEarningsDates,
   getUpdateCalendar,
+  searchKeys,
   getSectorLastUpdatedIndex,
   sectorMap,
 } = require("../src/introspectStockData")

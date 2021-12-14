@@ -3,18 +3,16 @@ const { exec } = require("child_process")
 const { sortBy } = require("lodash")
 const {
   newBrowserPage,
-  scrapbookWriteOut,
   promptLogin,
   backupReturnStockDataFile,
   promptUser,
   getOnlyStockTickerData,
-  pause,
-  metaWriteBadFetches,
 } = require("./util")
 const scrapeDataForTickers = require("./scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("./introspectStockData")
 
 const exit = () => {
+  exec("killall caffeinate")
   console.log("Update Complete: SUCCESS 🎉")
   process.exit(0)
 }
@@ -33,9 +31,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const updateSector = async sector => {
     console.log(`+++++++ Updating Sector: ${sector} +++++++`)
     const tickers = sectorIndex[sector]
-    const newStockData = await scrapeDataForTickers(tickers, browser)
+    await scrapeDataForTickers(tickers, browser)
 
-    scrapbookWriteOut(newStockData)
     console.log(`SECTOR UPDATED: ${sector} ✅`)
   }
 
@@ -63,25 +60,6 @@ puppeteer.connect(CONNECTION).then(async browser => {
   for (const sector of sectorsSortedByUpdateDate) {
     await updateSector(sector)
   }
-
-  // Try one more time to fetch bad fetches
-  if (BAD_FETCHES.length) {
-    console.log(`Fetching BAD_FETCHES: ${BAD_FETCHES.join(", ")}`)
-
-    await pause(60000)
-
-    const badFetchesToFetch = [...global.BAD_FETCHES]
-    global.BAD_FETCHES = []
-
-    const newStockData = await scrapeDataForTickers(badFetchesToFetch, browser)
-    scrapbookWriteOut(newStockData)
-
-    if (BAD_FETCHES.length) {
-      metaWriteBadFetches(BAD_FETCHES)
-    }
-  }
-
-  exec("killall caffeinate")
 
   exit()
 })

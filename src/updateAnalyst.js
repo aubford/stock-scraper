@@ -9,7 +9,6 @@ const {
 } = require("./api")
 const {
   getFidelitySecretUrl,
-  pauseExecutionPerNTickers,
   scrapbookWriteOut,
   promptForTickers,
   promptUser,
@@ -39,8 +38,6 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   const newData = {}
   for (const ticker of tickers) {
-    await pauseExecutionPerNTickers(ticker, tickers)
-
     let url
     if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
       const link = stockData[ticker][analyst + "Link"]

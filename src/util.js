@@ -13,6 +13,7 @@ const {
 } = require("lodash")
 const readline = require("readline")
 const Logger = require("./Logger")
+
 /**
  * @typedef {Page} MyPage
  * @property getTextByX
@@ -188,20 +189,6 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   writeShortDatesToMeta(writeToFile)
 }
 
-const metaWriteBadFetches = badFetches => {
-  /** @type {*} */
-  const existingFile = fs.readFileSync(META_LOCATION)
-  const existingMeta = JSON.parse(existingFile)
-
-  writeFile(META_LOCATION, {
-    ...existingMeta,
-    badFetches: existingMeta.badFetches.concat({
-      date: moment().format("MMM D YY: h:mm a"),
-      tickers: badFetches,
-    }),
-  })
-}
-
 const writeShortDatesToMeta = data => {
   /** @type {*} */
   const existingFile = fs.readFileSync(META_LOCATION)
@@ -249,25 +236,17 @@ const promptLogin = newPage => {
     "https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=USB&c_name=invest_VENDOR",
   ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
 
-  return () =>
+  return () => {
     Promise.all(pages).then(pages =>
       pages.forEach(page => {
         page.closeSafe()
       })
     )
+  }
 }
 
 const pause = async ms => {
   return await new Promise(resolve => setTimeout(resolve, ms))
-}
-
-const pauseExecutionPerNTickers = async (ticker, tickers) => {
-  // Pause every 10 tickers
-  const tickerIndex = tickers.indexOf(ticker)
-  if ((tickerIndex + 1) % 11 === 0) {
-    console.log(`((pause for ${PAUSE_MS}))`)
-    await pause(PAUSE_MS)
-  }
 }
 
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
@@ -333,7 +312,6 @@ module.exports = {
   millBillStrToNum,
   newBrowserPage,
   parseStreetBulletData,
-  pauseExecutionPerNTickers,
   pause,
   prevSiblingTextContains,
   prevSiblingTextIs,
@@ -343,7 +321,6 @@ module.exports = {
   scrapbookWriteOut,
   writeFile,
   wrapPage,
-  metaWriteBadFetches,
   makePrettyDate,
   selfTextContains,
 }

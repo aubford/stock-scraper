@@ -1,5 +1,9 @@
 require("../preload")
-const { sectorMap, getEarningsDates, getSectorLastUpdatedIndex } = require("./introspectStockData")
+const {
+  sectorMap,
+  getEarningsDates,
+  getSectorLastUpdatedIndex,
+} = require("./introspectStockData")
 const moment = require("moment")
 const { cyan, yellow } = require("chalk")
 const { toPairs, sortBy } = require("lodash")
@@ -30,7 +34,6 @@ global.getEarnings = () => {
       console.log(dateF, ":", tickersF)
     })
 }
-
 
 global.getSectorMap = () => {
   console.log(Object.fromEntries(sectorMap.entries()))
