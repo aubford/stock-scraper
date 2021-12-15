@@ -174,6 +174,20 @@ const writeFile = (location, data) => {
   }
 }
 
+const readFile = location => {
+  const file = fs.readFileSync(location)
+  return JSON.parse(file)
+}
+
+const backupReturnStockDataFile = () => {
+  fs.copyFileSync(
+    STOCK_DATA_BACKUP_LOCATION,
+    `${SCRAPBOOK_LOCATION}/stockDataBackup_backup_${moment().format()}.json`
+  )
+  fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
+  return readFile(STOCK_DATA_LOCATION)
+}
+
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
@@ -266,13 +280,6 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   } finally {
     await page.closeSafe()
   }
-}
-
-const backupReturnStockDataFile = () => {
-  fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
-  /** @type * */
-  const file = fs.readFileSync(STOCK_DATA_LOCATION)
-  return JSON.parse(file)
 }
 
 const getFirstLastValue = str => {

@@ -46,10 +46,9 @@ puppeteer.connect(CONNECTION).then(async browser => {
       }
     }
 
-    const scrapeTools = makeScrapeTools(ticker, browser)
-    newData[ticker] = await fetchAnalystData(ticker, scrapeTools, url)
+    newData[ticker] = await fetchAnalystData(ticker, browser, url)
   }
 
-  scrapbookWriteOut(stockData, true)
+  scrapbookWriteOut(newData, true)
   process.exit(0)
 })

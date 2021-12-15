@@ -1,5 +1,5 @@
 const { zip, fromPairs } = require("lodash")
-const { wrapPage, pause, newBrowserPage, evalX } = require("./util")
+const { wrapPage, newBrowserPage, evalX } = require("./util")
 const Logger = require("./Logger")
 
 class PageDataFetcher {
@@ -37,44 +37,33 @@ class PageDataFetcher {
   async setPageTrPopup() {
     this.originPage = await this.newPage(
       `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=${this.ticker}&c_name=invest_VENDOR`,
-      { waitUntil: "networkidle0", logger: this.logger }
+      { waitUntil: "domcontentloaded", logger: this.logger }
     )
 
     if (this.originPage.error) {
       return false
     }
 
-    const getMainFrame = async () => {
-      let frameMain = this.originPage.frames().find(frame => frame.name() === "main")
-      if (!frameMain) {
-        this.logger.warn(`Main Frame not found on first pass`)
-        await pause(3500)
-        frameMain = this.originPage.frames().find(frame => frame.name() === "main")
-        if (!frameMain) {
-          this.logger.error(`*** Main Frame not found on second pass ***`)
-        }
-      } else {
-        return frameMain
-      }
-    }
+    const analystReportsFrame = await this.originPage.waitForFrame(async frame => {
+      return frame.url().includes("highcharts-analyst-reports")
+    })
 
-    const mainFrame = await getMainFrame()
-
-    const analystReportsFrame = mainFrame
-      .childFrames()
-      .find(frame => frame.name() === "tdaxModuleAnalystReportsHighchartsIframe")
-
-    const hasButton =
+    const tipranksButton =
       analystReportsFrame &&
-      (await analystReportsFrame.$(`div.highcharts-footer > button`))
+      (await analystReportsFrame.waitForSelector("button.see-full-report"))
 
-    if (hasButton) {
-      await analystReportsFrame.click(`div.highcharts-footer > button`).catch(() => {
-        this.logger.warn(`Error on click even though Tipranks button exists`)
-      })
-      this.page = await new Promise(res =>
-        this.browser.once("targetcreated", target => res(target.page()))
+    if (tipranksButton) {
+      await tipranksButton
+        .evaluate(el => el.click())
+        .catch(() => {
+          this.logger.warn(`Error on click even though Tipranks button exists`)
+        })
+
+      const newTarget = await this.browser.waitForTarget(
+        target => target.type() === "page" && target.url().includes("popup")
       )
+
+      this.page = await newTarget.page()
 
       if (!this.page) {
         this.logger.error(`this.page is null for Tipranks popup`)

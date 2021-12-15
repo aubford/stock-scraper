@@ -19,10 +19,11 @@
     "revert-db": "cp \"$STOCK_SCRAPBOOK_LOCATION/stockDataBackup.json\" \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "start-over": "npm run reset-db && npm run add && npm run update-yahoo-wsj && npm run extra && npm run update",
     "add-tickers": "node --require ./preload.js src/database/addTickers.js && npm run prettyStock",
+    "migrate": "node --require ./preload.js src/database/migrations.js && npm run prettyStock",
     "prune-tickers": "node --require ./preload.js src/database/pruneTickers.js && npm run prettyStock",
     "test": "jest",
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
-    "launch": "killall Google\\ Chrome; /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-features=site-per-process",
+    "launch": "killall Google\\ Chrome; /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-features=IsolateOrigins,site-per-process",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "updateWs": "curl localhost:9222/json/version > ws.json",
     "sandbox": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.node.js"
@@ -39,7 +40,7 @@
     "merge-img": "^2.1.3",
     "moment": "^2.29.1",
     "node-fetch": "^2.6.1",
-    "puppeteer-core": "^7.1.0"
+    "puppeteer-core": "^13.0.0"
   },
   "devDependencies": {
     "eslint": "^7.21.0"
