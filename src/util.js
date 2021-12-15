@@ -318,6 +318,7 @@ module.exports = {
   hasCFRA,
   millBillStrToNum,
   newBrowserPage,
+  readFile,
   parseStreetBulletData,
   pause,
   prevSiblingTextContains,

@@ -2,7 +2,9 @@ const { mapValues, pick } = require("lodash")
 const { getOnlyStockTickerData, readFile, writeFile } = require("../util")
 
 const currentData = readFile(STOCK_DATA_LOCATION)
-const backupData = readFile(STOCK_DATA_BACKUP_LOCATION)
+const backupData = readFile(
+  "/Users/aubrey/Google Drive/stock-scrapbook/stockDataBackup_backup_2021-12-14T10:53:00-08:00.json"
+)
 
 const stockData = getOnlyStockTickerData(currentData)
 
@@ -19,8 +21,7 @@ const newData = mapValues(stockData, tickerData => {
 })
 
 const writeOutData = { ...currentData, ...newData }
-console.log(writeOutData)
 
-// writeFile(STOCK_DATA_LOCATION, { ...currentData, ...newData })
-//
-// process.exit(0)
+writeFile(STOCK_DATA_LOCATION, writeOutData)
+
+process.exit(0)
