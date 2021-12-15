@@ -45,15 +45,19 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     const newData = {}
     for (const ticker of tickers) {
-      let url
-      if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
-        const link = stockData[ticker][analyst + "Link"]
-        if (link) {
-          url = await getFidelitySecretUrl(link, browser, ticker)
+      try {
+        let url
+        if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
+          const link = stockData[ticker][analyst + "Link"]
+          if (link) {
+            url = await getFidelitySecretUrl(link, browser, ticker)
+          }
         }
-      }
 
-      newData[ticker] = await fetchAnalystData(ticker, browser, url)
+        newData[ticker] = await fetchAnalystData(ticker, browser, url)
+      } catch (err) {
+        console.log(`${ticker}: xxx FAIL xxx`, err)
+      }
     }
 
     scrapbookWriteOut(newData, true)

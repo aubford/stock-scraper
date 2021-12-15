@@ -312,7 +312,7 @@ const begin = () => {
 
 const exit = () => {
   exec("killall caffeinate")
-  console.log("Scraping Complete: SUCCESS 🎉")
+  console.log("🎉🎉 Scraping Complete: SUCCESS 🎉🎉")
   process.exit(0)
 }
 
