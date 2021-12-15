@@ -1,5 +1,4 @@
 const puppeteer = require("puppeteer-core")
-const { exec } = require("child_process")
 const { sortBy } = require("lodash")
 const {
   newBrowserPage,
@@ -7,22 +6,17 @@ const {
   backupReturnStockDataFile,
   promptUser,
   getOnlyStockTickerData,
+  begin,
+  exit,
 } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
-const exit = () => {
-  exec("killall caffeinate")
-  console.log("Update Complete: SUCCESS 🎉")
-  process.exit(0)
-}
-
 puppeteer.connect(CONNECTION).then(async browser => {
+  begin()
+
   await promptLogin((url, options) => newBrowserPage(browser, url, options))
   const sectorUserInputVal = await promptUser("Sectors:")
-
-  console.warn("********  Turn on PDF Viewer extension!!!! ********")
-  exec("caffeinate")
 
   const oldFile = backupReturnStockDataFile()
   const stockData = getOnlyStockTickerData(oldFile)

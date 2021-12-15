@@ -14,6 +14,8 @@ const {
   promptUser,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
+  exit,
+  begin,
 } = require("../util")
 
 /** @type {Object<function>} */
@@ -29,6 +31,8 @@ const stockDataFile = backupReturnStockDataFile()
 const stockData = getOnlyStockTickerData(stockDataFile)
 
 puppeteer.connect(CONNECTION).then(async browser => {
+  begin()
+
   const analyst = await promptUser("Analyst: ")
   const fetchAnalystData = analystMap[analyst]
 
@@ -50,5 +54,5 @@ puppeteer.connect(CONNECTION).then(async browser => {
   }
 
   scrapbookWriteOut(newData, true)
-  process.exit(0)
+  exit()
 })

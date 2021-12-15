@@ -5,24 +5,18 @@ const {
   promptLogin,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
+  begin,
+  exit,
 } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
-const { exec } = require("child_process")
-
-const exit = () => {
-  exec("killall caffeinate")
-  console.log("Scrape Complete: SUCCESS 🎉")
-  process.exit(0)
-}
 
 puppeteer.connect(CONNECTION).then(async browser => {
-  const newPage = (url, options) => newBrowserPage(browser, url, options)
-  const closeLoginPages = await promptLogin(newPage)
+  begin()
+
+  const closeLoginPages = await promptLogin((url, options) =>
+    newBrowserPage(browser, url, options)
+  )
   const promptResponse = await promptForTickers()
-
-  exec("caffeinate")
-
-  console.warn("********  Turn on PDF Viewer extension!!!! ********")
 
   const tickers = promptResponse
     ? promptResponse.split(/[^A-Z]/).filter(a => a)

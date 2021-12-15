@@ -13,6 +13,7 @@ const {
 } = require("lodash")
 const readline = require("readline")
 const Logger = require("./Logger")
+const { exec } = require("child_process")
 
 /**
  * @typedef {Page} MyPage
@@ -304,7 +305,20 @@ const makePrettyDate = () => moment().format("MMM DD h:mma")
 const getOnlyStockTickerData = stockJsonData =>
   omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates"])
 
+const begin = () => {
+  console.warn("********  Turn on PDF Viewer extension!!!! ********")
+  exec("caffeinate")
+}
+
+const exit = () => {
+  exec("killall caffeinate")
+  console.log("Scraping Complete: SUCCESS 🎉")
+  process.exit(0)
+}
+
 module.exports = {
+  exit,
+  begin,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
   evalX,
