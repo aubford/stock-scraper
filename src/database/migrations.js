@@ -3,7 +3,7 @@ const { getOnlyStockTickerData, readFile, writeFile } = require("../util")
 
 const currentData = readFile(STOCK_DATA_LOCATION)
 const backupData = readFile(
-  "/Users/aubrey/Google Drive/stock-scrapbook/stockDataBackup_backup_2021-12-14T10:53:00-08:00.json"
+  "/Users/aubrey/Google Drive/stock-scrapbook/stockDataBackup_has_wsj.json"
 )
 
 const stockData = getOnlyStockTickerData(currentData)
