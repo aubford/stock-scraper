@@ -48,34 +48,41 @@ class PageDataFetcher {
       return frame.url().includes("highcharts-analyst-reports")
     })
 
-    const tipranksButton =
-      analystReportsFrame &&
-      (await analystReportsFrame.waitForSelector("button.see-full-report"))
+    if (!analystReportsFrame) {
+      this.logger.warn(`No Tipranks data found`)
+      return false
+    }
 
-    if (tipranksButton) {
-      await tipranksButton
-        .evaluate(el => el.click())
-        .catch(() => {
-          this.logger.warn(`Error on click even though Tipranks button exists`)
-        })
-
-      const newTarget = await this.browser.waitForTarget(
-        target => target.type() === "page" && target.url().includes("popup")
+    let tipranksButton
+    try {
+      tipranksButton = await analystReportsFrame.waitForSelector(
+        "button.see-full-report",
+        { timeout: 2000 }
       )
-
-      this.page = await newTarget.page()
-
-      if (!this.page) {
-        this.logger.error(`this.page is null for Tipranks popup`)
-        return false
-      }
-
-      wrapPage(this.page)
-      return true
-    } else {
+    } catch (err) {
       this.logger.warn(`No Tipranks button found`)
       return false
     }
+
+    await tipranksButton
+      .evaluate(el => el.click())
+      .catch(() => {
+        this.logger.warn(`Error on click even though Tipranks button exists`)
+      })
+
+    const newTarget = await this.browser.waitForTarget(
+      target => target.type() === "page" && target.url().includes("popup")
+    )
+
+    this.page = await newTarget.page()
+
+    if (!this.page) {
+      this.logger.error(`this.page is null for Tipranks popup`)
+      return false
+    }
+
+    wrapPage(this.page)
+    return true
   }
 
   async waitForXpath(xpath) {
