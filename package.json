@@ -55,6 +55,7 @@
       "fs": true,
       "fetch": true,
       "test": true,
+      "SHOULD_MERGE": true,
       "ARGUS_ANALYST_KEY": true,
       "ARGUS_RESEARCH_KEY": true,
       "ZACKS_KEY": true,

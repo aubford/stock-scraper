@@ -205,7 +205,7 @@ const metaWriteBadFetches = badFetches => {
   })
 }
 
-module.exports = async (allTickers, browser) => {
+module.exports = async (allTickers, browser, shouldMerge) => {
   let badFetches = []
   const newStockData = {}
 
@@ -242,5 +242,5 @@ module.exports = async (allTickers, browser) => {
     }
   }
 
-  scrapbookWriteOut(newStockData)
+  scrapbookWriteOut(newStockData, shouldMerge)
 }

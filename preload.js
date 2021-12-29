@@ -20,6 +20,8 @@ try {
 
 const timeoutCoeff = 1
 
+global.SHOULD_MERGE = true
+
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
 global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff

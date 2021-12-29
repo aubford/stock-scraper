@@ -25,7 +25,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   const updateSector = async sector => {
     console.log(`+++++++ Updating Sector: ${sector} +++++++`)
     const tickers = sectorIndex[sector]
-    await scrapeDataForTickers(tickers, browser)
+    await scrapeDataForTickers(tickers, browser, SHOULD_MERGE)
 
     console.log(`SECTOR UPDATED: ${sector} ✅`)
   }

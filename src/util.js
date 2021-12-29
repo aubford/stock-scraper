@@ -1,6 +1,7 @@
 require("puppeteer-core")
 const moment = require("moment")
 const {
+  isArray,
   assignWith,
   first,
   last,
@@ -194,7 +195,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
   const existingData = JSON.parse(stockDataFile)
   const writeToFile = shouldMerge
-    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
+    ? assignWith({}, existingData, data, (a, b) => (isArray(a) ? b || a : { ...a, ...b }))
     : {
         ...existingData,
         ...data,

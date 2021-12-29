@@ -24,7 +24,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   closeLoginPages()
 
-  await scrapeDataForTickers(tickers, browser)
+  await scrapeDataForTickers(tickers, browser, SHOULD_MERGE)
 
   exit()
 })
