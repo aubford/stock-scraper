@@ -93,6 +93,7 @@ global.YAHOO_MODULES = [
 global.BAD_FETCHES = []
 global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
+global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
 global.STOCK_DATA_BACKUP_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataBackup.json`
 

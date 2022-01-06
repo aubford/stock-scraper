@@ -205,6 +205,21 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   writeShortDatesToMeta(writeToFile)
 }
 
+const vooWriteOut = (data, shouldMerge) => {
+  /** @type {*} */
+  const stockDataFile = fs.readFileSync(VOO_LOCATION)
+  const existingData = JSON.parse(stockDataFile)
+  const writeToFile = shouldMerge
+    ? assignWith({}, existingData, data, (a, b) => (isArray(a) ? b || a : { ...a, ...b }))
+    : {
+        ...existingData,
+        ...data,
+      }
+
+  writeFile(VOO_LOCATION, writeToFile)
+  // writeShortDatesToMeta(writeToFile)
+}
+
 const writeShortDatesToMeta = data => {
   /** @type {*} */
   const existingFile = fs.readFileSync(META_LOCATION)
@@ -346,4 +361,5 @@ module.exports = {
   wrapPage,
   makePrettyDate,
   selfTextContains,
+  vooWriteOut,
 }

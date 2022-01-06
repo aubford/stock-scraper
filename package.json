@@ -6,6 +6,7 @@
   "scripts": {
     "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataBackup.json\" ./stockDataBackup.json",
     "start": "npm run updateWs && node --require ./preload.js src/apps/start.js && npm run prettyStock",
+    "voo": "npm run updateWs && node --require ./preload.js src/apps/fetchVoo.js && npm run prettyVoo",
     "update": "npm run updateWs && node --require ./preload.js src/apps/update.js && npm run prettyStock",
     "update-yahoo-wsj": "node --require ./preload.js src/apps/updateYahooWsj.js && npm run prettyStock",
     "update-analyst": "npm run updateWs && node --require ./preload.js src/apps/updateAnalyst.js && npm run prettyStock",
@@ -25,6 +26,7 @@
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
     "launch": "killall Google\\ Chrome; /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-features=IsolateOrigins,site-per-process",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
+    "prettyVoo": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\"",
     "updateWs": "curl localhost:9222/json/version > ws.json",
     "sandbox": "npm run updateWs && node --require ./preload.js test/puppeteerSandbox.node.js"
   },
@@ -88,11 +90,17 @@
       "PAUSE_MS": true,
       "STOCK_DATA_LOCATION": true,
       "STOCK_DATA_BACKUP_LOCATION": true,
+      "VOO_LOCATION": true,
       "YAHOO_MODULES": true,
       "CONNECTION": true,
       "FIDELITY_STATS": true,
       "TIPRANKS": true,
-      "BAD_FETCHES": true
+      "BAD_FETCHES": true,
+      "SpreadsheetApp": true,
+      "PropertiesService": true,
+      "LodashGS": true,
+      "CacheService": true,
+      "DriveApp": true
     },
     "extends": [
       "eslint:recommended"

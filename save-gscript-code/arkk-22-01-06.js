@@ -1,0 +1,147 @@
+function getArkChart() {
+  const threads = GmailApp.search("from:ark@ark-funds.com")
+  const tableRows = threads.map(getArkkTableRowsFromThread)
+  const flat = flatten(tableRows)
+  const sorted = sortBy(flat, [o => new Date(o[2]), "3"]).reverse()
+  const data = sorted.filter(dateData => dateData[5])
+  getSheet("ARK").getRange(1, 1, data.length, data[0].length).setValues(data)
+}
+
+const addDays = (incomingDate, daysToAdd) => {
+  const newDate = new Date(incomingDate)
+  return new Date(newDate.setDate(newDate.getDate() + daysToAdd))
+}
+
+const dateStrIsBefore = (dateStr, daysToAdd) =>
+  Boolean(new Date(dateStr) < addDays(new Date(), daysToAdd))
+
+
+const arkkIntegrityTest = arkkDataRows => {
+  const isOlderThanFiveDays = dateStrIsBefore(last(last(arkkDataRows))[2], -5)
+  if (isOlderThanFiveDays) {
+    throw new Error("ARKK integrity test failure: Is older than 5 days")
+  }
+  const dates = arkkDataRows.map(row => new Date(row[0][2]))
+  const sorted = sortBy([...dates])
+  if (!isEqual(dates, sorted)) {
+    throw new Error("ARKK integrity test failure: Bad sort order")
+  }
+}
+
+const getArkkTableRowsFromThread = thread => {
+  const emailBody = thread.getMessages()[0].getBody()
+
+  const date = thread.getLastMessageDate()
+  const newStyleEmailDate = new Date(2021, 7, 20)
+
+  if (date > newStyleEmailDate) {
+    return getArkkTrades(emailBody)
+  }
+  return getArkkTableRows(emailBody).reverse()
+}
+
+const getArkkTableRows = html => {
+  const $ = Cheerio.load(html)
+  const ret = $("table tr")
+    .map((i, tr) =>
+      $(tr)
+        .children("td")
+        .map((i, td) => $(td).text())
+    )
+    .toArray()
+    .map(row => row.get())
+    .slice(1)
+
+  return ret
+}
+
+const getArkkTrades = html => {
+  const $ = Cheerio.load(html)
+  const tables = $("center > div > table > tbody > tr > td > table > tbody > tr > td > table > tbody > tr > td > table > tbody > tr > td > table:nth-child(6) > tbody > tr > td > table")
+  const tablesMapped = chunk(tables, 2).map(([titleTable, tradeDataTable]) => {
+    const tds = $(titleTable).find('td')
+    const fund = $(tds[0]).text().split(" ")[0]
+    const date = $(tds[1]).text()
+
+    const dataRows = $(tradeDataTable)
+      .find('tr')
+      .slice(1)
+      .map((i, row) => $(row).children('td').map((i, td) => $(td).text()))
+      .toArray()
+      .map((row, idx) => {
+        const [action, ticker, corp, sharesAndPct] = row.get()
+        const [shares, pct] = sharesAndPct.split(" | ")
+        return [idx, fund, date, action, ticker, "x", corp, shares, pct]
+      })
+
+    return dataRows
+  })
+
+  return flatten(tablesMapped)
+}
+
+function getArkkWeightings() {
+  const urls = [
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKK_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKW_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKQ_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKG_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKF_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_ARKX_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_PRNT_HOLDINGS.csv",
+    "https://ark-funds.com/wp-content/uploads/funds-etf-csv/ARK_INNOVATION_ETF_IZRL_HOLDINGS.csv",
+  ]
+  const fundData = flatten(
+    urls.map(url => Utilities.parseCsv(
+      UrlFetchApp.fetch(url).getContentText()
+    ).slice(1))
+  )
+
+  const res = fundData.reduce((acc, curr) => {
+    const ticker = curr[3]
+    const fund = curr[1]
+    const weight = curr[7]
+    const prev = acc[ticker] || ""
+    return {
+      ...acc,
+      [ticker]: `${fund}: ${weight} ` + prev
+    }
+  }, {})
+
+  return res
+}
+
+function getArkkData() {
+  const threads = GmailApp.search("from:ark@ark-funds.com")
+  const tableRows = threads.map(getArkkTableRowsFromThread).reverse()
+  const arkkPct = getArkkWeightings()
+
+  // arkkIntegrityTest(tableRows)
+
+  const tickers = uniq(flatten(tableRows).map(row => row[4]))
+
+
+  const arkkData = tickers.reduce((arkkData, ticker) => ({
+    ...arkkData,
+    [ticker]: {
+      arkkPct: arkkPct[ticker] || "",
+      arkkChange: tableRows.reduce((acc, row) => {
+        const tickerRow = row.find(r => r[4] === ticker)
+        if (!tickerRow) {
+          return acc
+        }
+        return tickerRow[8]
+      }, 0),
+      arkkChart: tableRows.map(row => {
+        const tickerRow = row.find(r => r[4] === ticker)
+        if (!tickerRow) {
+          return 0
+        }
+        const buySell = tickerRow[3]
+        return buySell === "Buy" ? tickerRow[7] : "-" + tickerRow[7]
+      })
+    }
+  }), {})
+
+  return arkkData
+}
