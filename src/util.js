@@ -141,6 +141,8 @@ const matchChars = text => `translate(text()," ","")="${chars(text)}"`
 
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 
+const containsClass = text => `contains(@class,${text})`
+
 const selfTextContains = text => `//*[${containsChars(text)}]`
 
 const prevSiblingTextContains = (text, num = 1) =>
@@ -333,33 +335,41 @@ const exit = () => {
 }
 
 module.exports = {
-  exit,
-  begin,
-  backupReturnStockDataFile,
-  getOnlyStockTickerData,
+  // scrape general
   evalX,
-  extractNumbers,
-  followingSiblingTextIs,
+  getTextByX,
   followingSiblingTextIsStar,
   prevSiblingTextIsStar,
-  getFidelitySecretUrl,
-  getFirstLastValue,
-  getTextByX,
-  hasCFRA,
-  millBillStrToNum,
-  newBrowserPage,
-  readFile,
-  parseStreetBulletData,
-  pause,
+  containsClass,
+  selfTextContains,
+  // scrape (PDF Viewer only)
+  followingSiblingTextIs,
   prevSiblingTextContains,
   prevSiblingTextIs,
+  // data manipulation
+  millBillStrToNum,
+  extractNumbers,
+  parseStreetBulletData,
+  makePrettyDate,
+  getFirstLastValue,
+  // api
+  hasCFRA,
+  getFidelitySecretUrl,
+  // script
+  exit,
+  begin,
   promptForTickers,
   promptLogin,
   promptUser,
-  scrapbookWriteOut,
+  pause,
+  // write/read file
   writeFile,
-  wrapPage,
-  makePrettyDate,
-  selfTextContains,
+  readFile,
+  scrapbookWriteOut,
   vooWriteOut,
+  backupReturnStockDataFile,
+  getOnlyStockTickerData,
+  // puppeteer
+  newBrowserPage,
+  wrapPage,
 }
