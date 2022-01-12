@@ -13,6 +13,7 @@ const {
   fetchArgusAnalyst,
   fetchMorningstarData,
   fetchMoodysData,
+  fetchTdData,
 } = require("./api")
 const buildCompanyData = require("./buildCompanyData")
 const {
@@ -31,6 +32,10 @@ const scrapeDataForTicker = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
   const { fetchPdfData } = makeScrapeTools(ticker, browser)
+
+  // TD Ameritrade
+
+  const tdData = await fetchTdData(ticker, browser)
 
   // FIDELITY
 
@@ -187,6 +192,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
     ...fordData,
     ...tipData,
     ...cfraData,
+    ...tdData,
     ...buildCompanyData(yahooData, wsjData),
   }
 }

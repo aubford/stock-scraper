@@ -1,5 +1,5 @@
 const { zip, fromPairs } = require("lodash")
-const { wrapPage, newBrowserPage, evalX } = require("./util")
+const { wrapPage, newBrowserPage, evalX, waitForXpath, getTextByX } = require("./util")
 const Logger = require("./Logger")
 
 class PageDataFetcher {
@@ -86,18 +86,32 @@ class PageDataFetcher {
   }
 
   async waitForXpath(xpath) {
-    const { page, timeout } = this
-    try {
-      await page.waitForXPath(xpath, { timeout })
-      return true
-    } catch (err) {
-      if (err.message.includes("is not a valid XPath expression")) {
-        this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
-      } else {
-        this.logger.warn(`PageDataFetcher.waitForXpath failed for xpath: ${xpath}`)
-      }
-      return false
+    return await waitForXpath(this.page, xpath, this.timeout)
+  }
+
+  async fetchPageDataInFrame(xPathArr, frameName, selectorToWaitFor) {
+    if (!this.page) {
+      this.logger.error(`Error: Page is NULL`)
+      return []
     }
+
+    const mainFrame = await this.page.waitForFrame(frame => frame.name() === frameName)
+    if (!mainFrame) {
+      return `Frame "${frameName}" NOT FOUND 🚨`
+    }
+
+    const xpathFound = await waitForXpath(
+      mainFrame,
+      selectorToWaitFor || xPathArr[0],
+      this.timeout
+    )
+    if (!xpathFound) {
+      return []
+    }
+
+    const values = await Promise.all(xPathArr.map(xpath => getTextByX(mainFrame, xpath)))
+    this.logger.completeOk("Page in Frame: Done")
+    return values
   }
 
   async fetchPageData(xPathArr, selectorToWaitFor) {

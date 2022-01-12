@@ -38,6 +38,7 @@ global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MORNINGSTAR_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_RESEARCH_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.TD_TIMEOUT = 10 * 1000 * timeoutCoeff
 
 global.ARGUS_ANALYST_KEY = "Argus Analyst"
 global.ARGUS_RESEARCH_KEY = "Argus Research A6/Quantitative (i)"
@@ -54,6 +55,7 @@ global.ZACKS = "zacks"
 global.MORNINGSTAR = "morningstar"
 global.CFRA = "CFRA"
 global.BOA = "BoA"
+global.TD = "TD"
 global.YAHOO_MODULES = [
   "assetProfile",
   "balanceSheetHistory",

@@ -45,6 +45,20 @@ const getTextByX = async (page, selector) => {
   )
 }
 
+const waitForXpath = async (page, xpath, timeout) => {
+  try {
+    await page.waitForXPath(xpath, { timeout })
+    return true
+  } catch (err) {
+    if (err.message.includes("is not a valid XPath expression")) {
+      this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
+    } else {
+      this.logger.warn(`PageDataFetcher.waitForXpath failed for xpath: ${xpath}`)
+    }
+    return false
+  }
+}
+
 const wrapPage = page => {
   page.getTextByX = text =>
     getTextByX(page, text).catch(err => console.error("🚨 getTextByX: ", err))
@@ -141,7 +155,7 @@ const matchChars = text => `translate(text()," ","")="${chars(text)}"`
 
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 
-const containsClass = text => `contains(@class,${text})`
+const containsClass = text => `contains(@class,"${text}")`
 
 const selfTextContains = text => `//*[${containsChars(text)}]`
 
@@ -370,6 +384,7 @@ module.exports = {
   backupReturnStockDataFile,
   getOnlyStockTickerData,
   // puppeteer
+  waitForXpath,
   newBrowserPage,
   wrapPage,
 }

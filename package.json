@@ -95,6 +95,8 @@
       "CONNECTION": true,
       "FIDELITY_STATS": true,
       "TIPRANKS": true,
+      "TD": true,
+      "TD_TIMEOUT": true,
       "BAD_FETCHES": true,
       "SpreadsheetApp": true,
       "PropertiesService": true,
