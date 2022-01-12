@@ -9,6 +9,7 @@
     "voo": "npm run updateWs && node --require ./preload.js src/apps/fetchVoo.js && npm run prettyVoo",
     "update": "npm run updateWs && node --require ./preload.js src/apps/update.js && npm run prettyStock",
     "update-yahoo-wsj": "node --require ./preload.js src/apps/updateYahooWsj.js && npm run prettyStock",
+    "voo-update-yahoo-wsj": "node --require ./preload.js src/apps/updateYahooWsjForVoo.js && npm run prettyStock",
     "update-analyst": "npm run updateWs && node --require ./preload.js src/apps/updateAnalyst.js && npm run prettyStock",
     "extra": "npm run updateWs && node --require ./preload.js src/apps/scrapeExtraData.js && npm run prettyStock",
     "check": "node --eval \"console.log(Boolean(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]]))\"",
