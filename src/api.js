@@ -387,7 +387,7 @@ exports.fetchTdData = async (ticker, browser) => {
     "main"
   )
 
-  // pageFetcher.close()
+  await pageFetcher.close()
 
   return {
     tdNextEarningsDate: tdNextEarningsDate.replace("(Unconfirmed)", "?"),
