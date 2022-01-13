@@ -143,13 +143,13 @@ const scrapeDataForTicker = async (ticker, browser) => {
     timeout: ARGUS_RESEARCH_TIMEOUT,
   })
 
-  // TIPRANKS
-
-  const tipData = await fetchTipData(ticker, browser)
-
   // ZACKS
 
   const zacksData = await fetchZacks(ticker, browser, zacksSecretUrl)
+
+  // TIPRANKS
+
+  const tipData = await fetchTipData(ticker, browser)
 
   return {
     scrapeDataUpdatedAt: Date.now(),
