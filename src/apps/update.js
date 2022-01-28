@@ -15,7 +15,9 @@ const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 puppeteer.connect(CONNECTION).then(async browser => {
   begin()
 
-  await promptLogin((url, options) => newBrowserPage(browser, url, options))
+  const closeLoginPages = await promptLogin((url, options) =>
+    newBrowserPage(browser, url, options)
+  )
   const sectorUserInputVal = await promptUser("Sectors:")
 
   const oldFile = backupReturnStockDataFile()
@@ -29,6 +31,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
     console.log(`SECTOR UPDATED: ${sector} ✅`)
   }
+
+  closeLoginPages()
 
   const selectedSingleSector = sectorMap.get(sectorUserInputVal)
   if (selectedSingleSector) {
