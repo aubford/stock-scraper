@@ -51,9 +51,9 @@ const waitForXpath = async (page, xpath, timeout) => {
     return true
   } catch (err) {
     if (err.message.includes("is not a valid XPath expression")) {
-      this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
+      console.error("*** INVALID XPATH *** for xpath: " + xpath)
     } else {
-      this.logger.warn(`PageDataFetcher.waitForXpath failed for xpath: ${xpath}`)
+      console.warn(`waitForXpath failed for xpath: ${xpath}`)
     }
     return false
   }
@@ -71,6 +71,9 @@ const wrapPage = page => {
         console.error("🚨 Page Close Error: ", err)
       })
     }
+    console.error(
+      `🚨 Page Close Error: ${page ? "Page exists but is closed" : "Page does not exist"}`
+    )
     return Promise.resolve()
   }
 
