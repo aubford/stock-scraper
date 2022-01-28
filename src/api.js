@@ -100,7 +100,6 @@ const hedgeFundValues = [
   { first: "hennessy", last: "japan", value: 3 },
   { first: "seth", last: "klarman", value: 3 },
   { first: "arthur", last: "cohen", value: 2 },
-  { first: "joel", last: "greenblatt", value: 2 },
   { first: "westport", last: "asset", value: 2 },
   { first: "diamond", last: "hill", value: 2 },
   { first: "ken", last: "heebner", value: 2 }, // more research needed
@@ -124,6 +123,7 @@ const hedgeFundValues = [
   { first: "john", last: "buckingham", value: 2 },
   { first: "robert", last: "bruce", value: 2 },
   { first: "john", last: "rogers", value: 2 },
+  { first: "joel", last: "greenblatt", value: 1 },
   { first: "tweedy", last: "browne", value: 1 },
   { first: "martin", last: "whitman", value: 1 },
   { first: "mason", last: "hawkins", value: 1 },
@@ -177,18 +177,28 @@ const getHedgeRating = tipHedgeMoves => {
   const getMovementValue = (movement, hedgeCoeff) => {
     const isPrimo = hedgeCoeff > 3
 
-    const buyThreshold = 0.25,
+    const buyThreshold = 1,
       holdThreshold = -0.5,
-      trimThreshold = -1.9,
+      trimThreshold = -2,
       sellThreshold = -8,
+      sellOutThreshold = -80,
       buyVal = 1.25,
       holdVal = isPrimo ? 0.5 : 0,
-      rebalanceVal = isPrimo ? 0.25 : 0,
+      rebalanceVal = 0,
       trimVal = -0.5,
-      sellVal = -1
+      sellVal = -1,
+      sellOutVal = -1.25
+
     const getNegativeVal = x =>
-      x < sellThreshold ? sellVal : x < trimThreshold ? trimVal : rebalanceVal
+      x < sellOutThreshold
+        ? sellOutVal
+        : x < sellThreshold
+        ? sellVal
+        : x < trimThreshold
+        ? trimVal
+        : rebalanceVal
     const getPositiveVal = x => (x > buyThreshold ? buyVal : holdVal)
+
     return movement > holdThreshold ? getPositiveVal(movement) : getNegativeVal(movement)
   }
 
