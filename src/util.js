@@ -214,7 +214,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
   const existingData = JSON.parse(stockDataFile)
   const writeToFile = shouldMerge
-    ? assignWith({}, existingData, data, (a, b) => (isArray(a) ? b || a : { ...a, ...b }))
+    ? assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
     : {
         ...existingData,
         ...data,
