@@ -280,10 +280,10 @@ const promptForTickers = () => promptUser("Tickers: ")
 
 const promptLogin = newPage => {
   const pages = [
-    "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
+    "https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=USB&c_name=invest_VENDOR",
     "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary",
     "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550",
-    "https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=USB&c_name=invest_VENDOR",
+    "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
   ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
 
   return () => {
