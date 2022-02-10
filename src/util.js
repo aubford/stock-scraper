@@ -94,6 +94,10 @@ const newBrowserPage = async (browser, url, options = {}) => {
     await page.goto(url, options)
   } catch (error) {
     const msg = `🚨 PAGE LOAD ERROR -> ${error}`
+
+    await page.closeSafe()
+    await pause(60 * 1000)
+
     throw new Error(msg)
   }
 

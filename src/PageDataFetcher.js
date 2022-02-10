@@ -86,7 +86,33 @@ class PageDataFetcher {
   }
 
   async waitForXpath(xpath) {
-    return await waitForXpath(this.page, xpath, this.timeout)
+    try {
+      await this.page.waitForXPath(xpath, { timeout: this.timeout })
+      return true
+    } catch (err) {
+      if (err.message.includes("is not a valid XPath expression")) {
+        this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
+      } else {
+        this.logger.warn(`PageDataFetcher.waitForXpath failed for xpath: ${xpath}`)
+      }
+      return false
+    }
+  }
+
+  async waitForFrame(frameName) {
+    const log = () => this.logger.error(`Frame "${frameName}" NOT FOUND 🚨`)
+
+    try {
+      const frame = await this.page.waitForFrame(frame => frame.name() === frameName)
+      if (!frame) {
+        log()
+        return []
+      }
+      return frame
+    } catch (error) {
+      log()
+      return []
+    }
   }
 
   async fetchPageDataInFrame(xPathArr, frameName, selectorToWaitFor) {
@@ -95,10 +121,7 @@ class PageDataFetcher {
       return []
     }
 
-    const mainFrame = await this.page.waitForFrame(frame => frame.name() === frameName)
-    if (!mainFrame) {
-      return `Frame "${frameName}" NOT FOUND 🚨`
-    }
+    const mainFrame = await this.waitForFrame(frameName)
 
     const xpathFound = await waitForXpath(
       mainFrame,
