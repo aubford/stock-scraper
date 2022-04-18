@@ -1,5 +1,5 @@
 const moment = require("moment")
-const { max, mapValues, isPlainObject, groupBy } = require("lodash")
+const { omitBy, max, mapValues, isPlainObject, groupBy } = require("lodash")
 
 const getFirstSentence = str =>
   str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null
@@ -29,7 +29,10 @@ const sectorMap = new Map([
 ])
 
 const getSectorIndex = stockData =>
-  mapValues(groupBy(stockData, "sector"), sector => sector.map(({ ticker }) => ticker))
+  omitBy(
+    mapValues(groupBy(stockData, "sector"), sector => sector.map(({ ticker }) => ticker)),
+    (val, key) => key === "undefined"
+  )
 
 const getIndustryIndex = stockData =>
   mapValues(groupBy(stockData, "sector"), sector =>

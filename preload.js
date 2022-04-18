@@ -20,7 +20,7 @@ try {
 
 const timeoutCoeff = 1
 
-global.SHOULD_MERGE = true
+global.SHOULD_MERGE = false
 
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
