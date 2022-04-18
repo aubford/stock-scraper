@@ -121,27 +121,27 @@ const scrapeDataForTicker = async (ticker, browser) => {
 
   // ARGUS RESEARCH
 
-  const xpathHelper = `text()='M' or text()='H' or text()='L'`
-  const [
-    argusResearchTarget,
-    argusResearchRating,
-    [
-      argusResearchManagement,
-      argusResearchSafety,
-      argusResearchFinancialStrength,
-      argusResearchGrowth,
-      argusResearchValue,
-    ] = [],
-  ] = await fetchPdfData({
-    analystName: ARGUS_RESEARCH,
-    url: argusResearchLink,
-    xPathArr: [
-      `//span[contains(text(),"Target ") and contains(text(),":")]/following-sibling::span[1]`,
-      prevSiblingTextIs("Argus Rating:", 3),
-      `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
-    ],
-    timeout: ARGUS_RESEARCH_TIMEOUT,
-  })
+  // const xpathHelper = `text()='M' or text()='H' or text()='L'`
+  // const [
+  //   argusResearchTarget,
+  //   argusResearchRating,
+  //   [
+  //     argusResearchManagement,
+  //     argusResearchSafety,
+  //     argusResearchFinancialStrength,
+  //     argusResearchGrowth,
+  //     argusResearchValue,
+  //   ] = [],
+  // ] = await fetchPdfData({
+  //   analystName: ARGUS_RESEARCH,
+  //   url: argusResearchLink,
+  //   xPathArr: [
+  //     `//span[contains(text(),"Target ") and contains(text(),":")]/following-sibling::span[1]`,
+  //     prevSiblingTextIs("Argus Rating:", 3),
+  //     `//span[${xpathHelper}]/following-sibling::span[position()=1 and (${xpathHelper})]`,
+  //   ],
+  //   timeout: ARGUS_RESEARCH_TIMEOUT,
+  // })
 
   // ZACKS
 
@@ -154,13 +154,13 @@ const scrapeDataForTicker = async (ticker, browser) => {
   return {
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
-    argusResearchFinancialStrength,
-    argusResearchGrowth,
-    argusResearchManagement,
-    argusResearchRating,
-    argusResearchSafety,
-    argusResearchTarget,
-    argusResearchValue,
+    // argusResearchFinancialStrength,
+    // argusResearchGrowth,
+    // argusResearchManagement,
+    // argusResearchRating,
+    // argusResearchSafety,
+    // argusResearchTarget,
+    // argusResearchValue,
     boaIncome,
     boaInvestment,
     boaRating,
