@@ -132,7 +132,6 @@ module.exports = [
   "D",
   "FISV",
   "FDX",
-  "XLNX",
   "JCI",
   "ILMN",
   "HUM",
