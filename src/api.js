@@ -1102,10 +1102,15 @@ exports.fetchWSJData = async ticker => {
   }
 
   try {
-    const mainPage = await fetchText(url, fetchOpts)
-    const researchPage = await fetchText(url + "/research-ratings", fetchOpts)
-    const financialsPage = await fetchText(url + "/financials", fetchOpts)
-
+    const [mainPage, researchPage, financialsPage] = await Promise.stagger(
+      fetchText,
+      [
+        [url, fetchOpts],
+        [url + "/research-ratings", fetchOpts],
+        [url + "/financials", fetchOpts],
+      ],
+      350
+    )
     const researchPageDoc = Cheerio.load(/**@type * */ researchPage)
     const html = researchPageDoc(".cr_analystRatings .data_data")
 
