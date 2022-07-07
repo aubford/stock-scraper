@@ -12,6 +12,7 @@ const {
   extractNumbers,
   makePrettyDate,
   containsClass,
+  pause,
 } = require("./util")
 const Logger = require("./Logger")
 
@@ -1109,7 +1110,7 @@ exports.fetchWSJData = async ticker => {
         [url + "/research-ratings", fetchOpts],
         [url + "/financials", fetchOpts],
       ],
-      350
+      800
     )
     const researchPageDoc = Cheerio.load(/**@type * */ researchPage)
     const html = researchPageDoc(".cr_analystRatings .data_data")
@@ -1141,6 +1142,8 @@ exports.fetchWSJData = async ticker => {
 
     if (retVal.wsjChart.length === 0) {
       logger.error("NO CHART!")
+      await pause(1500)
+      return exports.fetchWSJData(ticker)
     }
 
     return retVal
