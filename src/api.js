@@ -15,6 +15,8 @@ const {
   pause,
 } = require("./util")
 const Logger = require("./Logger")
+const stockData = require("../stockData.json")
+const vooData = require("../vooData.json")
 
 const cleanFidelityStrings = val =>
   isString(val)
@@ -1073,10 +1075,11 @@ exports.fetchMoodysData = async (ticker, browser) => {
 }
 
 /**
- * @param ticker
+ * @param ticker {string}
+ * @param tries {number}
  * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}> | []}
  */
-exports.fetchWSJData = async ticker => {
+exports.fetchWSJData = async (ticker, tries = 0) => {
   const logger = new Logger(ticker, "WSJ")
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   const fetchOpts = {
@@ -1140,11 +1143,21 @@ exports.fetchWSJData = async ticker => {
         .text(),
     }
 
-    if (retVal.wsjChart.length === 0) {
+    if (retVal.wsjChart.length === 0 && tries < 6) {
       logger.error("NO CHART!")
-      await pause(1500)
-      return exports.fetchWSJData(ticker)
+
+      const shouldHaveChart =
+        stockData[ticker]?.wsjChartCurrent.length !== 0 ||
+        vooData[ticker]?.wsjChartCurrent.length !== 0
+
+      if (shouldHaveChart || tries < 3) {
+        logger.error("RETRY WSJ!")
+        await pause(1000 * tries)
+        return exports.fetchWSJData(ticker, tries + 1)
+      }
     }
+
+    logger.completeOk("Done")
 
     return retVal
   } catch (err) {
