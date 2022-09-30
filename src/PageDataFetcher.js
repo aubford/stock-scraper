@@ -87,8 +87,7 @@ class PageDataFetcher {
 
   async waitForXpath(xpath) {
     try {
-      await this.page.waitForXPath(xpath, { timeout: this.timeout })
-      return true
+      return this.page.waitForXPath(xpath, { timeout: this.timeout })
     } catch (err) {
       if (err.message.includes("is not a valid XPath expression")) {
         this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
@@ -207,8 +206,19 @@ class PageDataFetcher {
       return Promise.resolve()
     }
 
-    return page.click(selector).catch(() => {
-      this.logger.warn(`Page click failed for selector: ${selector}`)
+    return page.click(selector).catch(err => {
+      this.logger.warn(`Page click failed for selector: ${selector}`, err)
+    })
+  }
+
+  async clickForXpath(xPath) {
+    if (!this.page || !xPath) {
+      this.logger.error(`Page click: No page/selector for ${xPath}`)
+      return Promise.resolve()
+    }
+    const el = await this.waitForXpath(xPath)
+    return el.click().catch(err => {
+      this.logger.warn(`Page click failed for xPath: ${xPath}`, err)
     })
   }
 
