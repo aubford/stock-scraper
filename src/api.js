@@ -819,47 +819,51 @@ exports.fetchFidelityAnalystOpinions = async (ticker, browser) => {
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
-  const fidelityFetcher = getPageDataFetcher(FIDELITY, {
+  const reportRowXpathFrag = name =>
+    `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
+
+  const fetcher = getPageDataFetcher(FIDELITY, {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
-  await fidelityFetcher.setPage(
-    `https://eresearch.fidelity.com/eresearch/goto/evaluate/analystsOpinions.jhtml?symbols=${ticker}`
+  await fetcher.setPage(
+    `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
+
   const [
-    fidelitySummaryScore,
-    fidelityReportNameArr,
-    fidelityStarmineOneName,
-    fidelityStarmineTwoName,
-    fidelityStarmineThreeName,
-    fidelityStarmineFourName,
-    fidelityStarmineFiveName,
-    fidelityStarmineOneRating,
-    fidelityStarmineTwoRating,
-    fidelityStarmineThreeRating,
-    fidelityStarmineFourRating,
-    fidelityStarmineFiveRating,
-  ] = await fidelityFetcher.fetchPageData([
-    `//div[@class="sentiment-summary"]//span[@class="stock-sentiment"]`,
-    `//table[@id="allOpinionsTable"]/tbody/tr/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[1]/span`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[1]/td[3]/span[@class="opinion"]`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[2]/td[3]/span[@class="opinion"]`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[3]/td[3]/span[@class="opinion"]`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[4]/td[3]/span[@class="opinion"]`,
-    `//table[@id="sentSummaryTable"]/tbody/tr[5]/td[3]/span[@class="opinion"]`,
+    zacksDate,
+    zacksLink,
+    argusAnalystDate,
+    argusAnalystLink,
+  ] = await fetcher.fetchPageData([
+    reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
+    reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
+    reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
+    reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
   ])
 
-  const fidelityReportData = await fidelityFetcher.fetchFidelityReportData(
-    fidelityReportNameArr
-  )
+  await fetcher.clickForXpath(`//*[@id="More"]`)
 
-  await fidelityFetcher.close()
+  const [starmines, fidelitySummaryScore] = await fetcher.fetchPageData([
+    `//table[@data-tc="table-firm-opinions"]/tbody/tr/td[position()=1 or position()=3]//text()`,
+    `//h2[contains(@class,'headingTwo')]/text()[5]`,
+  ])
 
-  return {
+  const [
+    fidelityStarmineOneName,
+    fidelityStarmineOneRating,
+    fidelityStarmineTwoName,
+    fidelityStarmineTwoRating,
+    fidelityStarmineThreeName,
+    fidelityStarmineThreeRating,
+    fidelityStarmineFourName,
+    fidelityStarmineFourRating,
+    fidelityStarmineFiveName,
+    fidelityStarmineFiveRating,
+  ] = starmines.filter(e => e.trim())
+
+  await fetcher.close()
+
+  const res = {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityStarmineFive: formatFidelityStarmine(
       fidelityStarmineFiveName,
@@ -882,8 +886,13 @@ exports.fetchFidelityAnalystOpinions = async (ticker, browser) => {
       fidelityStarmineTwoRating
     ),
     fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
-    ...fidelityReportData,
+    argusAnalystDate,
+    argusAnalystLink,
+    zacksDate,
+    zacksLink,
   }
+
+  return res
 }
 
 /**

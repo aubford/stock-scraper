@@ -152,6 +152,7 @@ class PageDataFetcher {
     return values
   }
 
+  // deprecated
   async fetchFidelityReportData(fidelityReportNameArr) {
     const { page } = this
     if (!page) {
