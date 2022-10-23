@@ -1,6 +1,6 @@
 const Cheerio = require("cheerio")
 const makeScrapeTools = require("./makeScrapeTools")
-const { last, chunk, zip, mapValues, isString, flatten } = require("lodash")
+const { last, chunk, zip, mapValues, isString, flatten, partition } = require("lodash")
 const {
   prevSiblingTextContains,
   selfTextContains,
@@ -267,15 +267,18 @@ exports.fetchTipData = async (ticker, browser) => {
     `//table[@id="tipranks-analyst-ratings"]/tbody/tr//*[@data-test-id="latest-report"]`,
   ])
 
-  const tipAnalysts = zip(...analystStrings).join("\n")
+  const tipAnalystsZip = zip(...analystStrings)
+  const [maintained, changed] = partition(tipAnalystsZip, analyst =>
+    ["initiated", "reiterated", "maintained"].includes(analyst[3].toLowerCase().trim())
+  )
+  const tipAnalysts = [...changed, "", ...maintained].join("\n")
 
   // INVESTORS
   await fetcher.click(
     `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
   )
-  const [
-    [tipYoungHolders, tipMidageHolders, tipOldHolders] = [],
-  ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
+  const [[tipYoungHolders, tipMidageHolders, tipOldHolders] = []] =
+    await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
 
   // BLOGGERS
   const shouldGetBloggers = tipBloggers !== "N/A"
@@ -829,17 +832,13 @@ exports.fetchFidelityAnalystOpinions = async (ticker, browser) => {
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
 
-  const [
-    zacksDate,
-    zacksLink,
-    argusAnalystDate,
-    argusAnalystLink,
-  ] = await fetcher.fetchPageData([
-    reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
-    reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
-    reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
-    reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
-  ])
+  const [zacksDate, zacksLink, argusAnalystDate, argusAnalystLink] =
+    await fetcher.fetchPageData([
+      reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
+      reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
+      reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
+      reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
+    ])
 
   await fetcher.clickForXpath(`//*[@id="More"]`)
 
@@ -1115,13 +1114,11 @@ exports.fetchBoaData = async (ticker, browser) => {
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
   )
-  const [
-    boaRating,
-    [boaVolatility, boaInvestment, boaIncome] = [],
-  ] = await boaFetcher.fetchPageData([
-    `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
-    `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
-  ])
+  const [boaRating, [boaVolatility, boaInvestment, boaIncome] = []] =
+    await boaFetcher.fetchPageData([
+      `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
+      `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+    ])
 
   const morningstarLink = await boaFetcher.fetchHref(
     `//a[contains(@aria-label,"View latest Morningstar")]`
