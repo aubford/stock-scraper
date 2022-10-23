@@ -174,48 +174,70 @@ exports.fetchFordData = async (ticker, browser) => {
   return { fordRating, fordRelativeValuation, fordEarningsStrength, fordPriceMovement }
 }
 
-const getHedgeRating = tipHedgeMoves => {
-  const getChangePct = str => Number(str.split(", ")[1].split(" ")[0].replace("%", ""))
-  const getMovementValue = (movement, hedgeCoeff) => {
-    const isPrimo = hedgeCoeff > 3
+const isBadHedgeData = (holdingChange, action) => {
+  const actionType = holdingChange.includes("+")
+    ? "inc"
+    : holdingChange.includes("-")
+    ? "desc"
+    : "eq"
 
-    const buyThreshold = 1,
-      holdThreshold = -0.5,
-      trimThreshold = -2,
-      sellThreshold = -8,
-      sellOutThreshold = -80,
-      buyVal = 1.25,
-      holdVal = isPrimo ? 0.5 : 0,
-      rebalanceVal = 0,
-      trimVal = -0.5,
-      sellVal = -1,
-      sellOutVal = -1.25
-
-    const getNegativeVal = x =>
-      x < sellOutThreshold
-        ? sellOutVal
-        : x < sellThreshold
-        ? sellVal
-        : x < trimThreshold
-        ? trimVal
-        : rebalanceVal
-    const getPositiveVal = x => (x > buyThreshold ? buyVal : holdVal)
-
-    return movement > holdThreshold ? getPositiveVal(movement) : getNegativeVal(movement)
+  const actionMap = {
+    inc: ["added", "new"],
+    desc: ["reduced", "sold out"],
+    eq: ["no change"],
   }
 
-  return chunk(tipHedgeMoves.split("\n"), 2)
-    .map(([name, move]) => [name, getChangePct(move)])
-    .reduce((sum, [hedgeName, movement]) => {
-      const mapData = hedgeFundValues.find(({ first, last }) => {
-        const lowerName = hedgeName.toLowerCase()
-        return lowerName.includes(first) && lowerName.includes(last)
-      })
-      const hedgeCoeff = mapData ? mapData.value : 1
+  const wrongActions = Object.keys(actionMap)
+    .filter(type => type !== actionType)
+    .reduce((acc, key) => acc.concat(actionMap[key]), [])
 
-      return sum + getMovementValue(movement, hedgeCoeff) * hedgeCoeff
-    }, 0)
+  return wrongActions.includes(action.toLowerCase())
 }
+
+const getMovementValue = (movement, hedgeCoeff) => {
+  const isPrimo = hedgeCoeff > 3
+
+  const buyThreshold = 1,
+    holdThreshold = -0.5,
+    trimThreshold = -2,
+    sellThreshold = -8,
+    sellOutThreshold = -80,
+    buyVal = 1.25,
+    holdVal = isPrimo ? 0.5 : 0,
+    rebalanceVal = 0,
+    trimVal = -0.5,
+    sellVal = -1,
+    sellOutVal = -1.25
+
+  const getNegativeVal = x =>
+    x < sellOutThreshold
+      ? sellOutVal
+      : x < sellThreshold
+      ? sellVal
+      : x < trimThreshold
+      ? trimVal
+      : rebalanceVal
+  const getPositiveVal = x => (x > buyThreshold ? buyVal : holdVal)
+
+  return movement > holdThreshold ? getPositiveVal(movement) : getNegativeVal(movement)
+}
+const getHedgeRating = tipHedgeMoves =>
+  tipHedgeMoves.reduce((sum, hedgeFundStr) => {
+    if (hedgeFundStr === "ERROR") {
+      return sum
+    }
+
+    const mapData = hedgeFundValues.find(({ first, last }) => {
+      const lowerName = hedgeFundStr.toLowerCase()
+      return lowerName.includes(first) && lowerName.includes(last)
+    })
+    const hedgeCoeff = mapData ? mapData.value : 1
+
+    const movementMatches = hedgeFundStr.match(/(?<=,\[.+)[-\d.],?[-\d.]+/g)
+    const movementNumberWithoutCommas = Number(movementMatches[0].replace(",", ""))
+
+    return sum + getMovementValue(movementNumberWithoutCommas, hedgeCoeff) * hedgeCoeff
+  }, 0)
 
 /**
  * @param ticker
@@ -310,23 +332,25 @@ exports.fetchTipData = async (ticker, browser) => {
         `//table[@id="tipranks-hedge-fund-activity"]/tbody/tr`,
       ])
     : []
+
   const tipHedgeMoves =
     shouldGetHedgeActivity && tipHedgeStrings
-      ? []
-          .concat(tipHedgeStrings)
-          .map(str => {
-            const trimmed = str.replace("hedgeFundManagerName", "")
-            const splitName = trimmed.split("action")
-            const splitAction = splitName[1].split("holdingChange")
-            const splitHoldingChange = splitAction[1].split("valueReported")
-            const splitPctPortfolio = splitHoldingChange[1].split("percentageOfPortfolio")
+      ? tipHedgeStrings.map(str => {
+          const trimmed = str.replace("hedgeFundManagerName", "")
+          const splitName = trimmed.split("action")
+          const splitAction = splitName[1].split("holdingChange")
+          const splitHoldingChange = splitAction[1].split("valueReported")
+          const splitPctPortfolio = splitHoldingChange[1].split("percentageOfPortfolio")
 
-            return `${splitName[0]}\n[${splitAction[0].toUpperCase()}, ${
-              splitHoldingChange[0]
-            } -> ${splitPctPortfolio[1]}]`
-          })
-          .join("\n")
-      : ""
+          if (isBadHedgeData(splitHoldingChange[0], splitAction[0])) {
+            return "ERROR"
+          }
+
+          return `${splitName[0].slice(0, 20)},[${splitAction[0].toUpperCase()},${
+            splitHoldingChange[0]
+          },${splitPctPortfolio[1]}]`
+        })
+      : []
 
   const tipHedgeRating =
     shouldGetHedgeActivity && tipHedgeMoves ? getHedgeRating(tipHedgeMoves) : ""
@@ -382,7 +406,7 @@ exports.fetchTipData = async (ticker, browser) => {
       tipBlogArticles && tipBlogArticleDates
         ? flatten(zip(tipBlogArticleDates, tipBlogArticles))
         : [],
-    tipHedgeMoves,
+    tipHedgeMoves: tipHedgeMoves.join("\n"),
     tipHedgeRating,
   }
 }
