@@ -14,17 +14,14 @@ const scrapeDataForTicker = async (ticker, browser) => {
   const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(ticker, browser)
   // const fidelityKeyStats = await fetchFidelityKeyStats(ticker, browser)
 
-  const [
-    [moodysRating, moodysOutlook, moodysLink],
-    yahooData,
-    wsjData,
-  ] = await Promise.all([
-    fetchMoodysData(ticker, browser),
-    fetchYahooData(ticker),
-    fetchWSJData(ticker),
-  ])
+  const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData] =
+    await Promise.all([
+      fetchMoodysData(ticker, browser),
+      fetchYahooData(ticker),
+      fetchWSJData(ticker),
+    ])
 
-  const { tipAnalysts, ...tipData } = await fetchTipData(ticker, browser)
+  const tipData = await fetchTipData(ticker, browser)
 
   return {
     scrapeDataUpdatedAt: Date.now(),
@@ -34,10 +31,6 @@ const scrapeDataForTicker = async (ticker, browser) => {
     moodysRating,
     ticker,
     tickerSearch: `//${ticker}`,
-    tipAnalysts: tipAnalysts
-      .split("\n")
-      .filter(a => a.includes("upgraded") || a.includes("downgraded"))
-      .join("\n"), // only show up/downgrades
     ...fidelityAnalystOpinionsData,
     ...tipData,
     ...buildCompanyData(yahooData, wsjData),
