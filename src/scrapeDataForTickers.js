@@ -42,7 +42,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
   const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(ticker, browser)
   const fidelityKeyStats = await fetchFidelityKeyStats(ticker, browser)
 
-  const { zacksLink, argusResearchLink, argusAnalystLink } = fidelityAnalystOpinionsData
+  const { zacksLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
   // B of A
 

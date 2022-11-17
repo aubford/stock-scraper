@@ -87,7 +87,9 @@ class PageDataFetcher {
 
   async waitForXpath(xpath) {
     try {
-      return this.page.waitForXPath(xpath, { timeout: this.timeout })
+      // dont just return this or try catch won't work right
+      const res = await this.page.waitForXPath(xpath, { timeout: this.timeout })
+      return res
     } catch (err) {
       if (err.message.includes("is not a valid XPath expression")) {
         this.logger.error("*** INVALID XPATH *** for xpath: " + xpath)
@@ -218,9 +220,11 @@ class PageDataFetcher {
       return Promise.resolve()
     }
     const el = await this.waitForXpath(xPath)
-    return el.click().catch(err => {
-      this.logger.warn(`Page click failed for xPath: ${xPath}`, err)
-    })
+    if (el) {
+      return el.click().catch(err => {
+        this.logger.warn(`Page click failed for xPath: ${xPath}`, err)
+      })
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 const Cheerio = require("cheerio")
 const makeScrapeTools = require("./makeScrapeTools")
-const { last, chunk, zip, mapValues, isString, flatten, partition } = require("lodash")
+const { last, zip, mapValues, isString, flatten, partition } = require("lodash")
 const {
   prevSiblingTextContains,
   selfTextContains,
@@ -175,11 +175,8 @@ exports.fetchFordData = async (ticker, browser) => {
 }
 
 const isBadHedgeData = (holdingChange, action) => {
-  const actionType = holdingChange.includes("+")
-    ? "inc"
-    : holdingChange.includes("-")
-    ? "desc"
-    : "eq"
+  const actionType =
+    parseFloat(holdingChange) === 0 ? "eq" : holdingChange.includes("-") ? "desc" : "inc"
 
   const actionMap = {
     inc: ["added", "new"],
@@ -299,8 +296,9 @@ exports.fetchTipData = async (ticker, browser) => {
   await fetcher.click(
     `div.tipranks-top-row > .tipranks-widget section[aria-label="Investor Sentiment"] > div > span > button`
   )
-  const [[tipYoungHolders, tipMidageHolders, tipOldHolders] = []] =
-    await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
+  const [
+    [tipYoungHolders, tipMidageHolders, tipOldHolders] = [],
+  ] = await fetcher.fetchPageData([`//p[@class="age-group-box-bigNum holders"]`])
 
   // BLOGGERS
   const shouldGetBloggers = tipBloggers !== "N/A"
@@ -335,7 +333,7 @@ exports.fetchTipData = async (ticker, browser) => {
 
   const tipHedgeMoves =
     shouldGetHedgeActivity && tipHedgeStrings
-      ? tipHedgeStrings.map(str => {
+      ? [].concat(tipHedgeStrings).map(str => {
           const trimmed = str.replace("hedgeFundManagerName", "")
           const splitName = trimmed.split("action")
           const splitAction = splitName[1].split("holdingChange")
@@ -609,15 +607,17 @@ exports.fetchFidelityKeyStats = async (ticker, browser) => {
   const fidelityKeyStatXpath = name =>
     `//div[@id="equity-key-statistics"]//tr[.//span[text()="${name}"]]/td/span`
 
-  const fetcher = getPageDataFetcher(FIDELITY_STATS, { timeout: FIDELITY_STATS_TIMEOUT })
+  const fetcher = getPageDataFetcher(FIDELITY_STATS, {
+    timeout: FIDELITY_STATS_TIMEOUT,
+  })
   await fetcher.setPage(
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/key-statistics?stockspage=keyStatistics&symbols=${ticker}`
   )
 
-  await fetcher.clickForXpath(`//*[@id="More"]`)
+  await fetcher.clickForXpath(`//*[@href="#pvd3-action__caret-right"]`)
 
   const [
-    [fidelityPrice],
+    [fidelityPrice] = [],
     [, fidelityPe, fidelityPeIndustry] = [], // TTM, which is default vs. Mrq
     [, fidelityPeFiveYrAvg, fidelityPeFiveYrAvgIndustry] = [],
     [, fidelityPEGFiveYrProj, fidelityPEGFiveYrProjIndustry] = [],
@@ -856,15 +856,19 @@ exports.fetchFidelityAnalystOpinions = async (ticker, browser) => {
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
 
-  const [zacksDate, zacksLink, argusAnalystDate, argusAnalystLink] =
-    await fetcher.fetchPageData([
-      reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
-      reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
-      reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
-      reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
-    ])
+  const [
+    zacksDate,
+    zacksLink,
+    argusAnalystDate,
+    argusAnalystLink,
+  ] = await fetcher.fetchPageData([
+    reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
+    reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
+    reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
+    reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
+  ])
 
-  await fetcher.clickForXpath(`//*[@id="More"]`)
+  await fetcher.clickForXpath(`//*[@href="#pvd3-action__caret-right"]`)
 
   const [starmines, fidelitySummaryScore] = await fetcher.fetchPageData([
     `//table[@data-tc="table-firm-opinions"]/tbody/tr/td[position()=1 or position()=3]//text()`,
@@ -1138,11 +1142,13 @@ exports.fetchBoaData = async (ticker, browser) => {
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
   )
-  const [boaRating, [boaVolatility, boaInvestment, boaIncome] = []] =
-    await boaFetcher.fetchPageData([
-      `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
-      `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
-    ])
+  const [
+    boaRating,
+    [boaVolatility, boaInvestment, boaIncome] = [],
+  ] = await boaFetcher.fetchPageData([
+    `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
+    `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+  ])
 
   const morningstarLink = await boaFetcher.fetchHref(
     `//a[contains(@aria-label,"View latest Morningstar")]`
