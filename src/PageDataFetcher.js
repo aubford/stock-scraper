@@ -100,6 +100,17 @@ class PageDataFetcher {
     }
   }
 
+  async waitForSelector(selector) {
+    try {
+      // dont just return this or try catch won't work right
+      const res = await this.page.waitForSelector(selector, { timeout: this.timeout })
+      return res
+    } catch (err) {
+      this.logger.warn(`PageDataFetcher.waitForSelector failed for selector: ${selector}`)
+      return false
+    }
+  }
+
   async waitForFrame(frameName) {
     const log = () => this.logger.error(`Frame "${frameName}" NOT FOUND 🚨`)
 
@@ -201,17 +212,21 @@ class PageDataFetcher {
    * @param {string} selector
    * @returns {Promise<void>|*}
    */
-  click(selector) {
+  async click(selector) {
     const { page } = this
 
     if (!page || !selector) {
       this.logger.error(`Page click: No page/selector for ${selector}`)
-      return Promise.resolve()
+      return await Promise.resolve()
     }
 
-    return page.click(selector).catch(err => {
-      this.logger.warn(`Page click failed for selector: ${selector}`, err)
-    })
+    const el = await this.waitForSelector(selector)
+    if (el) {
+      return el.click().catch(err => {
+        this.logger.warn(`Page click failed for selector: ${selector}`, err)
+      })
+    }
+    return this.logger.warn(`Element not found for page click for selector: ${selector}`)
   }
 
   async clickForXpath(xPath) {
@@ -225,6 +240,7 @@ class PageDataFetcher {
         this.logger.warn(`Page click failed for xPath: ${xPath}`, err)
       })
     }
+    return this.logger.warn(`Element not found for page click for xpath: ${xPath}`)
   }
 
   /**

@@ -305,7 +305,6 @@ const pause = async ms => {
 
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   const logger = new Logger(ticker, "Fidelity Secret URL")
-  logger.log(`getFidelitySecretUrl browser = ${browser}`)
   if (!fidelityLink) {
     return null
   }
