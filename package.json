@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/apps/start.js",
   "scripts": {
-    "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataBackup.json\" ./stockDataBackup.json",
+    "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\" ./vooData.json",
     "start": "npm run prerun && node --require ./preload.js ./src/apps/start.js && npm run prettyStock",
     "voo": "npm run prerun && node --require ./preload.js ./src/apps/fetchVoo.js && npm run prettyVoo",
     "update": "npm run prerun && node --require ./preload.js src/apps/update.js && npm run prettyStock",

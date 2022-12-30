@@ -6,5 +6,6 @@ testOutput.json
 .DS_Store
 
 /stockData.json
+/vooData.json
 /stockDataMeta.json
 /stockDataBackup.json
