@@ -1,6 +1,10 @@
 const makeScrapeTools = require("../makeScrapeTools")
-const { prevSiblingTextContains, prevSiblingTextIs } = require("./util")
-const { makePrettyDate, getFidelitySecretUrl } = require("../util")
+const {
+  prevSiblingTextContains,
+  prevSiblingTextIs,
+  getFidelitySecretUrl,
+} = require("./util")
+const { makePrettyDate } = require("../util")
 
 /**
  * @param {string} ticker
@@ -10,7 +14,7 @@ const { makePrettyDate, getFidelitySecretUrl } = require("../util")
  */
 exports.fetch = async (ticker, browser, analystPageLink) => {
   const { fetchPdfData } = makeScrapeTools(ticker, browser)
-  const url = getFidelitySecretUrl(analystPageLink, browser, ticker)
+  const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
 
   const [
     zacksRank,

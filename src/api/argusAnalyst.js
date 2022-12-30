@@ -1,6 +1,5 @@
 const makeScrapeTools = require("../makeScrapeTools")
-const { prevSiblingTextIs, extractNumbers } = require("./util")
-const { getFidelitySecretUrl } = require("./util/www")
+const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
 
 /**
  * @param {string} ticker
