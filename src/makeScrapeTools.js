@@ -1,4 +1,4 @@
-const { newBrowserPage } = require("./util")
+const { newBrowserPage } = require("./puppeteer")
 const PageDataFetcher = require("./PageDataFetcher")
 const Logger = require("./Logger")
 

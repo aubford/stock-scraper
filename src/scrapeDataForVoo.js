@@ -1,27 +1,20 @@
-const {
-  fetchYahooData,
-  fetchWSJData,
-  fetchTipData,
-  fetchFidelityAnalystOpinions,
-  fetchMoodysData,
-} = require("./api")
-const buildCompanyData = require("./buildCompanyData")
+const { yahoo, wsj, tipranks, fidelityAnalysts, moodys } = require("./api")
 const { makePrettyDate, vooWriteOut, pause } = require("./util")
 
 const scrapeDataForTicker = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
-  const fidelityAnalystOpinionsData = await fetchFidelityAnalystOpinions(ticker, browser)
+  const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
   // const fidelityKeyStats = await fetchFidelityKeyStats(ticker, browser)
 
   const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData] =
     await Promise.all([
-      fetchMoodysData(ticker, browser),
-      fetchYahooData(ticker),
-      fetchWSJData(ticker),
+      moodys.fetch(ticker, browser),
+      yahoo.fetch(ticker),
+      wsj.fetch(ticker),
     ])
 
-  const tipData = await fetchTipData(ticker, browser)
+  const tipData = await tipranks.fetch(ticker, browser)
 
   return {
     scrapeDataUpdatedAt: Date.now(),
@@ -33,7 +26,8 @@ const scrapeDataForTicker = async (ticker, browser) => {
     tickerSearch: `//${ticker}`,
     ...fidelityAnalystOpinionsData,
     ...tipData,
-    ...buildCompanyData(yahooData, wsjData),
+    ...yahooData,
+    ...wsjData,
   }
 }
 

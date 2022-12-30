@@ -1,18 +1,17 @@
 const { chunk, fromPairs } = require("lodash")
-const { fetchYahooData, fetchWSJData } = require("../api")
-const buildCompanyData = require("../buildCompanyData")
+const { yahoo, wsj } = require("../api")
 const { vooWriteOut } = require("../util")
 
 const tickers = require("../vooTickers")
 
 const fetchData = async ticker => {
-  const yahooData = await fetchYahooData(ticker)
-  const wsjData = await fetchWSJData(ticker)
+  const yahooData = await yahoo.fetch(ticker)
+  const wsjData = await wsj.fetch(ticker)
 
   const { quoteSummary: { result } = {} } = yahooData
   if (result && wsjData) {
     console.log(`Fetched OK: ${ticker}`)
-    return [ticker, buildCompanyData(yahooData, wsjData)]
+    return [ticker, { ...yahooData, ...wsjData }]
   }
   console.log(`*** FAILURE: ${ticker} ***`)
 }

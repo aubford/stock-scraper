@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
-const { newBrowserPage, scrapbookWriteOut } = require("../util")
+const { newBrowserPage } = require("../puppeteer")
+const { scrapbookWriteOut } = require("../util")
 const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
 

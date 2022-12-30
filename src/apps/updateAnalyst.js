@@ -1,14 +1,13 @@
 const puppeteer = require("puppeteer-core")
 const {
-  fetchFidelityAnalystOpinions,
-  fetchFidelityKeyStats,
-  fetchNewConstructs,
-  fetchZacks,
-  fetchTipData,
-  fetchTdData,
+  fidelityAnalysts,
+  fidelityStats,
+  newConstructs,
+  zacksReport,
+  tipranks,
+  td,
 } = require("../api")
 const {
-  getFidelitySecretUrl,
   scrapbookWriteOut,
   promptUser,
   backupReturnStockDataFile,
@@ -18,14 +17,14 @@ const {
 } = require("../util")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
-/** @type {Object<function>} */
+/** @type {{fetch: function}} */
 const analystMap = {
-  [NEW_CONSTRUCTS]: fetchNewConstructs,
-  [ZACKS]: fetchZacks,
-  [FIDELITY_STATS]: fetchFidelityKeyStats,
-  [FIDELITY]: fetchFidelityAnalystOpinions,
-  [TIPRANKS]: fetchTipData,
-  [TD]: fetchTdData,
+  [NEW_CONSTRUCTS]: newConstructs,
+  [ZACKS]: zacksReport,
+  [FIDELITY_STATS]: fidelityStats,
+  [FIDELITY]: fidelityAnalysts,
+  [TIPRANKS]: tipranks,
+  [TD]: td,
 }
 
 const stockDataFile = backupReturnStockDataFile()
@@ -36,7 +35,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   begin()
 
   const analyst = await promptUser("Analyst: ")
-  const fetchAnalystData = analystMap[analyst]
+  const fetchAnalystData = analystMap[analyst].fetch
 
   const sectorsUpdated = []
   const updateSector = async sector => {
@@ -48,15 +47,8 @@ puppeteer.connect(CONNECTION).then(async browser => {
     const newData = {}
     for (const ticker of tickers) {
       try {
-        let url
-        if ([ZACKS, ARGUS_RESEARCH, ARGUS_ANALYST].includes(analyst)) {
-          const link = stockData[ticker][analyst + "Link"]
-          if (link) {
-            url = await getFidelitySecretUrl(link, browser, ticker)
-          }
-        }
-
-        newData[ticker] = await fetchAnalystData(ticker, browser, url)
+        const analystLink = stockData[ticker][analyst + "Link"]
+        newData[ticker] = await fetchAnalystData(ticker, browser, analystLink)
       } catch (err) {
         console.log(`${ticker}: xxx FAIL xxx`, err)
       }

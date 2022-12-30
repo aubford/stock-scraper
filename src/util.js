@@ -1,19 +1,7 @@
 require("puppeteer-core")
 const moment = require("moment")
-const {
-  isArray,
-  assignWith,
-  first,
-  last,
-  endsWith,
-  fromPairs,
-  omit,
-  zip,
-  chunk,
-  zipWith,
-} = require("lodash")
+const { isArray, assignWith, omit } = require("lodash")
 const readline = require("readline")
-const Logger = require("./Logger")
 const { exec } = require("child_process")
 
 /**
@@ -22,172 +10,6 @@ const { exec } = require("child_process")
  * @property closeSafe
  * @property error
  */
-
-/**
- * @param page {MyPage}
- * @param selector {string}
- * @returns {Promise<string|string[]>}
- */
-const getTextByX = async (page, selector) => {
-  const elementArr = await page.$x(selector)
-  if (!elementArr.length) {
-    return ""
-  }
-  if (elementArr.length === 1) {
-    return await elementArr[0].evaluate(({ textContent }) =>
-      textContent ? textContent.trim() : ""
-    )
-  }
-  return await Promise.all(
-    elementArr.map(element =>
-      element.evaluate(({ textContent }) => (textContent ? textContent.trim() : ""))
-    )
-  )
-}
-
-const waitForXpath = async (page, xpath, timeout) => {
-  try {
-    await page.waitForXPath(xpath, { timeout })
-    return true
-  } catch (err) {
-    if (err.message.includes("is not a valid XPath expression")) {
-      console.error("*** INVALID XPATH *** for xpath: " + xpath)
-    } else {
-      console.warn(`waitForXpath failed for xpath: ${xpath}`)
-    }
-    return false
-  }
-}
-
-const wrapPage = page => {
-  page.getTextByX = text =>
-    getTextByX(page, text).catch(err => console.error("🚨 getTextByX: ", err))
-
-  page.closeSafe = () => {
-    const isOpen = page && !page.isClosed()
-
-    if (isOpen) {
-      return page.close().catch(err => {
-        console.error("🚨 Page Close Error: ", err)
-      })
-    }
-    console.error(
-      `🚨 Page Close Error: ${page ? "Page exists but is closed" : "Page does not exist"}`
-    )
-    return Promise.resolve()
-  }
-
-  try {
-    page.setDefaultNavigationTimeout(DEFAULT_NAVIGATION_TIMEOUT)
-  } catch (err) {
-    console.error("🚨 setDefaultNavigationTimeout:" + err)
-  }
-}
-
-/** @returns {Promise<MyPage>} */
-const newBrowserPage = async (browser, url, options = {}) => {
-  /** @type {MyPage} */
-  const page = await browser.newPage()
-  wrapPage(page)
-
-  try {
-    await page.goto(url, options)
-  } catch (error) {
-    const msg = `🚨 PAGE LOAD ERROR -> ${error}`
-
-    await page.closeSafe()
-    await pause(60 * 1000)
-
-    throw new Error(msg)
-  }
-
-  return page
-}
-
-const parseStreetBulletData = (lineOne, lineTwo) => {
-  const firstBulletIndicators = [
-    { indicator: "Premium", value: [2, 1] },
-    { indicator: "Discount", value: [4, 5] },
-    { indicator: "Average", value: [3, 3] },
-    { indicator: "Higher", value: [4, 5] },
-    { indicator: "Lower", value: [2, 1] },
-  ]
-  const fullTextBullets = zipWith(lineOne, lineTwo, (a, b) => `${a} ${b}`)
-  const chunked = chunk(fullTextBullets, 2)
-  const mapped = chunked.map(([bulletA, bulletB]) => {
-    if (bulletA.includes("Neutral")) {
-      return ""
-    }
-    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator))
-      .value[bulletB.includes("significant") ? 1 : 0]
-  })
-
-  return fromPairs(
-    zip(
-      [
-        "streetPE",
-        "streetPCF",
-        "streetProjEarn",
-        "streetPEG",
-        "streetPB",
-        "streetEarningsGrowth",
-        "streetPSales",
-        "streetSalesGrowth",
-      ],
-      mapped
-    )
-  )
-}
-
-/**
- * @param {Frame|Page} frame
- * @param selector {string}
- * @param {*} func
- * @returns {Promise<string|string[]>}
- */
-const evalX = async (frame, selector, ...func) => {
-  const elementArr = (await frame.$x(selector)) || []
-  if (!elementArr.length) {
-    return ""
-  }
-  if (elementArr.length === 1) {
-    return await elementArr[0].evaluate(...func)
-  }
-  return await Promise.all(elementArr.map(element => element.evaluate(...func)))
-}
-
-const chars = text => text.replace(/\s/g, "")
-
-const matchChars = text => `translate(text()," ","")="${chars(text)}"`
-
-const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
-
-const containsClass = text => `contains(@class,"${text}")`
-
-const selfTextContains = text => `//*[${containsChars(text)}]`
-
-const prevSiblingTextContains = (text, num = 1) =>
-  `//span[${containsChars(text)}]/following-sibling::span[${num}]`
-
-const prevSiblingTextIs = (text, num = 1) =>
-  `//span[${matchChars(text)}]/following-sibling::span[${num}]`
-
-const followingSiblingTextIs = (text, num = 1) =>
-  `//span[${matchChars(text)}]/preceding-sibling::span[${num}]`
-
-const prevSiblingTextIsStar = (text, num = 1) =>
-  `//*[${matchChars(text)}]/following-sibling::*[${num}]`
-
-const followingSiblingTextIsStar = (text, num = 1) =>
-  `//*[${matchChars(text)}]/preceding-sibling::*[${num}]`
-
-const hasCFRA = (rating, ticker, analystName) => {
-  const hasReport = rating !== "no rating"
-  if (!hasReport) {
-    new Logger(ticker, analystName).warn(`NO REPORT`)
-  }
-  return hasReport
-}
 
 const writeFile = (location, data) => {
   try {
@@ -303,41 +125,6 @@ const pause = async ms => {
   return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
-const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
-  const logger = new Logger(ticker, "Fidelity Secret URL")
-  if (!fidelityLink) {
-    return null
-  }
-  const page = await newBrowserPage(browser, fidelityLink, { logger })
-  try {
-    const src = await page.$eval("frame", node => node.getAttribute("src"))
-    logger.completeOk("getFidelitySecretUrl: Done")
-    return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
-  } catch (err) {
-    logger.error("failed to getFidelitySecretUrl")
-    return null
-  } finally {
-    await page.closeSafe()
-  }
-}
-
-const getFirstLastValue = str => {
-  const split = str ? str.split(/\s/) : []
-  return [first(split), last(split)]
-}
-
-const extractNumbers = text =>
-  text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""
-
-const millBillStrToNum = str => {
-  const num = extractNumbers(str)
-  if (endsWith(str, "M") || endsWith(str, "B")) {
-    const mult = endsWith(str, "M") ? 1000 ** 2 : 1000 ** 3
-    return num * mult
-  }
-  return num
-}
-
 const makePrettyDate = () => moment().format("MMM DD h:mma")
 
 const getOnlyStockTickerData = stockJsonData =>
@@ -355,26 +142,8 @@ const exit = () => {
 }
 
 module.exports = {
-  // scrape general
-  evalX,
-  getTextByX,
-  followingSiblingTextIsStar,
-  prevSiblingTextIsStar,
-  containsClass,
-  selfTextContains,
-  // scrape (PDF Viewer only)
-  followingSiblingTextIs,
-  prevSiblingTextContains,
-  prevSiblingTextIs,
   // data manipulation
-  millBillStrToNum,
-  extractNumbers,
-  parseStreetBulletData,
   makePrettyDate,
-  getFirstLastValue,
-  // api
-  hasCFRA,
-  getFidelitySecretUrl,
   // script
   exit,
   begin,
@@ -389,8 +158,4 @@ module.exports = {
   vooWriteOut,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
-  // puppeteer
-  waitForXpath,
-  newBrowserPage,
-  wrapPage,
 }

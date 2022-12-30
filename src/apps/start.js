@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer-core")
 const {
-  newBrowserPage,
   promptForTickers,
   promptLogin,
   backupReturnStockDataFile,
@@ -8,6 +7,7 @@ const {
   begin,
   exit,
 } = require("../util")
+const { newBrowserPage } = require("../puppeteer")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 
 puppeteer.connect(CONNECTION).then(async browser => {

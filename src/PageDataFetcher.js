@@ -1,5 +1,11 @@
 const { zip, fromPairs } = require("lodash")
-const { wrapPage, newBrowserPage, evalX, waitForXpath, getTextByX } = require("./util")
+const {
+  wrapPage,
+  evalX,
+  waitForXpath,
+  getTextByX,
+  newBrowserPage,
+} = require("./puppeteer")
 const Logger = require("./Logger")
 
 class PageDataFetcher {
@@ -232,7 +238,7 @@ class PageDataFetcher {
   async clickForXpath(xPath) {
     if (!this.page || !xPath) {
       this.logger.error(`Page click: No page/selector for ${xPath}`)
-      return Promise.resolve()
+      return await Promise.resolve()
     }
     const el = await this.waitForXpath(xPath)
     if (el) {

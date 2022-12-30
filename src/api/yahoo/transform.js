@@ -15,7 +15,7 @@ const {
   raw,
   fmt,
   allDatesAreFuture,
-} = require("./buildCompanyDataUtil")
+} = require("./util")
 
 const validateEarningsTrend = trend => {
   if (!trend) {
@@ -179,11 +179,9 @@ const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
 
 /**
  * @param quoteSummary
- * @param wsjChart
- * @param wsjData
  * @returns {CompanyData}
  */
-module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
+module.exports = ({ quoteSummary }) => {
   const {
     assetProfile: {
       longBusinessSummary,
@@ -427,7 +425,6 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
       ? incomeChartsAnnu.netIncomeIsAnnuChart.map(fy => slicePerShare(fy))
       : 0
 
-  //noinspection JSValidateTypes
   return {
     ...(statementDataOk ? statementData : mapValues(statementData, () => 0)),
     ...selectValueTypes(
@@ -676,30 +673,6 @@ module.exports = ({ quoteSummary }, { wsjChart, ...wsjData }) => {
           orZero(allDatesAreFuture(earningsDate), raw(revenueAverage)),
         ]
       : [],
-    wsjChartThreeMonthAgo: wsjChart
-      ? wsjChart
-          .filter((d, idx) => idx % 3 === 0)
-          .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartMonthAgo: wsjChart
-      ? wsjChart
-          .filter((d, idx) => (idx + 2) % 3 === 0)
-          .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartCurrent: wsjChart
-      ? wsjChart
-          .filter((d, idx) => (idx + 1) % 3 === 0)
-          .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartCurrentNum: wsjChart
-      ? wsjChart
-          .filter((d, idx) => (idx + 1) % 3 === 0)
-          .reduce((acc, curr) => acc + Number(curr), 0)
-      : "",
-    ...Object.fromEntries(Object.entries(wsjData).filter(([, value]) => value)), // remove entries w/ falsy values
     operatingMargins: "deprecated",
     earliestEarningsDate: "deprecated",
     earningsChartDataOk,
