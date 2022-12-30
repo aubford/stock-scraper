@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const { sortBy } = require("lodash")
+const { newBrowserPage } = require("../puppeteer")
 const {
-  newBrowserPage,
   promptLogin,
   backupReturnStockDataFile,
   promptUser,

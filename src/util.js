@@ -27,11 +27,11 @@ const readFile = location => {
 }
 
 const backupReturnStockDataFile = () => {
-  fs.copyFileSync(
-    STOCK_DATA_BACKUP_LOCATION,
-    `${SCRAPBOOK_LOCATION}/stockDataBackup_backup_${moment().format()}.json`
-  )
-  fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
+  // fs.copyFileSync(
+  //   STOCK_DATA_BACKUP_LOCATION,
+  //   `${SCRAPBOOK_LOCATION}/stockDataBackup_backup_${moment().format()}.json`
+  // )
+  // fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
   return readFile(STOCK_DATA_LOCATION)
 }
 
