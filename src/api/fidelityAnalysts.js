@@ -1,4 +1,4 @@
-const makeScrapeTools = require("../makeScrapeTools")
+const PageDataFetcher = require("../PageDataFetcher")
 const { makePrettyDate } = require("../util")
 
 /**
@@ -7,15 +7,13 @@ const { makePrettyDate } = require("../util")
  * @returns Promise<Object>
  */
 exports.fetch = async (ticker, browser) => {
-  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
-
   const formatFidelityStarmine = (name, rating) =>
     `${(name || "").substring(0, 14)} - ${rating}`
 
   const reportRowXpathFrag = name =>
     `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
 
-  const fetcher = getPageDataFetcher(FIDELITY, {
+  const fetcher = new PageDataFetcher(FIDELITY, ticker, browser, {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
   await fetcher.setPage(

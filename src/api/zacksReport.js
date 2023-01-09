@@ -1,4 +1,4 @@
-const makeScrapeTools = require("../makeScrapeTools")
+const fetchPdfData = require("../fetchPdfData")
 const {
   prevSiblingTextContains,
   prevSiblingTextIs,
@@ -13,7 +13,6 @@ const { makePrettyDate } = require("../util")
  * @returns {Promise<Object>}
  */
 exports.fetch = async (ticker, browser, analystPageLink) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
 
   const [
@@ -50,6 +49,8 @@ exports.fetch = async (ticker, browser, analystPageLink) => {
     zacksProjSalesGrowth,
     zacksPriceStr,
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: ZACKS,
     url,
     waitForPostScroll: prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),

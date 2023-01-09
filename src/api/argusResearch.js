@@ -1,10 +1,8 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { prevSiblingTextIs } = require("./util")
+const fetchPdfData = require("../fetchPdfData")
 
 // deprecated for now
 exports.fetch = async (ticker, browser, argusResearchLink) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const xpathHelper = `text()='M' or text()='H' or text()='L'`
   const [
     argusResearchTarget,
@@ -17,6 +15,8 @@ exports.fetch = async (ticker, browser, argusResearchLink) => {
       argusResearchValue,
     ] = [],
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: ARGUS_RESEARCH,
     url: argusResearchLink,
     xPathArr: [

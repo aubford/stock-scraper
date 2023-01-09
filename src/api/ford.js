@@ -1,5 +1,5 @@
 const { prevSiblingTextIs } = require("./util")
-const makeScrapeTools = require("../makeScrapeTools")
+const fetchPdfData = require("../fetchPdfData")
 
 /**
  * @param {string} ticker
@@ -7,14 +7,14 @@ const makeScrapeTools = require("../makeScrapeTools")
  * @returns {Promise<{fordRating:(number|string), fordRelativeValuation:*, fordEarningsStrength:*, fordPriceMovement:*}>}
  */
 exports.fetch = async (ticker, browser) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const [
     fordRatingSentence = "",
     fordEarningsStrength,
     fordRelativeValuation,
     fordPriceMovement,
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: FORD,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=130&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [

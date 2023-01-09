@@ -1,6 +1,7 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { fetchText } = require("./util")
 const Logger = require("../Logger")
+const { getPageCookies } = require("../puppeteer")
+const PageDataFetcher = require("../PageDataFetcher")
 
 /**
  * @param {string} ticker
@@ -49,15 +50,15 @@ const getMoodysLink = async (ticker, cookie) => {
  * @returns Promise<Object>
  */
 exports.fetch = async (ticker, browser) => {
-  const { getPageCookies, getPageDataFetcher } = makeScrapeTools(ticker, browser)
-
   const logger = new Logger(ticker, "Moodys")
 
-  const moodysCookies = await getPageCookies("https://www.moodys.com/")
+  const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
   const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
   if (moodysLink) {
-    const moodysFetcher = getPageDataFetcher("moodys", { timeout: MOODYS_TIMEOUT })
+    const moodysFetcher = new PageDataFetcher("moodys", ticker, browser, {
+      timeout: MOODYS_TIMEOUT,
+    })
     await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
     const moodysData = await moodysFetcher.fetchPageData(
       [

@@ -1,9 +1,8 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { containsClass } = require("./util")
+const PageDataFetcher = require("../PageDataFetcher")
 
 exports.fetch = async (ticker, browser) => {
-  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
-  const pageFetcher = getPageDataFetcher(TD, { timeout: TD_TIMEOUT })
+  const pageFetcher = new PageDataFetcher(TD, ticker, browser, { timeout: TD_TIMEOUT })
   await pageFetcher.setPage(
     `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/earnings?symbol=${ticker}&c_name=invest_VENDOR`
   )

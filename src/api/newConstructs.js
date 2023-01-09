@@ -1,4 +1,4 @@
-const makeScrapeTools = require("../makeScrapeTools")
+const fetchPdfData = require("../fetchPdfData")
 const { makePrettyDate } = require("../util")
 const { selfTextContains } = require("./util")
 const { last } = require("lodash")
@@ -9,13 +9,13 @@ const { last } = require("lodash")
  * @returns {Promise<{}|{ncRoic:*, ncPB:*, ncRating:*, ncFCF:*, ncGap:*, ncEps:*}>}
  */
 exports.fetch = async (ticker, browser) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const [
     ncPeriodEndDateStr,
     [ncRating, ncRoic, ncFCF, ncEps, ncGap, ncPB] = [],
     isSuspended,
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: NEW_CONSTRUCTS,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=2942&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [

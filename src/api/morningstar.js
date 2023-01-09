@@ -1,5 +1,5 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { prevSiblingTextIs, followingSiblingTextIs } = require("./util")
+const fetchPdfData = require("../fetchPdfData")
 
 /**
  * @param {string} ticker
@@ -8,8 +8,6 @@ const { prevSiblingTextIs, followingSiblingTextIs } = require("./util")
  * @returns {Promise<{morningstarFairValue:*, morningstarUncertainty:*, morningstarDate:*, morningstarCapitalAllocation:*, morningstarMoat:*}>}
  */
 exports.fetch = async (ticker, url, browser) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const [
     [morningstarFairValue] = [],
     morningstarMoat,
@@ -17,6 +15,8 @@ exports.fetch = async (ticker, url, browser) => {
     morningstarCapitalAllocation,
     [morningstarDate] = [],
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: MORNINGSTAR,
     url,
     xPathArr: [

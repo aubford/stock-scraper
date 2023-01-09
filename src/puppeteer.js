@@ -98,10 +98,23 @@ const evalX = async (frame, selector, ...func) => {
   return await Promise.all(elementArr.map(element => element.evaluate(...func)))
 }
 
+/**
+ * @param {Browser} browser
+ * @param {String} url
+ * @returns {Promise<*>}
+ */
+const getPageCookies = async (browser, url) => {
+  const page = await newBrowserPage(browser, url)
+  const cookieArr = await page.cookies()
+  await page.closeSafe()
+  return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
+}
+
 module.exports = {
   getTextByX,
   waitForXpath,
   wrapPage,
   newBrowserPage,
   evalX,
+  getPageCookies,
 }

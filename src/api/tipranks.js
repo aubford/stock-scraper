@@ -1,6 +1,6 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { zip, partition, flatten } = require("lodash")
 const { makePrettyDate } = require("../util")
+const PageDataFetcher = require("../PageDataFetcher")
 
 const hedgeFundValues = [
   { first: "warren", last: "buffett", value: 6 },
@@ -171,9 +171,9 @@ const getHedgeRating = tipHedgeMoves =>
  * @returns {Promise<Object>}
  */
 exports.fetch = async (ticker, browser) => {
-  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
-
-  const fetcher = getPageDataFetcher(TIPRANKS, { timeout: TIPRANKS_TIMEOUT })
+  const fetcher = new PageDataFetcher(TIPRANKS, ticker, browser, {
+    timeout: TIPRANKS_TIMEOUT,
+  })
   const setOk = await fetcher.setPageTrPopup()
   if (!setOk) {
     await fetcher.close()

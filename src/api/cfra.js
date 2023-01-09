@@ -1,7 +1,7 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { prevSiblingTextContains, extractNumbers } = require("./util")
 const { makePrettyDate } = require("../util")
 const Logger = require("../Logger")
+const fetchPdfData = require("../fetchPdfData")
 
 const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
@@ -19,10 +19,10 @@ const hasCFRA = (rating, ticker, analystName) => {
  * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
  */
 exports.fetch = async (ticker, cfraRating, cfraLink, browser) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
     ? await fetchPdfData({
+        ticker,
+        browser,
         analystName: CFRA,
         url: cfraLink,
         xPathArr: [

@@ -1,6 +1,6 @@
 const { followingSiblingTextIs, prevSiblingTextIs } = require("./util")
-const makeScrapeTools = require("../makeScrapeTools")
 const { zipWith, chunk, fromPairs, zip } = require("lodash")
+const fetchPdfData = require("../fetchPdfData")
 
 const parseStreetBulletData = (lineOne, lineTwo) => {
   const firstBulletIndicators = [
@@ -38,8 +38,6 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
 }
 
 exports.fetch = async (ticker, browser) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
-
   const [
     streetRating,
     streetGrowth,
@@ -52,6 +50,8 @@ exports.fetch = async (ticker, browser) => {
     streetBulletDataLineTwo,
     streetTargetPrice,
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: THE_STREET,
     url: `https://research.ameritrade.com/grid/wwws/research/reports/viewreport?id=20034&documenttag=${ticker}&c_name=invest_VENDOR`,
     xPathArr: [

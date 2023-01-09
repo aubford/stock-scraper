@@ -1,4 +1,4 @@
-const makeScrapeTools = require("../makeScrapeTools")
+const PageDataFetcher = require("../PageDataFetcher")
 
 /**
  * @param {string} ticker
@@ -6,9 +6,8 @@ const makeScrapeTools = require("../makeScrapeTools")
  * @returns {Promise<{boaIncome:*, morningstarLink:(string|string[]), boaInvestment:*, cfraRating:*, boaRating:*, morningstarRating:*, boaVolatility:*, cfraLink:(string|string[])}>}
  */
 exports.fetch = async (ticker, browser) => {
-  const { getPageDataFetcher } = makeScrapeTools(ticker, browser)
+  const boaFetcher = new PageDataFetcher(BOA, ticker, browser, { timeout: BOA_TIMEOUT })
 
-  const boaFetcher = getPageDataFetcher(BOA, { timeout: BOA_TIMEOUT })
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
   )

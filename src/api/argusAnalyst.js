@@ -1,5 +1,5 @@
-const makeScrapeTools = require("../makeScrapeTools")
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
+const fetchPdfData = require("../fetchPdfData")
 
 /**
  * @param {string} ticker
@@ -8,7 +8,6 @@ const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./u
  * @returns {Promise<{argusAnalystOneYrDivGrowth:*, argusAnalystFiveYrEpsGrowth:*, argusAnalystRating:*, argusAnalystTarget:(number|string), argusAnalystFinancialStrength:*, argusAnalystOneYrEpsGrowth:*}>}
  */
 exports.fetch = async (ticker, browser, analystPageLink) => {
-  const { fetchPdfData } = makeScrapeTools(ticker, browser)
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
 
   const [
@@ -19,6 +18,8 @@ exports.fetch = async (ticker, browser, analystPageLink) => {
     argusAnalystFiveYrEpsGrowth,
     argusAnalystOneYrDivGrowth,
   ] = await fetchPdfData({
+    ticker,
+    browser,
     analystName: ARGUS_ANALYST,
     url,
     xPathArr: [
