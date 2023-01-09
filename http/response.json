@@ -1,0 +1,109 @@
+{
+  "data": [
+    {
+      "date": 1671343200,
+      "events": {
+        "earnings": 0,
+        "revisions": "69",
+        "splits": 0,
+        "dividends": 0,
+        "guidance": 0,
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": 0,
+        "metrics": 0,
+        "sales": 0
+      }
+    },
+    {
+      "date": 1671429600,
+      "events": {
+        "earnings": "9",
+        "revisions": "281",
+        "splits": "3",
+        "dividends": "428",
+        "guidance": 0,
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": "3",
+        "metrics": 0,
+        "sales": "9"
+      }
+    },
+    {
+      "date": 1671516000,
+      "events": {
+        "earnings": "23",
+        "revisions": "605",
+        "splits": "10",
+        "dividends": "189",
+        "guidance": "6",
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": "5",
+        "metrics": 0,
+        "sales": "23"
+      }
+    },
+    {
+      "date": 1671602400,
+      "events": {
+        "earnings": "11",
+        "revisions": "453",
+        "splits": "3",
+        "dividends": "68",
+        "guidance": "3",
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": "7",
+        "metrics": 0,
+        "sales": "11"
+      }
+    },
+    {
+      "date": 1671688800,
+      "events": {
+        "earnings": "16",
+        "revisions": "398",
+        "splits": "4",
+        "dividends": "263",
+        "guidance": "4",
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": "13",
+        "metrics": 0,
+        "sales": "16"
+      }
+    },
+    {
+      "date": 1671775200,
+      "events": {
+        "earnings": "3",
+        "revisions": "253",
+        "splits": "3",
+        "dividends": "354",
+        "guidance": 0,
+        "transcripts": 0,
+        "webcasts": "0",
+        "econ": "12",
+        "metrics": 0,
+        "sales": "3"
+      }
+    },
+    {
+      "date": 1671861600,
+      "events": {
+        "earnings": 0,
+        "revisions": 0,
+        "splits": 0,
+        "dividends": 0,
+        "guidance": 0,
+        "transcripts": 0,
+        "webcasts": 0,
+        "econ": 0,
+        "metrics": 0,
+        "sales": 0
+      }
+    }
+  ]
+}
