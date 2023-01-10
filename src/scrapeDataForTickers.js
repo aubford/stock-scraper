@@ -4,7 +4,7 @@ const {
   morningstar,
   ford,
   tipranks,
-  zacksReport,
+  zacks,
   yahoo,
   wsj,
   newConstructs,
@@ -12,7 +12,7 @@ const {
   street,
   td,
   boa,
-  fidelityStats,
+  // fidelityStats,
   fidelityAnalysts,
 } = require("./api")
 const { makePrettyDate, scrapbookWriteOut, pause, writeFile } = require("./util")
@@ -28,7 +28,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
   // FIDELITY
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
-  const fidelityKeyStats = await fidelityStats.fetch(ticker, browser)
+  // const fidelityKeyStats = await fidelityStats.fetch(ticker, browser)
 
   const { zacksLink, argusAnalystLink } = fidelityAnalystOpinionsData
 
@@ -72,7 +72,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
 
   // ZACKS
 
-  const zacksReportData = await zacksReport.fetch(ticker, browser, zacksLink)
+  const zacksData = await zacks.fetch(ticker, browser, zacksLink)
 
   // TIPRANKS
 
@@ -98,9 +98,9 @@ const scrapeDataForTicker = async (ticker, browser) => {
     ...ncData,
     ...morningstarData,
     ...argusAnalystData,
-    ...fidelityKeyStats,
+    // ...fidelityKeyStats,
     ...fidelityAnalystOpinionsData,
-    ...zacksReportData,
+    ...zacksData,
     ...fordData,
     ...tipData,
     ...cfraData,

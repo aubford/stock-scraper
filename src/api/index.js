@@ -13,6 +13,7 @@ const boa = require("./boa")
 const fidelityStats = require("./fidelityStats")
 const fidelityAnalysts = require("./fidelityAnalysts")
 const street = require("./street")
+const zacks = require("./zacks")
 
 module.exports = {
   argusAnalyst,
@@ -30,4 +31,5 @@ module.exports = {
   fidelityStats,
   fidelityAnalysts,
   street,
+  zacks,
 }
