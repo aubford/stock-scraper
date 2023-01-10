@@ -4,21 +4,15 @@ const Logger = require("./Logger")
 
 const getTestPage = options => JSDOM.fromFile("./http/response.html", options)
 
-class JsDomFetcher {
-  /**
-   * @param {string} analystName
-   * @param {string} ticker
-   * @param {*} browser
-   * @param {number} timeout
-   */
-  constructor(analystName, ticker, { timeout, testing }) {
-    this.analystName = analystName
-    this.ticker = ticker
-    this.timeout = timeout
-    this.testing = testing
+class JsDomNode {
+  constructor(logger, element, dom) {
+    this.dom = dom
+    this.element = element
+    this.logger = logger
+  }
 
-    this.dom = null
-    this.logger = new Logger(ticker, analystName)
+  spawn(element) {
+    return new JsDomElement(this.logger, element, this.dom)
   }
 
   /**
@@ -28,23 +22,69 @@ class JsDomFetcher {
     return this.dom.window.document
   }
 
+  getElement() {
+    return this.document()
+  }
+
   $(selector) {
-    return this.document().querySelector(selector)
+    return this.spawn(this.document().querySelector(selector))
   }
 
   $$(selector) {
-    return Array.from(this.document().querySelectorAll(selector))
+    return Array.from(this.document().querySelectorAll(selector)).map(this.spawn)
   }
 
   $x(xpath) {
     const document = this.document()
-    return document.evaluate(xpath, document, null, 9, null).singleNodeValue
+    const contextNode = this.getElement()
+    const node = document.evaluate(xpath, contextNode, null, 9, null).singleNodeValue
+    if (node) {
+      return this.spawn(node)
+    }
+    this.logger.error("No element found for xpath: " + xpath)
   }
 
   $$x(xpath) {
     const document = this.document()
-    const result = document.evaluate(xpath, document, null, 7, null)
-    return Array.from({ length: result.snapshotLength }, (_, i) => result.snapshotItem(i))
+    const contextNode = this.getElement()
+    const result = document.evaluate(xpath, contextNode, null, 7, null)
+
+    if (result.snapshotLength) {
+      return Array.from({ length: result.snapshotLength }, (_, i) =>
+        this.spawn(result.snapshotItem(i))
+      )
+    }
+
+    this.logger.error("No element found for xpath: " + xpath)
+  }
+}
+
+class JsDomElement extends JsDomNode {
+  constructor(logger, element, dom) {
+    super(logger, element, dom)
+    this.textContent = element.textContent
+  }
+
+  getElement() {
+    return this.element
+  }
+}
+
+class JsDomFetcher extends JsDomNode {
+  /**
+   * @param {string} analystName
+   * @param {string} ticker
+   * @param {*} browser
+   * @param {number} timeout
+   */
+  constructor(analystName, ticker, { timeout, testing }) {
+    const logger = new Logger(ticker, analystName)
+    super(logger)
+
+    this.analystName = analystName
+    this.ticker = ticker
+    this.timeout = timeout
+    this.testing = testing
   }
 
   async setPage(url, scripts) {
@@ -58,15 +98,5 @@ class JsDomFetcher {
     fs.writeFileSync("./test/jsdomOutput", html)
   }
 }
-
-const test = async () => {
-  const fetcher = new JsDomFetcher("Test", "Test", { testing: true })
-  await fetcher.setPage()
-  const res = fetcher.$$x("//div")[0]
-  const out = res.querySelectorAll("* > div")
-
-  console.log(out)
-}
-test()
 
 module.exports = JsDomFetcher
