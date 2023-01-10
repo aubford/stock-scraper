@@ -8,6 +8,9 @@ const containsClass = text => `contains(@class,"${text}")`
 
 const selfTextContains = text => `//*[${containsChars(text)}]`
 
+// prettiness convenience func
+const textContainsPredicate = (selector, text) => `${selector}[${containsChars(text)}]`
+
 const prevSiblingTextIsStar = (text, num = 1) =>
   `//*[${matchChars(text)}]/following-sibling::*[${num}]`
 
@@ -35,4 +38,5 @@ module.exports = {
   prevSiblingTextIsStar,
   followingSiblingTextIs,
   followingSiblingTextIsStar,
+  textContainsPredicate,
 }

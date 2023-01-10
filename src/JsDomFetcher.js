@@ -34,10 +34,26 @@ class JsDomNode {
     return Array.from(this.document().querySelectorAll(selector)).map(this.spawn)
   }
 
-  $x(xpath) {
+  _xpath(xpath) {
     const document = this.document()
     const contextNode = this.getElement()
-    const node = document.evaluate(xpath, contextNode, null, 9, null).singleNodeValue
+    return document.evaluate(xpath, contextNode, null, 9, null).singleNodeValue
+  }
+
+  _xpaths(xpath) {
+    const document = this.document()
+    const contextNode = this.getElement()
+    const result = document.evaluate(xpath, contextNode, null, 7, null)
+
+    if (result.snapshotLength) {
+      return Array.from({ length: result.snapshotLength }, (_, i) => result.snapshotItem(i))
+    }
+
+    this.logger.error("No element found for xpath: " + xpath)
+  }
+
+  $x(xpath) {
+    const node = this._xpath(xpath)
     if (node) {
       return this.spawn(node)
     }
@@ -45,17 +61,25 @@ class JsDomNode {
   }
 
   $$x(xpath) {
-    const document = this.document()
-    const contextNode = this.getElement()
-    const result = document.evaluate(xpath, contextNode, null, 7, null)
-
-    if (result.snapshotLength) {
-      return Array.from({ length: result.snapshotLength }, (_, i) =>
-        this.spawn(result.snapshotItem(i))
-      )
+    const snapshots = this._xpaths(xpath)
+    if (snapshots) {
+      return snapshots.map(snapshot => this.spawn(snapshot))
     }
 
-    this.logger.error("No element found for xpath: " + xpath)
+    return []
+  }
+
+  getTextByX(xpath) {
+    return this._xpath(xpath).textContent
+  }
+
+  getTextArrByX(xpath) {
+    const snapshots = this._xpaths(xpath)
+    if (snapshots) {
+      return snapshots.map(({ textContent }) => textContent)
+    }
+
+    return []
   }
 }
 
@@ -77,7 +101,7 @@ class JsDomFetcher extends JsDomNode {
    * @param {*} browser
    * @param {number} timeout
    */
-  constructor(analystName, ticker, { timeout, testing }) {
+  constructor(analystName, ticker, { timeout, testing } = {}) {
     const logger = new Logger(ticker, analystName)
     super(logger)
 
