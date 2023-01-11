@@ -4,9 +4,6 @@ const { containsChars, selfTextContains, textContainsPredicate } = require("./ut
 const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 
-// todo: remove
-const ZACKS = "ZACKS"
-
 const getEstmiateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
@@ -25,14 +22,14 @@ const fetch = async ticker => {
       source: {
         sungard: { earnings: zacksEpsTTM, dividend, dividend_freq },
       },
-      zacks_rank,
+      // zacks_rank,
       last: zacksPrice,
     },
   } = res
 
   const fetcher = new JsDomFetcher(ZACKS, ticker)
 
-  // Detailed Earnings Estimates ///////////
+  // DETAILED EARNINGS ESTIMATES ///////////
 
   await fetcher.setPage(
     `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`
@@ -46,10 +43,10 @@ const fetch = async ticker => {
       `//${textContainsPredicate("td", text)}/following-sibling::*/span`
     )
 
-  const zacksEarningsDate = detailXpath("Exp Earnings Date")
-  const zacksEpsYr = detailXpath("Current Year")
-  const zacksEpsNextYr = detailXpath("Next Year")
-  const zacksAvgAnalystRating = detailSection.getTextByX(
+  const zacksReportDate = detailXpath("Exp Earnings Date")
+  const zacksEpsEstimateCurrentYr = detailXpath("Current Year")
+  const zacksEpsEstimateNextYr = detailXpath("Next Year")
+  const zacksAvgAnalystRatingOutOfFive = detailSection.getTextByX(
     `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
   )
   const zacksEarningsEsp = detailSection.getTextByX(
@@ -96,11 +93,46 @@ const fetch = async ticker => {
   const [zacksGrowthEstimatePctFiveYr, zacksGrowthEstimatePctFiveYrInd] =
     fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
 
-  // Result /////////////////////////////////
+  // STYLE SCORES ///////////////////////////
 
-  // const zacksPrice = Number(zacksPriceStrClean) || ""
+  await fetcher.setPage(`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`)
+  fetcher.logHTML()
+
+  const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)
+  const all = fetcher.getTextArrByX(`//tbody[2]/tr/td[2]`)
+  const [
+    zacksRank,
+    zacksVGM,
+    zacksCashPrice,
+    zacksEVEbitda,
+    zacksPegTTM,
+    zacksPB,
+    zacksPCF,
+    ,
+    ,
+    zacksEarningsYield,
+    zacksDebtEquity,
+    zacksCashFlowPerShare,
+    ,
+    ,
+    zacksHistEpsGrowth,
+    zacksProjEpsGrowth,
+    zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth,
+    zacksCurrentRatio,
+    zacksDebtCapital,
+    zacksNetMargin,
+    zacksROE,
+    zacksSalesToAssets,
+    zacksProjSalesGrowth,
+  ] = all
+
+  // RESULT /////////////////////////////////
 
   return {
+    // zacksTarget,
+    // zacksRecommendation,
+    // zacksIndustryRank,
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
     zacksGrowthEstimatePctYr,
@@ -109,10 +141,10 @@ const fetch = async ticker => {
     zacksGrowthEstimatePctNextYrInd,
     zacksGrowthEstimatePctFiveYr,
     zacksGrowthEstimatePctFiveYrInd,
-    zacksEstimateChangeWeek: currentEpsEstimateSum / weekEpsEstimateSum - 1,
-    zacksEstimateChangeMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
-    zacksEstimateChangeBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
-    zacksweekRevisions:
+    zacksEstimateChangePctWeek: currentEpsEstimateSum / weekEpsEstimateSum - 1,
+    zacksEstimateChangePctMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
+    zacksEstimateChangePctBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
+    zacksPastWeekRevisionSum:
       weekRevisionsQtr +
       weekRevisionsNextQtr +
       weekRevisionsYr +
@@ -121,7 +153,7 @@ const fetch = async ticker => {
         weekRevisionsNextQtrDown +
         weekRevisionsYrDown +
         weekRevisionsNextYrDown),
-    zacksMonthRevisions:
+    zacksPastMonthRevisionSum:
       monthRevisionsQtr +
       monthRevisionsNextQtr +
       monthRevisionsYr +
@@ -130,43 +162,37 @@ const fetch = async ticker => {
         monthRevisionsNextQtrDown +
         monthRevisionsYrDown +
         monthRevisionsNextYrDown),
-    zacksRank: zacks_rank,
-    zacksEarningsDate,
-    zacksEpsYr,
-    zacksEpsNextYr,
-    zacksAvgAnalystRating,
-    zacksEarningsEsp,
+    zacksRank,
     zacksEpsTTM,
-    // zacksTarget,
-    // zacksRecommendation,
-    // zacksVGM,
-    // zacksValue,
-    // zacksGrowth,
-    // zacksMomentum,
-    // zacksIndustryRank,
-    // zacksExpectedReportDate,
-    // zacksQuarterlyEps,
-    // zacksAnnualEps,
-    // zacksEVEbitda,
-    // zacksEgPerShare: zacksPrice / zacksPEG,
-    // zacksPB,
-    // zacksBookPerShare: zacksPrice / zacksPB,
-    // zacksPCF,
-    // zacksEarningsYield,
-    // zacksDebtEquity,
-    // zacksCashFlowPerShare,
-    // zacksHistEpsGrowth, // 3-5 years
-    // zacksProjEpsGrowth,
-    // zacksCurrCashFlowGrowth,
-    // zacksHistCashFlowGrowth,
-    // zacksCurrentRatio,
-    // zacksDebtCapital,
-    // zacksNetMargin,
-    // zacksROE,
-    // zacksSalesToAssets,
-    // zacksProjSalesGrowth,
+    zacksEpsEstimateCurrentYr,
+    zacksEpsEstimateNextYr,
+    zacksAvgAnalystRatingOutOfFive,
+    zacksEarningsEsp,
+    zacksCashPrice,
+    zacksVGM,
+    zacksValue,
+    zacksGrowth,
+    zacksMomentum,
+    zacksEVEbitda,
+    zacksEgPerShareTTM: zacksPrice / zacksPegTTM,
+    zacksPB,
+    zacksBookPerShare: zacksPrice / zacksPB,
+    zacksPCF,
+    zacksEarningsYield,
+    zacksDebtEquity,
+    zacksCashFlowPerShare,
+    zacksHistEpsGrowth, // 3-5 years
+    zacksProjEpsGrowth,
+    zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth,
+    zacksCurrentRatio,
+    zacksDebtCapital,
+    zacksNetMargin,
+    zacksROE,
+    zacksSalesToAssets,
+    zacksProjSalesGrowth,
     zacksPrice,
-    // zacksReportDate,
+    zacksReportDate,
   }
 }
 

@@ -27,11 +27,18 @@ class JsDomNode {
   }
 
   $(selector) {
-    return this.spawn(this.document().querySelector(selector))
+    const el = this.document().querySelector(selector)
+    if (el) {
+      return this.spawn(el)
+    }
+    this.logger.error("No element found for selector: " + selector)
   }
 
   $$(selector) {
-    return Array.from(this.document().querySelectorAll(selector)).map(this.spawn)
+    const elementArr = Array.from(this.document().querySelectorAll(selector))
+    if (elementArr.length && elementArr.every(el => el)) {
+      return elementArr.map(this.spawn)
+    }
   }
 
   _xpath(xpath) {
@@ -125,7 +132,7 @@ class JsDomFetcher extends JsDomNode {
 
   logHTML() {
     const html = this.dom.serialize()
-    fs.writeFileSync("./test/jsdomOutput", html)
+    fs.writeFileSync("../../test/jsdomOutput.html", html)
   }
 }
 
