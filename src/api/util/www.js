@@ -9,6 +9,14 @@ const fetchText = async (...fetchArgs) => {
   return await response.text()
 }
 
+/**
+ * @returns {Promise<string>}
+ */
+const fetchJson = async (...fetchArgs) => {
+  const response = await fetch(/**@type * */ ...fetchArgs)
+  return response.json()
+}
+
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   const logger = new Logger(ticker, "Fidelity Secret URL")
   if (!fidelityLink) {
@@ -29,5 +37,6 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
 
 module.exports = {
   fetchText,
+  fetchJson,
   getFidelitySecretUrl,
 }

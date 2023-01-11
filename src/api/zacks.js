@@ -1,14 +1,16 @@
 const { makePrettyDate } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, selfTextContains, textContainsPredicate } = require("./util/xpath")
-const { fetchText } = require("./util/www")
+const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 
 // todo: remove
 const ZACKS = "ZACKS"
 
 const getEstmiateSum = tableRowCellArr =>
-  tableRowCellArr.slice(0, 3).reduce((acc, { textContent }) => acc + Number(textContent), 0)
+  tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
+    return acc + Number(curr)
+  }, 0)
 
 /**
  * @param {string} ticker
@@ -17,13 +19,16 @@ const getEstmiateSum = tableRowCellArr =>
  * @returns {Promise<Object>}
  */
 const fetch = async ticker => {
+  const res = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
   const {
-    earnings: zacksEpsTTM,
-    dividend,
-    dividend_freq,
-    zacks_rank,
-    last: zacksPrice,
-  } = await fetchText(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
+    [ticker]: {
+      source: {
+        sungard: { earnings: zacksEpsTTM, dividend, dividend_freq },
+      },
+      zacks_rank,
+      last: zacksPrice,
+    },
+  } = res
 
   const fetcher = new JsDomFetcher(ZACKS, ticker)
 
@@ -47,7 +52,9 @@ const fetch = async ticker => {
   const zacksAvgAnalystRating = detailSection.getTextByX(
     `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
   )
-  const zacksEarningsEsp = detailXpath("Earnings ESP")
+  const zacksEarningsEsp = detailSection.getTextByX(
+    `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
+  )
 
   // revisions
 

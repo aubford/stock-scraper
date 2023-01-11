@@ -37,7 +37,11 @@ class JsDomNode {
   _xpath(xpath) {
     const document = this.document()
     const contextNode = this.getElement()
-    return document.evaluate(xpath, contextNode, null, 9, null).singleNodeValue
+    const node = document.evaluate(xpath, contextNode, null, 9, null).singleNodeValue
+    if (node) {
+      return node
+    }
+    this.logger.error("No element found for xpath: " + xpath)
   }
 
   _xpaths(xpath) {
@@ -57,7 +61,6 @@ class JsDomNode {
     if (node) {
       return this.spawn(node)
     }
-    this.logger.error("No element found for xpath: " + xpath)
   }
 
   $$x(xpath) {
@@ -70,7 +73,10 @@ class JsDomNode {
   }
 
   getTextByX(xpath) {
-    return this._xpath(xpath).textContent
+    const node = this._xpath(xpath)
+    if (node) {
+      return node.textContent
+    }
   }
 
   getTextArrByX(xpath) {
