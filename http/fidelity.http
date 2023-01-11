@@ -1,0 +1,123 @@
+# This is all data fetched by https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=AVGO
+# We just need to obtain the markit auth token and then we can just fetch all this!!!!!!
+# The markit token exists in Redux store as state.token!!
+
+### Analyst articles and other data
+
+POST https://api.markitdigital.com/news/v1/119/articles/
+Accept: application/json, text/plain, */*
+Accept-Language: en-US,en;q=0.9
+Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
+Connection: keep-alive
+DNT: 1
+Origin: https://digital.fidelity.com
+Referer: https://digital.fidelity.com/
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: cross-site
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+sec-ch-ua: "Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+Content-Type: application/json
+
+{
+  "argsOperator": "AND",
+  "arguments": [
+    { "field": "WSODIssue", "conditions": [{ "operator": "EqualTo", "values": ["20248442"] }] },
+    { "field": "DocumentDate", "conditions": [{ "operator": "GreaterThanEqualTo", "values": ["2022-01-10 19:51:45"] }] },
+    { "field": "CompanyReportOnly", "conditions": [{ "operator": "EqualTo", "values": ["TRUE"] }] }
+  ],
+  "sortArguments": [{ "direction": "desc", "field": "DocumentDate" }],
+  "limit": 1000,
+  "offset": 0
+}
+
+### ESS rating
+
+GET https://research2relay.fidelity.wallst.com/pi/stock-api/v1/AnalystOpinions?symbols=AVGO
+Accept: application/json, text/plain, */*
+Accept-Language: en-US,en;q=0.9
+Connection: keep-alive
+DNT: 1
+Origin: https://digital.fidelity.com
+Referer: https://digital.fidelity.com/
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: cross-site
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+sec-ch-ua: "Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+
+### More analyst opinions plus ess rating
+
+GET https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore?venueXid=20248442
+Accept: application/json, text/plain, */*
+Accept-Language: en-US,en;q=0.9
+Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
+Connection: keep-alive
+DNT: 1
+Origin: https://digital.fidelity.com
+Referer: https://digital.fidelity.com/
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: cross-site
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+sec-ch-ua: "Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+
+### Another analyst articles (change number at end for pagination)
+# This returns array of articles with VersionTag and articleId
+# feedId = Number before first dash of articleId
+# Plug those into this to get a report PDF: 
+# `https://research2.fidelity.com/fidelity/research/reports/pdf/getReport.asp?feedID=${feedId}&docTag=${ticker}&versionTag=${VersionTag}`
+
+POST https://api.markitdigital.com/news/v1/119/articles/?newsRequest=0
+Accept: application/json, text/plain, */*
+Accept-Language: en-US,en;q=0.9
+Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
+Connection: keep-alive
+DNT: 1
+Origin: https://digital.fidelity.com
+Referer: https://digital.fidelity.com/
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: cross-site
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+sec-ch-ua: "Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+Content-Type: application/json
+
+{
+  "argsOperator": "AND",
+  "arguments": [
+    { "field": "WSODIssue", "conditions": [{ "operator": "EqualTo", "values": ["20248442"] }] },
+    { "field": "DocumentDate", "conditions": [{ "operator": "GreaterThanEqualTo", "values": ["2022-01-10 19:51:45"] }] },
+    {
+      "field": "Provider",
+      "conditions": [
+        { "operator": "NotEqualTo", "values": ["Channel"] },
+        {
+          "operator": "EqualTo",
+          "values": ["Morgan Stanley", "Ford", "THOMSON", "Zacks", "ISSEVA", "Jefferson", "Trading Central", "McLean", "First Call"]
+        }
+      ]
+    },
+    { "field": "DocumentType", "conditions": [{ "operator": "EqualTo", "values": ["ALL"] }] },
+    { "field": "CompanyReportOnly", "conditions": [{ "operator": "EqualTo", "values": ["TRUE"] }] }
+  ],
+  "sortArguments": [{ "direction": "desc", "field": "DMSourceID" }, { "direction": "desc", "field": "DocumentDate" }],
+  "limit": 1000,
+  "offset": 0
+}
+
+###
+
+
+
+
+
+
