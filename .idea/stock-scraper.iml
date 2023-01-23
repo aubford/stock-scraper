@@ -64,5 +64,6 @@
     <orderEntry type="library" name="@types/react-adaptive-hooks" level="application" />
     <orderEntry type="library" name="@types/react-app" level="application" />
     <orderEntry type="library" name="@types/react-is" level="application" />
+    <orderEntry type="library" name="@types/puppeteer-core" level="application" />
   </component>
 </module>

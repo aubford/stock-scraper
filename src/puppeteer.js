@@ -61,12 +61,40 @@ const wrapPage = page => {
   }
 }
 
-/** @returns {Promise<MyPage>} */
-const newBrowserPage = async (browser, url, options = {}) => {
+/**
+ * @param {MyPage} page
+ * @param {array} searchArray
+ * @param {function} callback
+ * @returns {Promise<void>}
+ */
+const interceptRequests = async (page, callback) => {
+  await page.setRequestInterception(true)
+  page.on("request", req => {
+    req.continue()
+  })
+
+  page.on("response", res => {
+    callback(res, page)
+  })
+}
+
+const responseInterceptorFuzzy = async (res, searchArr, callback) => {
+  const url = res.url()
+  const isMatch = searchArr.every(search => url.includes(search))
+  if (isMatch) {
+    const json = await res.json()
+    await callback(json)
+  }
+}
+
+const newPage = async browser => {
   /** @type {MyPage} */
   const page = await browser.newPage()
   wrapPage(page)
+  return page
+}
 
+const goToPage = async (page, url, options = {}) => {
   try {
     await page.goto(url, options)
   } catch (error) {
@@ -77,7 +105,12 @@ const newBrowserPage = async (browser, url, options = {}) => {
 
     throw new Error(msg)
   }
+}
 
+/** @returns {Promise<MyPage>} */
+const goToNewBrowserPage = async (browser, url, options = {}) => {
+  const page = await newPage(browser, url)
+  await goToPage(page, url, options)
   return page
 }
 
@@ -104,7 +137,7 @@ const evalX = async (frame, selector, ...func) => {
  * @returns {Promise<*>}
  */
 const getPageCookies = async (browser, url) => {
-  const page = await newBrowserPage(browser, url)
+  const page = await goToNewBrowserPage(browser, url)
   const cookieArr = await page.cookies()
   await page.closeSafe()
   return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
@@ -114,7 +147,11 @@ module.exports = {
   getTextByX,
   waitForXpath,
   wrapPage,
-  newBrowserPage,
+  goToNewBrowserPage,
+  newPage,
+  goToPage,
+  interceptRequests,
+  responseInterceptorFuzzy,
   evalX,
   getPageCookies,
 }

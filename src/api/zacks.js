@@ -4,6 +4,8 @@ const { containsChars, selfTextContains, textContainsPredicate } = require("./ut
 const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 
+const ZACKS = "Zacks"
+
 const getEstmiateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
@@ -96,7 +98,6 @@ const fetch = async ticker => {
   // STYLE SCORES ///////////////////////////
 
   await fetcher.setPage(`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`)
-  fetcher.logHTML()
 
   const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)
   const all = fetcher.getTextArrByX(`//tbody[2]/tr/td[2]`)
@@ -205,4 +206,4 @@ exports.fetch = ticker => {
   }
 }
 
-fetch("AVGO")
+// fetch("AVGO").then(res => console.log(res))

@@ -1,21 +1,29 @@
 const PageDataFetcher = require("../PageDataFetcher")
 const { makePrettyDate } = require("../util")
 
+const formatFidelityStarmine = (name, rating) => `${(name || "").substring(0, 14)} - ${rating}`
+
+const reportRowXpathFrag = name =>
+  `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
+
 /**
  * @param {string} ticker
  * @param  {Browser} browser
  * @returns Promise<Object>
  */
 exports.fetch = async (ticker, browser) => {
-  const formatFidelityStarmine = (name, rating) =>
-    `${(name || "").substring(0, 14)} - ${rating}`
-
-  const reportRowXpathFrag = name =>
-    `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
-
   const fetcher = new PageDataFetcher(FIDELITY, ticker, browser, {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
+
+  fetcher.addResponseInterceptorFuzzy(
+    [
+      "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
+    ],
+    res => {
+      console.log(res)
+    }
+  )
   await fetcher.setPage(
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
@@ -46,7 +54,7 @@ exports.fetch = async (ticker, browser) => {
     fidelityStarmineFourRating,
     fidelityStarmineFiveName,
     fidelityStarmineFiveRating,
-  ] = starmines.filter(e => e.trim())
+  ] = starmines?.filter(e => e.trim())
 
   await fetcher.close()
 

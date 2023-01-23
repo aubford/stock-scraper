@@ -7,14 +7,14 @@ const {
   begin,
   exit,
 } = require("../util")
-const { newBrowserPage } = require("../puppeteer")
+const { goToNewBrowserPage } = require("../puppeteer")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 
 puppeteer.connect(CONNECTION).then(async browser => {
   begin()
 
   const closeLoginPages = await promptLogin((url, options) =>
-    newBrowserPage(browser, url, options)
+    goToNewBrowserPage(browser, url, options)
   )
   const promptResponse = await promptForTickers()
 

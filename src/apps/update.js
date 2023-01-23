@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const { sortBy } = require("lodash")
-const { newBrowserPage } = require("../puppeteer")
+const { goToNewBrowserPage } = require("../puppeteer")
 const {
   promptLogin,
   backupReturnStockDataFile,
@@ -16,7 +16,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   begin()
 
   const closeLoginPages = await promptLogin((url, options) =>
-    newBrowserPage(browser, url, options)
+    goToNewBrowserPage(browser, url, options)
   )
   const sectorUserInputVal = await promptUser("Sectors:")
 

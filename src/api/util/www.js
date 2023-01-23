@@ -1,4 +1,4 @@
-const { newBrowserPage } = require("../../puppeteer")
+const { goToNewBrowserPage } = require("../../puppeteer")
 const Logger = require("../../Logger")
 
 /**
@@ -22,7 +22,7 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   if (!fidelityLink) {
     return null
   }
-  const page = await newBrowserPage(browser, fidelityLink, { logger })
+  const page = await goToNewBrowserPage(browser, fidelityLink, { logger })
   try {
     const src = await page.$eval("frame", node => node.getAttribute("src"))
     logger.completeOk("getFidelitySecretUrl: Done")

@@ -1,5 +1,5 @@
 const Logger = require("./Logger")
-const { newBrowserPage } = require("./puppeteer")
+const { goToNewBrowserPage } = require("./puppeteer")
 
 /**
  * @param {string} ticker
@@ -27,7 +27,7 @@ const fetchPdfData = async ({
   }
 
   /** @type MyPage */
-  const page = await newBrowserPage(browser, url, { waitUntil: "networkidle2", logger })
+  const page = await goToNewBrowserPage(browser, url, { waitUntil: "networkidle2", logger })
   if (page.error) {
     await page.closeSafe()
     return []

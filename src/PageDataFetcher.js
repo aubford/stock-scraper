@@ -4,7 +4,10 @@ const {
   evalX,
   waitForXpath,
   getTextByX,
-  newBrowserPage,
+  newPage,
+  goToPage,
+  interceptRequests,
+  responseInterceptorFuzzy,
 } = require("./puppeteer")
 const Logger = require("./Logger")
 
@@ -23,16 +26,38 @@ class PageDataFetcher {
 
     this.page = null
     this.originPage = null
+    this.responseInterceptors = []
+    this.runInterceptors = response =>
+      Promise.all(this.responseInterceptors.map(interceptor => interceptor(response)))
+
     this.logger = new Logger(ticker, analystName)
   }
 
-  newPage(url, options) {
-    return newBrowserPage(this.browser, url, options)
+  addResponseInterceptorFuzzy(searchArr, callback) {
+    this.addResponseInterceptor(response =>
+      responseInterceptorFuzzy(response, searchArr, callback)
+    )
+  }
+
+  addResponseInterceptor(interceptor) {
+    this.responseInterceptors.push(interceptor)
+  }
+
+  async newPage(url, options) {
+    this.page = await newPage(this.browser)
+
+    if (this.responseInterceptors.length) {
+      await interceptRequests(this.page, this.runInterceptors)
+    }
+
+    await goToPage(this.page, url, options)
+
+    return this.page
   }
 
   async setPage(url, options) {
     if (url) {
-      this.page = await this.newPage(url, {
+      await this.newPage(url, {
         waitUntil: "domcontentloaded",
         logger: this.logger,
         ...options,
@@ -61,10 +86,9 @@ class PageDataFetcher {
 
     let tipranksButton
     try {
-      tipranksButton = await analystReportsFrame.waitForSelector(
-        "button.see-full-report",
-        { timeout: 2000 }
-      )
+      tipranksButton = await analystReportsFrame.waitForSelector("button.see-full-report", {
+        timeout: 2000,
+      })
     } catch (err) {
       this.logger.warn(`No Tipranks button found`)
       return false
@@ -179,9 +203,7 @@ class PageDataFetcher {
       return []
     }
     /** @type {array} */
-    const reportHrefsHandles = await page.$x(
-      `//table[@id="allOpinionsTable"]/tbody/tr/td[9]`
-    )
+    const reportHrefsHandles = await page.$x(`//table[@id="allOpinionsTable"]/tbody/tr/td[9]`)
 
     const reportLinks = await Promise.all(
       reportHrefsHandles.map(handle =>
@@ -286,12 +308,7 @@ class PageDataFetcher {
   async fetchAttribute(selector, attribute) {
     const { page } = this
     if (page) {
-      return await evalX(
-        page,
-        selector,
-        (node, attr) => node.getAttribute(attr),
-        attribute
-      )
+      return await evalX(page, selector, (node, attr) => node.getAttribute(attr), attribute)
     }
   }
 

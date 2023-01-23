@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
-const { newBrowserPage } = require("../puppeteer")
+const { goToNewBrowserPage } = require("../puppeteer")
 const { scrapbookWriteOut } = require("../util")
 const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
@@ -68,8 +68,7 @@ const getBuffetData = async () => {
     .map((i, node) => [
       [
         $(node).children(`td.stock`).text().split(" - ")[0],
-        $(node).children(`td.buy:first`).text() ||
-          $(node).children(`td.sell:first`).text(),
+        $(node).children(`td.buy:first`).text() || $(node).children(`td.sell:first`).text(),
       ],
     ])
     .toArray()
@@ -83,11 +82,9 @@ const getBuffetData = async () => {
 }
 
 puppeteer.connect(connection).then(async browser => {
-  const newPage = url => newBrowserPage(browser, url)
+  const newPage = url => goToNewBrowserPage(browser, url)
 
-  const page = await newPage(
-    "https://www.magicformulainvesting.com/Screening/StockScreening"
-  )
+  const page = await newPage("https://www.magicformulainvesting.com/Screening/StockScreening")
 
   await page.waitForSelector(`.nav-text`)
   if (await page.$("input#login")) {
