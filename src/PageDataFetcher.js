@@ -34,9 +34,16 @@ class PageDataFetcher {
   }
 
   addResponseInterceptorFuzzy(searchArr, callback) {
-    this.addResponseInterceptor(response =>
-      responseInterceptorFuzzy(response, searchArr, callback)
-    )
+    this.addResponseInterceptor(response => {
+      try {
+        responseInterceptorFuzzy(response, searchArr, callback)
+      } catch (err) {
+        console.error(
+          "🚨 addResponseInterceptorFuzzy for search: " + searchArr.join(", "),
+          err
+        )
+      }
+    })
   }
 
   addResponseInterceptor(interceptor) {

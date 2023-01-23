@@ -78,12 +78,11 @@ const interceptRequests = async (page, callback) => {
   })
 }
 
-const responseInterceptorFuzzy = async (res, searchArr, callback) => {
+const responseInterceptorFuzzy = (res, searchArr, callback) => {
   const url = res.url()
   const isMatch = searchArr.every(search => url.includes(search))
   if (isMatch) {
-    const json = await res.json()
-    await callback(json)
+    res.json().then(json => callback(json))
   }
 }
 
