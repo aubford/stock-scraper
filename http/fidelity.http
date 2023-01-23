@@ -5,9 +5,9 @@
 ### Analyst articles and other data
 
 POST https://api.markitdigital.com/news/v1/119/articles/
+Authorization: Bearer G4be4TbdWrU7gSpHm3hm0KKjEhTM
 Accept: application/json, text/plain, */*
 Accept-Language: en-US,en;q=0.9
-Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
 Connection: keep-alive
 DNT: 1
 Origin: https://digital.fidelity.com
@@ -53,9 +53,9 @@ sec-ch-ua-platform: "macOS"
 ### More analyst opinions plus ess rating
 
 GET https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore?venueXid=20248442
+Authorization: Bearer G4be4TbdWrU7gSpHm3hm0KKjEhTM
 Accept: application/json, text/plain, */*
 Accept-Language: en-US,en;q=0.9
-Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
 Connection: keep-alive
 DNT: 1
 Origin: https://digital.fidelity.com
@@ -75,9 +75,9 @@ sec-ch-ua-platform: "macOS"
 # `https://research2.fidelity.com/fidelity/research/reports/pdf/getReport.asp?feedID=${feedId}&docTag=${ticker}&versionTag=${VersionTag}`
 
 POST https://api.markitdigital.com/news/v1/119/articles/?newsRequest=0
+Authorization: Bearer G4be4TbdWrU7gSpHm3hm0KKjEhTM
 Accept: application/json, text/plain, */*
 Accept-Language: en-US,en;q=0.9
-Authorization: Bearer OhA631RqJlJzK4gByAOxxoJTzAdP
 Connection: keep-alive
 DNT: 1
 Origin: https://digital.fidelity.com
