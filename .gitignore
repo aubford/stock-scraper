@@ -4,6 +4,7 @@ browserWSEndpoint.json
 ws.json
 testOutput.json
 .DS_Store
+.idea
 
 /stockData.json
 /vooData.json
