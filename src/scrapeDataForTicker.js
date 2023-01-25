@@ -45,20 +45,22 @@ module.exports = async (ticker, browser) => {
 
   // ARGUS ANALYST & FORD & MORNINGSTAR
 
-  const [argusAnalystData, fordData, morningstarData, streetData] = await Promise.all([
-    argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-    ford.fetch(ticker, browser),
-    morningstar.fetch(ticker, morningstarLink, browser),
-    street.fetch(ticker, browser),
-  ])
+  const [argusAnalystData, fordData, morningstarData, streetData, wsjData] = await Promise.all(
+    [
+      argusAnalyst.fetch(ticker, browser, argusAnalystLink),
+      ford.fetch(ticker, browser),
+      morningstar.fetch(ticker, morningstarLink, browser),
+      street.fetch(ticker, browser),
+      wsj.fetch(ticker),
+    ]
+  )
 
   // MULTI
 
-  const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData, ncData, cfraData] =
+  const [[moodysRating, moodysOutlook, moodysLink], yahooData, ncData, cfraData] =
     await Promise.all([
       moodys.fetch(ticker, browser),
       yahoo.fetch(ticker),
-      wsj.fetch(ticker),
       newConstructs.fetch(ticker, browser),
       cfra.fetch(ticker, cfraRating, cfraLink, browser),
     ])
