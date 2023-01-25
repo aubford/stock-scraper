@@ -1,6 +1,6 @@
-require("../preload")
+require("../../preload")
 const puppeteer = require("puppeteer-core")
-const scrapeDataForTicker = require("../src/scrapeDataForTicker")
+const scrapeDataForTicker = require("../../src/scrapeDataForTicker")
 
 const ticker = "AAPL"
 
