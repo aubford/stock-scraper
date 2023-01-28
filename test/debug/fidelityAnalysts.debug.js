@@ -1,3 +1,4 @@
+require("../../preload")
 const puppeteer = require("puppeteer-core")
 const { fidelityAnalysts } = require("../../src/api")
 
