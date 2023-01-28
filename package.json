@@ -4,7 +4,6 @@
   "description": "",
   "main": "src/apps/start.js",
   "scripts": {
-    "pre*": "nvm use",
     "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\" ./vooData.json",
     "launch": "node ./launch.js",
     "add-tickers": "node --require ./preload.js ./src/database/addTickers.js && npm run prettyStock",
