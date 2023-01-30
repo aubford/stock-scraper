@@ -22,7 +22,7 @@ const fetchPdfData = async ({
 }) => {
   const logger = new Logger(ticker, analystName)
   if (!url) {
-    logger.warn(`NO REPORT`)
+    logger.warn(`fetchPdfData: NO REPORT`)
     return []
   }
 
@@ -37,6 +37,7 @@ const fetchPdfData = async ({
     `//body[contains(text(),'data is not available to create this report')]`
   )
   if (dataNotAvailableText.length > 0) {
+    logger.error("fetchPdfData: Data not available text found in PDF")
     await page.closeSafe()
     return []
   }
@@ -44,7 +45,9 @@ const fetchPdfData = async ({
   try {
     await page.waitForXPath(xPathArr[0], { timeout })
   } catch (err) {
-    logger.error(`waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`)
+    logger.error(
+      `fetchPdfData: waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`
+    )
     await page.closeSafe()
     return []
   }
@@ -56,7 +59,7 @@ const fetchPdfData = async ({
       await page.waitForXPath(waitForPostScroll, { timeout })
     } catch (err) {
       logger.error(
-        `waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`
+        `fetchPdfData: waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`
       )
     }
   }
