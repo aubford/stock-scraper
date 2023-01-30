@@ -56,8 +56,9 @@ exports.fetch = async (ticker, browser) => {
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
     morganStanleyRecommendation: morganStanleyOpinion?.currentNormalizedRating,
     morganStanleyPreviousRecommendation: morganStanleyOpinion?.previousNormalizedRating,
-    zacksRecommendation: zacksOpinion?.currentNormalizedRating,
-    zacksPreviousRecommendation: zacksOpinion?.previousNormalizedRating,
+    zacksRecommendation:
+      zacksOpinion?.currentNormalizedRating +
+      ` (${zacksOpinion?.previousNormalizedRating.toLowerCase()})`,
     argusAnalystDate,
     argusAnalystLink,
     zacksDate,

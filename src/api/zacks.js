@@ -23,7 +23,12 @@ const fetch = async ticker => {
   const {
     [ticker]: {
       source: {
-        sungard: { earnings: zacksEpsTTM, dividend, dividend_freq },
+        sungard: {
+          earnings: zacksEpsTTM,
+          dividend,
+          close: zacksPriceLastClose,
+          dividend_freq,
+        },
       },
       // zacks_rank,
       last: zacksPrice,
@@ -120,9 +125,9 @@ const fetch = async ticker => {
     zacksEVEbitda,
     zacksPegTTM,
     zacksPB,
-    zacksPCF,
     ,
     ,
+    zacksPriceToSales,
     zacksEarningsYield,
     zacksDebtEquity,
     zacksCashFlowPerShare,
@@ -140,19 +145,43 @@ const fetch = async ticker => {
     zacksProjSalesGrowth,
   ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[2]`)
 
+  const [
+    ,
+    ,
+    ,
+    zacksEVEbitdaIndustry,
+    zacksPegTTMIndustry,
+    zacksPBIndustry,
+    zacksPCFIndustry,
+    zacksPEIndustry,
+    zacksPriceToSalesIndustry,
+    zacksEarningsYieldIndustry,
+    zacksDebtEquityIndustry,
+    ,
+    ,
+    ,
+    zacksHistEpsGrowthIndustry,
+    zacksProjEpsGrowthIndustry,
+    zacksCurrCashFlowGrowthIndustry,
+    zacksHistCashFlowGrowthIndustry,
+    zacksCurrentRatioIndustry,
+    zacksDebtCapitalIndustry,
+    zacksNetMarginIndustry,
+    zacksROEIndustry,
+    zacksSalesToAssetsIndustry,
+    zacksProjSalesGrowthIndustry,
+  ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[3]`)
+
   // RESULT /////////////////////////////////
 
   return {
-    // zacksTarget, where to find?
-    // zacksIndustryRank, meh...
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
-    zacksGrowthEstimatePctYr,
-    zacksGrowthEstimatePctYrInd,
-    zacksGrowthEstimatePctNextYr,
-    zacksGrowthEstimatePctNextYrInd,
-    zacksGrowthEstimatePctFiveYr,
-    zacksGrowthEstimatePctFiveYrInd,
+    zacksGrowthEstimatePctYr: zacksGrowthEstimatePctYr + ` (${zacksGrowthEstimatePctYrInd})`,
+    zacksGrowthEstimatePctNextYr:
+      zacksGrowthEstimatePctNextYr + ` (${zacksGrowthEstimatePctNextYrInd})`,
+    zacksGrowthEstimatePctFiveYr:
+      zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
     zacksEstimateChangePctWeek: currentEpsEstimateSum / weekEpsEstimateSum - 1,
     zacksEstimateChangePctMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
     zacksEstimateChangePctBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
@@ -175,35 +204,47 @@ const fetch = async ticker => {
         monthRevisionsYrDown +
         monthRevisionsNextYrDown),
     zacksRank,
-    zacksEpsTTM,
-    zacksEpsEstimateCurrentYr,
-    zacksEpsEstimateNextYr,
-    zacksAvgAnalystRatingOutOfFive,
-    zacksEarningsEsp,
-    zacksCashPrice,
     zacksVGM,
     zacksValue,
     zacksGrowth,
     zacksMomentum,
-    zacksEVEbitda,
+    zacksAvgAnalystRatingOutOfFive,
+
+    zacksPriceLastClose,
+
+    zacksEpsSurprise: epsSurprises[0][1],
+    zacksEpsTTM,
+    zacksEpsEstimateCurrentYr,
+    zacksEpsEstimateNextYr,
+    zacksPEIndustry,
+
     zacksEgPerShareTTM: zacksPrice / zacksPegTTM,
-    zacksPB,
+    zacksPegTTMIndustry,
+
     zacksBookPerShare: zacksPrice / zacksPB,
-    zacksPCF,
-    zacksEarningsYield,
-    zacksDebtEquity,
+    zacksPBIndustry,
+
     zacksCashFlowPerShare,
-    zacksHistEpsGrowth, // 3-5 years
-    zacksProjEpsGrowth,
-    zacksCurrCashFlowGrowth,
-    zacksHistCashFlowGrowth,
-    zacksCurrentRatio,
-    zacksDebtCapital,
-    zacksNetMargin,
-    zacksROE,
-    zacksSalesToAssets,
-    zacksProjSalesGrowth,
-    zacksPrice,
+    zacksPCFIndustry,
+
+    zacksSalesPerShare: zacksPrice / zacksPriceToSales,
+    zacksPriceToSalesIndustry,
+
+    zacksCashPrice,
+    zacksHistEpsGrowth: zacksHistEpsGrowth + ` (${zacksHistEpsGrowthIndustry})`, // 3-5 years
+    zacksProjEpsGrowth: zacksProjEpsGrowth + ` (${zacksProjEpsGrowthIndustry})`,
+    zacksEVEbitda: zacksEVEbitda + ` (${zacksEVEbitdaIndustry})`,
+    zacksEarningsYield: zacksEarningsYield + ` (${zacksEarningsYieldIndustry})`,
+    zacksDebtEquity: zacksDebtEquity + ` (${zacksDebtEquityIndustry})`,
+    zacksCurrCashFlowGrowth: zacksCurrCashFlowGrowth + ` (${zacksCurrCashFlowGrowthIndustry})`,
+    zacksHistCashFlowGrowth: zacksHistCashFlowGrowth + ` (${zacksHistCashFlowGrowthIndustry})`,
+    zacksCurrentRatio: zacksCurrentRatio + ` (${zacksCurrentRatioIndustry})`,
+    zacksDebtCapital: zacksDebtCapital + ` (${zacksDebtCapitalIndustry})`,
+    zacksNetMargin: zacksNetMargin + ` (${zacksNetMarginIndustry})`,
+    zacksROE: zacksROE + ` (${zacksROEIndustry})`,
+    zacksSalesToAssets: zacksSalesToAssets + ` (${zacksSalesToAssetsIndustry})`,
+    zacksProjSalesGrowth: zacksProjSalesGrowth + ` (${zacksProjSalesGrowthIndustry})`,
+
     zacksLastEarningsDate: epsSurprises[0][0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }
@@ -217,5 +258,3 @@ exports.fetch = ticker => {
     logger.error(error)
   }
 }
-
-// fetch("AVGO").then(res => console.log(res))

@@ -17,7 +17,7 @@ exports.fetch = async ticker => {
 
 exports.fetchHistoricalPrices = async ticker => {
   const res = await fetchText(
-    "https://query1.finance.yahoo.com/v8/finance/chart/VOO?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance",
+    `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
     {
       headers: {
         accept: "*/*",
