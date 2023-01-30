@@ -3,7 +3,7 @@ const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
-const { orderBy } = require("lodash")
+const { orderBy, sum } = require("lodash")
 
 const ZACKS = "Zacks"
 
@@ -75,22 +75,18 @@ const fetch = async ticker => {
 
   const tableRowXpath = title => `//td[text()='${title}']/following-sibling::td`
 
-  const [weekRevisionsQtr, weekRevisionsNextQtr, weekRevisionsYr, weekRevisionsNextYr] =
-    fetcher.getTextArrByX(tableRowXpath("Up Last 7 Days"))
-  const [
-    weekRevisionsQtrDown,
-    weekRevisionsNextQtrDown,
-    weekRevisionsYrDown,
-    weekRevisionsNextYrDown,
-  ] = fetcher.getTextArrByX(tableRowXpath("Down Last 7 Days"))
-  const [monthRevisionsQtr, monthRevisionsNextQtr, monthRevisionsYr, monthRevisionsNextYr] =
-    fetcher.getTextArrByX(tableRowXpath("Up Last 30 Days"))
-  const [
-    monthRevisionsQtrDown,
-    monthRevisionsNextQtrDown,
-    monthRevisionsYrDown,
-    monthRevisionsNextYrDown,
-  ] = fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days"))
+  const weekRevisionsUp = sum(
+    fetcher.getTextArrByX(tableRowXpath("Up Last 7 Days")).map(Number)
+  )
+  const weekRevisionsDown = sum(
+    fetcher.getTextArrByX(tableRowXpath("Down Last 7 Days")).map(Number)
+  )
+  const monthRevisionsUp = sum(
+    fetcher.getTextArrByX(tableRowXpath("Up Last 30 Days")).map(Number)
+  )
+  const monthRevisionsDown = sum(
+    fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days")).map(Number)
+  )
 
   const currentEpsEstimateSum = getEstmiateSum(fetcher.getTextArrByX(tableRowXpath("Current")))
   const weekEpsEstimateSum = getEstmiateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
@@ -180,24 +176,8 @@ const fetch = async ticker => {
     zacksEstimateChangePctMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
     zacksEstimateChangePctBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
 
-    zacksPastWeekRevisionSum:
-      weekRevisionsQtr +
-      weekRevisionsNextQtr +
-      weekRevisionsYr +
-      weekRevisionsNextYr -
-      (weekRevisionsQtrDown +
-        weekRevisionsNextQtrDown +
-        weekRevisionsYrDown +
-        weekRevisionsNextYrDown),
-    zacksPastMonthRevisionSum:
-      monthRevisionsQtr +
-      monthRevisionsNextQtr +
-      monthRevisionsYr +
-      monthRevisionsNextYr -
-      (monthRevisionsQtrDown +
-        monthRevisionsNextQtrDown +
-        monthRevisionsYrDown +
-        monthRevisionsNextYrDown),
+    zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
+    zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,
 
     zacksRank,
     zacksVGM,
