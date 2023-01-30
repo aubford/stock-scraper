@@ -207,6 +207,9 @@ const fetch = async ticker => {
     zacksSalesPerShare: zacksPriceLastClose / zacksPriceToSales,
     zacksPriceToSalesIndustry,
 
+    zacksProjSalesGrowth,
+    zacksProjSalesGrowthIndustry,
+
     zacksCashPrice,
     zacksHistEpsGrowth: zacksHistEpsGrowth + ` (${zacksHistEpsGrowthIndustry})`, // 3-5 years
     zacksProjEpsGrowth: zacksProjEpsGrowth + ` (${zacksProjEpsGrowthIndustry})`,
@@ -220,7 +223,6 @@ const fetch = async ticker => {
     zacksNetMargin: zacksNetMargin + ` (${zacksNetMarginIndustry})`,
     zacksROE: zacksROE + ` (${zacksROEIndustry})`,
     zacksSalesToAssets: zacksSalesToAssets + ` (${zacksSalesToAssetsIndustry})`,
-    zacksProjSalesGrowth: zacksProjSalesGrowth + ` (${zacksProjSalesGrowthIndustry})`,
 
     zacksGrowthEstimatePctYr: zacksGrowthEstimatePctYr + ` (${zacksGrowthEstimatePctYrInd})`,
     zacksGrowthEstimatePctNextYr:
