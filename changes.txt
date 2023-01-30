@@ -1,6 +1,6 @@
 zacksDailyPricesDates
 zacksDailyPrices
-
+// get VOO zacksDailyPrices
 
 tdNextEarningsDate -> zacksNextEarningsDate  
 tdLastEarningsDate -> zacksLastEarningsDate
@@ -10,3 +10,4 @@ morganStanleyRecommendation
 morganStanleyPreviousRecommendation
 
 fidelity starmines -> fidelityAnalystRatings
+

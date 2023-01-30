@@ -57,7 +57,16 @@ user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 ### Get daily price data
 # @no-redirect
 # @no-cookie-jar
-GET https://www.zacks.com//data_handler/charts/?ticker=AVGO&wrapper=price_and_eps_surprise&addl_settings=
+GET https://www.zacks.com//data_handler/charts/?ticker=AAPL&wrapper=price_and_eps_surprise&addl_settings=
+accept: application/json
+accept-language: en-US,en;q=0.9
+referer: https://www.zacks.com/stock/quote/AVGO?q=AVGO
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36
+
+### Get daily price data for ETF
+# @no-redirect
+# @no-cookie-jar
+GET https://www.zacks.com//data_handler/charts/?ticker=SPY&wrapper=price&addl_settings=daily
 accept: application/json
 accept-language: en-US,en;q=0.9
 referer: https://www.zacks.com/stock/quote/AVGO?q=AVGO

@@ -5,6 +5,7 @@ ws.json
 testOutput.json
 .DS_Store
 .idea
+response.json
 
 /stockData.json
 /vooData.json
