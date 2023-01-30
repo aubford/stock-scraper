@@ -19,9 +19,13 @@ const { makePrettyDate } = require("./util")
 module.exports = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
-  // TD Ameritrade
+  // ZACKS
 
-  const tdData = await td.fetch(ticker, browser)
+  const zacksData = await zacks.fetch(ticker)
+
+  // TIPRANKS
+
+  const tipData = await tipranks.fetch(ticker, browser)
 
   // FIDELITY
 
@@ -63,14 +67,6 @@ module.exports = async (ticker, browser) => {
       cfra.fetch(ticker, cfraRating, cfraLink, browser),
     ])
 
-  // ZACKS
-
-  const zacksData = await zacks.fetch(ticker)
-
-  // TIPRANKS
-
-  const tipData = await tipranks.fetch(ticker, browser)
-
   return {
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
@@ -96,7 +92,6 @@ module.exports = async (ticker, browser) => {
     ...fordData,
     ...tipData,
     ...cfraData,
-    ...tdData,
     ...yahooData,
     ...wsjData,
   }

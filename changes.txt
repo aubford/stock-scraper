@@ -1,0 +1,12 @@
+zacksDailyPricesDates
+zacksDailyPrices
+
+
+tdNextEarningsDate -> zacksNextEarningsDate  
+tdLastEarningsDate -> zacksLastEarningsDate
+
+zacksPreviousRecommendation
+morganStanleyRecommendation
+morganStanleyPreviousRecommendation
+
+fidelity starmines -> fidelityAnalystRatings

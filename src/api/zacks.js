@@ -1,8 +1,9 @@
 const { makePrettyDate } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
-const { containsChars, selfTextContains, textContainsPredicate } = require("./util/xpath")
+const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
+const { orderBy } = require("lodash")
 
 const ZACKS = "Zacks"
 
@@ -18,7 +19,7 @@ const getEstmiateSum = tableRowCellArr =>
  * @returns {Promise<Object>}
  */
 const fetch = async ticker => {
-  const res = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
+  const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
   const {
     [ticker]: {
       source: {
@@ -26,8 +27,22 @@ const fetch = async ticker => {
       },
       // zacks_rank,
       last: zacksPrice,
+      confirmed_reporting_date,
+      expected_reporting_date,
     },
-  } = res
+  } = mainData
+
+  const zacksEstimatedNextEarningsDate = new Date(expected_reporting_date * 1000)
+    .toLocaleString()
+    .split(",")[0]
+  const zacksConfirmedNextEarningsDate = confirmed_reporting_date
+
+  const { daily_price, eps_surprise } = await fetchJson(
+    `https://www.zacks.com//data_handler/charts/?ticker=${ticker}&wrapper=price_and_eps_surprise&addl_settings=`
+  )
+
+  const dailyPrices = orderBy(Object.entries(daily_price), Date)
+  const epsSurprises = orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
 
   const fetcher = new JsDomFetcher(ZACKS, ticker)
 
@@ -45,7 +60,6 @@ const fetch = async ticker => {
       `//${textContainsPredicate("td", text)}/following-sibling::*/span`
     )
 
-  const zacksReportDate = detailXpath("Exp Earnings Date")
   const zacksEpsEstimateCurrentYr = detailXpath("Current Year")
   const zacksEpsEstimateNextYr = detailXpath("Next Year")
   const zacksAvgAnalystRatingOutOfFive = detailSection.getTextByX(
@@ -100,7 +114,6 @@ const fetch = async ticker => {
   await fetcher.setPage(`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`)
 
   const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)
-  const all = fetcher.getTextArrByX(`//tbody[2]/tr/td[2]`)
   const [
     zacksRank,
     zacksVGM,
@@ -126,7 +139,7 @@ const fetch = async ticker => {
     zacksROE,
     zacksSalesToAssets,
     zacksProjSalesGrowth,
-  ] = all
+  ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[2]`)
 
   // RESULT /////////////////////////////////
 
@@ -192,7 +205,10 @@ const fetch = async ticker => {
     zacksSalesToAssets,
     zacksProjSalesGrowth,
     zacksPrice,
-    zacksReportDate,
+    zacksDailyPricesDates: dailyPrices.map(item => item[0]),
+    zacksDailyPrices: dailyPrices.map(item => item[1]),
+    zacksLastEarningsDate: epsSurprises[0][0],
+    zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }
 }
 
