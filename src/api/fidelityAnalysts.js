@@ -1,7 +1,9 @@
 const PageDataFetcher = require("../PageDataFetcher")
 const { makePrettyDate } = require("../util")
+const { sortBy } = require("lodash")
 
-const formatFidelityStarmine = (name, rating) => `${(name || "").substring(0, 14)} - ${rating}`
+const formatFidelityStarmine = (name, rating, date) =>
+  `${(name || "").substring(0, 10)} - ${rating} (${date.substring(6, 10)})`
 
 const reportRowXpathFrag = name =>
   `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
@@ -16,14 +18,16 @@ exports.fetch = async (ticker, browser) => {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
 
+  let essRes = {}
   fetcher.addResponseInterceptorFuzzy(
     [
       "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
     ],
     res => {
-      console.log(res)
+      essRes = res.data
     }
   )
+
   await fetcher.setPage(
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
@@ -36,51 +40,24 @@ exports.fetch = async (ticker, browser) => {
       reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
     ])
 
-  await fetcher.clickForXpath(`//*[@href="#pvd3-action__caret-right"]`)
-
-  const [starmines, fidelitySummaryScore] = await fetcher.fetchPageData([
-    `//table[@data-tc="table-firm-opinions"]/tbody/tr/td[position()=1 or position()=3]//text()`,
-    `//h2[contains(@class,'headingTwo')]/text()[5]`,
-  ])
-
-  const [
-    fidelityStarmineOneName,
-    fidelityStarmineOneRating,
-    fidelityStarmineTwoName,
-    fidelityStarmineTwoRating,
-    fidelityStarmineThreeName,
-    fidelityStarmineThreeRating,
-    fidelityStarmineFourName,
-    fidelityStarmineFourRating,
-    fidelityStarmineFiveName,
-    fidelityStarmineFiveRating,
-  ] = starmines?.filter(e => e.trim())
-
   await fetcher.close()
+
+  const { essCurrentRating, essScore, firmOpinions } = essRes
+  const morganStanleyOpinion = firmOpinions.find(({ firmId }) => firmId === 75)
+  const zacksOpinion = firmOpinions.find(({ firmId }) => firmId === 993)
 
   const res = {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
-    fidelityStarmineFive: formatFidelityStarmine(
-      fidelityStarmineFiveName,
-      fidelityStarmineFiveRating
-    ),
-    fidelityStarmineFour: formatFidelityStarmine(
-      fidelityStarmineFourName,
-      fidelityStarmineFourRating
-    ),
-    fidelityStarmineOne: formatFidelityStarmine(
-      fidelityStarmineOneName,
-      fidelityStarmineOneRating
-    ),
-    fidelityStarmineThree: formatFidelityStarmine(
-      fidelityStarmineThreeName,
-      fidelityStarmineThreeRating
-    ),
-    fidelityStarmineTwo: formatFidelityStarmine(
-      fidelityStarmineTwoName,
-      fidelityStarmineTwoRating
-    ),
-    fidelitySummaryScore: fidelitySummaryScore ? fidelitySummaryScore.trim() : "",
+    fidelityAnalystRatings: sortBy(firmOpinions, "starmineSectorScore")
+      .map(({ firmName, currentNormalizedRating, ratingChangeDate }) =>
+        formatFidelityStarmine(firmName, currentNormalizedRating, ratingChangeDate)
+      )
+      .join("\n"),
+    fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
+    morganStanleyRecommendation: morganStanleyOpinion?.currentNormalizedRating,
+    morganStanleyPreviousRecommendation: morganStanleyOpinion?.previousNormalizedRating,
+    zacksRecommendation: zacksOpinion?.currentNormalizedRating,
+    zacksPreviousRecommendation: zacksOpinion?.previousNormalizedRating,
     argusAnalystDate,
     argusAnalystLink,
     zacksDate,

@@ -132,7 +132,6 @@ const fetch = async ticker => {
 
   return {
     // zacksTarget, where to find?
-    // zacksRecommendation, can get via API calls, see fidelity.http
     // zacksIndustryRank, meh...
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
