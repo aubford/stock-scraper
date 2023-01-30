@@ -7,7 +7,8 @@ const ticker = "AAPL"
 puppeteer
   .connect(CONNECTION)
   .then(async browser => {
-    await fidelityAnalysts.fetch(ticker, browser)
+    const res = await fidelityAnalysts.fetch(ticker, browser)
     console.log("success!!!")
+    console.log(res)
   })
   .catch(err => console.error(err))

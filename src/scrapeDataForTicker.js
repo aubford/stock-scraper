@@ -28,7 +28,7 @@ module.exports = async (ticker, browser) => {
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
   // const fidelityKeyStats = await fidelityStats.fetch(ticker, browser)
 
-  const { zacksLink, argusAnalystLink } = fidelityAnalystOpinionsData
+  const { argusAnalystLink } = fidelityAnalystOpinionsData
 
   // B of A
 
@@ -67,7 +67,7 @@ module.exports = async (ticker, browser) => {
 
   // ZACKS
 
-  const zacksData = await zacks.fetch(ticker, browser, zacksLink)
+  const zacksData = await zacks.fetch(ticker)
 
   // TIPRANKS
 

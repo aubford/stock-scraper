@@ -82,7 +82,12 @@ const responseInterceptorFuzzy = (res, searchArr, callback) => {
   const url = res.url()
   const isMatch = searchArr.every(search => url.includes(search))
   if (isMatch) {
-    res.json().then(json => callback(json))
+    res
+      .json()
+      .then(json => callback(json))
+      .catch(err => {
+        console.error(err)
+      })
   }
 }
 
