@@ -30,8 +30,6 @@ const fetch = async ticker => {
           dividend_freq,
         },
       },
-      // zacks_rank,
-      last: zacksPrice,
       confirmed_reporting_date,
       expected_reporting_date,
     },
@@ -69,7 +67,7 @@ const fetch = async ticker => {
   const zacksAvgAnalystRatingOutOfFive = detailSection.getTextByX(
     `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
   )
-  const zacksEarningsEsp = detailSection.getTextByX(
+  const zacksEarningsESP = detailSection.getTextByX(
     `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
   )
 
@@ -177,14 +175,11 @@ const fetch = async ticker => {
   return {
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
-    zacksGrowthEstimatePctYr: zacksGrowthEstimatePctYr + ` (${zacksGrowthEstimatePctYrInd})`,
-    zacksGrowthEstimatePctNextYr:
-      zacksGrowthEstimatePctNextYr + ` (${zacksGrowthEstimatePctNextYrInd})`,
-    zacksGrowthEstimatePctFiveYr:
-      zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
+
     zacksEstimateChangePctWeek: currentEpsEstimateSum / weekEpsEstimateSum - 1,
     zacksEstimateChangePctMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
     zacksEstimateChangePctBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
+
     zacksPastWeekRevisionSum:
       weekRevisionsQtr +
       weekRevisionsNextQtr +
@@ -203,6 +198,7 @@ const fetch = async ticker => {
         monthRevisionsNextQtrDown +
         monthRevisionsYrDown +
         monthRevisionsNextYrDown),
+
     zacksRank,
     zacksVGM,
     zacksValue,
@@ -212,22 +208,23 @@ const fetch = async ticker => {
 
     zacksPriceLastClose,
 
+    zacksEarningsESP,
     zacksEpsSurprise: epsSurprises[0][1],
     zacksEpsTTM,
     zacksEpsEstimateCurrentYr,
     zacksEpsEstimateNextYr,
     zacksPEIndustry,
 
-    zacksEgPerShareTTM: zacksPrice / zacksPegTTM,
+    zacksEgPerShareTTM: zacksPriceLastClose / zacksPegTTM,
     zacksPegTTMIndustry,
 
-    zacksBookPerShare: zacksPrice / zacksPB,
+    zacksBookPerShare: zacksPriceLastClose / zacksPB,
     zacksPBIndustry,
 
     zacksCashFlowPerShare,
     zacksPCFIndustry,
 
-    zacksSalesPerShare: zacksPrice / zacksPriceToSales,
+    zacksSalesPerShare: zacksPriceLastClose / zacksPriceToSales,
     zacksPriceToSalesIndustry,
 
     zacksCashPrice,
@@ -244,6 +241,12 @@ const fetch = async ticker => {
     zacksROE: zacksROE + ` (${zacksROEIndustry})`,
     zacksSalesToAssets: zacksSalesToAssets + ` (${zacksSalesToAssetsIndustry})`,
     zacksProjSalesGrowth: zacksProjSalesGrowth + ` (${zacksProjSalesGrowthIndustry})`,
+
+    zacksGrowthEstimatePctYr: zacksGrowthEstimatePctYr + ` (${zacksGrowthEstimatePctYrInd})`,
+    zacksGrowthEstimatePctNextYr:
+      zacksGrowthEstimatePctNextYr + ` (${zacksGrowthEstimatePctNextYrInd})`,
+    zacksGrowthEstimatePctFiveYr:
+      zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
 
     zacksLastEarningsDate: epsSurprises[0][0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
