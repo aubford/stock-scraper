@@ -19,10 +19,6 @@ const { makePrettyDate } = require("./util")
 module.exports = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
-  // ZACKS
-
-  const zacksData = await zacks.fetch(ticker)
-
   // TIPRANKS
 
   const tipData = await tipranks.fetch(ticker, browser)
@@ -47,15 +43,15 @@ module.exports = async (ticker, browser) => {
 
   // ARGUS ANALYST & FORD & MORNINGSTAR
 
-  const [argusAnalystData, fordData, morningstarData, streetData, wsjData] = await Promise.all(
-    [
+  const [zacksData, argusAnalystData, fordData, morningstarData, streetData, wsjData] =
+    await Promise.all([
+      zacks.fetch(ticker),
       argusAnalyst.fetch(ticker, browser, argusAnalystLink),
       ford.fetch(ticker, browser),
       morningstar.fetch(ticker, morningstarLink, browser),
       street.fetch(ticker, browser),
       wsj.fetch(ticker),
-    ]
-  )
+    ])
 
   // MULTI
 

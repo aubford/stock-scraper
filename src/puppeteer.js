@@ -86,7 +86,7 @@ const responseInterceptorFuzzy = (res, searchArr, callback) => {
       .json()
       .then(json => callback(json))
       .catch(err => {
-        console.error(err)
+        console.warn("responseInterceptorFuzzy error: " + err)
       })
   }
 }
