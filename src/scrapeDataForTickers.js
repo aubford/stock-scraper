@@ -1,5 +1,6 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
 const { scrapbookWriteOut, pause, writeFile } = require("./util")
+const { yahoo } = require("./api")
 const moment = require("moment")
 
 const metaWriteBadFetches = badFetches => {
@@ -17,8 +18,9 @@ const metaWriteBadFetches = badFetches => {
 }
 
 module.exports = async (allTickers, browser, shouldMerge) => {
+  const vooPriceData = await yahoo.fetchHistoricalPrices("VOO")
   let badFetches = []
-  const newStockData = {}
+  const newStockData = { VOO: vooPriceData }
 
   const scrapeDataForTickers = async tickers => {
     console.log("Searching for tickers:", tickers)

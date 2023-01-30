@@ -37,11 +37,10 @@ const fetch = async ticker => {
     .split(",")[0]
   const zacksConfirmedNextEarningsDate = confirmed_reporting_date
 
-  const { daily_price, eps_surprise } = await fetchJson(
+  // just using this to get earnings calendar
+  const { eps_surprise } = await fetchJson(
     `https://www.zacks.com//data_handler/charts/?ticker=${ticker}&wrapper=price_and_eps_surprise&addl_settings=`
   )
-
-  const dailyPrices = orderBy(Object.entries(daily_price), Date)
   const epsSurprises = orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
 
   const fetcher = new JsDomFetcher(ZACKS, ticker)
@@ -205,8 +204,6 @@ const fetch = async ticker => {
     zacksSalesToAssets,
     zacksProjSalesGrowth,
     zacksPrice,
-    zacksDailyPricesDates: dailyPrices.map(item => item[0]),
-    zacksDailyPrices: dailyPrices.map(item => item[1]),
     zacksLastEarningsDate: epsSurprises[0][0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }

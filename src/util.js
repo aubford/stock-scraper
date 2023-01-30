@@ -141,9 +141,12 @@ const exit = () => {
   process.exit(0)
 }
 
+const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
+
 module.exports = {
   // data manipulation
   makePrettyDate,
+  formatMsDate,
   // script
   exit,
   begin,

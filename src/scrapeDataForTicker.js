@@ -1,5 +1,4 @@
 const {
-  td,
   fidelityAnalysts,
   boa,
   argusAnalyst,
@@ -43,15 +42,23 @@ module.exports = async (ticker, browser) => {
 
   // ARGUS ANALYST & FORD & MORNINGSTAR
 
-  const [zacksData, argusAnalystData, fordData, morningstarData, streetData, wsjData] =
-    await Promise.all([
-      zacks.fetch(ticker),
-      argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-      ford.fetch(ticker, browser),
-      morningstar.fetch(ticker, morningstarLink, browser),
-      street.fetch(ticker, browser),
-      wsj.fetch(ticker),
-    ])
+  const [
+    zacksData,
+    argusAnalystData,
+    fordData,
+    morningstarData,
+    streetData,
+    wsjData,
+    yahooHistoricalPricesData,
+  ] = await Promise.all([
+    zacks.fetch(ticker),
+    argusAnalyst.fetch(ticker, browser, argusAnalystLink),
+    ford.fetch(ticker, browser),
+    morningstar.fetch(ticker, morningstarLink, browser),
+    street.fetch(ticker, browser),
+    wsj.fetch(ticker),
+    yahoo.fetchHistoricalPrices(ticker),
+  ])
 
   // MULTI
 
@@ -89,6 +96,7 @@ module.exports = async (ticker, browser) => {
     ...tipData,
     ...cfraData,
     ...yahooData,
+    ...yahooHistoricalPricesData,
     ...wsjData,
   }
 }

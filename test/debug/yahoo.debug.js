@@ -1,11 +1,11 @@
 require("../../preload")
-const { fetchBasic } = require("../../src/api/yahoo/index")
+const { yahoo } = require("../../src/api")
 
 const ticker = "VOO"
 
-fetchBasic(ticker)
+yahoo
+  .fetchHistoricalPrices(ticker)
   .then(res => {
-    const parsed = JSON.parse(res)
-    console.log(parsed)
+    console.log(res)
   })
   .catch(err => console.error(err))
