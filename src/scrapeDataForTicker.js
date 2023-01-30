@@ -26,8 +26,6 @@ module.exports = async (ticker, browser) => {
   // FIDELITY
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
-  // const fidelityKeyStats = await fidelityStats.fetch(ticker, browser)
-
   const { argusAnalystLink } = fidelityAnalystOpinionsData
 
   // B of A
@@ -93,7 +91,6 @@ module.exports = async (ticker, browser) => {
     ...ncData,
     ...morningstarData,
     ...argusAnalystData,
-    // ...fidelityKeyStats,
     ...fidelityAnalystOpinionsData,
     ...zacksData,
     ...fordData,
