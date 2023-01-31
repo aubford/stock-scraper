@@ -43,8 +43,8 @@ exports.fetch = async (ticker, browser) => {
   await fetcher.close()
 
   const { essCurrentRating, essScore, firmOpinions } = essRes
-  const morganStanleyOpinion = firmOpinions.find(({ firmId }) => firmId === 75)
-  const zacksOpinion = firmOpinions.find(({ firmId }) => firmId === 993)
+  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
+  const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
 
   const res = {
     fidelityAnalystsUpdatedAt: makePrettyDate(),

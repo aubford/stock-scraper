@@ -103,12 +103,12 @@ exports.fetch = async (ticker, tries = 0) => {
         .text(),
     }
 
-    if (retVal.wsjChart.length === 0 && tries < 6) {
+    if (retVal.wsjChart?.length === 0 && tries < 6) {
       logger.error("NO CHART!")
 
       const shouldHaveChart =
-        stockData[ticker]?.wsjChartCurrent.length !== 0 ||
-        vooData[ticker]?.wsjChartCurrent.length !== 0
+        stockData[ticker]?.wsjChartCurrent?.length !== 0 ||
+        vooData[ticker]?.wsjChartCurrent?.length !== 0
 
       if (shouldHaveChart || tries < 3) {
         logger.error("RETRY WSJ!")
