@@ -10,6 +10,21 @@ const formatFidelityStarmine = (name, rating, previousNormalizedRating, date) =>
 const reportRowXpathFrag = name =>
   `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
 
+const getMorganStanley = firmOpinions => {
+  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
+  if (!morganStanleyOpinion) {
+    return ""
+  }
+  const { firmName, currentNormalizedRating, previousNormalizedRating, ratingChangeDate } =
+    morganStanleyOpinion
+  return formatFidelityStarmine(
+    firmName,
+    currentNormalizedRating,
+    previousNormalizedRating,
+    ratingChangeDate
+  )
+}
+
 /**
  * @param {string} ticker
  * @param  {Browser} browser
@@ -45,7 +60,6 @@ exports.fetch = async (ticker, browser) => {
   await fetcher.close()
 
   const { essCurrentRating, essScore, firmOpinions } = essRes
-  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
 
   const res = {
@@ -62,7 +76,7 @@ exports.fetch = async (ticker, browser) => {
       )
       .join("\n"),
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
-    morganStanleyRecommendation: `${morganStanleyOpinion?.currentNormalizedRating} (${morganStanleyOpinion?.previousNormalizedRating})`,
+    fidelityMorganStanleyRecommendation: getMorganStanley(firmOpinions),
     zacksRecommendation:
       zacksOpinion?.currentNormalizedRating +
       ` (${zacksOpinion?.previousNormalizedRating.toLowerCase()})`,

@@ -86,6 +86,9 @@ module.exports = async (ticker, browser) => {
     morningstarRating,
     ticker,
     tickerSearch: `//${ticker}`,
+    morganStanleyRating:
+      tipData.tipMorganStanleyRating ||
+      fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
     ...streetData,
     ...ncData,
     ...morningstarData,

@@ -216,6 +216,9 @@ exports.fetch = async (ticker, browser) => {
   ])
 
   const tipAnalystsZip = zip(...analystStrings)
+  const tipMorganStanleyRating = tipAnalystsZip
+    .find(analyst => analyst[0].includes("Morgan Stanley"))
+    .slice(1)
   const [maintained, changed] = partition(tipAnalystsZip, analyst =>
     ["initiated", "reiterated", "maintained"].includes(analyst[3].toLowerCase().trim())
   )
@@ -254,9 +257,7 @@ exports.fetch = async (ticker, browser) => {
     await fetcher.clickWhile(`button[data-test-id="hedgefundactivity_showmore"]`)
   }
   const [tipHedgeStrings] = shouldGetHedgeActivity
-    ? await fetcher.fetchPageData([
-        `//table[@id="tipranks-hedge-fund-activity"]/tbody/tr`,
-      ])
+    ? await fetcher.fetchPageData([`//table[@id="tipranks-hedge-fund-activity"]/tbody/tr`])
     : []
 
   const tipHedgeMoves =
@@ -312,6 +313,7 @@ exports.fetch = async (ticker, browser) => {
   return {
     tipUpdatedAt: makePrettyDate(),
     tipAnalysts,
+    tipMorganStanleyRating,
     tipInsiderEvents,
     tipScore,
     tipAnalystRatings,
