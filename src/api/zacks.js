@@ -12,28 +12,53 @@ const getEstmiateSum = tableRowCellArr =>
     return acc + Number(curr)
   }, 0)
 
+const getMainData = async (ticker, logger) => {
+  try {
+    const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
+    const {
+      [ticker]: {
+        source: {
+          sungard: {
+            earnings: zacksEpsTTM,
+            dividend,
+            close: zacksPriceLastClose,
+            dividend_freq,
+          },
+        },
+        confirmed_reporting_date,
+        expected_reporting_date,
+      },
+    } = mainData
+
+    return {
+      zacksEpsTTM,
+      dividend,
+      zacksPriceLastClose,
+      dividend_freq,
+      confirmed_reporting_date,
+      expected_reporting_date,
+    }
+  } catch (e) {
+    logger.warn("No Zacks main data found")
+    return {}
+  }
+}
+
 /**
  * @param {string} ticker
  * @param {Browser} browser
  * @param {string} url
  * @returns {Promise<Object>}
  */
-const fetch = async ticker => {
-  const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
+const fetch = async (ticker, logger) => {
   const {
-    [ticker]: {
-      source: {
-        sungard: {
-          earnings: zacksEpsTTM,
-          dividend,
-          close: zacksPriceLastClose,
-          dividend_freq,
-        },
-      },
-      confirmed_reporting_date,
-      expected_reporting_date,
-    },
-  } = mainData
+    zacksEpsTTM,
+    dividend,
+    zacksPriceLastClose,
+    dividend_freq,
+    confirmed_reporting_date,
+    expected_reporting_date,
+  } = await getMainData(ticker, logger)
 
   const zacksEstimatedNextEarningsDate = new Date(expected_reporting_date * 1000)
     .toLocaleString()
@@ -44,7 +69,9 @@ const fetch = async ticker => {
   const { eps_surprise } = await fetchJson(
     `https://www.zacks.com//data_handler/charts/?ticker=${ticker}&wrapper=price_and_eps_surprise&addl_settings=`
   )
-  const epsSurprises = orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
+  const epsSurprises = eps_surprise
+    ? orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
+    : [[]]
 
   const fetcher = new JsDomFetcher(ZACKS, ticker)
 
@@ -237,9 +264,7 @@ const fetch = async ticker => {
 
 exports.fetch = ticker => {
   const logger = new Logger(ticker, ZACKS)
-  try {
-    return fetch(ticker)
-  } catch (error) {
+  return fetch(ticker, logger).catch(error => {
     logger.error(error)
-  }
+  })
 }
