@@ -2,8 +2,10 @@ const PageDataFetcher = require("../PageDataFetcher")
 const { makePrettyDate } = require("../util")
 const { sortBy } = require("lodash")
 
-const formatFidelityStarmine = (name, rating, date) =>
-  `${(name || "").substring(0, 10)} - ${rating} (${date.substring(6, 10)})`
+const formatFidelityStarmine = (name, rating, previousNormalizedRating, date) =>
+  `${(name || "").substring(0, 10)} - ${rating} (${date.substring(6, 10)}${
+    previousNormalizedRating ? ", " + previousNormalizedRating : ""
+  } )`
 
 const reportRowXpathFrag = name =>
   `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
@@ -49,13 +51,18 @@ exports.fetch = async (ticker, browser) => {
   const res = {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings: sortBy(firmOpinions, "starmineSectorScore")
-      .map(({ firmName, currentNormalizedRating, ratingChangeDate }) =>
-        formatFidelityStarmine(firmName, currentNormalizedRating, ratingChangeDate)
+      .map(
+        ({ firmName, currentNormalizedRating, ratingChangeDate, previousNormalizedRating }) =>
+          formatFidelityStarmine(
+            firmName,
+            currentNormalizedRating,
+            previousNormalizedRating,
+            ratingChangeDate
+          )
       )
       .join("\n"),
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
-    morganStanleyRecommendation: morganStanleyOpinion?.currentNormalizedRating,
-    morganStanleyPreviousRecommendation: morganStanleyOpinion?.previousNormalizedRating,
+    morganStanleyRecommendation: `${morganStanleyOpinion?.currentNormalizedRating} (${morganStanleyOpinion?.previousNormalizedRating})`,
     zacksRecommendation:
       zacksOpinion?.currentNormalizedRating +
       ` (${zacksOpinion?.previousNormalizedRating.toLowerCase()})`,
