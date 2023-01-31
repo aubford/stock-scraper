@@ -32,7 +32,7 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)
         badFetches.push(ticker)
-        newStockData[ticker] = { error }
+        newStockData[ticker] = { message: error.message, stack: error.stack }
       }
     }
   }
