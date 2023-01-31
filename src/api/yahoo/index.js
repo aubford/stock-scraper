@@ -1,6 +1,7 @@
 const { fetchText } = require("../util")
 const transform = require("./transform")
 const { formatMsDate } = require("../../util")
+const Logger = require("../../Logger")
 
 /**
  * @param ticker
@@ -15,7 +16,7 @@ exports.fetch = async ticker => {
   return transform(parsed)
 }
 
-exports.fetchHistoricalPrices = async ticker => {
+const fetchHistoricalPrices = async ticker => {
   const res = await fetchText(
     `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
     {
@@ -36,8 +37,20 @@ exports.fetchHistoricalPrices = async ticker => {
   )
 
   const data = JSON.parse(res).chart.result[0]
+  const dates = data.timestamp.map(date => formatMsDate(date * 1000)).reverse()
+  const prices = data.indicators.quote[0].close.map(price => price.toFixed(2)).reverse()
+  const indexOfJan152020 = dates.indexOf("1/15/2020")
+
   return {
-    yahooDailyPricesDates: data.timestamp.map(date => formatMsDate(date * 1000)).reverse(),
-    yahooDailyPrices: data.indicators.quote[0].close.map(price => price.toFixed(2)).reverse(),
+    yahooDailyPricesDates: dates.slice(0, indexOfJan152020),
+    yahooDailyPrices: prices.slice(0, indexOfJan152020),
   }
+}
+
+exports.fetchHistoricalPrices = ticker => {
+  const logger = new Logger(ticker, "Yahoo Historical Prices")
+  return fetchHistoricalPrices(ticker, logger).catch(e => {
+    logger.error(e)
+    return { yahooDailyPricesDates: e.message, yahooDailyPrices: e.message }
+  })
 }
