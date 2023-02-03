@@ -257,7 +257,10 @@ const fetch = async (ticker, logger) => {
     zacksGrowthEstimatePctFiveYr:
       zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
 
-    zacksLastEarningsDate: epsSurprises[0][0],
+    zacksLastEarningsDate:
+      zacksConfirmedNextEarningsDate && new Date(zacksConfirmedNextEarningsDate) < new Date()
+        ? zacksConfirmedNextEarningsDate
+        : epsSurprises[0][0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }
 }
