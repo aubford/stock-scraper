@@ -94,7 +94,7 @@ class PageDataFetcher {
     let tipranksButton
     try {
       tipranksButton = await analystReportsFrame.waitForSelector("button.see-full-report", {
-        timeout: 2000,
+        timeout: 5000,
       })
     } catch (err) {
       this.logger.warn(`No Tipranks button found`)
