@@ -2,28 +2,19 @@ const PageDataFetcher = require("../PageDataFetcher")
 const { makePrettyDate } = require("../util")
 const { sortBy } = require("lodash")
 
-const formatFidelityStarmine = (name, rating, previousNormalizedRating, date) =>
-  `${(name || "").substring(0, 10)} - ${rating} (${date.substring(6, 10)}${
+const formatFidelityStarmine = starmineOpinion => {
+  if (!starmineOpinion) return ""
+
+  const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
+    starmineOpinion
+
+  return `${currentNormalizedRating} (${ratingChangeDate?.substring(6, 10)}${
     previousNormalizedRating ? ", " + previousNormalizedRating : ""
-  } )`
+  })`
+}
 
 const reportRowXpathFrag = name =>
   `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
-
-const getMorganStanley = firmOpinions => {
-  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
-  if (!morganStanleyOpinion) {
-    return ""
-  }
-  const { firmName, currentNormalizedRating, previousNormalizedRating, ratingChangeDate } =
-    morganStanleyOpinion
-  return formatFidelityStarmine(
-    firmName,
-    currentNormalizedRating,
-    previousNormalizedRating,
-    ratingChangeDate
-  )
-}
 
 /**
  * @param {string} ticker
@@ -60,26 +51,27 @@ exports.fetch = async (ticker, browser) => {
   await fetcher.close()
 
   const { essCurrentRating, essScore, firmOpinions } = essRes
+
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
+  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
+  const fordOpinion = firmOpinions?.find(({ firmId }) => firmId === 696)
+  const jefferiesOpinion = firmOpinions?.find(({ firmId }) => firmId === 36)
 
   const res = {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings: sortBy(firmOpinions, "starmineSectorScore")
       .map(
-        ({ firmName, currentNormalizedRating, ratingChangeDate, previousNormalizedRating }) =>
-          formatFidelityStarmine(
-            firmName,
-            currentNormalizedRating,
-            previousNormalizedRating,
-            ratingChangeDate
-          )
+        analystOpinion =>
+          (analystOpinion.firmName || "").substring(0, 10) +
+          " - " +
+          formatFidelityStarmine(analystOpinion)
       )
       .join("\n"),
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
-    fidelityMorganStanleyRecommendation: getMorganStanley(firmOpinions),
-    zacksRecommendation:
-      zacksOpinion?.currentNormalizedRating +
-      ` (${zacksOpinion?.previousNormalizedRating.toLowerCase()})`,
+    fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
+    zacksRecommendation: formatFidelityStarmine(zacksOpinion),
+    fordRecommendation: formatFidelityStarmine(fordOpinion),
+    jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),
     argusAnalystDate,
     argusAnalystLink,
     zacksDate,
