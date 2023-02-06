@@ -109,16 +109,15 @@ class JsDomElement extends JsDomNode {
 
 class JsDomFetcher extends JsDomNode {
   /**
-   * @param {string} analystName
+   * @param {string} contextName
    * @param {string} ticker
    * @param {*} browser
    * @param {number} timeout
    */
-  constructor(analystName, ticker, { timeout, testing } = {}) {
-    const logger = new Logger(ticker, analystName)
+  constructor(contextName, ticker, { timeout, testing } = {}) {
+    const logger = new Logger(ticker, contextName + " JsDomFetcher")
     super(logger)
 
-    this.analystName = analystName
     this.ticker = ticker
     this.timeout = timeout
     this.testing = testing

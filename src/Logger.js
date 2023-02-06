@@ -1,6 +1,6 @@
 class Logger {
-  constructor(ticker, analystName) {
-    this.lineStart = `${ticker} - ${analystName}: `
+  constructor(ticker, contextName) {
+    this.lineStart = `${ticker} - ${contextName}: `
     this.log("Start")
   }
 

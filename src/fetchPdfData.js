@@ -20,7 +20,7 @@ const fetchPdfData = async ({
   waitForPostScroll,
   timeout = XPATH_TIMEOUT,
 }) => {
-  const logger = new Logger(ticker, analystName)
+  const logger = new Logger(ticker, analystName + " fetchPdfData")
   if (!url) {
     logger.warn(`fetchPdfData: NO REPORT`)
     return []

@@ -5,8 +5,6 @@ const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 const { orderBy, sum } = require("lodash")
 
-const ZACKS = "Zacks"
-
 const getEstmiateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
@@ -73,7 +71,7 @@ const fetch = async (ticker, logger) => {
     ? orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
     : [[]]
 
-  const fetcher = new JsDomFetcher(ZACKS, ticker)
+  const fetcher = new JsDomFetcher("Zacks", ticker)
 
   // DETAILED EARNINGS ESTIMATES ///////////
 
@@ -265,8 +263,12 @@ const fetch = async (ticker, logger) => {
   }
 }
 
+/**
+ * @param {string} ticker
+ * @returns {Promise<Object>}
+ */
 exports.fetch = ticker => {
-  const logger = new Logger(ticker, ZACKS)
+  const logger = new Logger(ticker, "Zacks fetch")
   return fetch(ticker, logger).catch(error => {
     logger.error(error)
   })

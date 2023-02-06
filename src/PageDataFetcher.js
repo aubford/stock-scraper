@@ -13,13 +13,12 @@ const Logger = require("./Logger")
 
 class PageDataFetcher {
   /**
-   * @param {string} analystName
+   * @param {string} contextName
    * @param {string} ticker
    * @param {*} browser
    * @param {number} timeout
    */
-  constructor(analystName, ticker, browser, { timeout } = {}) {
-    this.analystName = analystName
+  constructor(contextName, ticker, browser, { timeout } = {}) {
     this.ticker = ticker
     this.browser = browser
     this.timeout = timeout || XPATH_TIMEOUT
@@ -30,7 +29,7 @@ class PageDataFetcher {
     this.runInterceptors = response =>
       Promise.all(this.responseInterceptors.map(interceptor => interceptor(response)))
 
-    this.logger = new Logger(ticker, analystName)
+    this.logger = new Logger(ticker, contextName + " PageDataFetcher")
   }
 
   addResponseInterceptorFuzzy(searchArr, callback) {
