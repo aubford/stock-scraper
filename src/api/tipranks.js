@@ -1,6 +1,7 @@
 const { zip, partition, flatten } = require("lodash")
 const { makePrettyDate } = require("../util")
 const PageDataFetcher = require("../PageDataFetcher")
+const Logger = require("../Logger")
 
 const hedgeFundValues = [
   { first: "warren", last: "buffett", value: 6 },
@@ -170,7 +171,7 @@ const getHedgeRating = tipHedgeMoves =>
  * @param {Browser} browser
  * @returns {Promise<Object>}
  */
-exports.fetch = async (ticker, browser) => {
+const fetch = async (ticker, browser) => {
   const fetcher = new PageDataFetcher(TIPRANKS, ticker, browser, {
     timeout: TIPRANKS_TIMEOUT,
   })
@@ -337,4 +338,11 @@ exports.fetch = async (ticker, browser) => {
     tipHedgeMoves: tipHedgeMoves.join("\n"),
     tipHedgeRating,
   }
+}
+
+exports.fetch = ticker => {
+  const logger = new Logger(ticker, TIPRANKS)
+  return fetch(ticker, logger).catch(error => {
+    logger.error(error)
+  })
 }
