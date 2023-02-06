@@ -75,8 +75,17 @@ exports.fetch = async (ticker, tries = 0) => {
       ],
       800
     )
-    const researchPageDoc = Cheerio.load(/**@type * */ researchPage)
-    const html = researchPageDoc(".cr_analystRatings .data_data")
+    const analystRatingsDoc = Cheerio.load(/**@type * */ researchPage)
+    const wsjChart = analystRatingsDoc(".cr_analystRatings .data_data")
+      .contents()
+      .get()
+      .map(node => node.data)
+
+    const [, wsjHighTarget, , wsjMedianTarget, , wsjLowTarget, , wsjAverageTarget] =
+      analystRatingsDoc(".cr_data.rr_stockprice .data_data")
+        .contents()
+        .get()
+        .map(node => node.data)
 
     const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
     const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
@@ -87,11 +96,12 @@ exports.fetch = async (ticker, tries = 0) => {
       : wsjShortDateRaw
 
     const retVal = {
+      wsjHighTarget,
+      wsjMedianTarget,
+      wsjLowTarget,
+      wsjAverageTarget,
       wsjUpdatedAt: makePrettyDate(),
-      wsjChart: html
-        .contents()
-        .get()
-        .map(node => node.data),
+      wsjChart,
       wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
       wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
       wsjShortDate,

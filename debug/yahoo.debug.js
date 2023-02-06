@@ -1,5 +1,5 @@
-require("../../preload")
-const { yahoo } = require("../../src/api")
+require("../preload")
+const { yahoo } = require("../src/api")
 
 const ticker = "VOO"
 

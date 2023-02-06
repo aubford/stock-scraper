@@ -1,5 +1,5 @@
-require("../../preload")
-const { zacks } = require("../../src/api")
+require("../preload")
+const { zacks } = require("../src/api")
 
 const ticker = "AAPL"
 

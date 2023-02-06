@@ -1,6 +1,6 @@
-require("../../preload")
+require("../preload")
 const puppeteer = require("puppeteer-core")
-const { argusAnalyst } = require("../../src/api")
+const { argusAnalyst } = require("../src/api")
 
 puppeteer
   .connect(CONNECTION)

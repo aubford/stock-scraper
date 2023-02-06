@@ -1,7 +1,7 @@
-require("../../preload")
+require("../preload")
 const puppeteer = require("puppeteer-core")
-const { fidelityAnalysts, newConstructs, tipranks, td } = require("../../src/api")
-const { promptUser } = require("../../src/util")
+const { fidelityAnalysts, newConstructs, tipranks, td } = require("../src/api")
+const { promptUser } = require("../src/util")
 
 /** @type {{fetch: function}} */
 const analystMap = {

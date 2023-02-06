@@ -5,14 +5,12 @@ const scrapeDataForTicker = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
-  // const fidelityKeyStats = await fetchFidelityKeyStats(ticker, browser)
 
-  const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData] =
-    await Promise.all([
-      moodys.fetch(ticker, browser),
-      yahoo.fetch(ticker),
-      wsj.fetch(ticker),
-    ])
+  const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData] = await Promise.all([
+    moodys.fetch(ticker, browser),
+    yahoo.fetch(ticker),
+    wsj.fetch(ticker),
+  ])
 
   const tipData = await tipranks.fetch(ticker, browser)
 
