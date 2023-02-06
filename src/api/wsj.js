@@ -96,6 +96,7 @@ exports.fetch = async (ticker, tries = 0) => {
       : wsjShortDateRaw
 
     const retVal = {
+      wsjPriceTargets: `$${wsjLowTarget} - $${wsjAverageTarget} ($${wsjMedianTarget}) - $${wsjHighTarget}`,
       wsjHighTarget,
       wsjMedianTarget,
       wsjLowTarget,
