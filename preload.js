@@ -18,7 +18,7 @@ try {
 
 // Constants
 
-const timeoutCoeff = 1.3
+const timeoutCoeff = 1.5
 
 global.SHOULD_MERGE = false
 
