@@ -60,7 +60,7 @@ exports.fetch = async (ticker, browser) => {
       timeout: MOODYS_TIMEOUT,
     })
     await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
-    const moodysData = await moodysFetcher.fetchPageData(
+    const [moodysRating, moodysOutlook] = await moodysFetcher.fetchPageData(
       [
         "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
         "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
@@ -68,9 +68,13 @@ exports.fetch = async (ticker, browser) => {
       `//div[@class="mis-ratings-container"]`
     )
     await moodysFetcher.close()
-    return [...moodysData, moodysLink]
+    return {
+      moodysRating,
+      moodysOutlook,
+      moodysLink,
+    }
   } else {
     logger.warn("No Moodys link")
-    return []
+    return {}
   }
 }

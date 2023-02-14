@@ -62,13 +62,12 @@ module.exports = async (ticker, browser) => {
 
   // MULTI
 
-  const [[moodysRating, moodysOutlook, moodysLink], yahooData, ncData, cfraData] =
-    await Promise.all([
-      moodys.fetch(ticker, browser),
-      yahoo.fetch(ticker),
-      newConstructs.fetch(ticker, browser),
-      cfra.fetch(ticker, cfraRating, cfraLink, browser),
-    ])
+  const [moodysData, yahooData, ncData, cfraData] = await Promise.all([
+    moodys.fetch(ticker, browser),
+    yahoo.fetch(ticker),
+    newConstructs.fetch(ticker, browser),
+    cfra.fetch(ticker, cfraRating, cfraLink, browser),
+  ])
 
   return {
     scrapeDataUpdatedAt: Date.now(),
@@ -79,9 +78,6 @@ module.exports = async (ticker, browser) => {
     boaVolatility,
     cfraLink,
     cfraRating,
-    moodysLink: moodysLink || "",
-    moodysOutlook,
-    moodysRating,
     morningstarLink,
     morningstarRating,
     ticker,
@@ -89,6 +85,7 @@ module.exports = async (ticker, browser) => {
     morganStanleyRating:
       tipData.tipMorganStanleyRating ||
       fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    ...moodysData,
     ...streetData,
     ...ncData,
     ...morningstarData,

@@ -1,4 +1,4 @@
-const { yahoo, wsj, tipranks, fidelityAnalysts, moodys } = require("./api")
+const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./api")
 const { makePrettyDate, vooWriteOut, pause } = require("./util")
 
 const scrapeDataForTicker = async (ticker, browser) => {
@@ -6,26 +6,31 @@ const scrapeDataForTicker = async (ticker, browser) => {
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
-  const [[moodysRating, moodysOutlook, moodysLink], yahooData, wsjData] = await Promise.all([
-    moodys.fetch(ticker, browser),
-    yahoo.fetch(ticker),
-    wsj.fetch(ticker),
-  ])
-
-  const tipData = await tipranks.fetch(ticker, browser)
+  const [moodysData, yahooData, yahooHistoricalPricesData, wsjData, zacksData, tipData] =
+    await Promise.all([
+      moodys.fetch(ticker, browser),
+      yahoo.fetch(ticker),
+      yahoo.fetchHistoricalPrices(ticker),
+      wsj.fetch(ticker),
+      zacks.fetch(ticker),
+      tipranks.fetch(ticker, browser),
+    ])
 
   return {
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
-    moodysLink: moodysLink || "",
-    moodysOutlook,
-    moodysRating,
     ticker,
     tickerSearch: `//${ticker}`,
+    ...moodysData,
     ...fidelityAnalystOpinionsData,
     ...tipData,
     ...yahooData,
     ...wsjData,
+    ...zacksData,
+    ...yahooHistoricalPricesData,
+    morganStanleyRating:
+      tipData.tipMorganStanleyRating ||
+      fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
   }
 }
 
