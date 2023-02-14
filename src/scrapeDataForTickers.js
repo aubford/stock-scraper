@@ -1,5 +1,5 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
-const { scrapbookWriteOut, pause, writeFile } = require("./util")
+const { scrapbookWriteOut, pause, writeFile, newStockInfo } = require("./util")
 const { yahoo } = require("./api")
 const moment = require("moment")
 
@@ -32,7 +32,13 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)
         badFetches.push(ticker)
-        newStockData[ticker] = { message: error.message, stack: error.stack }
+        newStockData[ticker] = {
+          error: true,
+          errorMessage: error.message,
+          errorStack: error.stack,
+          ...newStockInfo(ticker),
+          sector: "ERROR",
+        }
       }
     }
   }

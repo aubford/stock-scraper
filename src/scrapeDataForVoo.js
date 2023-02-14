@@ -1,5 +1,5 @@
 const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./api")
-const { makePrettyDate, vooWriteOut, pause } = require("./util")
+const { makePrettyDate, vooWriteOut, pause, newStockInfo } = require("./util")
 
 const scrapeDataForTicker = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
@@ -48,7 +48,13 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)
         badFetches.push(ticker)
-        newStockData[ticker] = { error }
+        newStockData[ticker] = {
+          error: true,
+          errorMessage: error.message,
+          errorStack: error.stack,
+          ...newStockInfo(ticker),
+          sector: "ERROR",
+        }
       }
     }
   }

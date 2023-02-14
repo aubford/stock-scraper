@@ -7,6 +7,7 @@
     "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\" ./vooData.json",
     "launch": "node ./launch.js",
     "add-tickers": "node --require ./preload.js ./src/database/addTickers.js && npm run prettyStock",
+    "voo-add-tickers": "node --require ./preload.js ./src/database/vooAddTickers.js && npm run prettyStock",
     "backup-db": "src/database/backup-db.sh",
     "check": "node --eval \"console.log(Boolean(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]]))\"",
     "earnings": "node --require ./src/database/getDatabaseInfo.js --eval 'getEarnings()'",

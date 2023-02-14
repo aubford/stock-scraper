@@ -21,6 +21,14 @@ const writeFile = (location, data) => {
   }
 }
 
+// want new tickers to update first when running update.js script
+const randomOldDate = new Date(2000, 7, 24)
+const newStockInfo = ticker => ({
+  ticker,
+  sector: "NEW_STOCKS",
+  scrapeDataUpdatedAt: randomOldDate,
+})
+
 const readFile = location => {
   const file = fs.readFileSync(location)
   return JSON.parse(file)
@@ -147,6 +155,7 @@ module.exports = {
   // data manipulation
   makePrettyDate,
   formatMsDate,
+  newStockInfo,
   // script
   exit,
   begin,
