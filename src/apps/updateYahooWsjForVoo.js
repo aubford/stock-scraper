@@ -6,12 +6,12 @@ const tickers = require("../vooTickers")
 
 const fetchData = async ticker => {
   const yahooData = await yahoo.fetch(ticker)
+  const historicalPrices = await yahoo.fetchHistoricalPrices(ticker)
   const wsjData = await wsj.fetch(ticker)
 
-  const { quoteSummary: { result } = {} } = yahooData
-  if (result && wsjData) {
+  if (yahooData && wsjData) {
     console.log(`Fetched OK: ${ticker}`)
-    return [ticker, { ...yahooData, ...wsjData }]
+    return [ticker, { ...yahooData, ...wsjData, ...historicalPrices }]
   }
   console.log(`*** FAILURE: ${ticker} ***`)
 }

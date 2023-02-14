@@ -4,25 +4,29 @@ const {
   getOnlyStockTickerData,
   scrapbookWriteOut,
   backupReturnStockDataFile,
+  promptForTickers,
 } = require("../util")
 
 const stockFile = backupReturnStockDataFile()
 const stockData = getOnlyStockTickerData(stockFile)
-const tickers = Object.keys(stockData)
 
 const fetchData = async ticker => {
-  const yahooData = await yahoo.fetch(ticker)
-  const wsjData = await wsj.fetch(ticker)
+  const data = await yahoo.fetchHistoricalPrices(ticker)
 
-  if (yahooData && wsjData) {
+  if (data) {
     console.log(`Fetched OK: ${ticker}`)
-    return [ticker, { ...stockData[ticker], ...yahooData, ...wsjData }]
+    return [ticker, { ...stockData[ticker], ...data }]
   }
   console.log(`*** FAILURE: ${ticker} ***`)
   return [ticker, stockData[ticker]]
 }
 
 const run = async () => {
+  const promptResponse = await promptForTickers()
+  const tickers = promptResponse
+    ? promptResponse.split(/[^A-Z]/).filter(a => a)
+    : Object.keys(getOnlyStockTickerData(backupReturnStockDataFile()))
+
   let res = []
   const tickerChunks = chunk(tickers, 8)
   for (const tickerChunk of tickerChunks) {
