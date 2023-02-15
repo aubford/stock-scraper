@@ -220,6 +220,7 @@ const fetch = async (ticker, browser) => {
   const tipMorganStanleyRating = tipAnalystsZip
     .find(analyst => analyst[0].includes("Morgan Stanley"))
     ?.slice(1)
+    .join(" ,")
   const [maintained, changed] = partition(tipAnalystsZip, analyst =>
     ["initiated", "reiterated", "maintained"].includes(analyst[3]?.toLowerCase().trim())
   )
