@@ -221,6 +221,10 @@ const fetch = async (ticker, browser) => {
     .find(analyst => analyst[0].includes("Morgan Stanley"))
     ?.slice(1)
     .join(" ,")
+  const tipJefferiesRating = tipAnalystsZip
+    .find(analyst => analyst[0].includes("Jefferies"))
+    ?.slice(1)
+    .join(" ,")
   const [maintained, changed] = partition(tipAnalystsZip, analyst =>
     ["initiated", "reiterated", "maintained"].includes(analyst[3]?.toLowerCase().trim())
   )
@@ -316,6 +320,7 @@ const fetch = async (ticker, browser) => {
     tipUpdatedAt: makePrettyDate(),
     tipAnalysts,
     tipMorganStanleyRating,
+    tipJefferiesRating,
     tipInsiderEvents,
     tipScore,
     tipAnalystRatings,
