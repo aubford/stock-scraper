@@ -1,4 +1,4 @@
-const { pause } = require("./util")
+const { pause, ReError } = require("./util")
 
 /**
  * @param page {MyPage}
@@ -20,20 +20,6 @@ const getTextByX = async (page, selector) => {
       element.evaluate(({ textContent }) => (textContent ? textContent.trim() : ""))
     )
   )
-}
-
-const waitForXpath = async (page, xpath, timeout) => {
-  try {
-    await page.waitForXPath(xpath, { timeout })
-    return true
-  } catch (err) {
-    if (err.message.includes("is not a valid XPath expression")) {
-      console.error("*** INVALID XPATH *** for xpath: " + xpath)
-    } else {
-      console.warn(`waitForXpath failed for xpath: ${xpath}`)
-    }
-    return false
-  }
 }
 
 const wrapPage = page => {
@@ -86,7 +72,9 @@ const responseInterceptorFuzzy = (res, searchArr, callback) => {
       .json()
       .then(json => callback(json))
       .catch(err => {
-        console.warn("responseInterceptorFuzzy error: " + err)
+        if (err.name !== "ProtocolError") {
+          console.warn("responseInterceptorFuzzy error: " + err)
+        }
       })
   }
 }
@@ -102,12 +90,12 @@ const goToPage = async (page, url, options = {}) => {
   try {
     await page.goto(url, options)
   } catch (error) {
-    const msg = `🚨 PAGE LOAD ERROR -> ${error}`
+    const clone = { ...error }
 
     await page.closeSafe()
     await pause(60 * 1000)
 
-    throw new Error(msg)
+    throw new ReError(`PAGE LOAD ERROR`, clone, "goToPage")
   }
 }
 
@@ -141,7 +129,11 @@ const evalX = async (frame, selector, ...func) => {
  * @returns {Promise<*>}
  */
 const getPageCookies = async (browser, url) => {
-  const page = await goToNewBrowserPage(browser, url)
+  const page = await goToNewBrowserPage(browser, url).catch(async err => {
+    await page.closeSafe()
+    throw new ReError("goToNewBrowserPage failed", err, "getPageCookies")
+  })
+
   const cookieArr = await page.cookies()
   await page.closeSafe()
   return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
@@ -149,7 +141,6 @@ const getPageCookies = async (browser, url) => {
 
 module.exports = {
   getTextByX,
-  waitForXpath,
   wrapPage,
   goToNewBrowserPage,
   newPage,

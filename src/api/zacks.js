@@ -48,7 +48,7 @@ const getMainData = async (ticker, logger) => {
  * @param {string} url
  * @returns {Promise<Object>}
  */
-const fetch = async (ticker, logger) => {
+const fetchZacks = async (ticker, logger) => {
   const {
     zacksEpsTTM,
     dividend,
@@ -268,8 +268,9 @@ const fetch = async (ticker, logger) => {
  * @returns {Promise<Object>}
  */
 exports.fetch = ticker => {
-  const logger = new Logger(ticker, "Zacks fetch")
-  return fetch(ticker, logger).catch(error => {
-    logger.error(error)
+  const logger = new Logger(ticker, "Zacks.fetch", true)
+  return fetchZacks(ticker, logger).catch(error => {
+    logger.error("fetch error: ", error)
+    return {}
   })
 }

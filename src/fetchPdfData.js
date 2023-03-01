@@ -1,5 +1,36 @@
 const Logger = require("./Logger")
 const { goToNewBrowserPage } = require("./puppeteer")
+const { MessageError, ReError } = require("./util")
+
+const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {
+  if (page.error) {
+    throw new MessageError("goToNewBrowserPage returned truthy page.error")
+  }
+
+  const dataNotAvailableText = await page.$x(
+    `//body[contains(text(),'data is not available to create this report')]`
+  )
+  if (dataNotAvailableText.length > 0) {
+    throw new MessageError(`Data not available text found in PDF`)
+  }
+
+  await page.waitForXPath(xPathArr[0], { timeout }).catch(err => {
+    throw new ReError(`waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`, err)
+  })
+
+  if (waitForPostScroll) {
+    const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
+    await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
+    await page.waitForXPath(waitForPostScroll, { timeout }).catch(err => {
+      throw new ReError(
+        `waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`,
+        err
+      )
+    })
+  }
+
+  return Promise.all(xPathArr.map(page.getTextByX))
+}
 
 /**
  * @param {string} ticker
@@ -11,64 +42,41 @@ const { goToNewBrowserPage } = require("./puppeteer")
  * @param {Number} [options.timeout]
  * @returns {Promise<*[]>}
  */
-const fetchPdfData = async ({
-  ticker,
-  browser,
-  url,
-  analystName,
-  xPathArr,
-  waitForPostScroll,
-  timeout = XPATH_TIMEOUT,
-}) => {
-  const logger = new Logger(ticker, analystName + " fetchPdfData")
+const fetchPdfData = async (
+  logger,
+  { browser, url, xPathArr, waitForPostScroll, timeout = XPATH_TIMEOUT }
+) => {
   if (!url) {
-    logger.warn(`fetchPdfData: NO REPORT`)
-    return []
+    throw new MessageError(`fetchPdfData: NO REPORT`)
   }
 
   /** @type MyPage */
-  const page = await goToNewBrowserPage(browser, url, { waitUntil: "networkidle2", logger })
-  if (page.error) {
-    await page.closeSafe()
-    return []
-  }
+  const page = await goToNewBrowserPage(browser, url, {
+    waitUntil: "networkidle2",
+    logger,
+  }).catch(err => {
+    throw new ReError("goToNewBrowserPage failed", err)
+  })
 
-  const dataNotAvailableText = await page.$x(
-    `//body[contains(text(),'data is not available to create this report')]`
-  )
-  if (dataNotAvailableText.length > 0) {
-    logger.error("fetchPdfData: Data not available text found in PDF")
-    await page.closeSafe()
-    return []
-  }
-
-  try {
-    await page.waitForXPath(xPathArr[0], { timeout })
-  } catch (err) {
-    logger.error(
-      `fetchPdfData: waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`
-    )
-    await page.closeSafe()
-    return []
-  }
-
-  if (waitForPostScroll) {
-    const [viewerContainer] = await page.$x(`//div[@id='viewerContainer']`)
-    await viewerContainer.evaluate(node => node.scrollBy(0, 2000))
-    try {
-      await page.waitForXPath(waitForPostScroll, { timeout })
-    } catch (err) {
-      logger.error(
-        `fetchPdfData: waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`
-      )
-    }
-  }
-
-  const values = await Promise.all(xPathArr.map(page.getTextByX))
+  const values = await handlePage(page, {
+    url,
+    xPathArr,
+    waitForPostScroll,
+    timeout,
+  }).catch(err => {
+    page.closeSafe()
+    throw new ReError("handlePage failed", err)
+  })
 
   await page.closeSafe()
   logger.completeOk("PDF: Done")
   return values
 }
 
-module.exports = fetchPdfData
+module.exports = options => {
+  const logger = new Logger(options.ticker, options.analystName + " fetchPdfData")
+  return fetchPdfData(logger, options).catch(err => {
+    logger.error("macro error: ", err)
+    return []
+  })
+}

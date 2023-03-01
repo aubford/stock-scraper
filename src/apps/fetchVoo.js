@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer-core")
 const { goToNewBrowserPage } = require("../puppeteer")
-const { promptUser, promptLogin, begin, exit } = require("../util")
+const { promptUser, promptLogin, begin, exit, ReError } = require("../util")
 const scrapeDataForVoo = require("../scrapeDataForVoo")
 const tickers = require("../vooTickers")
 

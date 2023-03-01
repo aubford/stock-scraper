@@ -151,6 +151,24 @@ const exit = () => {
 
 const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
 
+class ReError extends Error {
+  constructor(message, cause, funcName) {
+    super(message, { cause })
+    this.name = funcName ? `[${funcName}]` : ""
+    this.nameLock = !!funcName
+  }
+}
+
+class MessageError extends Error {
+  constructor(message, funcName) {
+    super(message)
+    this.name = funcName ? `[${funcName}]` : ""
+    this.nameLock = !!funcName
+
+    Error.captureStackTrace(this, MessageError)
+  }
+}
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -170,4 +188,7 @@ module.exports = {
   vooWriteOut,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
+  // other
+  ReError,
+  MessageError,
 }

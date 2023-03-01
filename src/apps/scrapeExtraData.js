@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
 const { goToNewBrowserPage } = require("../puppeteer")
-const { scrapbookWriteOut } = require("../util")
+const { scrapbookWriteOut, ReError } = require("../util")
 const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
 
@@ -82,7 +82,10 @@ const getBuffetData = async () => {
 }
 
 puppeteer.connect(connection).then(async browser => {
-  const newPage = url => goToNewBrowserPage(browser, url)
+  const newPage = url =>
+    goToNewBrowserPage(browser, url).catch(err => {
+      throw new ReError("goToNewBrowserPage failed", err, "scrapeExtraData")
+    })
 
   const page = await newPage("https://www.magicformulainvesting.com/Screening/StockScreening")
 

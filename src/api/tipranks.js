@@ -171,7 +171,7 @@ const getHedgeRating = tipHedgeMoves =>
  * @param {Browser} browser
  * @returns {Promise<Object>}
  */
-const fetch = async (ticker, browser) => {
+const fetchTipranks = async (ticker, browser) => {
   const fetcher = new PageDataFetcher("Tipranks", ticker, browser, {
     timeout: TIPRANKS_TIMEOUT,
   })
@@ -351,8 +351,9 @@ const fetch = async (ticker, browser) => {
  * @returns {Promise<Object>}
  */
 exports.fetch = (ticker, browser) => {
-  const logger = new Logger(ticker, "Tipranks fetch")
-  return fetch(ticker, browser).catch(error => {
-    logger.error(error)
+  const logger = new Logger(ticker, "TipRanks.fetch", true)
+  return fetchTipranks(ticker, browser).catch(error => {
+    logger.error("fetch error: ", error)
+    return {}
   })
 }

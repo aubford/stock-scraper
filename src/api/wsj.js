@@ -132,7 +132,7 @@ exports.fetch = async (ticker, tries = 0) => {
 
     return buildWsjData(retVal)
   } catch (err) {
-    logger.error("General script error: " + err)
+    logger.error("fetch error: ", err)
     return []
   }
 }

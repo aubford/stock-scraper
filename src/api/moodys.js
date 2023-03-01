@@ -2,6 +2,7 @@ const { fetchText } = require("./util")
 const Logger = require("../Logger")
 const { getPageCookies } = require("../puppeteer")
 const PageDataFetcher = require("../PageDataFetcher")
+const { ReError, MessageError } = require("../util")
 
 /**
  * @param {string} ticker
@@ -32,16 +33,16 @@ const getMoodysLink = async (ticker, cookie) => {
       mode: "cors",
     }
   )
-  try {
-    const { data } = JSON.parse(text)
-    if (data.ticker) {
-      return `/search?keyword=${ticker}`
-    }
-    const org = data.organizations.find(org => org.ticker === ticker)
-    return org ? org.link : null
-  } catch (error) {
-    return null
+  const { data } = JSON.parse(text)
+  if (data.ticker) {
+    return `/search?keyword=${ticker}`
   }
+  const org = data.organizations.find(org => org.ticker === ticker)
+  const link = org?.link
+  if (!link) {
+    throw new MessageError(`No moodysLink found`)
+  }
+  return link
 }
 
 /**
@@ -49,32 +50,35 @@ const getMoodysLink = async (ticker, cookie) => {
  * @param {Browser} browser
  * @returns Promise<Object>
  */
-exports.fetch = async (ticker, browser) => {
-  const logger = new Logger(ticker, "Moodys")
-
+const fetchMoodys = async (ticker, browser, logger) => {
   const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
-  const moodysLink = await getMoodysLink(ticker, moodysCookies)
+  const moodysLink = await getMoodysLink(ticker, moodysCookies).catch(err => {
+    throw new ReError("error", err, "getMoodysLink")
+  })
 
-  if (moodysLink) {
-    const moodysFetcher = new PageDataFetcher("moodys", ticker, browser, {
-      timeout: MOODYS_TIMEOUT,
-    })
-    await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
-    const [moodysRating, moodysOutlook] = await moodysFetcher.fetchPageData(
-      [
-        "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
-        "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
-      ],
-      `//div[@class="mis-ratings-container"]`
-    )
-    await moodysFetcher.close()
-    return {
-      moodysRating,
-      moodysOutlook,
-      moodysLink,
-    }
-  } else {
-    logger.warn("No Moodys link")
-    return {}
+  const moodysFetcher = new PageDataFetcher("Moody's PageDataFetcher", ticker, browser, {
+    timeout: MOODYS_TIMEOUT,
+  })
+  await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
+  const [moodysRating, moodysOutlook] = await moodysFetcher.fetchPageData(
+    [
+      "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
+      "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+    ],
+    `//div[@class="mis-ratings-container"]`
+  )
+  await moodysFetcher.close()
+  return {
+    moodysRating,
+    moodysOutlook,
+    moodysLink,
   }
+}
+
+exports.fetch = (ticker, browser) => {
+  const logger = new Logger(ticker, "Moody's")
+  return fetchMoodys(ticker, browser, logger).catch(error => {
+    logger.warn("fetch error: ", error)
+    return {}
+  })
 }

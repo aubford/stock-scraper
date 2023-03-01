@@ -22,7 +22,7 @@ const reportRowXpathFrag = name =>
  * @param  {Browser} browser
  * @returns Promise<Object>
  */
-const fetch = async (ticker, browser) => {
+const fetchFidelityAnalysts = async (ticker, browser) => {
   const fetcher = new PageDataFetcher(FIDELITY, ticker, browser, {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
@@ -88,7 +88,8 @@ const fetch = async (ticker, browser) => {
  */
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "Fidelity fetch")
-  return fetch(ticker, browser).catch(error => {
+  return fetchFidelityAnalysts(ticker, browser).catch(error => {
     logger.error(error)
+    return {}
   })
 }

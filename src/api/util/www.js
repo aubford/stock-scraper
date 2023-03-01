@@ -1,5 +1,6 @@
 const { goToNewBrowserPage } = require("../../puppeteer")
 const Logger = require("../../Logger")
+const { ReError, MessageError } = require("../../util")
 
 /**
  * @returns {Promise<string>}
@@ -17,19 +18,21 @@ const fetchJson = async (...fetchArgs) => {
   return response.json()
 }
 
-const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
-  const logger = new Logger(ticker, "Fidelity Secret URL")
+const getFidelitySecretUrl = async (fidelityLink, browser, logger) => {
   if (!fidelityLink) {
-    return null
+    throw new MessageError("No fidelityLink provided")
   }
-  const page = await goToNewBrowserPage(browser, fidelityLink, { logger })
+
+  const page = await goToNewBrowserPage(browser, fidelityLink, { logger }).catch(err => {
+    throw new ReError("goToNewBrowserPage failed", err, "getFidelitySecretUrl")
+  })
+
   try {
     const src = await page.$eval("frame", node => node.getAttribute("src"))
     logger.completeOk("getFidelitySecretUrl: Done")
     return `https://research2.fidelity.com/cgi-bin/upload.dll/${src}`
   } catch (err) {
-    logger.error("failed to getFidelitySecretUrl")
-    return null
+    throw new ReError("failed to find secret URL on page", err)
   } finally {
     await page.closeSafe()
   }
@@ -38,5 +41,11 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
 module.exports = {
   fetchText,
   fetchJson,
-  getFidelitySecretUrl,
+  getFidelitySecretUrl: (fidelityLink, browser, ticker) => {
+    const logger = new Logger(ticker, "getFidelitySecretUrl")
+    return getFidelitySecretUrl(fidelityLink, browser, logger).catch(err => {
+      logger.error("macro fail: ", err)
+      return null
+    })
+  },
 }
