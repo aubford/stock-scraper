@@ -1,12 +1,13 @@
 const { prevSiblingTextIs } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
+const Logger = require("../Logger")
 
 /**
  * @param {string} ticker
  * @param {Browser} browser
  * @returns {Promise<{fordRating:(number|string), fordRelativeValuation:*, fordEarningsStrength:*, fordPriceMovement:*}>}
  */
-exports.fetch = async (ticker, browser) => {
+const fetchFord = async (ticker, browser) => {
   const [
     fordRatingSentence = "",
     fordEarningsStrength,
@@ -37,4 +38,12 @@ exports.fetch = async (ticker, browser) => {
     : ""
 
   return { fordRating, fordRelativeValuation, fordEarningsStrength, fordPriceMovement }
+}
+
+exports.fetch = (ticker, browser) => {
+  const logger = new Logger(ticker, "ford.fetch")
+  return fetchFord(ticker, browser).catch(error => {
+    logger.error("fetch error: ", error)
+    return { error }
+  })
 }

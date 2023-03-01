@@ -75,7 +75,7 @@ class PageDataFetcher {
 
   newPage(url, options) {
     return this._newPage(url, options).catch(err => {
-      this.logger.logError(new ReError("Promise error caught loading newPage", err, "newPage"))
+      throw new ReError("error caught", err, "newPage")
     })
   }
 
@@ -87,7 +87,7 @@ class PageDataFetcher {
         ...options,
       })
     } else {
-      this.logger.logError(new MessageError("No url provided", "setPage"))
+      throw new MessageError("No url provided", "setPage")
     }
   }
 
@@ -136,16 +136,14 @@ class PageDataFetcher {
     }
 
     wrapPage(this.page)
-    return true
   }
 
   setPageTrPopup() {
-    return this._setPageTrPopup()
-      .then(result => result)
-      .catch(err => {
-        this.logger.warnError(err, "setPageTrPopup")
-        return false
+    return this._setPageTrPopup().catch(err =>
+      this.close().finally(() => {
+        throw new ReError("SET POPUP FAIL", err, "setPageTrPopup")
       })
+    )
   }
 
   waitForXpath(xpath, frame) {
@@ -161,14 +159,14 @@ class PageDataFetcher {
     })
   }
 
-  async waitForFrame(frameName) {
+  async _waitForFrame(frameName) {
     const frame = await this.page
       .waitForFrame(frame => frame.name() === frameName)
       .catch(error => {
-        throw new ReError(`waitForFrame failed for frame ${frameName}`, error, "waitForFrame")
+        throw new ReError(`waitForFrame failed for frame ${frameName}`, error, "_waitForFrame")
       })
     if (!frame) {
-      throw new MessageError(`Frame "${frameName}" NOT FOUND 🚨`, "waitForFrame")
+      throw new MessageError(`Frame "${frameName}" NOT FOUND 🚨`, "_waitForFrame")
     }
     return frame
   }
@@ -176,11 +174,11 @@ class PageDataFetcher {
   async _fetchPageDataInFrame(xPathArr, frameName, selectorToWaitFor) {
     this._checkForPage()
 
-    const mainFrame = await this.waitForFrame(frameName)
+    const mainFrame = await this._waitForFrame(frameName)
 
     const xpathFound = await this.waitForXpath(selectorToWaitFor || xPathArr[0], mainFrame)
     if (!xpathFound) {
-      return []
+      throw new MessageError(`Xpath not found for selector: ${selectorToWaitFor}`)
     }
 
     const values = await Promise.all(xPathArr.map(xpath => getTextByX(mainFrame, xpath)))
@@ -190,15 +188,14 @@ class PageDataFetcher {
 
   fetchPageDataInFrame(xPathArr, frameName, selectorToWaitFor) {
     return this._fetchPageDataInFrame(xPathArr, frameName, selectorToWaitFor).catch(err => {
-      this.logger.logError(err, "fetchPageDataInFrame")
-      return []
+      this.close().finally(() => {
+        throw new ReError("Failed to fetch page data in frame", err, "fetchPageDataInFrame")
+      })
     })
   }
 
   async _fetchPageData(xPathArr, selectorToWaitFor) {
-    if (!this.page) {
-      throw new MessageError(`Error: Page is NULL`)
-    }
+    this._checkForPage()
 
     const xpathFound = await this.waitForXpath(selectorToWaitFor || xPathArr[0])
     if (!xpathFound) {
@@ -212,18 +209,20 @@ class PageDataFetcher {
 
   fetchPageData(xPathArr, selectorToWaitFor) {
     return this._fetchPageData(xPathArr, selectorToWaitFor).catch(err => {
-      this.logger.logError(err, "fetchPageData")
-      return []
+      this.close().finally(() => {
+        throw new ReError("Failed to fetch page data", err, "fetchPageData")
+      })
     })
   }
 
-  waitForSelector(selector) {
-    if (!this.page) {
-      throw new MessageError(`Missing page (selector: ${selector})`, "waitForSelector")
+  _waitForSelector(selector) {
+    this._checkForPage()
+    if (!selector) {
+      throw new MessageError(`Missing selector`)
     }
 
     return this.page.waitForSelector(selector, { timeout: this.timeout }).catch(err => {
-      throw new ReError(`failed for selector: ${selector}`, err, "waitForSelector")
+      throw new ReError(`failed for selector: ${selector}`, err, "_waitForSelector")
     })
   }
 
@@ -232,11 +231,12 @@ class PageDataFetcher {
    * @returns {Promise<void>|*}
    */
   async _click(selector) {
-    if (!this.page || !selector) {
-      throw new MessageError(`Missing page/selector (selector: ${selector})`)
+    this._checkForPage()
+    if (!selector) {
+      throw new MessageError(`Missing selector`)
     }
 
-    const el = await this.waitForSelector(selector)
+    const el = await this._waitForSelector(selector)
     return el.click().catch(err => {
       throw new ReError(`Page click failed for selector: ${selector}`, err)
     })

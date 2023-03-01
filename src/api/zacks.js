@@ -271,6 +271,6 @@ exports.fetch = ticker => {
   const logger = new Logger(ticker, "Zacks.fetch", true)
   return fetchZacks(ticker, logger).catch(error => {
     logger.error("fetch error: ", error)
-    return {}
+    return { error }
   })
 }

@@ -1,6 +1,6 @@
 const Logger = require("../Logger")
 const Cheerio = require("cheerio")
-const { makePrettyDate, pause } = require("../util")
+const { makePrettyDate, pause, ReError } = require("../util")
 const { fetchText } = require("./util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
@@ -132,7 +132,8 @@ exports.fetch = async (ticker, tries = 0) => {
 
     return buildWsjData(retVal)
   } catch (err) {
-    logger.error("fetch error: ", err)
-    return []
+    const error = new ReError("error fetching wsj data", err, "wsj.fetch")
+    logger.error("fetch error: ", error)
+    return { error }
   }
 }

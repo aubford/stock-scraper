@@ -175,11 +175,8 @@ const fetchTipranks = async (ticker, browser) => {
   const fetcher = new PageDataFetcher("Tipranks", ticker, browser, {
     timeout: TIPRANKS_TIMEOUT,
   })
-  const setOk = await fetcher.setPageTrPopup()
-  if (!setOk) {
-    await fetcher.close()
-    return {}
-  }
+
+  await fetcher.setPageTrPopup()
 
   const [
     tipScore = "",
@@ -354,6 +351,6 @@ exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "TipRanks.fetch", true)
   return fetchTipranks(ticker, browser).catch(error => {
     logger.error("fetch error: ", error)
-    return {}
+    return { error }
   })
 }

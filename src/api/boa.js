@@ -1,11 +1,12 @@
 const PageDataFetcher = require("../PageDataFetcher")
+const Logger = require("../Logger")
 
 /**
  * @param {string} ticker
  * @param {Browser} browser
  * @returns {Promise<{boaIncome:*, morningstarLink:(string|string[]), boaInvestment:*, cfraRating:*, boaRating:*, morningstarRating:*, boaVolatility:*, cfraLink:(string|string[])}>}
  */
-exports.fetch = async (ticker, browser) => {
+const fetchBoa = async (ticker, browser) => {
   const boaFetcher = new PageDataFetcher(BOA, ticker, browser, { timeout: BOA_TIMEOUT })
 
   await boaFetcher.setPage(
@@ -20,9 +21,7 @@ exports.fetch = async (ticker, browser) => {
   const morningstarLink = await boaFetcher.fetchHref(
     `//a[contains(@aria-label,"View latest Morningstar")]`
   )
-  const cfraLink = await boaFetcher.fetchHref(
-    `//a[contains(@aria-label,"View latest CFRA")]`
-  )
+  const cfraLink = await boaFetcher.fetchHref(`//a[contains(@aria-label,"View latest CFRA")]`)
   const [morningstarRating, cfraRating] = await boaFetcher.fetchAttribute(
     `//span[contains(@class,"morningStarRating")]`,
     "aria-label"
@@ -39,4 +38,12 @@ exports.fetch = async (ticker, browser) => {
     cfraRating,
     cfraLink,
   }
+}
+
+exports.fetch = (ticker, browser) => {
+  const logger = new Logger(ticker, "boa.fetch", true)
+  return fetchBoa(ticker, browser).catch(error => {
+    logger.error("fetch error: ", error)
+    return { error }
+  })
 }

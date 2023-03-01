@@ -76,7 +76,6 @@ const fetchPdfData = async (
 module.exports = options => {
   const logger = new Logger(options.ticker, options.analystName + " fetchPdfData")
   return fetchPdfData(logger, options).catch(err => {
-    logger.error("macro error: ", err)
-    return []
+    throw new ReError("error fetching PDF data", err, "fetchPdfData")
   })
 }

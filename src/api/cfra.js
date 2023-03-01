@@ -18,7 +18,7 @@ const hasCFRA = (rating, ticker, analystName) => {
  * @param {Browser} browser
  * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
  */
-exports.fetch = async (ticker, cfraRating, cfraLink, browser) => {
+const fetchCfra = async (ticker, cfraRating, cfraLink, browser) => {
   const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
     ? await fetchPdfData({
         ticker,
@@ -41,4 +41,12 @@ exports.fetch = async (ticker, cfraRating, cfraLink, browser) => {
     cfraDate,
     cfraUpdatedAt: makePrettyDate(),
   }
+}
+
+exports.fetch = (ticker, cfraRating, cfraLink, browser) => {
+  const logger = new Logger(ticker, "cfra.fetch")
+  return fetchCfra(ticker, cfraRating, cfraLink, browser).catch(error => {
+    logger.error("fetch error: ", error)
+    return { error }
+  })
 }

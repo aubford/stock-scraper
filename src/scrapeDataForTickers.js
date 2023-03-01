@@ -45,6 +45,12 @@ module.exports = async (allTickers, browser, shouldMerge) => {
 
   await scrapeDataForTickers(allTickers)
 
+  badFetches = badFetches.concat(
+    Object.values(newStockData)
+      .filter(s => s.error)
+      .map(s => s.ticker)
+  )
+
   if (badFetches.length) {
     console.log(`Fetching badFetches: ${badFetches.join(", ")}`)
 

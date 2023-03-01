@@ -50,7 +50,7 @@ const getMoodysLink = async (ticker, cookie) => {
  * @param {Browser} browser
  * @returns Promise<Object>
  */
-const fetchMoodys = async (ticker, browser, logger) => {
+const fetchMoodys = async (ticker, browser) => {
   const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
   const moodysLink = await getMoodysLink(ticker, moodysCookies).catch(err => {
     throw new ReError("error", err, "getMoodysLink")
@@ -77,8 +77,8 @@ const fetchMoodys = async (ticker, browser, logger) => {
 
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "Moody's")
-  return fetchMoodys(ticker, browser, logger).catch(error => {
+  return fetchMoodys(ticker, browser).catch(error => {
     logger.warn("fetch error: ", error)
-    return {}
+    return { error }
   })
 }
