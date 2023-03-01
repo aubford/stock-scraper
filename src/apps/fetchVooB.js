@@ -4,7 +4,7 @@ const { promptUser, promptLogin, begin, exit } = require("../util")
 const scrapeDataForVoo = require("../scrapeDataForVoo")
 const allTickers = require("../vooTickers")
 
-const tickers = allTickers.slice(0, allTickers.length / 2)
+const tickers = allTickers.slice(allTickers.length / 2)
 
 puppeteer.connect(CONNECTION).then(async browser => {
   begin()

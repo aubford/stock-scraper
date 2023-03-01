@@ -29,6 +29,7 @@
     "update-yahoo-wsj": "node --require ./preload.js ./src/apps/updateYahooWsj.js && npm run prettyStock",
     "uplog": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorUpdated()'",
     "voo": "node --require ./preload.js ./src/apps/fetchVoo.js && npm run prettyVoo",
+    "vooB": "node --require ./preload.js ./src/apps/fetchVooB.js && npm run prettyVoo",
     "voo-update-yahoo-wsj": "node --require ./preload.js ./src/apps/updateYahooWsjForVoo.js && npm run prettyStock",
     "fetch-historical-prices": "node --require ./preload.js ./src/apps/fetchHistoricalPrices.js && npm run prettyStock"
   },
