@@ -194,8 +194,6 @@ const fetchData = async (logger, ticker) => {
     zacksProjSalesGrowthIndustry,
   ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[3]`)
 
-  const zacksEpsSurprise = epsSurprises[0]?.[1]
-
   // RESULT /////////////////////////////////
 
   return {
@@ -232,7 +230,7 @@ const fetchData = async (logger, ticker) => {
     zacksPriceLastClose,
 
     zacksEarningsESP,
-    zacksEpsSurprise,
+    zacksEpsSurprise: epsSurprises[0]?.[1],
     zacksEpsTTM,
     zacksEpsEstimateCurrentYr,
     zacksEpsEstimateNextYr,
@@ -272,11 +270,10 @@ const fetchData = async (logger, ticker) => {
       zacksGrowthEstimatePctNextYr + ` (${zacksGrowthEstimatePctNextYrInd})`,
     zacksGrowthEstimatePctFiveYr:
       zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
-
     zacksLastEarningsDate:
       zacksConfirmedNextEarningsDate && new Date(zacksConfirmedNextEarningsDate) < new Date()
         ? zacksConfirmedNextEarningsDate
-        : zacksEpsSurprise,
+        : epsSurprises[0]?.[0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }
 }
