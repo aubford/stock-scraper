@@ -43,4 +43,4 @@ const fetchData = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(() => fetchData(ticker, browser), ticker, "Zacks.fetch")
+  handleFetch(() => fetchData(ticker, browser), ticker, "Ford.fetch")

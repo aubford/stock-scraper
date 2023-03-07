@@ -2,15 +2,15 @@ const { makePrettyDate, ReError, formatErrorObject } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson, handleFetch } = require("./util/www")
-const Logger = require("../Logger")
 const { orderBy, sum } = require("lodash")
+const { getDiffPercent } = require("./util/math")
 
 const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
   }, 0)
 
-const getMainData = async (ticker, logger) => {
+const getMainData = async ticker => {
   try {
     const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
     const {
@@ -47,7 +47,7 @@ const getMainData = async (ticker, logger) => {
  * @param {string} url
  * @returns {Promise<Object>}
  */
-const fetchData = async (logger, ticker) => {
+const fetchData = async ({ ticker, logger }) => {
   const {
     zacksEpsTTM,
     dividend,
@@ -204,18 +204,18 @@ const fetchData = async (logger, ticker) => {
     zacksWeekEpsEstimateSum,
     zacksMonthEpsEstimateSum,
     zacksBiMonthEpsEstimateSum,
-    zacksEstimateChangePctWeek:
-      ((zacksCurrentEpsEstimateSum - zacksWeekEpsEstimateSum) /
-        Math.abs(zacksWeekEpsEstimateSum)) *
-      100,
-    zacksEstimateChangePctMonth:
-      ((zacksCurrentEpsEstimateSum - zacksMonthEpsEstimateSum) /
-        Math.abs(zacksMonthEpsEstimateSum)) *
-      100,
-    zacksEstimateChangePctBiMonth:
-      ((zacksCurrentEpsEstimateSum - zacksBiMonthEpsEstimateSum) /
-        Math.abs(zacksBiMonthEpsEstimateSum)) *
-      100,
+    zacksEstimateChangePctWeek: getDiffPercent(
+      zacksCurrentEpsEstimateSum,
+      zacksWeekEpsEstimateSum
+    ),
+    zacksEstimateChangePctMonth: getDiffPercent(
+      zacksCurrentEpsEstimateSum,
+      zacksMonthEpsEstimateSum
+    ),
+    zacksEstimateChangePctBiMonth: getDiffPercent(
+      zacksCurrentEpsEstimateSum,
+      zacksBiMonthEpsEstimateSum
+    ),
 
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
     zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,
@@ -278,4 +278,4 @@ const fetchData = async (logger, ticker) => {
   }
 }
 
-exports.fetch = ticker => handleFetch(fetchData, ticker, "Ford.fetch")
+exports.fetch = ticker => handleFetch(fetchData, ticker, "Zacks.fetch")
