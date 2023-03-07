@@ -44,7 +44,7 @@ class Logger {
     console.warn(this.lineStart + `⚠️ ->`, err)
   }
 
-  completeOk(msg) {
+  completeOk(msg = "Done") {
     console.log(this.lineStart + `✅ -> ${msg}`)
   }
 }

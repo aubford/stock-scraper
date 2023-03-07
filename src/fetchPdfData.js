@@ -11,7 +11,7 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
     `//body[contains(text(),'data is not available to create this report')]`
   )
   if (dataNotAvailableText.length > 0) {
-    throw new MessageError(`Data not available text found in PDF`)
+    throw new MessageError(`Data not available text found in PDF`).setCode(404)
   }
 
   await page.waitForXPath(xPathArr[0], { timeout }).catch(err => {
@@ -65,7 +65,7 @@ const fetchPdfData = async (
     timeout,
   }).catch(err => {
     page.closeSafe()
-    throw new ReError("handlePage failed", err).setCode(true)
+    throw new ReError("handlePage failed", err).setCode(err.code || true)
   })
 
   await page.closeSafe()

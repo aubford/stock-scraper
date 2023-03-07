@@ -39,8 +39,26 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   }
 }
 
+const handleFetch = (fetchCallback, ticker, contextName) => {
+  const logger = new Logger(ticker, contextName)
+  return fetchCallback(logger)
+    .catch(error => {
+      if (error.code === 404) {
+        logger.warnError(error)
+        return {}
+      }
+      logger.error("fetch error!", error)
+      return { error }
+    })
+    .then(res => {
+      logger.completeOk()
+      return res
+    })
+}
+
 module.exports = {
   fetchText,
   fetchJson,
   getFidelitySecretUrl,
+  handleFetch,
 }

@@ -1,5 +1,6 @@
 const { prevSiblingTextIs, followingSiblingTextIs } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
+const { handleFetch } = require("./util/www")
 
 /**
  * @param {string} ticker
@@ -7,7 +8,7 @@ const fetchPdfData = require("../fetchPdfData")
  * @param {Browser} browser
  * @returns {Promise<{morningstarFairValue:*, morningstarUncertainty:*, morningstarDate:*, morningstarCapitalAllocation:*, morningstarMoat:*}>}
  */
-exports.fetch = async (ticker, url, browser) => {
+const fetchData = async (ticker, url, browser) => {
   const [
     [morningstarFairValue] = [],
     morningstarMoat,
@@ -37,3 +38,6 @@ exports.fetch = async (ticker, url, browser) => {
     morningstarDate,
   }
 }
+
+exports.fetch = (ticker, url, browser) =>
+  handleFetch(() => fetchData(ticker, url, browser), ticker, "morningstar.fetch")

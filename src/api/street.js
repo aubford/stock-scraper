@@ -1,6 +1,7 @@
 const { followingSiblingTextIs, prevSiblingTextIs } = require("./util")
 const { zipWith, chunk, fromPairs, zip } = require("lodash")
 const fetchPdfData = require("../fetchPdfData")
+const { handleFetch } = require("./util/www")
 
 const parseStreetBulletData = (lineOne, lineTwo) => {
   const firstBulletIndicators = [
@@ -16,8 +17,9 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
     if (bulletA.includes("Neutral")) {
       return ""
     }
-    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator))
-      .value[bulletB.includes("significant") ? 1 : 0]
+    return firstBulletIndicators.find(({ indicator }) => bulletA.includes(indicator)).value[
+      bulletB.includes("significant") ? 1 : 0
+    ]
   })
 
   return fromPairs(
@@ -37,7 +39,7 @@ const parseStreetBulletData = (lineOne, lineTwo) => {
   )
 }
 
-exports.fetch = async (ticker, browser) => {
+const fetchData = async (ticker, browser) => {
   const [
     streetRating,
     streetGrowth,
@@ -82,3 +84,6 @@ exports.fetch = async (ticker, browser) => {
     ...parseStreetBulletData(streetBulletDataLineOne, streetBulletDataLineTwo),
   }
 }
+
+exports.fetch = (ticker, browser) =>
+  handleFetch(() => fetchData(ticker, browser), ticker, "street.fetch")

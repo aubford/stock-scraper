@@ -156,6 +156,7 @@ class ReError extends Error {
     super(message, { cause })
     this.name = funcName ? `[${funcName}]` : ""
     this.nameLock = !!funcName
+    this.code = cause.code
   }
 
   setCode(code) {
