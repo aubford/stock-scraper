@@ -184,11 +184,11 @@ class MessageError extends Error {
 /**
  * @param {Error} error
  * @param {string} ticker
- * @returns {import("./types").ErrorObject}
+ * @returns {import('./types').ErrorObject}
  */
 const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
   ...(ticker ? { ticker } : {}),
-  error: name + ": " + message,
+  error: name ? name + ": " + message : message,
   errorCode: code,
   errorStack: stack,
   sector: "ERROR",
@@ -206,6 +206,35 @@ const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
   return getDiffPercent(prices[earningsDateIndex - 1], prices[earningsDateIndex + 1])
 }
 
+const getNearestWeekDay = momentDate =>
+  momentDate.day() === 0
+    ? momentDate.subtract(2, "days")
+    : momentDate.day() === 6
+    ? momentDate.subtract(1, "days")
+    : momentDate
+
+const getQuarterDates = () => {
+  const thisYearQuarterDates = ["09/30", "06/30", "03/31"].map(date =>
+    getNearestWeekDay(moment(date, "MM/DD"))
+  )
+  const lastYearQuarterDates = ["12/31", "09/30"].map(date =>
+    getNearestWeekDay(moment(date, "MM/DD").subtract(1, "year"))
+  )
+  return [...thisYearQuarterDates, ...lastYearQuarterDates]
+}
+
+const getPreviousQuarterStartEndDates = () => {
+  const quarterDates = getQuarterDates()
+  const now = moment()
+
+  const prevQtrEndDate = quarterDates.find(date => date.isBefore(now))
+
+  return {
+    prevQtrEndDate,
+    prevQtrStartDate: quarterDates[quarterDates.indexOf(prevQtrEndDate) + 1],
+  }
+}
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -213,6 +242,7 @@ module.exports = {
   newStockInfo,
   getDiffPercent,
   getEarningsPriceChange,
+  getPreviousQuarterStartEndDates,
   // script
   exit,
   begin,

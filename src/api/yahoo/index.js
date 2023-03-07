@@ -1,7 +1,14 @@
 const { fetchText } = require("../util")
 const transform = require("./transform")
-const { formatMsDate, ReError, formatErrorObject } = require("../../util")
+const moment = require("moment")
+const {
+  formatMsDate,
+  formatErrorObject,
+  getPreviousQuarterStartEndDates,
+} = require("../../util")
 const Logger = require("../../Logger")
+
+const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
 
 /**
  * @param ticker
@@ -18,8 +25,7 @@ const fetchYahoo = async ticker => {
 
 exports.fetch = ticker => {
   const logger = new Logger(ticker, "Yahoo")
-  return fetchYahoo(ticker).catch(e => {
-    const error = new ReError("fetch error!", e, "yahoo.fetch")
+  return fetchYahoo(ticker).catch(error => {
     logger.logError(error)
     return formatErrorObject(error)
   })
@@ -50,7 +56,21 @@ const fetchHistoricalPrices = async ticker => {
   const prices = data.indicators.quote[0].close.map(price => price.toFixed(2)).reverse()
   const indexOfJan152020 = dates.indexOf("1/15/2020")
 
+  // may need to adjust this for holidays in the future!!
+  const prevQtrStartDateIndex = dates.indexOf(prevQtrStartDate.format("M/D/YYYY"))
+  const prevQtrEndDateIndex = dates.indexOf(prevQtrEndDate.format("M/D/YYYY")) + 1
+
+  const qtrPrices = prices
+    .slice(prevQtrEndDateIndex, prevQtrStartDateIndex)
+    .map(price => parseFloat(price))
+  const yahooPrevQtrAvgPrice = qtrPrices.reduce((a, b) => a + b, 0) / qtrPrices.length
+
+  const prevQtrMaxPrice = Math.max(...qtrPrices)
+  const prevQtrMinPrice = Math.min(...qtrPrices)
+
   return {
+    yahooPrevQtrAvgPrice,
+    yahooPrevQtrRange: `${prevQtrMinPrice} - ${prevQtrMaxPrice}`,
     yahooDailyPricesDates: dates.slice(0, indexOfJan152020),
     yahooDailyPrices: prices.slice(0, indexOfJan152020),
   }
