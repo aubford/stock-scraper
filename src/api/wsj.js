@@ -85,14 +85,6 @@ exports.fetch = async (ticker, tries = 1) => {
         .get()
         .map(node => node.data)
 
-    require("fs").writeFile(
-      "/Users/aubrey.ford@nutrien.com/Library/Application Support/JetBrains/WebStorm2022.3/scratches/debugTestOutput.html",
-      analystRatingsDoc.html(),
-      () => {
-        console.log("*** DONE WRITE DOM OUTPUT ****")
-      }
-    )
-
     const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
     const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
 
