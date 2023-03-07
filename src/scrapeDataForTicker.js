@@ -13,7 +13,7 @@ const {
   zacks,
   tipranks,
 } = require("./api")
-const { makePrettyDate } = require("./util")
+const { makePrettyDate, getEarningsPriceChange } = require("./util")
 
 module.exports = async (ticker, browser) => {
   // TIPRANKS
@@ -67,6 +67,13 @@ module.exports = async (ticker, browser) => {
     cfra.fetch(ticker, cfraRating, cfraLink, browser),
   ])
 
+  const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
+  const earningsPriceChange = getEarningsPriceChange(
+    zacksData.zacksLastEarningsDate,
+    yahooDailyPrices,
+    yahooDailyPricesDates
+  )
+
   return {
     ticker,
     tickerSearch: `//${ticker}`,
@@ -83,6 +90,7 @@ module.exports = async (ticker, browser) => {
     morganStanleyRating:
       tipData.tipMorganStanleyRating ||
       fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    earningsPriceChange,
     ...moodysData,
     ...streetData,
     ...ncData,
