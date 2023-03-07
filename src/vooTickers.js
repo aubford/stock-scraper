@@ -496,7 +496,6 @@ module.exports = [
   "WHR",
   "FRT",
   "DISH",
-  "FOX",
   "DVA",
   "LUMN",
   "RL",

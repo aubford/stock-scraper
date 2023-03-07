@@ -1,4 +1,4 @@
-const { makePrettyDate } = require("../util")
+const { makePrettyDate, ReError } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson } = require("./util/www")
@@ -37,8 +37,7 @@ const getMainData = async (ticker, logger) => {
       expected_reporting_date,
     }
   } catch (e) {
-    logger.warn("No Zacks main data found")
-    return {}
+    throw new ReError("Failed to fetch mainData", e, "getMainData").setCode(404)
   }
 }
 
@@ -222,7 +221,7 @@ const fetchZacks = async (ticker, logger) => {
     zacksPriceLastClose,
 
     zacksEarningsESP,
-    zacksEpsSurprise: epsSurprises[0][1],
+    zacksEpsSurprise: epsSurprises[0]?.[1],
     zacksEpsTTM,
     zacksEpsEstimateCurrentYr,
     zacksEpsEstimateNextYr,
@@ -278,7 +277,11 @@ const fetchZacks = async (ticker, logger) => {
 exports.fetch = ticker => {
   const logger = new Logger(ticker, "Zacks.fetch", true)
   return fetchZacks(ticker, logger).catch(error => {
-    logger.error("fetch error: ", error)
+    if (error.code === 404) {
+      logger.warn("No zacks data found", error)
+      return {}
+    }
+    logger.error("fetch error:", error)
     return { error }
   })
 }

@@ -16,8 +16,6 @@ const {
 const { makePrettyDate } = require("./util")
 
 module.exports = async (ticker, browser) => {
-  console.log(`* STARTING: ${ticker}`)
-
   // TIPRANKS
 
   const tipData = await tipranks.fetch(ticker, browser)

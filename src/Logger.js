@@ -22,9 +22,9 @@ class Logger {
     }
   }
 
-  logError(err, name) {
-    if (name && !err.nameLock) {
-      err.name = `[${name}]`
+  logError(err, funcName) {
+    if (funcName && !err.nameLock) {
+      err.name = `[${funcName}]`
     }
     console.error(this.lineStart + `🚨 ->`, err)
   }
@@ -37,9 +37,9 @@ class Logger {
     }
   }
 
-  warnError(err, name) {
-    if (name && !err.nameLock) {
-      err.name = `[${name}]`
+  warnError(err, funcName) {
+    if (funcName && !err.nameLock) {
+      err.name = `[${funcName}]`
     }
     console.warn(this.lineStart + `⚠️ ->`, err)
   }

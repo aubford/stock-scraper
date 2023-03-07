@@ -1,10 +1,7 @@
 const fetchPdfData = require("../fetchPdfData")
-const {
-  prevSiblingTextContains,
-  prevSiblingTextIs,
-  getFidelitySecretUrl,
-} = require("./util")
+const { prevSiblingTextContains, prevSiblingTextIs, getFidelitySecretUrl } = require("./util")
 const { makePrettyDate } = require("../util")
+const Logger = require("../Logger")
 
 /**
  * @param {string} ticker
@@ -13,6 +10,12 @@ const { makePrettyDate } = require("../util")
  * @returns {Promise<Object>}
  */
 exports.fetch = async (ticker, browser, analystPageLink) => {
+  const logger = new Logger(ticker, "Zacks Report", true)
+  if (!analystPageLink) {
+    logger.warn("No Report!")
+    return {}
+  }
+
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
 
   const [
@@ -51,7 +54,7 @@ exports.fetch = async (ticker, browser, analystPageLink) => {
   ] = await fetchPdfData({
     ticker,
     browser,
-    analystName: ZACKS,
+    analystName: "Zacks Report Fetch PDF",
     url,
     waitForPostScroll: prevSiblingTextContains("Proj. Sales Growth (F1/F0)"),
     xPathArr: [

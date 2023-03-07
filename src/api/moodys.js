@@ -40,7 +40,7 @@ const getMoodysLink = async (ticker, cookie) => {
   const org = data.organizations.find(org => org.ticker === ticker)
   const link = org?.link
   if (!link) {
-    throw new MessageError(`No moodysLink found`)
+    throw new MessageError(`No moodysLink found`).setCode(404)
   }
   return link
 }
@@ -50,11 +50,9 @@ const getMoodysLink = async (ticker, cookie) => {
  * @param {Browser} browser
  * @returns Promise<Object>
  */
-const fetchMoodys = async (ticker, browser) => {
+const fetchMoodys = async (ticker, browser, logger) => {
   const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
-  const moodysLink = await getMoodysLink(ticker, moodysCookies).catch(err => {
-    throw new ReError("error", err, "getMoodysLink")
-  })
+  const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
   const moodysFetcher = new PageDataFetcher("Moody's PageDataFetcher", ticker, browser, {
     timeout: MOODYS_TIMEOUT,
@@ -77,8 +75,13 @@ const fetchMoodys = async (ticker, browser) => {
 
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "Moody's")
-  return fetchMoodys(ticker, browser).catch(error => {
-    logger.warn("fetch error: ", error)
+  return fetchMoodys(ticker, browser, logger).catch(error => {
+    if (error.code === 404) {
+      logger.warn(error.message)
+      return {}
+    }
+
+    logger.error("fetch error:", error)
     return { error }
   })
 }

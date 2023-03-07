@@ -14,9 +14,9 @@ const { exec } = require("child_process")
 const writeFile = (location, data) => {
   try {
     fs.writeFileSync(location, JSON.stringify(data))
-    console.log(`** WRITE TO FILE: ${location} -> SUCCESS **`)
+    console.log(`\n\n** WRITE TO FILE: ${location} -> SUCCESS **\n`)
   } catch (err) {
-    console.log("File Write Error: " + err)
+    console.log("\nFile Write Error: " + err + "\n")
     process.exit(1)
   }
 }
@@ -157,6 +157,11 @@ class ReError extends Error {
     this.name = funcName ? `[${funcName}]` : ""
     this.nameLock = !!funcName
   }
+
+  setCode(code) {
+    this.code = code
+    return this
+  }
 }
 
 class MessageError extends Error {
@@ -164,8 +169,14 @@ class MessageError extends Error {
     super(message)
     this.name = funcName ? `[${funcName}]` : ""
     this.nameLock = !!funcName
+    this.code = null
 
     Error.captureStackTrace(this, MessageError)
+  }
+
+  setCode(code) {
+    this.code = code
+    return this
   }
 }
 

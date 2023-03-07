@@ -18,7 +18,8 @@ const fetchJson = async (...fetchArgs) => {
   return response.json()
 }
 
-const getFidelitySecretUrl = async (fidelityLink, browser, logger) => {
+const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
+  const logger = new Logger(ticker, "getFidelitySecretUrl")
   if (!fidelityLink) {
     throw new MessageError("No fidelityLink provided")
   }
@@ -41,11 +42,5 @@ const getFidelitySecretUrl = async (fidelityLink, browser, logger) => {
 module.exports = {
   fetchText,
   fetchJson,
-  getFidelitySecretUrl: (fidelityLink, browser, ticker) => {
-    const logger = new Logger(ticker, "getFidelitySecretUrl")
-    return getFidelitySecretUrl(fidelityLink, browser, logger).catch(err => {
-      logger.error("macro fail: ", err)
-      return null
-    })
-  },
+  getFidelitySecretUrl,
 }

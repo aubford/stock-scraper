@@ -47,7 +47,7 @@ const fetchPdfData = async (
   { browser, url, xPathArr, waitForPostScroll, timeout = XPATH_TIMEOUT }
 ) => {
   if (!url) {
-    throw new MessageError(`fetchPdfData: NO REPORT`)
+    throw new MessageError(`fetchPdfData: NO REPORT`).setCode(404)
   }
 
   /** @type MyPage */
@@ -55,7 +55,7 @@ const fetchPdfData = async (
     waitUntil: "networkidle2",
     logger,
   }).catch(err => {
-    throw new ReError("goToNewBrowserPage failed", err)
+    throw new ReError("goToNewBrowserPage failed", err).setCode(true)
   })
 
   const values = await handlePage(page, {
@@ -65,7 +65,7 @@ const fetchPdfData = async (
     timeout,
   }).catch(err => {
     page.closeSafe()
-    throw new ReError("handlePage failed", err)
+    throw new ReError("handlePage failed", err).setCode(true)
   })
 
   await page.closeSafe()
@@ -76,6 +76,9 @@ const fetchPdfData = async (
 module.exports = options => {
   const logger = new Logger(options.ticker, options.analystName + " fetchPdfData")
   return fetchPdfData(logger, options).catch(err => {
-    throw new ReError("error fetching PDF data", err, "fetchPdfData")
+    if (err.code) {
+      throw err
+    }
+    throw new ReError("Fetch error:", err, "fetchPdfData")
   })
 }
