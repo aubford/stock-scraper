@@ -51,7 +51,7 @@ exports.dateStrIsBefore = (dateStr, daysToAdd) =>
   Boolean(new Date(dateStr) < addDays(new Date(), daysToAdd))
 
 exports.getRecentStatement = (statements, mrq) =>
-  mrq
+  mrq && statements
     ? mapValues(statements.find(({ endDate: { fmt } }) => fmt === mrq.fmt) || {}, "raw")
     : {}
 
@@ -74,9 +74,7 @@ exports.getStatementCharts = (statementSet, name = "Chart") =>
           key + name,
           statementSet
             .map(statement =>
-              key === "endDate"
-                ? getNum(statement[key], "fmt")
-                : getNum(statement[key], "raw")
+              key === "endDate" ? getNum(statement[key], "fmt") : getNum(statement[key], "raw")
             )
             .reverse(),
         ])

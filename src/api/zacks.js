@@ -5,7 +5,7 @@ const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 const { orderBy, sum } = require("lodash")
 
-const getEstmiateSum = tableRowCellArr =>
+const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
   }, 0)
@@ -113,12 +113,12 @@ const fetchZacks = async (ticker, logger) => {
     fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days")).map(Number)
   )
 
-  const currentEpsEstimateSum = getEstmiateSum(fetcher.getTextArrByX(tableRowXpath("Current")))
-  const weekEpsEstimateSum = getEstmiateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
-  const monthEpsEstimateSum = getEstmiateSum(
+  const currentEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("Current")))
+  const weekEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
+  const monthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("30 Days Ago"))
   )
-  const biMonthEpsEstimateSum = getEstmiateSum(
+  const biMonthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("60 Days Ago"))
   )
 
@@ -197,9 +197,17 @@ const fetchZacks = async (ticker, logger) => {
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
 
-    zacksEstimateChangePctWeek: currentEpsEstimateSum / weekEpsEstimateSum - 1,
-    zacksEstimateChangePctMonth: currentEpsEstimateSum / monthEpsEstimateSum - 1,
-    zacksEstimateChangePctBiMonth: currentEpsEstimateSum / biMonthEpsEstimateSum - 1,
+    currentEpsEstimateSum,
+    weekEpsEstimateSum,
+    monthEpsEstimateSum,
+    biMonthEpsEstimateSum,
+    zacksEstimateChangePctWeek:
+      ((currentEpsEstimateSum - weekEpsEstimateSum) / Math.abs(weekEpsEstimateSum)) * 100,
+    zacksEstimateChangePctMonth:
+      ((currentEpsEstimateSum - monthEpsEstimateSum) / Math.abs(monthEpsEstimateSum)) * 100,
+    zacksEstimateChangePctBiMonth:
+      ((currentEpsEstimateSum - biMonthEpsEstimateSum) / Math.abs(biMonthEpsEstimateSum)) *
+      100,
 
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
     zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,

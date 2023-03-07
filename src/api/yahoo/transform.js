@@ -146,8 +146,7 @@ const getUpgradeDowngradeHistory = upgradeDowngradeHistory => {
   }
   const filterDoubles = upgradeDowngradeHistory.filter(({ firm, epochGradeDate }) =>
     upgradeDowngradeHistory.every(
-      comparison =>
-        firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
+      comparison => firm !== comparison.firm || epochGradeDate >= comparison.epochGradeDate
     )
   )
 
@@ -295,9 +294,9 @@ module.exports = ({ quoteSummary }) => {
     balanceSheetHistory: { balanceSheetStatements: balanceSheetStatementsAnnu } = {},
     cashflowStatementHistory: { cashflowStatements: cashflowStatementsAnnu } = {},
     incomeStatementHistory: { incomeStatementHistory: incomeStatementsAnnu } = {},
-    cashflowStatementHistoryQuarterly: { cashflowStatements },
-    incomeStatementHistoryQuarterly: { incomeStatementHistory },
-    balanceSheetHistoryQuarterly: { balanceSheetStatements },
+    cashflowStatementHistoryQuarterly: { cashflowStatements } = {},
+    incomeStatementHistoryQuarterly: { incomeStatementHistory } = {},
+    balanceSheetHistoryQuarterly: { balanceSheetStatements } = {},
   } = quoteSummary.result[0]
 
   /** @type CashFlowCharts */
@@ -604,9 +603,7 @@ module.exports = ({ quoteSummary }) => {
     debtToCapital: mTotalDebt / (mTotalDebt + balanceSheet.totalStockholderEquity),
     operatingMarginTTM:
       raw(operatingMargins) ||
-      orZero(
-        sum(incomeCharts.ebitIsQuartChart) / sum(incomeCharts.totalRevenueIsQuartChart)
-      ),
+      orZero(sum(incomeCharts.ebitIsQuartChart) / sum(incomeCharts.totalRevenueIsQuartChart)),
     salesPerShareMRQ: incomeStatement.totalRevenue
       ? slicePerShareAnnlz(incomeStatement.totalRevenue).toFixed(2)
       : 0,
@@ -620,10 +617,7 @@ module.exports = ({ quoteSummary }) => {
       raw(enterpriseToRevenue) || orZero(raw(enterpriseValue) / totalRevenueTTM),
     upgradeDowngradeHistory: getUpgradeDowngradeHistory(upgradeDowngradeHistory),
     anaylstRecommendations,
-    numAnaylstRecommendations: anaylstRecommendations.reduce(
-      (acc, curr) => acc + curr,
-      0
-    ),
+    numAnaylstRecommendations: anaylstRecommendations.reduce((acc, curr) => acc + curr, 0),
     institutionsCount: institutionsCount ? institutionsCount.longFmt : 0,
     nonIndexOwners: getOwners(ownershipList),
     indexOwners: getOwners(ownershipList, true),
@@ -635,8 +629,7 @@ module.exports = ({ quoteSummary }) => {
     currentQuarterEstimateDate,
     currentQuarterEstimateYear,
     dividendChart:
-      cashflowChartsAnnu.dividendsPaidCfAnnuChart &&
-      cashflowCharts.dividendsPaidCfQuartChart
+      cashflowChartsAnnu.dividendsPaidCfAnnuChart && cashflowCharts.dividendsPaidCfQuartChart
         ? [
             ...cashflowChartsAnnu.dividendsPaidCfAnnuChart.map(
               payment => Math.abs(payment) / 4

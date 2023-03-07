@@ -136,7 +136,7 @@ const pause = async ms => {
 const makePrettyDate = () => moment().format("MMM DD h:mma")
 
 const getOnlyStockTickerData = stockJsonData =>
-  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates"])
+  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates", "VOO"])
 
 const begin = () => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
