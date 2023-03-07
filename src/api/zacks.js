@@ -1,7 +1,7 @@
 const { makePrettyDate, ReError, formatErrorObject } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
-const { fetchJson } = require("./util/www")
+const { fetchJson, handleFetch } = require("./util/www")
 const Logger = require("../Logger")
 const { orderBy, sum } = require("lodash")
 
@@ -47,7 +47,7 @@ const getMainData = async (ticker, logger) => {
  * @param {string} url
  * @returns {Promise<Object>}
  */
-const fetchZacks = async (ticker, logger) => {
+const fetchData = async (logger, ticker) => {
   const {
     zacksEpsTTM,
     dividend,
@@ -281,18 +281,4 @@ const fetchZacks = async (ticker, logger) => {
   }
 }
 
-/**
- * @param {string} ticker
- * @returns {Promise<Object>}
- */
-exports.fetch = ticker => {
-  const logger = new Logger(ticker, "Zacks.fetch", true)
-  return fetchZacks(ticker, logger).catch(error => {
-    if (error.code === 404) {
-      logger.warn("No zacks data found", error)
-      return {}
-    }
-    logger.error("fetch error!", error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = ticker => handleFetch(fetchData, ticker, "Ford.fetch")

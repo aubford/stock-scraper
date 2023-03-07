@@ -41,7 +41,7 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
 
 const handleFetch = (fetchCallback, ticker, contextName) => {
   const logger = new Logger(ticker, contextName)
-  return fetchCallback(logger)
+  return fetchCallback(logger, ticker)
     .then(res => {
       logger.completeOk()
       return res
