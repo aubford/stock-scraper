@@ -5,7 +5,7 @@ const { fetchJson } = require("./util/www")
 const Logger = require("../Logger")
 const { orderBy, sum } = require("lodash")
 
-const getEstmiateSum = tableRowCellArr =>
+const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
     return acc + Number(curr)
   }, 0)
@@ -113,14 +113,12 @@ const fetch = async (ticker, logger) => {
     fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days")).map(Number)
   )
 
-  const currentEpsEstimateSum = getEststmiateSum(
-    fetcher.getTextArrByX(tableRowXpath("Current"))
-  )
-  const weekEpsEstimateSum = getEstmiateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
-  const monthEpsEstimateSum = getEstmiateSum(
+  const currentEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("Current")))
+  const weekEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
+  const monthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("30 Days Ago"))
   )
-  const biMonthEpsEstimateSum = getEstmiateSum(
+  const biMonthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("60 Days Ago"))
   )
 
@@ -199,6 +197,10 @@ const fetch = async (ticker, logger) => {
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
 
+    currentEpsEstimateSum,
+    weekEpsEstimateSum,
+    monthEpsEstimateSum,
+    biMonthEpsEstimateSum,
     zacksEstimateChangePctWeek:
       ((currentEpsEstimateSum - weekEpsEstimateSum) / Math.abs(weekEpsEstimateSum)) * 100,
     zacksEstimateChangePctMonth:

@@ -1,19 +1,15 @@
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, wsj } = require("../api")
+const { zacks } = require("../api")
 const { vooWriteOut } = require("../util")
 
 const tickers = require("../vooTickers")
 
 const fetchData = async ticker => {
-  const [yahooData, historicalPrices, wsjData] = await Promise.all([
-    yahoo.fetch(ticker),
-    yahoo.fetchHistoricalPrices(ticker),
-    wsj.fetch(ticker),
-  ])
+  const data = await zacks.fetch(ticker)
 
-  if (yahooData && wsjData) {
+  if (data) {
     console.log(`Fetched OK: ${ticker}`)
-    return [ticker, { ...yahooData, ...wsjData, ...historicalPrices }]
+    return [ticker, data]
   }
   console.log(`*** FAILURE: ${ticker} ***`)
 }
@@ -21,9 +17,9 @@ const fetchData = async ticker => {
 const run = async () => {
   let res = []
 
-  const tickerChunks = chunk(tickers, 8)
+  const tickerChunks = chunk(tickers, 12)
   for (const tickerChunk of tickerChunks) {
-    const companyData = await Promise.stagger(fetchData, tickerChunk, 300)
+    const companyData = await Promise.stagger(fetchData, tickerChunk, 50)
     if (companyData) {
       res = res.concat(companyData)
     }

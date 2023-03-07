@@ -26,10 +26,12 @@
     "test": "jest",
     "update": "node --require ./preload.js src/apps/update.js && npm run prettyStock",
     "update-analyst": "node --require ./preload.js ./src/apps/updateAnalyst.js && npm run prettyStock",
-    "update-yahoo-wsj": "node --require ./preload.js ./src/apps/updateYahooWsj.js && npm run prettyStock",
     "uplog": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorUpdated()'",
     "voo": "node --require ./preload.js ./src/apps/fetchVoo.js && npm run prettyVoo",
+    "update-yahoo-wsj": "node --require ./preload.js ./src/apps/updateYahooWsj.js && npm run prettyStock",
     "voo-update-yahoo-wsj": "node --require ./preload.js ./src/apps/updateYahooWsjForVoo.js && npm run prettyStock",
+    "update-zacks": "node --require ./preload.js ./src/apps/updateZacks.js && npm run prettyStock",
+    "voo-update-zacks": "node --require ./preload.js ./src/apps/updateZacksForVoo.js && npm run prettyStock",
     "fetch-historical-prices": "node --require ./preload.js ./src/apps/fetchHistoricalPrices.js && npm run prettyStock"
   },
   "author": "",

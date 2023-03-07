@@ -6,30 +6,27 @@ const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
 
 const buildWsjData = ({ wsjChart, ...wsjData }) => {
-  return {
-    wsjChartThreeMonthAgo: wsjChart
-      ? wsjChart
+  const charts = wsjChart
+    ? {
+        wsjChartThreeMonthAgo: wsjChart
           .filter((d, idx) => idx % 3 === 0)
           .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartMonthAgo: wsjChart
-      ? wsjChart
+          .reverse(),
+        wsjChartMonthAgo: wsjChart
           .filter((d, idx) => (idx + 2) % 3 === 0)
           .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartCurrent: wsjChart
-      ? wsjChart
+          .reverse(),
+        wsjChartCurrent: wsjChart
           .filter((d, idx) => (idx + 1) % 3 === 0)
           .map(str => Number(str))
-          .reverse()
-      : "",
-    wsjChartCurrentNum: wsjChart
-      ? wsjChart
+          .reverse(),
+        wsjChartCurrentNum: wsjChart
           .filter((d, idx) => (idx + 1) % 3 === 0)
-          .reduce((acc, curr) => acc + Number(curr), 0)
-      : "",
+          .reduce((acc, curr) => acc + Number(curr), 0),
+      }
+    : {}
+  return {
+    charts,
     ...Object.fromEntries(Object.entries(wsjData).filter(([, value]) => value)), // remove entries w/ falsy values
   }
 }
@@ -73,7 +70,7 @@ exports.fetch = async (ticker, tries = 0) => {
         [url + "/research-ratings", fetchOpts],
         [url + "/financials", fetchOpts],
       ],
-      800
+      500
     )
     const analystRatingsDoc = Cheerio.load(/**@type * */ researchPage)
     const wsjChart = analystRatingsDoc(".cr_analystRatings .data_data")
@@ -133,6 +130,6 @@ exports.fetch = async (ticker, tries = 0) => {
     return buildWsjData(retVal)
   } catch (err) {
     logger.error("General script error: " + err)
-    return []
+    return {}
   }
 }
