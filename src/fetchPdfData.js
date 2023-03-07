@@ -79,6 +79,6 @@ module.exports = options => {
     if (err.code) {
       throw err
     }
-    throw new ReError("Fetch error:", err, "fetchPdfData")
+    throw new ReError("fetch error!", err, "fetchPdfData")
   })
 }

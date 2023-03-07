@@ -1,11 +1,13 @@
 require("../preload")
 const { wsj } = require("../src/api")
 
-const ticker = "AAPL"
+const ticker = "LMT"
 
 wsj
   .fetch(ticker)
   .then(res => {
     console.log(res)
   })
-  .catch(err => console.error(err))
+  .catch(err => {
+    console.error(err)
+  })

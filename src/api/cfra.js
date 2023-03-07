@@ -46,7 +46,7 @@ const fetchCfra = async (ticker, cfraRating, cfraLink, browser) => {
 exports.fetch = (ticker, cfraRating, cfraLink, browser) => {
   const logger = new Logger(ticker, "cfra.fetch")
   return fetchCfra(ticker, cfraRating, cfraLink, browser).catch(error => {
-    logger.error("fetch error: ", error)
+    logger.error("fetch error!", error)
     return { error }
   })
 }

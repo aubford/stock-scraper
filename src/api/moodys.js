@@ -81,7 +81,7 @@ exports.fetch = (ticker, browser) => {
       return {}
     }
 
-    logger.error("fetch error:", error)
+    logger.error("fetch error!", error)
     return { error }
   })
 }

@@ -89,7 +89,7 @@ const fetchFidelityAnalysts = async (ticker, browser) => {
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "Fidelity fetch")
   return fetchFidelityAnalysts(ticker, browser).catch(error => {
-    logger.error("fetch error: ", error)
+    logger.error("fetch error! ", error)
     return { error }
   })
 }

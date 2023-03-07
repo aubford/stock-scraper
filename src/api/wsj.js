@@ -1,9 +1,10 @@
 const Logger = require("../Logger")
 const Cheerio = require("cheerio")
-const { makePrettyDate, pause, ReError } = require("../util")
+const { makePrettyDate, pause, ReError, MessageError } = require("../util")
 const { fetchText } = require("./util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
+const { min } = require("lodash")
 
 const buildWsjData = ({ wsjChart, ...wsjData }) => {
   const charts = wsjChart
@@ -36,7 +37,7 @@ const buildWsjData = ({ wsjChart, ...wsjData }) => {
  * @param tries {number}
  * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}> | []}
  */
-exports.fetch = async (ticker, tries = 0) => {
+exports.fetch = async (ticker, tries = 1) => {
   const logger = new Logger(ticker, "WSJ")
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   const fetchOpts = {
@@ -84,6 +85,14 @@ exports.fetch = async (ticker, tries = 0) => {
         .get()
         .map(node => node.data)
 
+    require("fs").writeFile(
+      "/Users/aubrey.ford@nutrien.com/Library/Application Support/JetBrains/WebStorm2022.3/scratches/debugTestOutput.html",
+      analystRatingsDoc.html(),
+      () => {
+        console.log("*** DONE WRITE DOM OUTPUT ****")
+      }
+    )
+
     const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
     const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
 
@@ -111,17 +120,24 @@ exports.fetch = async (ticker, tries = 0) => {
         .text(),
     }
 
-    if (retVal.wsjChart?.length === 0 && tries < 6) {
+    const noChart = !retVal.wsjChart || retVal.wsjChart.length === 0
+    const shouldHaveChart =
+      stockData[ticker]?.wsjChartCurrent?.length > 0 ||
+      vooData[ticker]?.wsjChartCurrent?.length > 0
+
+    if (noChart) {
       logger.error("NO CHART!")
 
-      const shouldHaveChart =
-        stockData[ticker]?.wsjChartCurrent?.length !== 0 ||
-        vooData[ticker]?.wsjChartCurrent?.length !== 0
+      if (tries < 6) {
+        if (shouldHaveChart || tries < 3) {
+          logger.error("RETRY WSJ!")
+          await pause(min([5000, 2000 * tries]))
+          return exports.fetch(ticker, tries + 1)
+        }
+      }
 
-      if (shouldHaveChart || tries < 3) {
-        logger.error("RETRY WSJ!")
-        await pause(1000 * tries)
-        return exports.fetch(ticker, tries + 1)
+      if (shouldHaveChart) {
+        throw new MessageError("Should have chart & NO CHART found after multiple tries!")
       }
     }
 
@@ -129,8 +145,8 @@ exports.fetch = async (ticker, tries = 0) => {
 
     return buildWsjData(retVal)
   } catch (err) {
-    const error = new ReError("error fetching wsj data", err, "wsj.fetch")
-    logger.error("fetch error: ", error)
+    const error = new ReError("fetch error!", err, "wsj.fetch")
+    logger.logError(error)
     return { error }
   }
 }

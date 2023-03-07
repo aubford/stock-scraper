@@ -59,7 +59,7 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink, logger) => {
 exports.fetch = (ticker, browser, analystPageLink) => {
   const logger = new Logger(ticker, ARGUS_ANALYST)
   return fetchArgusAnalyst(ticker, browser, analystPageLink, logger).catch(error => {
-    logger.logError(new ReError("fetch error: ", error))
+    logger.logError(new ReError("fetch error! ", error))
     return { error }
   })
 }

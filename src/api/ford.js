@@ -43,7 +43,7 @@ const fetchFord = async (ticker, browser) => {
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "ford.fetch")
   return fetchFord(ticker, browser).catch(error => {
-    logger.error("fetch error: ", error)
+    logger.error("fetch error!", error)
     return { error }
   })
 }

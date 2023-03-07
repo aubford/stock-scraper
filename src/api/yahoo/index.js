@@ -19,7 +19,7 @@ const fetchYahoo = async ticker => {
 exports.fetch = ticker => {
   const logger = new Logger(ticker, "Yahoo")
   return fetchYahoo(ticker).catch(e => {
-    const error = new ReError("fetch error:", e, "yahoo.fetch")
+    const error = new ReError("fetch error!", e, "yahoo.fetch")
     logger.logError(error)
     return { error }
   })
@@ -59,7 +59,7 @@ const fetchHistoricalPrices = async ticker => {
 exports.fetchHistoricalPrices = ticker => {
   const logger = new Logger(ticker, "Yahoo Historical Prices")
   return fetchHistoricalPrices(ticker, logger).catch(e => {
-    const error = new ReError("fetch error:", e, "yahoo.fetchHistoricalPrices")
+    const error = new ReError("fetch error!", e, "yahoo.fetchHistoricalPrices")
     logger.logError(error)
     return { yahooDailyPricesDates: e.message, yahooDailyPrices: e.message, error }
   })

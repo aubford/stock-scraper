@@ -43,7 +43,7 @@ const fetchBoa = async (ticker, browser) => {
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "boa.fetch", true)
   return fetchBoa(ticker, browser).catch(error => {
-    logger.error("fetch error: ", error)
+    logger.error("fetch error!", error)
     return { error }
   })
 }

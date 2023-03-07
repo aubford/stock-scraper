@@ -112,12 +112,16 @@ const fetchZacks = async (ticker, logger) => {
     fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days")).map(Number)
   )
 
-  const currentEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("Current")))
-  const weekEpsEstimateSum = getEstimateSum(fetcher.getTextArrByX(tableRowXpath("7 Days Ago")))
-  const monthEpsEstimateSum = getEstimateSum(
+  const zacksCurrentEpsEstimateSum = getEstimateSum(
+    fetcher.getTextArrByX(tableRowXpath("Current"))
+  )
+  const zacksWeekEpsEstimateSum = getEstimateSum(
+    fetcher.getTextArrByX(tableRowXpath("7 Days Ago"))
+  )
+  const zacksMonthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("30 Days Ago"))
   )
-  const biMonthEpsEstimateSum = getEstimateSum(
+  const zacksBiMonthEpsEstimateSum = getEstimateSum(
     fetcher.getTextArrByX(tableRowXpath("60 Days Ago"))
   )
 
@@ -190,22 +194,29 @@ const fetchZacks = async (ticker, logger) => {
     zacksProjSalesGrowthIndustry,
   ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[3]`)
 
+  const zacksEpsSurprise = epsSurprises[0]?.[1]
+
   // RESULT /////////////////////////////////
 
   return {
     zacksUpdatedAt: makePrettyDate(),
     zacksLastDividendAnnu: dividend * dividend_freq,
 
-    currentEpsEstimateSum,
-    weekEpsEstimateSum,
-    monthEpsEstimateSum,
-    biMonthEpsEstimateSum,
+    zacksCurrentEpsEstimateSum,
+    zacksWeekEpsEstimateSum,
+    zacksMonthEpsEstimateSum,
+    zacksBiMonthEpsEstimateSum,
     zacksEstimateChangePctWeek:
-      ((currentEpsEstimateSum - weekEpsEstimateSum) / Math.abs(weekEpsEstimateSum)) * 100,
+      ((zacksCurrentEpsEstimateSum - zacksWeekEpsEstimateSum) /
+        Math.abs(zacksWeekEpsEstimateSum)) *
+      100,
     zacksEstimateChangePctMonth:
-      ((currentEpsEstimateSum - monthEpsEstimateSum) / Math.abs(monthEpsEstimateSum)) * 100,
+      ((zacksCurrentEpsEstimateSum - zacksMonthEpsEstimateSum) /
+        Math.abs(zacksMonthEpsEstimateSum)) *
+      100,
     zacksEstimateChangePctBiMonth:
-      ((currentEpsEstimateSum - biMonthEpsEstimateSum) / Math.abs(biMonthEpsEstimateSum)) *
+      ((zacksCurrentEpsEstimateSum - zacksBiMonthEpsEstimateSum) /
+        Math.abs(zacksBiMonthEpsEstimateSum)) *
       100,
 
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
@@ -221,7 +232,7 @@ const fetchZacks = async (ticker, logger) => {
     zacksPriceLastClose,
 
     zacksEarningsESP,
-    zacksEpsSurprise: epsSurprises[0]?.[1],
+    zacksEpsSurprise,
     zacksEpsTTM,
     zacksEpsEstimateCurrentYr,
     zacksEpsEstimateNextYr,
@@ -265,7 +276,7 @@ const fetchZacks = async (ticker, logger) => {
     zacksLastEarningsDate:
       zacksConfirmedNextEarningsDate && new Date(zacksConfirmedNextEarningsDate) < new Date()
         ? zacksConfirmedNextEarningsDate
-        : epsSurprises[0][0],
+        : zacksEpsSurprise,
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
   }
 }
@@ -281,7 +292,7 @@ exports.fetch = ticker => {
       logger.warn("No zacks data found", error)
       return {}
     }
-    logger.error("fetch error:", error)
+    logger.error("fetch error!", error)
     return { error }
   })
 }

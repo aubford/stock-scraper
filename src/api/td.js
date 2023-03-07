@@ -31,7 +31,7 @@ const fetchTd = async (ticker, browser) => {
 exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "TD.fetch", true)
   return fetchTd(ticker, browser).catch(error => {
-    logger.error("fetch error: ", error)
+    logger.error("fetch error! ", error)
     return { error }
   })
 }
