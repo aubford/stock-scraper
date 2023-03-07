@@ -191,7 +191,6 @@ const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
   error: name + ": " + message,
   errorCode: code,
   errorStack: stack,
-  sector: "ERROR",
 })
 
 module.exports = {

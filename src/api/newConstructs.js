@@ -42,4 +42,4 @@ const fetchData = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(() => fetchData(ticker, browser), ticker, "newConstructs.fetch")
+  handleFetch(() => fetchData(ticker, browser), ticker, "NewConstructs.fetch")

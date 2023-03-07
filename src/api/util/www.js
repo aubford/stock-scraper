@@ -1,6 +1,6 @@
 const { goToNewBrowserPage } = require("../../puppeteer")
 const Logger = require("../../Logger")
-const { ReError, MessageError } = require("../../util")
+const { ReError, MessageError, formatErrorObject } = require("../../util")
 
 /**
  * @returns {Promise<string>}
@@ -42,17 +42,17 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
 const handleFetch = (fetchCallback, ticker, contextName) => {
   const logger = new Logger(ticker, contextName)
   return fetchCallback(logger)
-    .catch(error => {
-      if (error.code === 404) {
-        logger.warnError(error)
-        return {}
-      }
-      logger.error("fetch error!", error)
-      return { error }
-    })
     .then(res => {
       logger.completeOk()
       return res
+    })
+    .catch(error => {
+      if (error.code === 404) {
+        logger.warn("Fetch 404", error)
+        return {}
+      }
+      logger.error("fetch error!", error)
+      return formatErrorObject(error)
     })
 }
 

@@ -1,5 +1,5 @@
 const { prevSiblingTextContains, extractNumbers } = require("./util")
-const { makePrettyDate } = require("../util")
+const { makePrettyDate, formatErrorObject } = require("../util")
 const Logger = require("../Logger")
 const fetchPdfData = require("../fetchPdfData")
 
@@ -44,9 +44,9 @@ const fetchCfra = async (ticker, cfraRating, cfraLink, browser) => {
 }
 
 exports.fetch = (ticker, cfraRating, cfraLink, browser) => {
-  const logger = new Logger(ticker, "cfra.fetch")
+  const logger = new Logger(ticker, "CFRA.fetch")
   return fetchCfra(ticker, cfraRating, cfraLink, browser).catch(error => {
     logger.error("fetch error!", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }

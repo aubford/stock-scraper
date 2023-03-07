@@ -1,5 +1,5 @@
 const PageDataFetcher = require("../PageDataFetcher")
-const { makePrettyDate } = require("../util")
+const { makePrettyDate, formatErrorObject } = require("../util")
 const { sortBy } = require("lodash")
 const Logger = require("../Logger")
 
@@ -90,6 +90,6 @@ exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "Fidelity fetch")
   return fetchFidelityAnalysts(ticker, browser).catch(error => {
     logger.error("fetch error! ", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }

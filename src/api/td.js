@@ -1,6 +1,7 @@
 const { containsClass } = require("./util")
 const PageDataFetcher = require("../PageDataFetcher")
 const Logger = require("../Logger")
+const { formatErrorObject } = require("../util")
 
 const fetchTd = async (ticker, browser) => {
   const pageFetcher = new PageDataFetcher(TD, ticker, browser, { timeout: TD_TIMEOUT })
@@ -32,6 +33,6 @@ exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "TD.fetch", true)
   return fetchTd(ticker, browser).catch(error => {
     logger.error("fetch error! ", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }

@@ -40,4 +40,4 @@ const fetchData = async (ticker, url, browser) => {
 }
 
 exports.fetch = (ticker, url, browser) =>
-  handleFetch(() => fetchData(ticker, url, browser), ticker, "morningstar.fetch")
+  handleFetch(() => fetchData(ticker, url, browser), ticker, "Morningstar.fetch")

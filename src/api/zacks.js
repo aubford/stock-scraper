@@ -1,4 +1,4 @@
-const { makePrettyDate, ReError } = require("../util")
+const { makePrettyDate, ReError, formatErrorObject } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson } = require("./util/www")
@@ -293,6 +293,6 @@ exports.fetch = ticker => {
       return {}
     }
     logger.error("fetch error!", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }

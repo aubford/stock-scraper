@@ -1,6 +1,6 @@
 const { fetchText } = require("../util")
 const transform = require("./transform")
-const { formatMsDate, ReError } = require("../../util")
+const { formatMsDate, ReError, formatErrorObject } = require("../../util")
 const Logger = require("../../Logger")
 
 /**
@@ -21,7 +21,7 @@ exports.fetch = ticker => {
   return fetchYahoo(ticker).catch(e => {
     const error = new ReError("fetch error!", e, "yahoo.fetch")
     logger.logError(error)
-    return { error }
+    return formatErrorObject(error)
   })
 }
 
@@ -58,9 +58,12 @@ const fetchHistoricalPrices = async ticker => {
 
 exports.fetchHistoricalPrices = ticker => {
   const logger = new Logger(ticker, "Yahoo Historical Prices")
-  return fetchHistoricalPrices(ticker, logger).catch(e => {
-    const error = new ReError("fetch error!", e, "yahoo.fetchHistoricalPrices")
+  return fetchHistoricalPrices(ticker, logger).catch(error => {
     logger.logError(error)
-    return { yahooDailyPricesDates: e.message, yahooDailyPrices: e.message, error }
+    return {
+      yahooDailyPricesDates: error.message,
+      yahooDailyPrices: error.message,
+      ...formatErrorObject(error),
+    }
   })
 }

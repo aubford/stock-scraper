@@ -1,7 +1,7 @@
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
 const Logger = require("../Logger")
-const { ReError } = require("../util")
+const { ReError, formatErrorObject } = require("../util")
 
 /**
  * @param {string} ticker
@@ -59,7 +59,7 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink, logger) => {
 exports.fetch = (ticker, browser, analystPageLink) => {
   const logger = new Logger(ticker, ARGUS_ANALYST)
   return fetchArgusAnalyst(ticker, browser, analystPageLink, logger).catch(error => {
-    logger.logError(new ReError("fetch error!", error))
-    return { error }
+    logger.error("fetch error!", error)
+    return formatErrorObject(error)
   })
 }

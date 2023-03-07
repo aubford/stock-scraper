@@ -1,5 +1,6 @@
 const PageDataFetcher = require("../PageDataFetcher")
 const Logger = require("../Logger")
+const { formatErrorObject } = require("../util")
 
 /**
  * @param {string} ticker
@@ -41,9 +42,9 @@ const fetchBoa = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) => {
-  const logger = new Logger(ticker, "boa.fetch", true)
+  const logger = new Logger(ticker, "BoA.fetch", true)
   return fetchBoa(ticker, browser).catch(error => {
     logger.error("fetch error!", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }

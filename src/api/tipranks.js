@@ -1,5 +1,5 @@
 const { zip, partition, flatten } = require("lodash")
-const { makePrettyDate } = require("../util")
+const { makePrettyDate, formatErrorObject } = require("../util")
 const PageDataFetcher = require("../PageDataFetcher")
 const Logger = require("../Logger")
 
@@ -351,6 +351,6 @@ exports.fetch = (ticker, browser) => {
   const logger = new Logger(ticker, "TipRanks.fetch", true)
   return fetchTipranks(ticker, browser).catch(error => {
     logger.error("fetch error! ", error)
-    return { error }
+    return formatErrorObject(error)
   })
 }
