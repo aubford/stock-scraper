@@ -22,11 +22,11 @@ const writeFile = (location, data) => {
 }
 
 // want new tickers to update first when running update.js script
-const randomOldDate = new Date(2000, 7, 24)
+const aubiesBurthday = new Date(1985, 7, 24)
 const newStockInfo = ticker => ({
   ticker,
   sector: "NEW_STOCKS",
-  scrapeDataUpdatedAt: randomOldDate,
+  scrapeDataUpdatedAt: aubiesBurthday,
 })
 
 const readFile = location => {
@@ -181,6 +181,19 @@ class MessageError extends Error {
   }
 }
 
+/**
+ * @param {Error} error
+ * @param {string} ticker
+ * @returns {import("./types").ErrorObject}
+ */
+const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
+  ...(ticker ? { ticker } : {}),
+  error: name + ": " + message,
+  errorCode: code,
+  errorStack: stack,
+  sector: "ERROR",
+})
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -200,7 +213,8 @@ module.exports = {
   vooWriteOut,
   backupReturnStockDataFile,
   getOnlyStockTickerData,
-  // other
+  // error handling
   ReError,
   MessageError,
+  formatErrorObject,
 }

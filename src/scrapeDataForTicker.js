@@ -68,6 +68,8 @@ module.exports = async (ticker, browser) => {
   ])
 
   return {
+    ticker,
+    tickerSearch: `//${ticker}`,
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
     boaIncome,
@@ -78,8 +80,6 @@ module.exports = async (ticker, browser) => {
     cfraRating,
     morningstarLink,
     morningstarRating,
-    ticker,
-    tickerSearch: `//${ticker}`,
     morganStanleyRating:
       tipData.tipMorganStanleyRating ||
       fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
