@@ -1,7 +1,7 @@
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
 const Logger = require("../Logger")
-const { ReError, formatErrorObject } = require("../util")
+const { formatErrorObject } = require("../util")
 
 /**
  * @param {string} ticker

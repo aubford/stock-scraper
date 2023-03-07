@@ -3,8 +3,8 @@ const {
   makePrettyDate,
   vooWriteOut,
   pause,
-  newStockInfo,
   formatErrorObject,
+  getEarningsPriceChange,
 } = require("./util")
 
 const scrapeDataForTicker = async (ticker, browser) => {
@@ -22,7 +22,15 @@ const scrapeDataForTicker = async (ticker, browser) => {
       tipranks.fetch(ticker, browser),
     ])
 
+  const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
+  const earningsPriceChange = getEarningsPriceChange(
+    zacksData.zacksLastEarningsDate,
+    yahooDailyPrices,
+    yahooDailyPricesDates
+  )
+
   return {
+    earningsPriceChange,
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
     ticker,

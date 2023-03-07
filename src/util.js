@@ -194,11 +194,25 @@ const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
   sector: "ERROR",
 })
 
+const getDiffPercent = (current, prior) => (current - prior) / Math.abs(prior)
+
+const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
+  const earningsDateIndex = pricesDates.findIndex(date => {
+    const dateA = new Date(date).toDateString()
+    const dateB = new Date(earningsDate).toDateString()
+    return dateA === dateB
+  })
+
+  return getDiffPercent(prices[earningsDateIndex - 1], prices[earningsDateIndex + 1])
+}
+
 module.exports = {
   // data manipulation
   makePrettyDate,
   formatMsDate,
   newStockInfo,
+  getDiffPercent,
+  getEarningsPriceChange,
   // script
   exit,
   begin,

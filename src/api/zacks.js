@@ -1,9 +1,9 @@
-const { makePrettyDate, ReError, formatErrorObject } = require("../util")
+const { makePrettyDate, ReError } = require("../util")
 const JsDomFetcher = require("../JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson, handleFetch } = require("./util/www")
 const { orderBy, sum } = require("lodash")
-const { getDiffPercent } = require("./util/math")
+const { getDiffPercent } = require("../util")
 
 const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
