@@ -27,7 +27,7 @@ const buildWsjData = ({ wsjChart, ...wsjData }) => {
       }
     : {}
   return {
-    charts,
+    ...charts,
     ...Object.fromEntries(Object.entries(wsjData).filter(([, value]) => value)), // remove entries w/ falsy values
   }
 }
