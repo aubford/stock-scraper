@@ -1,6 +1,6 @@
 const Logger = require("../Logger")
 const Cheerio = require("cheerio")
-const { makePrettyDate, pause, ReError, MessageError, formatErrorObject } = require("../util")
+const { makePrettyDate, pause, MessageError, formatErrorObject } = require("../util")
 const { fetchText } = require("./util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")

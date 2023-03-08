@@ -2,7 +2,6 @@ const fetchPdfData = require("../fetchPdfData")
 const { makePrettyDate } = require("../util")
 const { selfTextContains } = require("./util")
 const { last } = require("lodash")
-const Logger = require("../Logger")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -42,4 +41,4 @@ const fetchData = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(() => fetchData(ticker, browser), ticker, "NewConstructs.fetch")
+  handleFetch(() => fetchData(ticker, browser), ticker, NEW_CONSTRUCTS)

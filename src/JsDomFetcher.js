@@ -115,7 +115,7 @@ class JsDomFetcher extends JsDomNode {
    * @param {number} timeout
    */
   constructor(contextName, ticker, { timeout, testing } = {}) {
-    const logger = new Logger(ticker, contextName + " JsDomFetcher")
+    const logger = new Logger(ticker, contextName + " JsDomFetcher", true)
     super(logger)
 
     this.ticker = ticker

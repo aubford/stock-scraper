@@ -1,7 +1,8 @@
 const { prevSiblingTextContains, extractNumbers } = require("./util")
-const { makePrettyDate, formatErrorObject } = require("../util")
+const { makePrettyDate } = require("../util")
 const Logger = require("../Logger")
 const fetchPdfData = require("../fetchPdfData")
+const { handleFetch } = require("./util/www")
 
 const hasCFRA = (rating, ticker, analystName) => {
   const hasReport = rating !== "no rating"
@@ -18,7 +19,7 @@ const hasCFRA = (rating, ticker, analystName) => {
  * @param {Browser} browser
  * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
  */
-const fetchCfra = async (ticker, cfraRating, cfraLink, browser) => {
+const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
   const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
     ? await fetchPdfData({
         ticker,
@@ -43,10 +44,5 @@ const fetchCfra = async (ticker, cfraRating, cfraLink, browser) => {
   }
 }
 
-exports.fetch = (ticker, cfraRating, cfraLink, browser) => {
-  const logger = new Logger(ticker, "CFRA.fetch")
-  return fetchCfra(ticker, cfraRating, cfraLink, browser).catch(error => {
-    logger.error("fetch error!", error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = (ticker, cfraRating, cfraLink, browser) =>
+  handleFetch(() => fetchData(ticker, cfraRating, cfraLink, browser), ticker, CFRA)

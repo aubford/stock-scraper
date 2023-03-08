@@ -47,7 +47,7 @@ const getMainData = async ticker => {
  * @param {string} url
  * @returns {Promise<Object>}
  */
-const fetchData = async ({ ticker, logger }) => {
+const fetchData = async (logger, ticker) => {
   const {
     zacksEpsTTM,
     dividend,
@@ -278,4 +278,4 @@ const fetchData = async ({ ticker, logger }) => {
   }
 }
 
-exports.fetch = ticker => handleFetch(fetchData, ticker, "Zacks.fetch")
+exports.fetch = ticker => handleFetch(fetchData, ticker, ZACKS)

@@ -7,7 +7,6 @@ const {
   interceptRequests,
   responseInterceptorFuzzy,
 } = require("./puppeteer")
-const Logger = require("./Logger")
 const { ReError, MessageError } = require("./util")
 
 class PageDataFetcher {
@@ -17,7 +16,7 @@ class PageDataFetcher {
    * @param {*} browser
    * @param {number} timeout
    */
-  constructor(contextName, ticker, browser, { timeout } = {}) {
+  constructor(ticker, browser, logger, { timeout } = {}) {
     this.ticker = ticker
     this.browser = browser
     this.timeout = timeout || XPATH_TIMEOUT
@@ -28,7 +27,7 @@ class PageDataFetcher {
     this.runInterceptors = response =>
       Promise.all(this.responseInterceptors.map(interceptor => interceptor(response)))
 
-    this.logger = new Logger(ticker, contextName + " PageDataFetcher")
+    this.logger = logger
   }
 
   _checkForPage() {
@@ -114,7 +113,7 @@ class PageDataFetcher {
         timeout: 5000,
       })
       .catch(err => {
-        throw new ReError("No Tipranks button found", err)
+        throw new ReError("No Tipranks button found", err).setCode(404)
       })
 
     await tipranksButton

@@ -1,7 +1,7 @@
 const PageDataFetcher = require("../PageDataFetcher")
-const { makePrettyDate, formatErrorObject } = require("../util")
+const { makePrettyDate } = require("../util")
 const { sortBy } = require("lodash")
-const Logger = require("../Logger")
+const { handleFetch } = require("./util/www")
 
 const formatFidelityStarmine = starmineOpinion => {
   if (!starmineOpinion) return ""
@@ -22,8 +22,8 @@ const reportRowXpathFrag = name =>
  * @param  {Browser} browser
  * @returns Promise<Object>
  */
-const fetchFidelityAnalysts = async (ticker, browser) => {
-  const fetcher = new PageDataFetcher(FIDELITY, ticker, browser, {
+const fetchData = async (ticker, browser, logger) => {
+  const fetcher = new PageDataFetcher(ticker, browser, logger, {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
 
@@ -82,14 +82,5 @@ const fetchFidelityAnalysts = async (ticker, browser) => {
   return res
 }
 
-/**
- * @param {string} ticker
- * @returns {Promise<Object>}
- */
-exports.fetch = (ticker, browser) => {
-  const logger = new Logger(ticker, "Fidelity fetch")
-  return fetchFidelityAnalysts(ticker, browser).catch(error => {
-    logger.error("fetch error! ", error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = (ticker, browser) =>
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, FIDELITY)

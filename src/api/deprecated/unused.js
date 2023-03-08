@@ -1,4 +1,4 @@
-const { fetchText } = require("./util")
+const { fetchText } = require("../util")
 
 const avApiKey = "1FSCTLZ457VMJH2F"
 const avUrl = "https://www.alphavantage.co/query?function="

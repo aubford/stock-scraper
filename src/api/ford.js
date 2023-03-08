@@ -1,7 +1,5 @@
 const { prevSiblingTextIs } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
-const Logger = require("../Logger")
-const { formatErrorObject } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -43,4 +41,4 @@ const fetchData = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(() => fetchData(ticker, browser), ticker, "Ford.fetch")
+  handleFetch(() => fetchData(ticker, browser), ticker, FORD)

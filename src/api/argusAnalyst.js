@@ -1,7 +1,7 @@
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
-const Logger = require("../Logger")
-const { formatErrorObject } = require("../util")
+const { MessageError } = require("../util")
+const { handleFetch } = require("./util/www")
 
 /**
  * @param {string} ticker
@@ -9,10 +9,9 @@ const { formatErrorObject } = require("../util")
  * @param {Browser} browser
  * @returns {Promise<{argusAnalystOneYrDivGrowth:*, argusAnalystFiveYrEpsGrowth:*, argusAnalystRating:*, argusAnalystTarget:(number|string), argusAnalystFinancialStrength:*, argusAnalystOneYrEpsGrowth:*}>}
  */
-const fetchArgusAnalyst = async (ticker, browser, analystPageLink, logger) => {
+const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
   if (!analystPageLink) {
-    logger.warn("No Report!")
-    return {}
+    throw new MessageError("No Argust Analyst Report!").setCode(404)
   }
 
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
@@ -56,10 +55,5 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink, logger) => {
   }
 }
 
-exports.fetch = (ticker, browser, analystPageLink) => {
-  const logger = new Logger(ticker, ARGUS_ANALYST)
-  return fetchArgusAnalyst(ticker, browser, analystPageLink, logger).catch(error => {
-    logger.error("fetch error!", error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = (ticker, browser, analystPageLink) =>
+  handleFetch(() => fetchArgusAnalyst(ticker, browser, analystPageLink), ticker, ARGUS_ANALYST)

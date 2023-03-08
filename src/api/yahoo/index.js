@@ -1,12 +1,7 @@
 const { fetchText } = require("../util")
 const transform = require("./transform")
-const moment = require("moment")
-const {
-  formatMsDate,
-  formatErrorObject,
-  getPreviousQuarterStartEndDates,
-} = require("../../util")
-const Logger = require("../../Logger")
+const { formatMsDate, getPreviousQuarterStartEndDates } = require("../../util")
+const { handleFetch } = require("../util/www")
 
 const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
 
@@ -14,7 +9,7 @@ const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
  * @param ticker
  * @returns {Promise<any>}
  */
-const fetchYahoo = async ticker => {
+const fetchData = async ticker => {
   const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=${YAHOO_MODULES.join(
     ","
   )}`
@@ -23,15 +18,9 @@ const fetchYahoo = async ticker => {
   return transform(parsed)
 }
 
-exports.fetch = ticker => {
-  const logger = new Logger(ticker, "Yahoo")
-  return fetchYahoo(ticker).catch(error => {
-    logger.logError(error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, YAHOO)
 
-const fetchHistoricalPrices = async ticker => {
+const fetchPrices = async ticker => {
   const res = await fetchText(
     `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
     {
@@ -76,14 +65,5 @@ const fetchHistoricalPrices = async ticker => {
   }
 }
 
-exports.fetchHistoricalPrices = ticker => {
-  const logger = new Logger(ticker, "Yahoo Historical Prices")
-  return fetchHistoricalPrices(ticker, logger).catch(error => {
-    logger.logError(error)
-    return {
-      yahooDailyPricesDates: error.message,
-      yahooDailyPrices: error.message,
-      ...formatErrorObject(error),
-    }
-  })
-}
+exports.fetchHistoricalPrices = ticker =>
+  handleFetch(() => fetchPrices(ticker), ticker, YAHOO_PRICES)

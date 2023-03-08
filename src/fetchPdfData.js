@@ -74,7 +74,7 @@ const fetchPdfData = async (
 }
 
 module.exports = options => {
-  const logger = new Logger(options.ticker, options.analystName + " fetchPdfData")
+  const logger = new Logger(options.ticker, options.analystName + " PDF", true)
   return fetchPdfData(logger, options).catch(err => {
     if (err.code) {
       throw err

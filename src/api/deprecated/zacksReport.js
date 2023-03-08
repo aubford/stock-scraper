@@ -1,7 +1,7 @@
-const fetchPdfData = require("../fetchPdfData")
-const { prevSiblingTextContains, prevSiblingTextIs, getFidelitySecretUrl } = require("./util")
-const { makePrettyDate } = require("../util")
-const Logger = require("../Logger")
+const fetchPdfData = require("../../fetchPdfData")
+const { prevSiblingTextContains, prevSiblingTextIs, getFidelitySecretUrl } = require("../util")
+const { makePrettyDate } = require("../../util")
+const Logger = require("../../Logger")
 
 /**
  * @param {string} ticker

@@ -1,5 +1,5 @@
-const { prevSiblingTextIs } = require("./util")
-const fetchPdfData = require("../fetchPdfData")
+const { prevSiblingTextIs } = require("../util")
+const fetchPdfData = require("../../fetchPdfData")
 
 // deprecated for now
 exports.fetch = async (ticker, browser, argusResearchLink) => {

@@ -1,14 +1,13 @@
 const PageDataFetcher = require("../PageDataFetcher")
-const Logger = require("../Logger")
-const { formatErrorObject } = require("../util")
+const { handleFetch } = require("./util/www")
 
 /**
  * @param {string} ticker
  * @param {Browser} browser
  * @returns {Promise<{boaIncome:*, morningstarLink:(string|string[]), boaInvestment:*, cfraRating:*, boaRating:*, morningstarRating:*, boaVolatility:*, cfraLink:(string|string[])}>}
  */
-const fetchBoa = async (ticker, browser) => {
-  const boaFetcher = new PageDataFetcher(BOA, ticker, browser, { timeout: BOA_TIMEOUT })
+const fetchData = async (ticker, browser, logger) => {
+  const boaFetcher = new PageDataFetcher(ticker, browser, logger, { timeout: BOA_TIMEOUT })
 
   await boaFetcher.setPage(
     `https://olui2.fs.ml.com/RIStocksUI/RIStocksOverview.aspx?Symbol=${ticker}&ref=RUN_RIPortfolioStoryUI_PortfolioStory&src=ql`
@@ -41,10 +40,5 @@ const fetchBoa = async (ticker, browser) => {
   }
 }
 
-exports.fetch = (ticker, browser) => {
-  const logger = new Logger(ticker, "BoA.fetch", true)
-  return fetchBoa(ticker, browser).catch(error => {
-    logger.error("fetch error!", error)
-    return formatErrorObject(error)
-  })
-}
+exports.fetch = (ticker, browser) =>
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, BOA)

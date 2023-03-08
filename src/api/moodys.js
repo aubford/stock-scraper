@@ -1,8 +1,7 @@
 const { fetchText } = require("./util")
-const Logger = require("../Logger")
 const { getPageCookies } = require("../puppeteer")
 const PageDataFetcher = require("../PageDataFetcher")
-const { ReError, MessageError, formatErrorObject } = require("../util")
+const { MessageError } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -51,11 +50,11 @@ const getMoodysLink = async (ticker, cookie) => {
  * @param {Browser} browser
  * @returns Promise<Object>
  */
-const fetchData = async (ticker, browser) => {
+const fetchData = async (ticker, browser, logger) => {
   const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
   const moodysLink = await getMoodysLink(ticker, moodysCookies)
 
-  const moodysFetcher = new PageDataFetcher("Moody's PageDataFetcher", ticker, browser, {
+  const moodysFetcher = new PageDataFetcher(ticker, browser, logger, {
     timeout: MOODYS_TIMEOUT,
   })
   await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
@@ -75,4 +74,4 @@ const fetchData = async (ticker, browser) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(() => fetchData(ticker, browser), ticker, "Moody.fetch")
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, MOODYS)
