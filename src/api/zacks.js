@@ -11,7 +11,9 @@ const getEstimateSum = tableRowCellArr =>
   }, 0)
 
 const getEstimateChange = (current, prev) =>
-  current === prev ? "*" : `${current.toFixed(2)}\n(${prev.toFixed(2)})`
+  current === prev
+    ? ""
+    : `${current ? current.toFixed(2) : ""}\n(${prev ? prev.toFixed(2) : ""})`
 
 const getMainData = async ticker => {
   try {
@@ -289,7 +291,6 @@ const fetchData = async (logger, ticker) => {
         ? zacksConfirmedNextEarningsDate
         : epsSurprises[0]?.[0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
-    emojiTest: "☑️",
   }
 }
 
