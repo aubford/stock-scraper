@@ -214,10 +214,11 @@ const fetchData = async (ticker, browser, logger) => {
   ])
 
   const tipAnalystsZip = zip(...analystStrings)
-  const tipMorganStanleyRating = tipAnalystsZip
-    .find(analyst => analyst[0].includes("Morgan Stanley"))
-    ?.slice(1)
-    .join(" ,")
+
+  const morganStanley = tipAnalystsZip.find(analyst => analyst[0].includes("Morgan Stanley"))
+  const tipMorganStanleyRating = morganStanley
+    ? `${morganStanley.slice(1, 3).join(", ")}\n${morganStanley.slice(3, 5).join(", ")}`
+    : ""
   const tipJefferiesRating = tipAnalystsZip
     .find(analyst => analyst[0].includes("Jefferies"))
     ?.slice(1)

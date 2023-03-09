@@ -9,9 +9,10 @@ const formatFidelityStarmine = starmineOpinion => {
   const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
     starmineOpinion
 
-  return `${currentNormalizedRating} (${ratingChangeDate?.substring(6, 10)}${
-    previousNormalizedRating ? ", " + previousNormalizedRating : ""
-  })`
+  return `${currentNormalizedRating}\n${ratingChangeDate?.substring(
+    6,
+    10
+  )}\n(${previousNormalizedRating})`
 }
 
 const reportRowXpathFrag = name =>
