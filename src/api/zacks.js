@@ -266,6 +266,7 @@ const fetchData = async (logger, ticker) => {
 
     zacksProjSalesGrowth,
     zacksProjSalesGrowthIndustry,
+    zacksPSGIndustry: zacksPriceToSalesIndustry / (zacksProjSalesGrowthIndustry / 100),
 
     zacksCashPrice,
     zacksHistEpsGrowth: zacksHistEpsGrowth + ` (${zacksHistEpsGrowthIndustry})`, // 3-5 years
