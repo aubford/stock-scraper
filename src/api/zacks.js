@@ -10,6 +10,9 @@ const getEstimateSum = tableRowCellArr =>
     return acc + Number(curr)
   }, 0)
 
+const getEstimateChange = (current, prev) =>
+  current === prev ? "*" : `${current.toFixed(2)}\n(${prev.toFixed(2)})`
+
 const getMainData = async ticker => {
   try {
     const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
@@ -216,9 +219,18 @@ const fetchData = async (logger, ticker) => {
       zacksCurrentEpsEstimateSum,
       zacksBiMonthEpsEstimateSum
     ),
-    zacksEstimateChangeWeek: `${zacksWeekEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
-    zacksEstimateChangeMonth: `${zacksMonthEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
-    zacksEstimateChangeBiMonth: `${zacksBiMonthEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
+    zacksEstimateChangeWeek: getEstimateChange(
+      zacksCurrentEpsEstimateSum,
+      zacksWeekEpsEstimateSum
+    ),
+    zacksEstimateChangeMonth: getEstimateChange(
+      zacksCurrentEpsEstimateSum,
+      zacksMonthEpsEstimateSum
+    ),
+    zacksEstimateChangeBiMonth: getEstimateChange(
+      zacksCurrentEpsEstimateSum,
+      zacksBiMonthEpsEstimateSum
+    ),
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
     zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,
 
@@ -277,6 +289,7 @@ const fetchData = async (logger, ticker) => {
         ? zacksConfirmedNextEarningsDate
         : epsSurprises[0]?.[0],
     zacksNextEarningsDate: zacksConfirmedNextEarningsDate || zacksEstimatedNextEarningsDate,
+    emojiTest: "☑️",
   }
 }
 
