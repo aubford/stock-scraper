@@ -216,7 +216,9 @@ const fetchData = async (logger, ticker) => {
       zacksCurrentEpsEstimateSum,
       zacksBiMonthEpsEstimateSum
     ),
-
+    zacksEstimateChangeWeek: `${zacksWeekEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
+    zacksEstimateChangeMonth: `${zacksMonthEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
+    zacksEstimateChangeBiMonth: `${zacksBiMonthEpsEstimateSum} -> ${zacksCurrentEpsEstimateSum}`,
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
     zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,
 
