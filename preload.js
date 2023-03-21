@@ -18,7 +18,7 @@ try {
 
 // Constants
 
-const timeoutCoeff = 1.5
+const timeoutCoeff = 2
 
 global.SHOULD_MERGE = false
 
@@ -31,7 +31,7 @@ global.TIPRANKS_TIMEOUT = 30 * 1000 * timeoutCoeff
 global.FORD_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_STATS_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.FIDELITY_ANALYST_TIMEOUT = 35 * 1000 * timeoutCoeff
+global.FIDELITY_ANALYST_TIMEOUT = 25 * 1000 * timeoutCoeff
 global.MOODYS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
