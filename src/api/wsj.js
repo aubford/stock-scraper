@@ -4,6 +4,7 @@ const { makePrettyDate, pause, MessageError, formatErrorObject } = require("../u
 const { fetchText } = require("./util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
+const shortDateCalendar = require("../../shortDateCalendar.json")
 const { min } = require("lodash")
 
 const buildWsjData = ({ wsjChart, ...wsjData }) => {
@@ -104,6 +105,7 @@ exports.fetch = async (ticker, tries = 1) => {
       wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
       wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
       wsjShortDate,
+      wsjShortDatePrev: shortDateCalendar[shortDateCalendar.indexOf(wsjShortDate) - 1],
       wsjLastEarningsDate: financialsPageDoc(`span.data_lbl:contains("Last Report")`)
         .next()
         .text(),
