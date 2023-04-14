@@ -68,7 +68,7 @@ const fetchData = async (ticker, browser, logger) => {
           " - " +
           formatFidelityStarmine(analystOpinion)
       )
-      .join("\n"),
+      .join(""),
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
     fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
     zacksRecommendation: formatFidelityStarmine(zacksOpinion),
