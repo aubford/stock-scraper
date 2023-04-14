@@ -1,7 +1,7 @@
 require("../preload")
 const { wsj } = require("../src/api")
 
-const ticker = "LMT"
+const ticker = "BAC"
 
 wsj
   .fetch(ticker)
