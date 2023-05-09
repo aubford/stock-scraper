@@ -31,6 +31,7 @@ class Logger {
 
   warn(msg, err) {
     if (err) {
+      err.stack = ""
       console.warn(this.lineStart + `⚠️ -> ${msg}`, err)
     } else {
       console.warn(this.lineStart + `⚠️ -> ${msg}`)
@@ -41,6 +42,7 @@ class Logger {
     if (funcName && !err.nameLock) {
       err.name = `[${funcName}]`
     }
+    err.stack = ""
     console.warn(this.lineStart + `⚠️ ->`, err)
   }
 

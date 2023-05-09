@@ -55,7 +55,7 @@ const fetchPdfData = async (
     waitUntil: "networkidle2",
     logger,
   }).catch(err => {
-    throw new ReError("goToNewBrowserPage failed", err).setCode(true)
+    throw new ReError("goToNewBrowserPage failed", err, "fetchPdfData").setCode(true)
   })
 
   const values = await handlePage(page, {
@@ -65,7 +65,7 @@ const fetchPdfData = async (
     timeout,
   }).catch(err => {
     page.closeSafe()
-    throw new ReError("handlePage failed", err).setCode(err.code || true)
+    throw new ReError("handlePage failed", err, "fetchPdfData").setCode(err.code || true)
   })
 
   await page.closeSafe()
