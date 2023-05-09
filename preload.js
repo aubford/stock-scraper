@@ -16,6 +16,8 @@ try {
   console.log("skipped ws connection")
 }
 
+Error.stackTraceLimit = 1
+
 // Constants
 
 const timeoutCoeff = 2
