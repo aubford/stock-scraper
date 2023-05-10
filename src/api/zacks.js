@@ -26,8 +26,8 @@ const getMainData = async ticker => {
             dividend,
             close: zacksPriceLastClose,
             dividend_freq,
-          },
-        },
+          } = {},
+        } = {},
         confirmed_reporting_date,
         expected_reporting_date,
       },
@@ -135,10 +135,14 @@ const fetchData = async (logger, ticker) => {
   const [zacksGrowthEstimatePctYr, zacksGrowthEstimatePctYrInd] = fetcher.getTextArrByX(
     `//td[${containsChars("Current Year (")}]/following-sibling::td`
   )
-  const [zacksGrowthEstimatePctNextYr, zacksGrowthEstimatePctNextYrInd] =
-    fetcher.getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
-  const [zacksGrowthEstimatePctFiveYr, zacksGrowthEstimatePctFiveYrInd] =
-    fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
+  const [
+    zacksGrowthEstimatePctNextYr,
+    zacksGrowthEstimatePctNextYrInd,
+  ] = fetcher.getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
+  const [
+    zacksGrowthEstimatePctFiveYr,
+    zacksGrowthEstimatePctFiveYrInd,
+  ] = fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
 
   // STYLE SCORES ///////////////////////////
 
