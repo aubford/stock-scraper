@@ -197,7 +197,7 @@ const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
 const getDiffPercent = (current, prior) => (current - prior) / Math.abs(prior)
 
 const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
-  const earningsDateIndex = pricesDates.findIndex(date => {
+  const earningsDateIndex = pricesDates?.findIndex(date => {
     const dateA = new Date(date).toDateString()
     const dateB = new Date(earningsDate).toDateString()
     return dateA === dateB
