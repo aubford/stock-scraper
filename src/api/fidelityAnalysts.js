@@ -52,6 +52,7 @@ const fetchData = async (ticker, browser, logger) => {
 
   await fetcher.close()
 
+  // todo: giving the wrong date for zacksRecommendation
   const { essCurrentRating, essScore, firmOpinions } = essRes
 
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
