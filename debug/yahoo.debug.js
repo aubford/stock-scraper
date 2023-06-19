@@ -1,7 +1,7 @@
 require("../preload")
 const { yahoo } = require("../src/api")
 
-const ticker = "VOO"
+const ticker = "HCA"
 
 yahoo
   .fetchHistoricalPrices(ticker)
