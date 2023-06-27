@@ -1,6 +1,8 @@
-const { prevSiblingTextIs, followingSiblingTextIs } = require("./util")
 const fetchPdfData = require("../fetchPdfData")
 const { handleFetch } = require("./util/www")
+
+const getNthHeaderText = n =>
+  `(//span[text()="ESG Risk Rating Assessment"])[1]/../following-sibling::span[${n}]/span[normalize-space(text()) != ""]`
 
 /**
  * @param {string} ticker
@@ -10,32 +12,35 @@ const { handleFetch } = require("./util/www")
  */
 const fetchData = async (ticker, url, browser) => {
   const [
-    [morningstarFairValue] = [],
+    morningstarFairValue,
+    [, morningstarDate] = [],
     morningstarMoat,
+    morningstarMoatTrend,
     morningstarUncertainty,
     morningstarCapitalAllocation,
-    [morningstarDate] = [],
   ] = await fetchPdfData({
     ticker,
     browser,
     analystName: MORNINGSTAR,
     url,
     xPathArr: [
-      prevSiblingTextIs("USD", 2),
-      followingSiblingTextIs("Price vs. Fair Value ", 4),
-      followingSiblingTextIs("Price vs. Fair Value ", 2),
-      followingSiblingTextIs("Price vs. Fair Value ", 1),
-      prevSiblingTextIs("Capital Allocation", 6),
+      `(//span[contains(text(), "USD")])[2]`,
+      getNthHeaderText(3),
+      getNthHeaderText(7),
+      getNthHeaderText(8),
+      getNthHeaderText(9),
+      getNthHeaderText(10),
     ],
     timeout: MORNINGSTAR_TIMEOUT,
   })
 
   return {
-    morningstarFairValue,
+    morningstarFairValue: morningstarFairValue.replace("USD", ""),
+    morningstarDate: morningstarDate.split(" ").slice(0, 3).join(" "),
+    morningstarMoatTrend,
     morningstarMoat,
     morningstarUncertainty,
     morningstarCapitalAllocation,
-    morningstarDate,
   }
 }
 

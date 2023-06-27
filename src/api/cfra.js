@@ -12,6 +12,9 @@ const hasCFRA = (rating, ticker, analystName) => {
   return hasReport
 }
 
+const prevSiblingTextContainsForCfra = text =>
+  `//span[contains(text(),"${text}")]/../following-sibling::span[1]/span`
+
 /**
  * @param {string} ticker
  * @param {string} cfraRating
@@ -20,18 +23,18 @@ const hasCFRA = (rating, ticker, analystName) => {
  * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
  */
 const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
-  const [cfraTargetStr, cfraFairValue, cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
+  const [cfraTargetStr, [, , , cfraFairValue], cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
     ? await fetchPdfData({
         ticker,
         browser,
         analystName: CFRA,
         url: cfraLink,
         xPathArr: [
-          prevSiblingTextContains("12-Mo.  Target  Price"),
-          prevSiblingTextContains("Calculation", 2),
-          prevSiblingTextContains("Analysis prepared by", 3),
+          prevSiblingTextContainsForCfra("12-Mo. Target Price"),
+          prevSiblingTextContainsForCfra("Calculation", 2),
+          prevSiblingTextContains("Analysis prepared by", 4),
         ],
-        waitForPostScroll: prevSiblingTextContains("Calculation", 2),
+        waitForPostScroll: prevSiblingTextContainsForCfra("Calculation", 2),
         timeout: CFRA_TIMEOUT,
       })
     : []
@@ -39,7 +42,7 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
   return {
     cfraTarget: extractNumbers(cfraTargetStr),
     cfraFairValue,
-    cfraDate,
+    cfraDate: cfraDate.split(" ").slice(1, 4).join(" "),
     cfraUpdatedAt: makePrettyDate(),
   }
 }
