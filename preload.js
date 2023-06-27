@@ -20,7 +20,7 @@ Error.stackTraceLimit = 1
 
 // Constants
 
-const timeoutCoeff = 2
+const timeoutCoeff = 3
 
 global.SHOULD_MERGE = false
 

@@ -3,11 +3,11 @@ const { yahoo, wsj } = require("../api")
 const {
   getOnlyStockTickerData,
   scrapbookWriteOut,
-  backupReturnStockDataFile,
+  getStockDataFile,
   promptForTickers,
 } = require("../util")
 
-const stockFile = backupReturnStockDataFile()
+const stockFile = getStockDataFile()
 const stockData = getOnlyStockTickerData(stockFile)
 
 const fetchData = async ticker => {
@@ -25,7 +25,7 @@ const run = async () => {
   const promptResponse = await promptForTickers()
   const tickers = promptResponse
     ? promptResponse.split(/[^A-Z]/).filter(a => a)
-    : Object.keys(getOnlyStockTickerData(backupReturnStockDataFile()))
+    : Object.keys(getOnlyStockTickerData(getStockDataFile()))
 
   let res = []
   const tickerChunks = chunk(tickers, 8)

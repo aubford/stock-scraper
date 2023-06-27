@@ -1,12 +1,8 @@
 const { chunk, fromPairs } = require("lodash")
 const { yahoo, wsj } = require("../api")
-const {
-  getOnlyStockTickerData,
-  scrapbookWriteOut,
-  backupReturnStockDataFile,
-} = require("../util")
+const { getOnlyStockTickerData, scrapbookWriteOut, getStockDataFile } = require("../util")
 
-const stockFile = backupReturnStockDataFile()
+const stockFile = getStockDataFile()
 const stockData = getOnlyStockTickerData(stockFile)
 const tickers = Object.keys(stockData)
 

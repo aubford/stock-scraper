@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer-core")
 const {
   promptForTickers,
   promptLogin,
-  backupReturnStockDataFile,
+  getStockDataFile,
   getOnlyStockTickerData,
   begin,
   exit,
@@ -20,7 +20,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
 
   const tickers = promptResponse
     ? promptResponse.split(/[^A-Z]/).filter(a => a)
-    : Object.keys(getOnlyStockTickerData(backupReturnStockDataFile()))
+    : Object.keys(getOnlyStockTickerData(getStockDataFile()))
 
   closeLoginPages()
 

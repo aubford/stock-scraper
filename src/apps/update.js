@@ -3,7 +3,7 @@ const { sortBy } = require("lodash")
 const { goToNewBrowserPage } = require("../puppeteer")
 const {
   promptLogin,
-  backupReturnStockDataFile,
+  getStockDataFile,
   promptUser,
   getOnlyStockTickerData,
   begin,
@@ -20,7 +20,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   )
   const sectorUserInputVal = await promptUser("Sectors:")
 
-  const oldFile = backupReturnStockDataFile()
+  const oldFile = getStockDataFile()
   const stockData = getOnlyStockTickerData(oldFile)
   const sectorIndex = getSectorIndex(stockData)
 

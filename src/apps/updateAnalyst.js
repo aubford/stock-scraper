@@ -10,7 +10,7 @@ const {
 const {
   scrapbookWriteOut,
   promptUser,
-  backupReturnStockDataFile,
+  getStockDataFile,
   getOnlyStockTickerData,
   exit,
   begin,
@@ -27,7 +27,7 @@ const analystMap = {
   [TD]: td,
 }
 
-const stockDataFile = backupReturnStockDataFile()
+const stockDataFile = getStockDataFile()
 const stockData = getOnlyStockTickerData(stockDataFile)
 const sectorIndex = getSectorIndex(stockData)
 

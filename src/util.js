@@ -34,12 +34,7 @@ const readFile = location => {
   return JSON.parse(file)
 }
 
-const backupReturnStockDataFile = () => {
-  // fs.copyFileSync(
-  //   STOCK_DATA_BACKUP_LOCATION,
-  //   `${SCRAPBOOK_LOCATION}/stockDataBackup_backup_${moment().format()}.json`
-  // )
-  // fs.copyFileSync(STOCK_DATA_LOCATION, STOCK_DATA_BACKUP_LOCATION)
+const getStockDataFile = () => {
   return readFile(STOCK_DATA_LOCATION)
 }
 
@@ -255,7 +250,7 @@ module.exports = {
   readFile,
   scrapbookWriteOut,
   vooWriteOut,
-  backupReturnStockDataFile,
+  getStockDataFile,
   getOnlyStockTickerData,
   // error handling
   ReError,
