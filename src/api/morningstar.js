@@ -36,7 +36,7 @@ const fetchData = async (ticker, url, browser) => {
 
   return {
     morningstarFairValue: morningstarFairValue.replace("USD", ""),
-    morningstarDate: morningstarDate.split(" ").slice(0, 3).join(" "),
+    morningstarDate: morningstarDate ? morningstarDate.split(" ").slice(0, 3).join(" ") : "",
     morningstarMoatTrend,
     morningstarMoat,
     morningstarUncertainty,

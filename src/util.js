@@ -41,7 +41,12 @@ const getStockDataFile = () => {
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-  const existingData = JSON.parse(stockDataFile)
+  const existingData = {
+    ...JSON.parse(stockDataFile),
+    error: "",
+    errorCode: null,
+    errorStack: "",
+  }
   const writeToFile = shouldMerge
     ? assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
     : {

@@ -23,7 +23,11 @@ const prevSiblingTextContainsForCfra = text =>
  * @returns {Promise<{cfraTarget:string, cfraFairValue:*, cfraUpdatedAt:(*|string), cfraDate:*}>}
  */
 const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
-  const [cfraTargetStr, [, , , cfraFairValue], cfraDate] = hasCFRA(cfraRating, ticker, "CFRA")
+  const [cfraTargetStr, [, , , cfraFairValue] = [], cfraDate] = hasCFRA(
+    cfraRating,
+    ticker,
+    "CFRA"
+  )
     ? await fetchPdfData({
         ticker,
         browser,
@@ -42,7 +46,7 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
   return {
     cfraTarget: extractNumbers(cfraTargetStr),
     cfraFairValue,
-    cfraDate: cfraDate.split(" ").slice(1, 4).join(" "),
+    cfraDate: cfraDate ? cfraDate.split(" ").slice(1, 4).join(" ") : "",
     cfraUpdatedAt: makePrettyDate(),
   }
 }
