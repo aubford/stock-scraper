@@ -41,12 +41,8 @@ const getStockDataFile = () => {
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-  const existingData = {
-    ...JSON.parse(stockDataFile),
-    error: "",
-    errorCode: null,
-    errorStack: "",
-  }
+  const existingData = JSON.parse(stockDataFile)
+
   const writeToFile = shouldMerge
     ? assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
     : {
@@ -55,7 +51,6 @@ const scrapbookWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
-  writeShortDatesToMeta(writeToFile)
 }
 
 const vooWriteOut = (data, shouldMerge) => {
@@ -70,30 +65,6 @@ const vooWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(VOO_LOCATION, writeToFile)
-  // writeShortDatesToMeta(writeToFile)
-}
-
-const writeShortDatesToMeta = data => {
-  /** @type {*} */
-  const existingFile = fs.readFileSync(META_LOCATION)
-  const existingMeta = JSON.parse(existingFile)
-
-  const wsjShortDateList = makeWsjShortDateList(data, existingMeta)
-
-  writeFile(META_LOCATION, {
-    ...existingMeta,
-    wsjShortDateList,
-    wsjShortDatePrev: wsjShortDateList[wsjShortDateList.length - 2],
-  })
-}
-
-const makeWsjShortDateList = (data, existingMeta) => {
-  const { wsjShortDate } = Object.values(data).find(({ wsjShortDate }) => !!wsjShortDate)
-  const { wsjShortDateList } = existingMeta
-
-  return wsjShortDateList.includes(wsjShortDate)
-    ? wsjShortDateList
-    : wsjShortDateList.concat(wsjShortDate)
 }
 
 const promptUser = async question => {

@@ -13,34 +13,12 @@
     <orderEntry type="library" name="@types/babel-core" level="application" />
     <orderEntry type="library" name="@types/babel-plugin-syntax-jsx" level="application" />
     <orderEntry type="library" name="@types/babel-types" level="application" />
-    <orderEntry type="library" name="@types/babel__plugin-transform-runtime" level="application" />
-    <orderEntry type="library" name="@types/babel__preset-env" level="application" />
-    <orderEntry type="library" name="@types/core-js" level="application" />
-    <orderEntry type="library" name="@types/dayjs-precise-range" level="application" />
-    <orderEntry type="library" name="@types/eslint" level="application" />
-    <orderEntry type="library" name="@types/faker" level="application" />
-    <orderEntry type="library" name="@types/graphql-react" level="application" />
-    <orderEntry type="library" name="@types/i18n" level="application" />
-    <orderEntry type="library" name="@types/i18n-js" level="application" />
     <orderEntry type="library" name="@types/jest" level="application" />
     <orderEntry type="library" name="@types/lerna-alias" level="application" />
     <orderEntry type="library" name="@types/lodash" level="application" />
-    <orderEntry type="library" name="@types/material-ui" level="application" />
     <orderEntry type="library" name="@types/node" level="application" />
-    <orderEntry type="library" name="@types/ol" level="application" />
-    <orderEntry type="library" name="@types/prop-types" level="application" />
     <orderEntry type="library" name="@types/react" level="application" />
-    <orderEntry type="library" name="@types/react-addons-test-utils" level="application" />
     <orderEntry type="library" name="@types/react-dom" level="application" />
-    <orderEntry type="library" name="@types/react-redux" level="application" />
-    <orderEntry type="library" name="@types/react-router-dom" level="application" />
-    <orderEntry type="library" name="@types/react-test-renderer" level="application" />
-    <orderEntry type="library" name="@types/react-virtualized" level="application" />
-    <orderEntry type="library" name="@types/styled-components" level="application" />
-    <orderEntry type="library" name="@types/testing-library__jest-dom" level="application" />
-    <orderEntry type="library" name="@types/react-adaptive-hooks" level="application" />
-    <orderEntry type="library" name="@types/react-app" level="application" />
-    <orderEntry type="library" name="@types/react-is" level="application" />
     <orderEntry type="library" name="@types/puppeteer-core" level="application" />
     <orderEntry type="library" name="@types/puppeteer" level="application" />
   </component>
