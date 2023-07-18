@@ -375,7 +375,6 @@ module.exports = [
   "SWKS",
   "FSLR",
   "BR",
-  "BBY",
   "CINF",
   "CAG",
   "SEDG",
