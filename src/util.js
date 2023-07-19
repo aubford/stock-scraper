@@ -1,6 +1,6 @@
 require("puppeteer-core")
 const moment = require("moment")
-const { isArray, assignWith, omit } = require("lodash")
+const { isArray, assignWith, omit, pick } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 
@@ -38,6 +38,11 @@ const getStockDataFile = () => {
   return readFile(STOCK_DATA_LOCATION)
 }
 
+const getOnlyStockTickerData = stockJsonData =>
+  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates", "VOO"])
+
+const getStockTickers = () => getOnlyStockTickerData(getStockDataFile())
+
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
@@ -51,6 +56,13 @@ const scrapbookWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
+}
+
+const writeToExistingTickers = data => {
+  const existingTickers = getStockTickers()
+  const prunedData = pick(data, Object.keys(existingTickers))
+
+  scrapbookWriteOut(prunedData, true)
 }
 
 const vooWriteOut = (data, shouldMerge) => {
@@ -105,9 +117,6 @@ const pause = async ms => {
 }
 
 const makePrettyDate = () => moment().format("MMM DD h:mma")
-
-const getOnlyStockTickerData = stockJsonData =>
-  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates", "VOO"])
 
 const begin = () => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
@@ -228,6 +237,8 @@ module.exports = {
   vooWriteOut,
   getStockDataFile,
   getOnlyStockTickerData,
+  getStockTickers,
+  writeToExistingTickers,
   // error handling
   ReError,
   MessageError,
