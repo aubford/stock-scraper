@@ -13,6 +13,14 @@ promptForTickers().then(promptRes => {
     }),
     {}
   )
-  writeFile(STOCK_DATA_LOCATION, { ...stockFile, ...toAdd })
+
+  const newData = { ...stockFile, ...toAdd }
+
+  const addedTickers = Object.keys(newData).filter(
+    ticker => !Object.keys(stockFile).includes(ticker)
+  )
+  console.log("Added tickers: " + addedTickers)
+
+  writeFile(STOCK_DATA_LOCATION, newData)
   process.exit(0)
 })
