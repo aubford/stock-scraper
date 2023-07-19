@@ -14,7 +14,7 @@ promptForTickers().then(promptRes => {
     {}
   )
 
-  const newData = { ...stockFile, ...toAdd }
+  const newData = { ...toAdd, ...stockFile }
 
   const addedTickers = Object.keys(newData).filter(
     ticker => !Object.keys(stockFile).includes(ticker)
