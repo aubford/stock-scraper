@@ -3,6 +3,7 @@ const moment = require("moment")
 const { isArray, assignWith, omit, pick } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
+const { goToNewBrowserPage } = require("./puppeteer")
 
 /**
  * @typedef {Page} MyPage
@@ -41,7 +42,7 @@ const getStockDataFile = () => {
 const getOnlyStockTickerData = stockJsonData =>
   omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates", "VOO"])
 
-const getStockTickers = () => getOnlyStockTickerData(getStockDataFile())
+const getStockTickers = () => Object.keys(getOnlyStockTickerData(getStockDataFile()))
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
@@ -60,7 +61,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
 
 const writeToExistingTickers = data => {
   const existingTickers = getStockTickers()
-  const prunedData = pick(data, Object.keys(existingTickers))
+  const prunedData = pick(data, existingTickers)
 
   scrapbookWriteOut(prunedData, true)
 }
@@ -93,6 +94,7 @@ const promptUser = async question => {
   })
 }
 
+// async
 const promptForTickers = () => promptUser("Tickers: ")
 
 const promptLogin = newPage => {
@@ -121,6 +123,20 @@ const makePrettyDate = () => moment().format("MMM DD h:mma")
 const begin = () => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
   exec("caffeinate")
+}
+
+const beginAndLogin = async (browser, prompt) => {
+  begin()
+
+  const closeLoginPages = await promptLogin((url, options) =>
+    goToNewBrowserPage(browser, url, options)
+  )
+
+  const promptResponse = await promptUser(prompt)
+
+  closeLoginPages()
+
+  return promptResponse
 }
 
 const exit = () => {
@@ -215,6 +231,8 @@ const getPreviousQuarterStartEndDates = () => {
   }
 }
 
+const parseCommaFloat = str => parseFloat(str.replace(",", ""))
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -223,9 +241,11 @@ module.exports = {
   getDiffPercent,
   getEarningsPriceChange,
   getPreviousQuarterStartEndDates,
+  parseCommaFloat,
   // script
   exit,
   begin,
+  beginAndLogin,
   promptForTickers,
   promptLogin,
   promptUser,

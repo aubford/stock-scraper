@@ -1,28 +1,13 @@
 const puppeteer = require("puppeteer-core")
-const {
-  promptForTickers,
-  promptLogin,
-  getStockDataFile,
-  getOnlyStockTickerData,
-  begin,
-  exit,
-} = require("../util")
-const { goToNewBrowserPage } = require("../puppeteer")
+const { exit, beginAndLogin, getStockTickers } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 
 puppeteer.connect(CONNECTION).then(async browser => {
-  begin()
-
-  const closeLoginPages = await promptLogin((url, options) =>
-    goToNewBrowserPage(browser, url, options)
-  )
-  const promptResponse = await promptForTickers()
+  const promptResponse = await beginAndLogin(browser, "Tickers: ")
 
   const tickers = promptResponse
     ? promptResponse.split(/[^A-Z]/).filter(a => a)
-    : Object.keys(getOnlyStockTickerData(getStockDataFile()))
-
-  closeLoginPages()
+    : getStockTickers()
 
   await scrapeDataForTickers(tickers, browser, SHOULD_MERGE)
 

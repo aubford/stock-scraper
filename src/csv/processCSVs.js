@@ -1,7 +1,7 @@
 // const os = require("os")
 const { groupBy, mapValues, round } = require("lodash")
 const { renameCSVs, unrealizedPath, parseCSV, getCostBasis } = require("./csv-util")
-const { scrapbookWriteOut, writeFile, writeToExistingTickers } = require("../util")
+const { writeToExistingTickers } = require("../util")
 
 renameCSVs()
 

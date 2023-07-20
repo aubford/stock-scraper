@@ -2,6 +2,7 @@ const fs = require("fs")
 const path = require("path")
 const os = require("os")
 const csv = require("csv-parser")
+const { parseCommaFloat } = require("../util")
 
 const HOLDINGS = "Holdings"
 const UNREALIZED_GAIN_LOSS_TAX_LOTS = "UnrealizedGainLossTaxLots"
@@ -67,8 +68,8 @@ async function parseCSV(filePath) {
 const getCostBasis = data => {
   const [res] = data.reduce(
     ([mean, units], curr) => {
-      const thisBasis = parseFloat(curr["Cost Basis ($)"]) || 0
-      const thisUnits = thisBasis ? parseInt(curr["Quantity"]) : 0
+      const thisBasis = parseCommaFloat(curr["Cost Basis ($)"]) || 0
+      const thisUnits = thisBasis ? parseCommaFloat(curr["Quantity"]) : 0
       const total = mean * units + thisBasis
       const newMean = total / (units + thisUnits)
       return [newMean, units + thisUnits]

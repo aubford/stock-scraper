@@ -2,15 +2,12 @@ const puppeteer = require("puppeteer-core")
 const { morningstar, cfra, boa } = require("../api")
 const {
   scrapbookWriteOut,
-  promptUser,
   getStockDataFile,
   getOnlyStockTickerData,
   exit,
-  begin,
-  promptLogin,
+  beginAndLogin,
 } = require("../util")
 const { getTickers } = require("../database/introspectStockData")
-const { goToNewBrowserPage } = require("../puppeteer")
 
 const stockDataFile = getStockDataFile()
 const stockData = getOnlyStockTickerData(stockDataFile)
@@ -59,13 +56,7 @@ const fetchTickerData = async (ticker, browser) => {
 puppeteer
   .connect(CONNECTION)
   .then(async browser => {
-    begin()
-
-    const closeLoginPages = await promptLogin((url, options) =>
-      goToNewBrowserPage(browser, url, options)
-    )
-    await promptUser("Hit Enter:")
-    closeLoginPages()
+    await beginAndLogin(browser, "Press Enter")
 
     const newData = {}
     for (const ticker of tickers) {
