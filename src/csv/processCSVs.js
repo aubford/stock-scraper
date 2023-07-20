@@ -1,6 +1,12 @@
 // const os = require("os")
-const { groupBy, mapValues, round } = require("lodash")
-const { renameCSVs, unrealizedPath, parseCSV, getCostBasis } = require("./csv-util")
+const { groupBy, mapValues } = require("lodash")
+const {
+  renameCSVs,
+  unrealizedPath,
+  parseCSV,
+  getUnrealizedCostBasis,
+  getUnrealizedValue,
+} = require("./csv-util")
 const { writeToExistingTickers } = require("../util")
 
 renameCSVs()
@@ -8,8 +14,9 @@ renameCSVs()
 const main = async () => {
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)
   const unrealizedTaxLots = groupBy(unrealizedTaxLotsCsv, "Symbol")
-  const costBases = mapValues(unrealizedTaxLots, csvRow => ({
-    costBasis: round(getCostBasis(csvRow), 2),
+  const costBases = mapValues(unrealizedTaxLots, csvRows => ({
+    my_costBasis: getUnrealizedCostBasis(csvRows),
+    my_shares: getUnrealizedValue(csvRows),
   }))
 
   writeToExistingTickers(costBases)

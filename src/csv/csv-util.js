@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const { round } = require("lodash")
 const os = require("os")
 const csv = require("csv-parser")
 const { parseCommaFloat } = require("../util")
@@ -65,7 +66,7 @@ async function parseCSV(filePath) {
   })
 }
 
-const getCostBasis = data => {
+const getUnrealizedCostBasis = data => {
   const [res] = data.reduce(
     ([mean, units], curr) => {
       const thisBasis = parseCommaFloat(curr["Cost Basis ($)"]) || 0
@@ -77,13 +78,22 @@ const getCostBasis = data => {
     [0, 0]
   )
 
-  return res
+  return round(res, 2)
+}
+
+const getUnrealizedValue = csvRows => {
+  const valueSum = csvRows.reduce((sum, row) => {
+    return sum + parseCommaFloat(row["Quantity"])
+  }, 0)
+
+  return round(valueSum, 2)
 }
 
 module.exports = {
   renameFile,
   renameCSVs,
-  getCostBasis,
+  getUnrealizedCostBasis,
+  getUnrealizedValue,
   unrealizedPath: path.join(downloadsPath, UNREALIZED_GAIN_LOSS_TAX_LOTS + ".csv"),
   downloadsPath,
   parseCSV,
