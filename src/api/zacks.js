@@ -47,9 +47,8 @@ const getMainData = async ticker => {
 }
 
 /**
+ * @param {object} logger
  * @param {string} ticker
- * @param {Browser} browser
- * @param {string} url
  * @returns {Promise<Object>}
  */
 const fetchData = async (logger, ticker) => {
@@ -269,6 +268,18 @@ const fetchData = async (logger, ticker) => {
     zacksPSGIndustry: zacksPriceToSalesIndustry / (zacksProjSalesGrowthIndustry / 100),
 
     zacksCashPrice,
+    zacksHistEpsGrowth, // 3-5 years
+    zacksProjEpsGrowth,
+    zacksEVEbitda,
+    zacksEarningsYield,
+    zacksDebtEquity,
+    zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth,
+    zacksCurrentRatio,
+    zacksDebtCapital,
+    zacksNetMargin,
+    zacksROE,
+    zacksSalesToAssets,
     zacksHistEpsGrowthIndustry,
     zacksProjEpsGrowthIndustry,
     zacksEVEbitdaIndustry,
@@ -281,18 +292,6 @@ const fetchData = async (logger, ticker) => {
     zacksNetMarginIndustry,
     zacksROEIndustry,
     zacksSalesToAssetsIndustry,
-    zacksHistEpsGrowth: zacksHistEpsGrowth, // 3-5 years
-    zacksProjEpsGrowth: zacksProjEpsGrowth,
-    zacksEVEbitda: zacksEVEbitda,
-    zacksEarningsYield: zacksEarningsYield,
-    zacksDebtEquity: zacksDebtEquity,
-    zacksCurrCashFlowGrowth: zacksCurrCashFlowGrowth,
-    zacksHistCashFlowGrowth: zacksHistCashFlowGrowth,
-    zacksCurrentRatio: zacksCurrentRatio,
-    zacksDebtCapital: zacksDebtCapital,
-    zacksNetMargin: zacksNetMargin,
-    zacksROE: zacksROE,
-    zacksSalesToAssets: zacksSalesToAssets,
 
     zacksGrowthEstimatePctYrInd,
     zacksGrowthEstimatePctNextYrInd,
