@@ -135,14 +135,10 @@ const fetchData = async (logger, ticker) => {
   const [zacksGrowthEstimatePctYr, zacksGrowthEstimatePctYrInd] = fetcher.getTextArrByX(
     `//td[${containsChars("Current Year (")}]/following-sibling::td`
   )
-  const [
-    zacksGrowthEstimatePctNextYr,
-    zacksGrowthEstimatePctNextYrInd,
-  ] = fetcher.getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
-  const [
-    zacksGrowthEstimatePctFiveYr,
-    zacksGrowthEstimatePctFiveYrInd,
-  ] = fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
+  const [zacksGrowthEstimatePctNextYr, zacksGrowthEstimatePctNextYrInd] =
+    fetcher.getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
+  const [zacksGrowthEstimatePctFiveYr, zacksGrowthEstimatePctFiveYrInd] =
+    fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
 
   // STYLE SCORES ///////////////////////////
 
@@ -273,24 +269,37 @@ const fetchData = async (logger, ticker) => {
     zacksPSGIndustry: zacksPriceToSalesIndustry / (zacksProjSalesGrowthIndustry / 100),
 
     zacksCashPrice,
-    zacksHistEpsGrowth: zacksHistEpsGrowth + ` (${zacksHistEpsGrowthIndustry})`, // 3-5 years
-    zacksProjEpsGrowth: zacksProjEpsGrowth + ` (${zacksProjEpsGrowthIndustry})`,
-    zacksEVEbitda: zacksEVEbitda + ` (${zacksEVEbitdaIndustry})`,
-    zacksEarningsYield: zacksEarningsYield + ` (${zacksEarningsYieldIndustry})`,
-    zacksDebtEquity: zacksDebtEquity + ` (${zacksDebtEquityIndustry})`,
-    zacksCurrCashFlowGrowth: zacksCurrCashFlowGrowth + ` (${zacksCurrCashFlowGrowthIndustry})`,
-    zacksHistCashFlowGrowth: zacksHistCashFlowGrowth + ` (${zacksHistCashFlowGrowthIndustry})`,
-    zacksCurrentRatio: zacksCurrentRatio + ` (${zacksCurrentRatioIndustry})`,
-    zacksDebtCapital: zacksDebtCapital + ` (${zacksDebtCapitalIndustry})`,
-    zacksNetMargin: zacksNetMargin + ` (${zacksNetMarginIndustry})`,
-    zacksROE: zacksROE + ` (${zacksROEIndustry})`,
-    zacksSalesToAssets: zacksSalesToAssets + ` (${zacksSalesToAssetsIndustry})`,
+    zacksHistEpsGrowthIndustry,
+    zacksProjEpsGrowthIndustry,
+    zacksEVEbitdaIndustry,
+    zacksEarningsYieldIndustry,
+    zacksDebtEquityIndustry,
+    zacksCurrCashFlowGrowthIndustry,
+    zacksHistCashFlowGrowthIndustry,
+    zacksCurrentRatioIndustry,
+    zacksDebtCapitalIndustry,
+    zacksNetMarginIndustry,
+    zacksROEIndustry,
+    zacksSalesToAssetsIndustry,
+    zacksHistEpsGrowth: zacksHistEpsGrowth, // 3-5 years
+    zacksProjEpsGrowth: zacksProjEpsGrowth,
+    zacksEVEbitda: zacksEVEbitda,
+    zacksEarningsYield: zacksEarningsYield,
+    zacksDebtEquity: zacksDebtEquity,
+    zacksCurrCashFlowGrowth: zacksCurrCashFlowGrowth,
+    zacksHistCashFlowGrowth: zacksHistCashFlowGrowth,
+    zacksCurrentRatio: zacksCurrentRatio,
+    zacksDebtCapital: zacksDebtCapital,
+    zacksNetMargin: zacksNetMargin,
+    zacksROE: zacksROE,
+    zacksSalesToAssets: zacksSalesToAssets,
 
-    zacksGrowthEstimatePctYr: zacksGrowthEstimatePctYr + ` (${zacksGrowthEstimatePctYrInd})`,
-    zacksGrowthEstimatePctNextYr:
-      zacksGrowthEstimatePctNextYr + ` (${zacksGrowthEstimatePctNextYrInd})`,
-    zacksGrowthEstimatePctFiveYr:
-      zacksGrowthEstimatePctFiveYr + ` (${zacksGrowthEstimatePctFiveYrInd})`,
+    zacksGrowthEstimatePctYrInd,
+    zacksGrowthEstimatePctNextYrInd,
+    zacksGrowthEstimatePctFiveYrInd,
+    zacksGrowthEstimatePctYr,
+    zacksGrowthEstimatePctNextYr,
+    zacksGrowthEstimatePctFiveYr,
     zacksLastEarningsDate:
       zacksConfirmedNextEarningsDate && new Date(zacksConfirmedNextEarningsDate) < new Date()
         ? zacksConfirmedNextEarningsDate
