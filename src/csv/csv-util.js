@@ -1,6 +1,6 @@
 const fs = require("fs")
 const path = require("path")
-const { round } = require("lodash")
+const { round, omit, flatten } = require("lodash")
 const os = require("os")
 const csv = require("csv-parser")
 const { parseCommaFloat } = require("../util")
@@ -66,8 +66,14 @@ async function parseCSV(filePath) {
   })
 }
 
-const getUnrealizedCostBasis = data => {
-  const [res] = data.reduce(
+const sumBy = (arr, key) => {
+  return arr.reduce((acc, curr) => {
+    return acc + parseCommaFloat(curr[key])
+  }, 0)
+}
+
+const getUnrealizedCostBasis = csvRows => {
+  const [res] = csvRows.reduce(
     ([mean, units], curr) => {
       const thisBasis = parseCommaFloat(curr["Cost Basis ($)"]) || 0
       const thisUnits = thisBasis ? parseCommaFloat(curr["Quantity"]) : 0
@@ -81,20 +87,26 @@ const getUnrealizedCostBasis = data => {
   return round(res, 2)
 }
 
-const getUnrealizedValue = csvRows => {
-  const valueSum = csvRows.reduce((sum, row) => {
-    return sum + parseCommaFloat(row["Quantity"])
-  }, 0)
-
+const getUnrealizedShares = csvRows => {
+  const valueSum = sumBy(csvRows, "Quantity")
   return round(valueSum, 2)
+}
+
+const getPortfolioStocksTotalValue = unrealizedTaxLots => {
+  const portfolioStocks = omit(unrealizedTaxLots, ["VTI", "VOO", "RSP"])
+  const portfolioRows = flatten(Object.values(portfolioStocks))
+  const totalValue = sumBy(portfolioRows, "Value ($)")
+  return round(totalValue, 2)
 }
 
 module.exports = {
   renameFile,
   renameCSVs,
   getUnrealizedCostBasis,
-  getUnrealizedValue,
+  getUnrealizedShares,
   unrealizedPath: path.join(downloadsPath, UNREALIZED_GAIN_LOSS_TAX_LOTS + ".csv"),
   downloadsPath,
+  getPortfolioStocksTotalValue,
   parseCSV,
+  sumBy,
 }
