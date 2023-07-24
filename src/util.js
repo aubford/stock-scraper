@@ -40,7 +40,15 @@ const getStockDataFile = () => {
 }
 
 const getOnlyStockTickerData = stockJsonData =>
-  omit(stockJsonData, ["magicTickers", "buffetData", "earningsDates", "VOO"])
+  omit(stockJsonData, [
+    "magicTickers",
+    "buffetData",
+    "earningsDates",
+    "VOO",
+    "VTI",
+    "RSP",
+    "BRKB",
+  ])
 
 const getStockTickers = () => Object.keys(getOnlyStockTickerData(getStockDataFile()))
 
