@@ -168,7 +168,6 @@ module.exports = [
   "FIS",
   "TRV",
   "A",
-  "ROP",
   "COF",
   "ADM",
   "CMG",
