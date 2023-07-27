@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer-core")
-const { exit, getStockTickers, beginAndLogin } = require("../util")
+const { exit, getStockTickers } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
+const { beginAndLogin } = require("../puppeteer")
 
 const tickers = getStockTickers()
 

@@ -6,7 +6,7 @@ const Logger = require("../../Logger")
 /**
  * @param {string} ticker
  * @param {Browser} browser
- * @param {string} url
+ * @param {string} analystPageLink
  * @returns {Promise<Object>}
  */
 exports.fetch = async (ticker, browser, analystPageLink) => {

@@ -1,4 +1,4 @@
-const { pause, ReError } = require("./util")
+const { pause, ReError, begin, promptLogin, promptUser } = require("./util")
 
 /**
  * @param page {MyPage}
@@ -49,7 +49,6 @@ const wrapPage = page => {
 
 /**
  * @param {MyPage} page
- * @param {array} searchArray
  * @param {function} callback
  * @returns {Promise<void>}
  */
@@ -139,6 +138,20 @@ const getPageCookies = async (browser, url) => {
   return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
 }
 
+const beginAndLogin = async (browser, prompt) => {
+  begin()
+
+  const closeLoginPages = await promptLogin((url, options) =>
+    goToNewBrowserPage(browser, url, options)
+  )
+
+  const promptResponse = await promptUser(prompt)
+
+  closeLoginPages()
+
+  return promptResponse
+}
+
 module.exports = {
   getTextByX,
   wrapPage,
@@ -149,4 +162,5 @@ module.exports = {
   responseInterceptorFuzzy,
   evalX,
   getPageCookies,
+  beginAndLogin,
 }

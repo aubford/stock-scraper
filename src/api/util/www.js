@@ -15,7 +15,7 @@ const fetchText = async (...fetchArgs) => {
  */
 const fetchJson = async (...fetchArgs) => {
   const response = await fetch(/**@type * */ ...fetchArgs)
-  return response.json()
+  return await response.json()
 }
 
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {

@@ -1,5 +1,4 @@
 // Modules
-global.fetch = require("node-fetch")
 global._ = require("lodash")
 global.fs = require("fs")
 

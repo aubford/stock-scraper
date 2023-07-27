@@ -5,8 +5,8 @@ const { handleFetch } = require("./util/www")
 
 /**
  * @param {string} ticker
- * @param {string} url
  * @param {Browser} browser
+ * @param {string} analystPageLink
  * @returns {Promise<{argusAnalystOneYrDivGrowth:*, argusAnalystFiveYrEpsGrowth:*, argusAnalystRating:*, argusAnalystTarget:(number|string), argusAnalystFinancialStrength:*, argusAnalystOneYrEpsGrowth:*}>}
  */
 const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {

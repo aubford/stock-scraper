@@ -26,6 +26,7 @@ const fetchData = async (ticker, browser, logger) => {
 
 /**
  * @param {string} ticker
+ * @param {Browser} browser
  * @returns {Promise<Object>}
  */
 exports.fetch = (ticker, browser) =>

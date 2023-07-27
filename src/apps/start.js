@@ -1,6 +1,7 @@
 const puppeteer = require("puppeteer-core")
-const { exit, beginAndLogin, getStockTickers } = require("../util")
+const { exit, getStockTickers } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
+const { beginAndLogin } = require("../puppeteer")
 
 puppeteer.connect(CONNECTION).then(async browser => {
   const promptResponse = await beginAndLogin(browser, "Tickers: ")

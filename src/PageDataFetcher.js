@@ -11,10 +11,11 @@ const { ReError, MessageError } = require("./util")
 
 class PageDataFetcher {
   /**
-   * @param {string} contextName
    * @param {string} ticker
    * @param {*} browser
-   * @param {number} timeout
+   * @param {object} logger
+   * @param {object} options
+   * @param {number} options.timeout
    */
   constructor(ticker, browser, logger, { timeout } = {}) {
     this.ticker = ticker

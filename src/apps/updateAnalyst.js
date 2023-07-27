@@ -17,7 +17,6 @@ const {
 } = require("../util")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
-/** @type {{fetch: function}} */
 const analystMap = {
   [NEW_CONSTRUCTS]: newConstructs,
   [ZACKS]: zacksReport,

@@ -4,6 +4,7 @@ const { handleFetch } = require("./util/www")
 /**
  * @param {string} ticker
  * @param {Browser} browser
+ * @param {object} logger
  * @returns {Promise<{boaIncome:*, morningstarLink:(string|string[]), boaInvestment:*, cfraRating:*, boaRating:*, morningstarRating:*, boaVolatility:*, cfraLink:(string|string[])}>}
  */
 const fetchData = async (ticker, browser, logger) => {

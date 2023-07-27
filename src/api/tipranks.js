@@ -1,5 +1,5 @@
 const { zip, partition, flatten } = require("lodash")
-const { makePrettyDate, formatErrorObject } = require("../util")
+const { makePrettyDate } = require("../util")
 const PageDataFetcher = require("../PageDataFetcher")
 const { handleFetch } = require("./util/www")
 
@@ -169,6 +169,7 @@ const getHedgeRating = tipHedgeMoves =>
 /**
  * @param ticker
  * @param {Browser} browser
+ * @param {object} logger
  * @returns {Promise<Object>}
  */
 const fetchData = async (ticker, browser, logger) => {

@@ -48,6 +48,10 @@ const renameCSVs = () => {
   renameFile(EXPORT_DATA, downloadsPath)
 }
 
+/**
+ * @param filePath
+ * @returns {Promise<*>}
+ */
 async function parseCSV(filePath) {
   const results = []
 

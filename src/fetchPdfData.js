@@ -29,17 +29,17 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
     })
   }
 
-  return Promise.all(xPathArr.map(page.getTextByX))
+  return await Promise.all(xPathArr.map(page.getTextByX))
 }
 
 /**
- * @param {string} ticker
- * @param {Browser} browser
- * @param {string} options.url
- * @param {string} options.analystName
- * @param {string[]} options.xPathArr
- * @param {string[]} [options.waitForPostScroll]
- * @param {Number} [options.timeout]
+ * @param {object} logger
+ * @param {object} options
+ * @param {object}    options.browser
+ * @param {string}    options.url
+ * @param {string[]}  options.xPathArr
+ * @param {string[]}  options.waitForPostScroll
+ * @param {Number}    options.timeout
  * @returns {Promise<*[]>}
  */
 const fetchPdfData = async (

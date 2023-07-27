@@ -1,9 +1,12 @@
 const moment = require("moment")
 const { omitBy, max, mapValues, isPlainObject, groupBy } = require("lodash")
 
-const getFirstSentence = str =>
-  str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null
+const getFirstSentence = str => (str ? str.slice(0, 50) + str.slice(50).split(". ")[0] : null)
 
+/**
+ * @param {Array} stockData
+ * @returns {NumericDictionary<NumericDictionary<*> | *> | *}
+ */
 const getSectorIndexWithDesc = stockData =>
   mapValues(groupBy(stockData, "sector"), sector =>
     mapValues(groupBy(sector, "industry"), industry =>
@@ -34,11 +37,13 @@ const getSectorIndex = stockData =>
     (val, key) => key === "undefined"
   )
 
+/**
+ * @param {Array} stockData
+ * @returns {NumericDictionary<NumericDictionary<*> | *> | *}
+ */
 const getIndustryIndex = stockData =>
   mapValues(groupBy(stockData, "sector"), sector =>
-    mapValues(groupBy(sector, "industry"), industry =>
-      industry.map(({ ticker }) => ticker)
-    )
+    mapValues(groupBy(sector, "industry"), industry => industry.map(({ ticker }) => ticker))
   )
 
 const getTickers = stockData => Object.keys(stockData)
@@ -67,16 +72,12 @@ const getUpdateCalendar = stockData => {
     }
     return "None"
   })
-  return mapValues(groupedByDate, dateStocks =>
-    dateStocks.map(({ ticker }) => ticker).sort()
-  )
+  return mapValues(groupedByDate, dateStocks => dateStocks.map(({ ticker }) => ticker).sort())
 }
 
 const getSectorLastUpdatedIndex = stockData =>
   mapValues(getSectorIndex(stockData), sector => {
-    const date = new Date(
-      max(sector.map(ticker => stockData[ticker].scrapeDataUpdatedAt))
-    )
+    const date = new Date(max(sector.map(ticker => stockData[ticker].scrapeDataUpdatedAt)))
     const month = date.getMonth()
     if (month) {
       return moment(date).format("MM/DD HH:mm")
@@ -87,9 +88,7 @@ const searchKeys = (data, sch) => {
   const keys = Object.keys(data)
   const foundKeys = keys.filter(key => key.toLowerCase().includes(sch.toLowerCase()))
   const objects = keys.filter(key => isPlainObject(data[key])).map(key => data[key])
-  return foundKeys.concat(
-    objects.reduce((acc, curr) => acc.concat(searchKeys(curr, sch)), [])
-  )
+  return foundKeys.concat(objects.reduce((acc, curr) => acc.concat(searchKeys(curr, sch)), []))
 }
 
 module.exports = {

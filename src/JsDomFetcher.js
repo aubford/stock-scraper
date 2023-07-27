@@ -125,8 +125,7 @@ class JsDomFetcher extends JsDomNode {
 
   async setPage(url, scripts) {
     const options = scripts ? { runScripts: "dangerously" } : {}
-    const promise = this.testing ? getTestPage(options) : JSDOM.fromURL(url, options)
-    this.dom = await promise
+    this.dom = await (this.testing ? getTestPage(options) : JSDOM.fromURL(url, options))
   }
 
   logHTML() {

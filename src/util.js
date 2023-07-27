@@ -1,9 +1,7 @@
-require("puppeteer-core")
 const moment = require("moment")
 const { isArray, assignWith, omit, pick } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
-const { goToNewBrowserPage } = require("./puppeteer")
 
 /**
  * @typedef {Page} MyPage
@@ -133,20 +131,6 @@ const begin = () => {
   exec("caffeinate")
 }
 
-const beginAndLogin = async (browser, prompt) => {
-  begin()
-
-  const closeLoginPages = await promptLogin((url, options) =>
-    goToNewBrowserPage(browser, url, options)
-  )
-
-  const promptResponse = await promptUser(prompt)
-
-  closeLoginPages()
-
-  return promptResponse
-}
-
 const exit = () => {
   exec("killall caffeinate")
   console.log("🎉🎉 Scraping Complete: SUCCESS 🎉🎉")
@@ -253,7 +237,6 @@ module.exports = {
   // script
   exit,
   begin,
-  beginAndLogin,
   promptForTickers,
   promptLogin,
   promptUser,

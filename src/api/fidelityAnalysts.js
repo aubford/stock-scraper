@@ -21,6 +21,7 @@ const reportRowXpathFrag = name =>
 /**
  * @param {string} ticker
  * @param  {Browser} browser
+ * @param {object} logger
  * @returns Promise<Object>
  */
 const fetchData = async (ticker, browser, logger) => {

@@ -5,9 +5,9 @@ const {
   getStockDataFile,
   getOnlyStockTickerData,
   exit,
-  beginAndLogin,
 } = require("../util")
 const { getTickers } = require("../database/introspectStockData")
+const { beginAndLogin } = require("../puppeteer")
 
 const stockDataFile = getStockDataFile()
 const stockData = getOnlyStockTickerData(stockDataFile)
