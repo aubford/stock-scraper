@@ -11,7 +11,6 @@
     "backup-db": "src/database/backup-db.sh",
     "check": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]])\"",
     "checkv": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/vooData.json')[process.argv[1]])\"",
-    "earnings": "node --require ./src/database/getDatabaseInfo.js --eval 'getEarnings()'",
     "extra": "node --require ./preload.js ./src/apps/scrapeExtraData.js && npm run prettyStock",
     "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
@@ -20,7 +19,7 @@
     "sandbox": "node --require ./preload.js test/puppeteerSandbox.node.js",
     "sectors": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorMap()'",
     "start": "node --require ./preload.js ./src/apps/start.js && npm run prettyStock",
-    "start-over": "npm run reset-db && npm run add && npm run update-yahoo-wsj && npm run extra && npm run update",
+    "start-over": "npm run reset-db && npm run add-tickers && npm run update-yahoo-wsj && npm run extra && npm run update",
     "test": "jest",
     "uplog": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorUpdated()'",
     "voo": "node --require ./preload.js ./src/apps/fetchVoo.js && npm run prettyVoo",
@@ -28,12 +27,11 @@
     "update": "node --require ./preload.js src/apps/update.js && npm run prettyStock",
     "update-analyst": "node --require ./preload.js ./src/apps/updateAnalyst.js && npm run prettyStock",
     "update-merill": "node --require ./preload.js ./src/apps/updateMerill.js && npm run prettyStock",
-    "update-yw": "node --require ./preload.js ./src/apps/updateYahooWsj.js && npm run prettyStock",
     "voo-update-yw": "node --require ./preload.js ./src/apps/updateYahooWsjForVoo.js && npm run prettyStock",
     "update-zacks": "node --require ./preload.js ./src/apps/updateZacks.js && npm run prettyStock",
     "voo-update-zacks": "node --require ./preload.js ./src/apps/updateZacksForVoo.js && npm run prettyStock",
     "process-csv": "node --require ./preload.js ./src/csv/processCSVs.js && npm run prettyStock",
-    "fetch-historical-prices": "node --require ./preload.js ./src/apps/fetchHistoricalPrices.js && npm run prettyStock"
+    "daily-update": "node --require ./preload.js ./src/apps/dailyUpdate.js && npm run prettyStock"
   },
   "author": "",
   "license": "ISC",
@@ -48,7 +46,6 @@
     "lodash": "^4.17.21",
     "merge-img": "^2.1.3",
     "moment": "^2.29.1",
-    "node-fetch": "^2.6.1",
     "puppeteer-core": "^18.0.5"
   },
   "devDependencies": {

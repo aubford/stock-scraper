@@ -1,6 +1,11 @@
 const { fetchText } = require("../util")
 const transform = require("./transform")
-const { formatMsDate, getPreviousQuarterStartEndDates } = require("../../util")
+const {
+  formatMsDate,
+  getPreviousQuarterStartEndDates,
+  scrapbookWriteOut,
+  MessageError,
+} = require("../../util")
 const { handleFetch } = require("../util/www")
 
 const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
@@ -83,5 +88,48 @@ const fetchPrices = async ticker => {
   }
 }
 
-exports.fetchHistoricalPrices = ticker =>
-  handleFetch(() => fetchPrices(ticker), ticker, YAHOO_PRICES)
+/**
+ * Get the voo index prices so we can use them to compare against other stocks
+ * @param {bool} [noWriteOut]
+ * @returns {Promise<*>}
+ */
+exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
+  const data = await handleFetch(() => fetchPrices("VOO"), "VOO", YAHOO_PRICES)
+  global.vooHistoricalPricesData = data
+
+  if (!noWriteOut) {
+    scrapbookWriteOut({ VOO: data }, true)
+  }
+
+  return data
+}
+
+exports.fetchHistoricalPrices = async ticker => {
+  if (!global.vooHistoricalPricesData) {
+    throw new MessageError(
+      "fetchVooIndexHistoricalPrices must be called before calling fetchHistoricalPrices"
+    )
+  }
+
+  const { yahooPrevQtrAvgPrice, yahooPrevQtrRange, yahooDailyPricesDates, yahooDailyPrices } =
+    await handleFetch(() => fetchPrices(ticker), ticker, YAHOO_PRICES)
+
+  const missingDates = global.vooHistoricalPricesData.yahooDailyPricesDates.filter(
+    date => !yahooDailyPricesDates.includes(date)
+  )
+  if (missingDates.length > 2) {
+    return {
+      yahooPrevQtrAvgPrice: "Error: Too many missing dates",
+      yahooPrevQtrRange: "Error: Too many missing dates",
+      yahooDailyPricesDates: "Error: Too many missing dates",
+      yahooDailyPrices: "Error: Too many missing dates",
+    }
+  }
+
+  return {
+    yahooPrevQtrAvgPrice,
+    yahooPrevQtrRange,
+    yahooDailyPricesDates: [...missingDates, ...yahooDailyPricesDates],
+    yahooDailyPrices: [...missingDates.map(() => "?"), ...yahooDailyPrices],
+  }
+}

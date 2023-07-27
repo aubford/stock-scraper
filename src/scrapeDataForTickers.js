@@ -19,9 +19,9 @@ const metaWriteBadFetches = badFetches => {
 }
 
 module.exports = async (allTickers, browser, shouldMerge) => {
-  const vooPriceData = await yahoo.fetchHistoricalPrices("VOO")
+  await yahoo.fetchVooIndexHistoricalPrices()
   let badFetches = []
-  const newStockData = { VOO: vooPriceData }
+  const newStockData = {}
 
   const scrapeDataForTickers = async tickers => {
     console.log("Searching for tickers:", tickers)

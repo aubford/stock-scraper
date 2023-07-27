@@ -49,6 +49,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
 }
 
 module.exports = async (allTickers, browser, shouldMerge) => {
+  await yahoo.fetchVooIndexHistoricalPrices(true)
   let badFetches = []
   const newStockData = {}
 

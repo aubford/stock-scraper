@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{@types/babel-core, @types/babel-plugin-syntax-jsx, @types/babel-types, @types/jest, @types/lodash, @types/node, @types/puppeteer, @types/puppeteer-core, @types/react, @types/react-dom}" />
+    <file url="PROJECT" libraries="{@types/babel-core, @types/babel-plugin-syntax-jsx, @types/babel-types, @types/babel__plugin-transform-runtime, @types/babel__preset-env, @types/cheerio, @types/core-js, @types/eslint, @types/jest, @types/jsdom, @types/lodash, @types/node, @types/puppeteer, @types/puppeteer-core, @types/react, @types/react-dom}" />
     <includedPredefinedLibrary name="HTTP Pre-Request and Response Handler" />
     <includedPredefinedLibrary name="Node.js Core" />
   </component>

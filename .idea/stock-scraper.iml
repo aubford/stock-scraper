@@ -25,5 +25,11 @@
     <orderEntry type="library" name="@types/react-dom" level="application" />
     <orderEntry type="library" name="@types/puppeteer-core" level="application" />
     <orderEntry type="library" name="@types/puppeteer" level="application" />
+    <orderEntry type="library" name="@types/cheerio" level="application" />
+    <orderEntry type="library" name="@types/babel__plugin-transform-runtime" level="application" />
+    <orderEntry type="library" name="@types/babel__preset-env" level="application" />
+    <orderEntry type="library" name="@types/core-js" level="application" />
+    <orderEntry type="library" name="@types/eslint" level="application" />
+    <orderEntry type="library" name="@types/jsdom" level="application" />
   </component>
 </module>

@@ -49,6 +49,7 @@ const getOnlyStockTickerData = stockJsonData =>
   ])
 
 const getStockTickers = () => Object.keys(getOnlyStockTickerData(getStockDataFile()))
+const getStockData = () => getOnlyStockTickerData(getStockDataFile())
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
@@ -56,7 +57,8 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   const existingData = JSON.parse(stockDataFile)
 
   const writeToFile = shouldMerge
-    ? assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
+    ? // handle extra and buffet data by ignoring them
+      assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
     : {
         ...existingData,
         ...data,
@@ -249,6 +251,7 @@ module.exports = {
   getStockDataFile,
   getOnlyStockTickerData,
   getStockTickers,
+  getStockData,
   writeToExistingTickers,
   // error handling
   ReError,

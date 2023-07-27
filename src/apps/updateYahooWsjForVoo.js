@@ -19,6 +19,7 @@ const fetchData = async ticker => {
 }
 
 const run = async () => {
+  await yahoo.fetchVooIndexHistoricalPrices()
   let res = []
 
   const tickerChunks = chunk(tickers, 8)
