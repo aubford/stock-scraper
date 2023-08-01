@@ -1,0 +1,36 @@
+###
+
+# curl 'https://www.slickcharts.com/sp500' 
+#  -H 'authority: www.slickcharts.com' 
+#  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' 
+#  -H 'accept-language: en-US,en;q=0.9' 
+#  -H 'cache-control: max-age=0' 
+#  -H 'cookie: _ga=GA1.1.191199215.1690217960; _pbjs_userid_consent_data=3524755945110770; session=980a679d-9703-42ce-a7c0-58954ade7d5d; _cc_id=31e23d52d5a068beab5f3d971872b37e; pbjs-unifiedid=%7B%22TDID%22%3A%22a3542d7f-cba2-4b82-8cbc-b6a39690a109%22%2C%22TDID_LOOKUP%22%3A%22FALSE%22%2C%22TDID_CREATED_AT%22%3A%222023-07-24T16%3A59%3A25%22%7D; cf_clearance=fmDnIeHz2T4ne2Jkp8.hjk6XYBkynt.i427ILfj03Ko-1690901662-0-1-618a6e0b.8cbd9ced.ad8a95e7-0.2.1690901662; _ga_MWXZ0FBF55=GS1.1.1690901662.14.0.1690901662.0.0.0' 
+#  -H 'sec-ch-ua: "Not.A/Brand";v="8", "Chromium";v="114", "Opera";v="100"' 
+#  -H 'sec-ch-ua-mobile: ?0' 
+#  -H 'sec-ch-ua-platform: "macOS"' 
+#  -H 'sec-fetch-dest: document' 
+#  -H 'sec-fetch-mode: navigate' 
+#  -H 'sec-fetch-site: none' 
+#  -H 'sec-fetch-user: ?1' 
+#  -H 'upgrade-insecure-requests: 1' 
+#  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 OPR/100.0.0.0' 
+#  --compressed
+GET https://www.slickcharts.com/sp500
+authority: www.slickcharts.com
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+accept-language: en-US,en;q=0.9
+cache-control: max-age=0
+cookie: _ga=GA1.1.191199215.1690217960; _pbjs_userid_consent_data=3524755945110770; session=980a679d-9703-42ce-a7c0-58954ade7d5d; _cc_id=31e23d52d5a068beab5f3d971872b37e; pbjs-unifiedid=%7B%22TDID%22%3A%22a3542d7f-cba2-4b82-8cbc-b6a39690a109%22%2C%22TDID_LOOKUP%22%3A%22FALSE%22%2C%22TDID_CREATED_AT%22%3A%222023-07-24T16%3A59%3A25%22%7D; cf_clearance=fmDnIeHz2T4ne2Jkp8.hjk6XYBkynt.i427ILfj03Ko-1690901662-0-1-618a6e0b.8cbd9ced.ad8a95e7-0.2.1690901662; _ga_MWXZ0FBF55=GS1.1.1690901662.14.0.1690901662.0.0.0
+sec-ch-ua: "Not.A/Brand";v="8", "Chromium";v="114", "Opera";v="100"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "macOS"
+sec-fetch-dest: document
+sec-fetch-mode: navigate
+sec-fetch-site: none
+sec-fetch-user: ?1
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 OPR/100.0.0.0
+
+###
+
