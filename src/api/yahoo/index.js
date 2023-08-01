@@ -1,4 +1,5 @@
 const { fetchText } = require("../util")
+const moment = require("moment")
 const transform = require("./transform")
 const {
   formatMsDate,
@@ -9,6 +10,16 @@ const {
 const { handleFetch } = require("../util/www")
 
 const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
+
+const returnErrorData = (errorMsg, logger) => {
+  logger.error(errorMsg)
+  return {
+    yahooPrevQtrAvgPrice: errorMsg,
+    yahooPrevQtrRange: errorMsg,
+    yahooDailyPricesDates: errorMsg,
+    yahooDailyPrices: errorMsg,
+  }
+}
 
 /**
  * @param ticker
@@ -43,7 +54,7 @@ const fetchData = async ticker => {
 
 exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, YAHOO)
 
-const fetchPrices = async ticker => {
+const fetchPrices = async (logger, ticker) => {
   const res = await fetchText(
     `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
     {
@@ -68,6 +79,12 @@ const fetchPrices = async ticker => {
   const prices = data.indicators.quote[0].close.map(price => price.toFixed(2)).reverse()
   const indexOfJan152020 = dates.indexOf("1/15/2020")
 
+  const todayDate = moment().format("M/D/YYYY")
+  if (dates[0] === todayDate) {
+    dates.shift()
+    prices.shift()
+  }
+
   // may need to adjust this for holidays in the future!!
   const prevQtrStartDateIndex = dates.indexOf(prevQtrStartDate.format("M/D/YYYY"))
   const prevQtrEndDateIndex = dates.indexOf(prevQtrEndDate.format("M/D/YYYY")) + 1
@@ -80,21 +97,28 @@ const fetchPrices = async ticker => {
   const prevQtrMaxPrice = Math.max(...qtrPrices)
   const prevQtrMinPrice = Math.min(...qtrPrices)
 
+  const yahooDailyPricesDates = dates.slice(0, indexOfJan152020)
+  const yahooDailyPrices = prices.slice(0, indexOfJan152020)
+
+  if (yahooDailyPricesDates.length !== yahooDailyPrices.length) {
+    return returnErrorData("Error: prices and dates are not the same length", logger)
+  }
+
   return {
     yahooPrevQtrAvgPrice,
     yahooPrevQtrRange: `${prevQtrMinPrice} - ${prevQtrMaxPrice}`,
-    yahooDailyPricesDates: dates.slice(0, indexOfJan152020),
-    yahooDailyPrices: prices.slice(0, indexOfJan152020),
+    yahooDailyPricesDates,
+    yahooDailyPrices,
   }
 }
 
 /**
  * Get the voo index prices so we can use them to compare against other stocks
- * @param {bool} [noWriteOut]
- * @returns {Promise<*>}
+ * @param {boolean} [noWriteOut]
+ * @returns {{yahooPrevQtrAvgPrice: number, yahooPrevQtrRange: string, yahooDailyPricesDates: string[], yahooDailyPrices: string[]}}}
  */
 exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
-  const data = await handleFetch(() => fetchPrices("VOO"), "VOO", YAHOO_PRICES)
+  const data = await handleFetch(fetchPrices, "VOO", YAHOO_PRICES)
   global.vooHistoricalPricesData = data
 
   if (!noWriteOut) {
@@ -104,7 +128,7 @@ exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
   return data
 }
 
-exports.fetchHistoricalPrices = async ticker => {
+const fetchStockPrices = async (logger, ticker) => {
   if (!global.vooHistoricalPricesData) {
     throw new MessageError(
       "fetchVooIndexHistoricalPrices must be called before calling fetchHistoricalPrices"
@@ -112,24 +136,22 @@ exports.fetchHistoricalPrices = async ticker => {
   }
 
   const { yahooPrevQtrAvgPrice, yahooPrevQtrRange, yahooDailyPricesDates, yahooDailyPrices } =
-    await handleFetch(() => fetchPrices(ticker), ticker, YAHOO_PRICES)
+    await fetchPrices(logger, ticker)
 
-  const missingDates = global.vooHistoricalPricesData.yahooDailyPricesDates.filter(
+  const someDatesMissing = global.vooHistoricalPricesData.yahooDailyPricesDates.some(
     date => !yahooDailyPricesDates.includes(date)
   )
-  if (missingDates.length > 2) {
-    return {
-      yahooPrevQtrAvgPrice: "Error: Too many missing dates",
-      yahooPrevQtrRange: "Error: Too many missing dates",
-      yahooDailyPricesDates: "Error: Too many missing dates",
-      yahooDailyPrices: "Error: Too many missing dates",
-    }
+  if (someDatesMissing) {
+    return returnErrorData("Error: Some dates missing relative to VOO data", logger)
   }
 
   return {
     yahooPrevQtrAvgPrice,
     yahooPrevQtrRange,
-    yahooDailyPricesDates: [...missingDates, ...yahooDailyPricesDates],
-    yahooDailyPrices: [...missingDates.map(() => "?"), ...yahooDailyPrices],
+    yahooDailyPricesDates,
+    yahooDailyPrices,
   }
 }
+
+exports.fetchHistoricalPrices = async ticker =>
+  handleFetch(fetchStockPrices, ticker, YAHOO_PRICES)
