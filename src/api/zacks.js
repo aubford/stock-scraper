@@ -293,12 +293,12 @@ const fetchData = async (logger, ticker) => {
     zacksROEIndustry,
     zacksSalesToAssetsIndustry,
 
-    zacksGrowthEstimatePctYrInd,
-    zacksGrowthEstimatePctNextYrInd,
-    zacksGrowthEstimatePctFiveYrInd,
     zacksGrowthEstimatePctYr,
+    zacksGrowthEstimatePctYrInd,
     zacksGrowthEstimatePctNextYr,
+    zacksGrowthEstimatePctNextYrInd,
     zacksGrowthEstimatePctFiveYr,
+    zacksGrowthEstimatePctFiveYrInd,
     zacksLastEarningsDate:
       zacksConfirmedNextEarningsDate && new Date(zacksConfirmedNextEarningsDate) < new Date()
         ? zacksConfirmedNextEarningsDate

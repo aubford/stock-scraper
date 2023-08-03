@@ -63,7 +63,7 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)
         badFetches.push(ticker)
-        newStockData[ticker] = formatErrorObject(error)
+        newStockData[ticker] = formatErrorObject(error, ticker)
       }
     }
   }

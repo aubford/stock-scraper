@@ -140,6 +140,6 @@ exports.fetch = async (ticker, tries = 1) => {
     return buildWsjData(retVal)
   } catch (error) {
     logger.logError(error)
-    return formatErrorObject(error)
+    return formatErrorObject(error, ticker)
   }
 }

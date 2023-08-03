@@ -52,7 +52,7 @@ const handleFetch = (fetchCallback, ticker, contextName) => {
         return {}
       }
       logger.error("fetch error!", error)
-      return formatErrorObject(error)
+      return formatErrorObject(error, ticker)
     })
 }
 
