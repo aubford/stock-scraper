@@ -1,5 +1,5 @@
 const moment = require("moment")
-const { isArray, assignWith, pick } = require("lodash")
+const { isArray, assignWith, pick, omit } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 
@@ -66,11 +66,18 @@ const metaWriteOut = data => {
   })
 }
 
+/**
+ * Write to stockData for tickers that exist there
+ * Write to meta for the others
+ * @param data
+ */
 const writeToExistingTickers = data => {
   const existingTickers = getStockTickers()
-  const prunedData = pick(data, existingTickers)
+  const existingData = pick(data, existingTickers)
+  const otherData = omit(data, existingTickers)
 
-  scrapbookWriteOut(prunedData, true)
+  scrapbookWriteOut(existingData, true)
+  metaWriteOut({ nonfetchTickers: otherData })
 }
 
 const vooWriteOut = (data, shouldMerge) => {
