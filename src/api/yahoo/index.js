@@ -4,8 +4,8 @@ const transform = require("./transform")
 const {
   formatMsDate,
   getPreviousQuarterStartEndDates,
-  scrapbookWriteOut,
   MessageError,
+  metaWriteOut,
 } = require("../../util")
 const { handleFetch } = require("../util/www")
 
@@ -122,7 +122,7 @@ exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
   global.vooHistoricalPricesData = data
 
   if (!noWriteOut) {
-    scrapbookWriteOut({ VOO: data }, true)
+    metaWriteOut({ vooIndexHistoricalPrices: data })
   }
 
   return data
