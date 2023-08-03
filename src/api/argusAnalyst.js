@@ -29,9 +29,9 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
     analystName: ARGUS_ANALYST,
     url,
     xPathArr: [
-      prevSiblingTextIs("ARGUS RATING: "),
-      prevSiblingTextIs("Target Price"),
-      prevSiblingTextIs("Financial Strength Rating"),
+      prevSiblingTextIs("ARGUS RATING: ", 2),
+      prevSiblingTextIs("Target Price", 2),
+      prevSiblingTextIs("Financial Strength Rating", 2),
       prevSiblingTextIs("1 Year EPS Growth Forecast"),
       prevSiblingTextIs("5 Year EPS Growth Forecast"),
       prevSiblingTextIs("1 Year Dividend Growth Forecast"),
