@@ -1,14 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const { sortBy } = require("lodash")
 const { goToNewBrowserPage } = require("../puppeteer")
-const {
-  promptLogin,
-  getStockDataFile,
-  promptUser,
-  getOnlyStockTickerData,
-  begin,
-  exit,
-} = require("../util")
+const { promptLogin, getStockDataFile, promptUser, begin, exit } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
@@ -20,8 +13,7 @@ puppeteer.connect(CONNECTION).then(async browser => {
   )
   const sectorUserInputVal = await promptUser("Sectors:")
 
-  const oldFile = getStockDataFile()
-  const stockData = getOnlyStockTickerData(oldFile)
+  const stockData = getStockDataFile()
   const sectorIndex = getSectorIndex(stockData)
 
   const updateSector = async sector => {

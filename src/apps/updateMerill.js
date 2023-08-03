@@ -1,16 +1,10 @@
 const puppeteer = require("puppeteer-core")
 const { morningstar, cfra, boa } = require("../api")
-const {
-  scrapbookWriteOut,
-  getStockDataFile,
-  getOnlyStockTickerData,
-  exit,
-} = require("../util")
+const { scrapbookWriteOut, getStockDataFile, exit } = require("../util")
 const { getTickers } = require("../database/introspectStockData")
 const { beginAndLogin } = require("../puppeteer")
 
-const stockDataFile = getStockDataFile()
-const stockData = getOnlyStockTickerData(stockDataFile)
+const stockData = getStockDataFile()
 const tickers = getTickers(stockData)
 
 const fetchTickerData = async (ticker, browser) => {

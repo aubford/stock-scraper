@@ -7,14 +7,7 @@ const {
   tipranks,
   td,
 } = require("../api")
-const {
-  scrapbookWriteOut,
-  promptUser,
-  getStockDataFile,
-  getOnlyStockTickerData,
-  exit,
-  begin,
-} = require("../util")
+const { scrapbookWriteOut, promptUser, getStockDataFile, exit, begin } = require("../util")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
 const analystMap = {
@@ -26,8 +19,7 @@ const analystMap = {
   [TD]: td,
 }
 
-const stockDataFile = getStockDataFile()
-const stockData = getOnlyStockTickerData(stockDataFile)
+const stockData = getStockDataFile()
 const sectorIndex = getSectorIndex(stockData)
 
 puppeteer.connect(CONNECTION).then(async browser => {

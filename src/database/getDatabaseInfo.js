@@ -7,10 +7,8 @@ const {
 const moment = require("moment")
 const { cyan, yellow } = require("chalk")
 const { toPairs, sortBy } = require("lodash")
-const { getOnlyStockTickerData } = require("../util")
 
-const stockDataJson = require(STOCK_DATA_LOCATION)
-const stockData = getOnlyStockTickerData(stockDataJson)
+const stockData = require(STOCK_DATA_LOCATION)
 
 global.getSectorUpdated = () => {
   const updatedIndex = getSectorLastUpdatedIndex(stockData)

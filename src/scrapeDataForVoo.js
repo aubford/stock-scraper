@@ -2,9 +2,9 @@ const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./api
 const {
   makePrettyDate,
   vooWriteOut,
-  pause,
   formatErrorObject,
   getEarningsPriceChange,
+  clearErrors,
 } = require("./util")
 
 const scrapeDataForTicker = async (ticker, browser) => {
@@ -30,6 +30,7 @@ const scrapeDataForTicker = async (ticker, browser) => {
   )
 
   return {
+    ...clearErrors(),
     earningsPriceChange,
     scrapeDataUpdatedAt: Date.now(),
     updatedAt: makePrettyDate(),
@@ -50,7 +51,6 @@ const scrapeDataForTicker = async (ticker, browser) => {
 
 module.exports = async (allTickers, browser, shouldMerge) => {
   await yahoo.fetchVooIndexHistoricalPrices(true)
-  let badFetches = []
   const newStockData = {}
 
   const scrapeDataForTickers = async tickers => {
@@ -62,30 +62,11 @@ module.exports = async (allTickers, browser, shouldMerge) => {
         console.log(`* TICKER COMPLETED OK: ${ticker}`)
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)
-        badFetches.push(ticker)
         newStockData[ticker] = formatErrorObject(error, ticker)
       }
     }
   }
 
   await scrapeDataForTickers(allTickers)
-
-  badFetches = badFetches.concat(
-    Object.values(newStockData)
-      .filter(s => s.error)
-      .map(s => s.ticker)
-  )
-
-  if (badFetches.length) {
-    console.log(`Fetching badFetches: ${badFetches.join(", ")}`)
-
-    await pause(30 * 1000)
-
-    const refetchTickers = [...badFetches]
-    badFetches = []
-
-    await scrapeDataForTickers(refetchTickers)
-  }
-
   vooWriteOut(newStockData, shouldMerge)
 }

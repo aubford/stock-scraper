@@ -34,7 +34,7 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       } catch (error) {
         logger.error("xxx FAIL xxx", error)
         badFetches.push(ticker)
-        newStockData[ticker] = formatErrorObject(error)
+        newStockData[ticker] = formatErrorObject(error, ticker)
       }
     }
   }
@@ -42,9 +42,9 @@ module.exports = async (allTickers, browser, shouldMerge) => {
   await scrapeDataForTickers(allTickers)
 
   badFetches = badFetches.concat(
-    Object.values(newStockData)
-      .filter(s => s.error)
-      .map(s => s.ticker)
+    Object.entries(newStockData)
+      .filter(([, { error }]) => error)
+      .map(([ticker]) => ticker)
   )
 
   if (badFetches.length) {

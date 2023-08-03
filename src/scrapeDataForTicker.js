@@ -13,7 +13,7 @@ const {
   zacks,
   tipranks,
 } = require("./api")
-const { makePrettyDate, getEarningsPriceChange } = require("./util")
+const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
 module.exports = async (ticker, browser) => {
   // TIPRANKS
@@ -75,6 +75,7 @@ module.exports = async (ticker, browser) => {
   )
 
   return {
+    ...clearErrors(),
     ticker,
     tickerSearch: `//${ticker}`,
     scrapeDataUpdatedAt: Date.now(),

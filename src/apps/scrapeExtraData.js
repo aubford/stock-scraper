@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
 const { goToNewBrowserPage } = require("../puppeteer")
-const { scrapbookWriteOut, ReError } = require("../util")
+const { metaWriteOut, ReError } = require("../util")
 const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
 
@@ -106,7 +106,7 @@ puppeteer.connect(connection).then(async browser => {
   console.log("Magic Tickers: ", magicTickers)
   console.log("Buffett Data: ", buffetData)
 
-  scrapbookWriteOut({
+  metaWriteOut({
     magicTickers,
     buffetData,
   })

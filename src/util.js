@@ -1,5 +1,5 @@
 const moment = require("moment")
-const { isArray, assignWith, omit, pick } = require("lodash")
+const { isArray, assignWith, pick } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 
@@ -37,19 +37,7 @@ const getStockDataFile = () => {
   return readFile(STOCK_DATA_LOCATION)
 }
 
-const getOnlyStockTickerData = stockJsonData =>
-  omit(stockJsonData, [
-    "magicTickers",
-    "buffetData",
-    "earningsDates",
-    "VOO",
-    "VTI",
-    "RSP",
-    "BRKB",
-  ])
-
-const getStockTickers = () => Object.keys(getOnlyStockTickerData(getStockDataFile()))
-const getStockData = () => getOnlyStockTickerData(getStockDataFile())
+const getStockTickers = () => Object.keys(getStockDataFile())
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
@@ -65,6 +53,17 @@ const scrapbookWriteOut = (data, shouldMerge) => {
       }
 
   writeFile(STOCK_DATA_LOCATION, writeToFile)
+}
+
+const metaWriteOut = data => {
+  /** @type {*} */
+  const existingFile = fs.readFileSync(META_LOCATION)
+  const existingMeta = JSON.parse(existingFile)
+
+  writeFile(META_LOCATION, {
+    ...existingMeta,
+    ...data,
+  })
 }
 
 const writeToExistingTickers = data => {
@@ -184,6 +183,12 @@ const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
   sector: "ERROR",
 })
 
+const clearErrors = () => ({
+  error: "",
+  errorCode: "",
+  errorStack: "",
+})
+
 const getDiffPercent = (current, prior) => (current - prior) / Math.abs(prior)
 
 const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
@@ -249,10 +254,10 @@ module.exports = {
   scrapbookWriteOut,
   vooWriteOut,
   getStockDataFile,
-  getOnlyStockTickerData,
   getStockTickers,
-  getStockData,
   writeToExistingTickers,
+  metaWriteOut,
+  clearErrors,
   // error handling
   ReError,
   MessageError,

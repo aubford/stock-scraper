@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/http" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/save-gscript-code" />
+      <excludeFolder url="file://$MODULE_DIR$/test/data" />
       <excludePattern pattern="stockData.json" />
       <excludePattern pattern="vooData.json" />
     </content>
