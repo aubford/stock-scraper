@@ -1,8 +1,8 @@
 const { chunk, fromPairs } = require("lodash")
 const { yahoo, zacks, wsj } = require("../api")
-const { scrapbookWriteOut, getStockTickers, getStockData } = require("../util")
+const { scrapbookWriteOut, getStockTickers, getStockDataFile } = require("../util")
 
-const stockData = getStockData()
+const stockData = getStockDataFile()
 const tickers = getStockTickers()
 
 const fetchData = async ticker => {
