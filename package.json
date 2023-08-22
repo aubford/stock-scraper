@@ -24,7 +24,7 @@
     "uplog": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorUpdated()'",
     "voo": "node --require ./preload.js ./src/apps/fetchVoo.js && npm run prettyVoo",
     "vooB": "node --require ./preload.js ./src/apps/fetchVooB.js && npm run prettyVoo",
-    "update": "node --require ./preload.js src/apps/update.js && npm run prettyStock",
+    "update": "node --require ./preload.js src/apps/update.js && npm run process-csv",
     "update-analyst": "node --require ./preload.js ./src/apps/updateAnalyst.js && npm run prettyStock",
     "update-merill": "node --require ./preload.js ./src/apps/updateMerill.js && npm run prettyStock",
     "voo-update-yw": "node --require ./preload.js ./src/apps/updateYahooWsjForVoo.js && npm run prettyStock",
