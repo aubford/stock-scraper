@@ -92,7 +92,8 @@ const getUnrealizedCostBasis = csvRows => {
 }
 
 const getUnrealizedShares = csvRows => {
-  const valueSum = sumBy(csvRows, "Quantity")
+  const validSharesRows = csvRows.filter(row => row["Acquisition Date"] !== "Reinvestments")
+  const valueSum = sumBy(validSharesRows, "Quantity")
   return round(valueSum, 2)
 }
 
