@@ -2,7 +2,7 @@ const { chunk, fromPairs } = require("lodash")
 const { zacks } = require("../api")
 const { vooWriteOut } = require("../util")
 
-const tickers = require("../vooTickers")
+const tickers = require("../database/vooTickers")
 
 const fetchData = async ticker => {
   const data = await zacks.fetch(ticker)
