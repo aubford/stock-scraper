@@ -8,7 +8,7 @@ const {
   getUnrealizedCostBasis,
   getUnrealizedShares,
 } = require("./csv-util")
-const { writeToExistingTickers, promptUser } = require("../util")
+const { writeToExistingTickers, promptUser, getStockDataFile } = require("../util")
 
 renameCSVs()
 
@@ -21,12 +21,20 @@ const main = async () => {
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)
   const unrealizedTaxLots = groupBy(unrealizedTaxLotsCsv, SYMBOL_HEADER)
 
+  const allStocksZeroedOut = mapValues(getStockDataFile(), () => ({
+    my_costBasis: 0,
+    my_shares: 0,
+  }))
+
   const costBases = mapValues(unrealizedTaxLots, csvRows => ({
     my_costBasis: getUnrealizedCostBasis(csvRows),
     my_shares: getUnrealizedShares(csvRows),
   }))
 
-  writeToExistingTickers(costBases)
+  writeToExistingTickers({
+    ...allStocksZeroedOut,
+    ...costBases,
+  })
 }
 
 main()
