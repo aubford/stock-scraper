@@ -66,20 +66,6 @@ const metaWriteOut = data => {
   })
 }
 
-/**
- * Write to stockData for tickers that exist there
- * Write to meta for the others
- * @param data
- */
-const writeToExistingTickers = data => {
-  const existingTickers = getStockTickers()
-  const existingData = pick(data, existingTickers)
-  const otherData = omit(data, existingTickers)
-
-  scrapbookWriteOut(existingData, true)
-  metaWriteOut({ nonfetchTickers: otherData })
-}
-
 const vooWriteOut = (data, shouldMerge) => {
   /** @type {*} */
   const stockDataFile = fs.readFileSync(VOO_LOCATION)
@@ -267,7 +253,6 @@ module.exports = {
   vooWriteOut,
   getStockDataFile,
   getStockTickers,
-  writeToExistingTickers,
   metaWriteOut,
   clearErrors,
   // error handling
