@@ -139,9 +139,14 @@ const begin = () => {
   exec("caffeinate")
 }
 
-const exit = () => {
+const exit = async () => {
   exec("killall caffeinate")
   console.log("🎉🎉 Scraping Complete: SUCCESS 🎉🎉")
+
+  exec("afplay /System/Library/Sounds/Ping.aiff")
+  await pause(1000)
+  exec("afplay /System/Library/Sounds/Ping.aiff")
+
   process.exit(0)
 }
 
