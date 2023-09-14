@@ -1,9 +1,8 @@
-const puppeteer = require("puppeteer-core")
 const { exit } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
-const { beginAndLogin } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
 
-puppeteer.connect(CONNECTION).then(async browser => {
+connectAndRunApp(async browser => {
   const promptResponse = await beginAndLogin(browser, "Tickers: ")
 
   const tickers = promptResponse.split(/[^A-Z]/).filter(a => a)

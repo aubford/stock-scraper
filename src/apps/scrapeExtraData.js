@@ -1,6 +1,5 @@
-const puppeteer = require("puppeteer-core")
 const Cheerio = require("cheerio")
-const { goToNewBrowserPage } = require("../puppeteer")
+const { goToNewBrowserPage, connectAndRunApp } = require("../puppeteer")
 const { metaWriteOut, ReError } = require("../util")
 const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
@@ -81,7 +80,7 @@ const getBuffetData = async () => {
   return fromPairs(chunk)
 }
 
-puppeteer.connect(connection).then(async browser => {
+connectAndRunApp(async browser => {
   const newPage = url =>
     goToNewBrowserPage(browser, url).catch(err => {
       throw new ReError("goToNewBrowserPage failed", err, "scrapeExtraData")

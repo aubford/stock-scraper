@@ -1,4 +1,3 @@
-const puppeteer = require("puppeteer-core")
 const {
   fidelityAnalysts,
   fidelityStats,
@@ -9,6 +8,7 @@ const {
 } = require("../api")
 const { scrapbookWriteOut, promptUser, getStockDataFile, exit, begin } = require("../util")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
+const { connectAndRunApp } = require("../puppeteer")
 
 const analystMap = {
   [NEW_CONSTRUCTS]: newConstructs,
@@ -22,7 +22,7 @@ const analystMap = {
 const stockData = getStockDataFile()
 const sectorIndex = getSectorIndex(stockData)
 
-puppeteer.connect(CONNECTION).then(async browser => {
+connectAndRunApp(async browser => {
   begin()
 
   const analyst = await promptUser("Analyst: ")

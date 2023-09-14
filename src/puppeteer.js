@@ -1,4 +1,12 @@
 const { pause, ReError, begin, promptLogin, promptUser } = require("./util")
+const puppeteer = require("puppeteer-core")
+
+const connectAndRunApp = app => {
+  puppeteer
+    .connect(CONNECTION)
+    .then(app)
+    .catch(err => console.error(err))
+}
 
 /**
  * @param page {MyPage}
@@ -163,4 +171,5 @@ module.exports = {
   evalX,
   getPageCookies,
   beginAndLogin,
+  connectAndRunApp,
 }

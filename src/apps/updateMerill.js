@@ -1,8 +1,7 @@
-const puppeteer = require("puppeteer-core")
 const { morningstar, cfra, boa } = require("../api")
 const { scrapbookWriteOut, getStockDataFile, exit } = require("../util")
 const { getTickers } = require("../database/introspectStockData")
-const { beginAndLogin } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
 
 const stockData = getStockDataFile()
 const tickers = getTickers(stockData)
@@ -47,22 +46,19 @@ const fetchTickerData = async (ticker, browser) => {
   }
 }
 
-puppeteer
-  .connect(CONNECTION)
-  .then(async browser => {
-    await beginAndLogin(browser, "Press Enter")
+connectAndRunApp(async browser => {
+  await beginAndLogin(browser, "Press Enter")
 
-    const newData = {}
-    for (const ticker of tickers) {
-      try {
-        newData[ticker] = await fetchTickerData(ticker, browser)
-      } catch (err) {
-        console.log(`${ticker}: xxx TOP LEVEL FAIL xxx`, err)
-      }
+  const newData = {}
+  for (const ticker of tickers) {
+    try {
+      newData[ticker] = await fetchTickerData(ticker, browser)
+    } catch (err) {
+      console.log(`${ticker}: xxx TOP LEVEL FAIL xxx`, err)
     }
+  }
 
-    scrapbookWriteOut(newData, true)
+  scrapbookWriteOut(newData, true)
 
-    exit()
-  })
-  .catch(err => console.error(err))
+  exit()
+}).catch(err => console.error(err))

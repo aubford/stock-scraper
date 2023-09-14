@@ -1,12 +1,11 @@
-const puppeteer = require("puppeteer-core")
 const { exit } = require("../util")
 const scrapeDataForVoo = require("../scrapeDataForVoo")
 const allTickers = require("../database/vooTickers")
-const { beginAndLogin } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
 
 const tickers = allTickers.slice(allTickers.length / 2)
 
-puppeteer.connect(CONNECTION).then(async browser => {
+connectAndRunApp(async browser => {
   await beginAndLogin(browser, "Press Enter")
   await scrapeDataForVoo(tickers, browser, SHOULD_MERGE)
 

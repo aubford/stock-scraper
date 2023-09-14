@@ -15,7 +15,7 @@ try {
   console.log("skipped ws connection")
 }
 
-Error.stackTraceLimit = 1
+// Error.stackTraceLimit = 1
 
 // Constants
 

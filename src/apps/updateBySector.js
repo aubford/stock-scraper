@@ -1,11 +1,10 @@
-const puppeteer = require("puppeteer-core")
 const { sortBy } = require("lodash")
-const { goToNewBrowserPage } = require("../puppeteer")
+const { goToNewBrowserPage, connectAndRunApp } = require("../puppeteer")
 const { promptLogin, getStockDataFile, promptUser, begin, exit } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { getSectorIndex, sectorMap } = require("../database/introspectStockData")
 
-puppeteer.connect(CONNECTION).then(async browser => {
+connectAndRunApp(async browser => {
   begin()
 
   const closeLoginPages = await promptLogin((url, options) =>
