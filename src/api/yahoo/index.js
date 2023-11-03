@@ -115,7 +115,7 @@ const fetchPrices = async (logger, ticker) => {
 /**
  * Get the voo index prices so we can use them to compare against other stocks
  * @param {boolean} [noWriteOut]
- * @returns {{yahooPrevQtrAvgPrice: number, yahooPrevQtrRange: string, yahooDailyPricesDates: string[], yahooDailyPrices: string[]}}}
+ * @returns {Promise<{yahooPrevQtrAvgPrice: number, yahooPrevQtrRange: string, yahooDailyPricesDates: string[], yahooDailyPrices: string[]}>}
  */
 exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
   const data = await handleFetch(fetchPrices, "VOO", YAHOO_PRICES)
@@ -135,13 +135,17 @@ const fetchStockPrices = async (logger, ticker) => {
     )
   }
 
-  const { yahooPrevQtrAvgPrice, yahooPrevQtrRange, yahooDailyPricesDates, yahooDailyPrices } =
-    await fetchPrices(logger, ticker)
+  const {
+    yahooPrevQtrAvgPrice,
+    yahooPrevQtrRange,
+    yahooDailyPricesDates,
+    yahooDailyPrices,
+  } = await fetchPrices(logger, ticker)
 
   const someDatesMissing = global.vooHistoricalPricesData.yahooDailyPricesDates.some(
     date => !yahooDailyPricesDates.includes(date)
   )
-  if (someDatesMissing) {
+  if (someDatesMissing && !["SNOW", "ABNB", "NU"].includes(ticker)) {
     return returnErrorData("Error: Some dates missing relative to VOO data", logger)
   }
 

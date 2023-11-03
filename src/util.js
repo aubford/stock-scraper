@@ -1,5 +1,5 @@
 const moment = require("moment")
-const { isArray, assignWith, pick, omit } = require("lodash")
+const { isArray, assignWith } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 
@@ -190,7 +190,11 @@ const clearErrors = () => ({
 const getDiffPercent = (current, prior) => (current - prior) / Math.abs(prior)
 
 const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
-  const earningsDateIndex = pricesDates?.findIndex(date => {
+  if (!isArray(pricesDates)) {
+    return null
+  }
+
+  const earningsDateIndex = pricesDates.findIndex(date => {
     const dateA = new Date(date).toDateString()
     const dateB = new Date(earningsDate).toDateString()
     return dateA === dateB
