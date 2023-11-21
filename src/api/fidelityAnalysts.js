@@ -6,8 +6,11 @@ const { handleFetch } = require("./util/www")
 const formatFidelityStarmine = starmineOpinion => {
   if (!starmineOpinion) return ""
 
-  const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
-    starmineOpinion
+  const {
+    currentNormalizedRating,
+    ratingChangeDate,
+    previousNormalizedRating,
+  } = starmineOpinion
 
   return `${currentNormalizedRating}\n${ratingChangeDate?.substring(
     6,
@@ -15,8 +18,7 @@ const formatFidelityStarmine = starmineOpinion => {
   )}\n(${previousNormalizedRating})\n`
 }
 
-const reportRowXpathFrag = name =>
-  `//table[@data-tc="table-analyst-reports"]/tbody/tr[.//a="${name}"]`
+const reportRowXpathFrag = name => `//table[@data-tc="table-firm-opinions"][.//td="${name}"]`
 
 /**
  * @param {string} ticker
@@ -43,13 +45,17 @@ const fetchData = async (ticker, browser, logger) => {
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
   )
 
-  const [zacksDate, zacksLink, argusAnalystDate, argusAnalystLink] =
-    await fetcher.fetchPageData([
-      reportRowXpathFrag("Zacks Investment Research") + `/td[1]/time`,
-      reportRowXpathFrag("Zacks Investment Research") + `/td[2]/a/@href`,
-      reportRowXpathFrag("Argus Analyst") + `/td[1]/time`,
-      reportRowXpathFrag("Argus Analyst") + `/td[2]/a/@href`,
-    ])
+  const [zacksDate, zacksLink] = await fetcher.fetchPageData([
+    reportRowXpathFrag("Zacks Investment Research, Inc") + `//time`,
+    reportRowXpathFrag("Zacks Investment Research, Inc") + `//a/@href`,
+  ])
+
+  await fetcher.clickForXpath(`//button[@data-tc="other"]`)
+
+  const [argusAnalystDate, argusAnalystLink] = await fetcher.fetchPageData([
+    reportRowXpathFrag("Argus Analyst") + `//time`,
+    reportRowXpathFrag("Argus Analyst") + `//a/@href`,
+  ])
 
   await fetcher.close()
 

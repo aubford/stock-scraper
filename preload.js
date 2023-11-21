@@ -19,7 +19,7 @@ try {
 
 // Constants
 
-const timeoutCoeff = 1
+const timeoutCoeff = 1.5
 
 global.SHOULD_MERGE = false
 
@@ -27,7 +27,7 @@ global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
 global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
 
-global.NEW_CONSTRUCTS_TIMEOUT = 60 * 1000 * timeoutCoeff
+global.NEW_CONSTRUCTS_TIMEOUT = 75 * 1000 * timeoutCoeff
 global.TIPRANKS_TIMEOUT = 30 * 1000 * timeoutCoeff
 global.FORD_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff

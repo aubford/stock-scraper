@@ -65,7 +65,10 @@ const fetchPdfData = async (
     timeout,
   }).catch(err => {
     page.closeSafe()
-    throw new ReError("handlePage failed", err, "fetchPdfData").setCode(err.code || true)
+    if (err.code) {
+      throw err
+    }
+    throw new ReError("handlePage failed", err, "fetchPdfData").setCode(true)
   })
 
   await page.closeSafe()
