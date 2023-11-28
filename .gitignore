@@ -4,7 +4,10 @@ browserWSEndpoint.json
 ws.json
 testOutput.json
 .DS_Store
-.idea
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/i18nSettings.xml
 response.json
 
 /stockData.json
