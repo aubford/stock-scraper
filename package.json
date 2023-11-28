@@ -13,7 +13,6 @@
     "check": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]])\"",
     "checkv": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/vooData.json')[process.argv[1]])\"",
     "extra": "node --require ./preload.js ./src/apps/scrapeExtraData.js && npm run prettyStock",
-    "makeTestData": "node --require ./preload.js test/makeTestData.node.js",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "prettyVoo": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\"",
     "prune-tickers": "node --require ./preload.js ./src/database/pruneTickers.js && npm run prettyStock && npm run check-for-missing",
