@@ -17,7 +17,7 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)
 
   const [
-    argusAnalystRating,
+    [,,,argusAnalystRating],
     argusAnalystTargetStr,
     argusAnalystFinancialStrength,
     argusAnalystOneYrEpsGrowth,

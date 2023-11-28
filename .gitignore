@@ -11,3 +11,4 @@ response.json
 /vooData.json
 /stockDataMeta.json
 /stockDataBackup.json
+/stockDataBackupBeforeTDEnds.json

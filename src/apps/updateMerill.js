@@ -60,5 +60,5 @@ connectAndRunApp(async browser => {
 
   scrapbookWriteOut(newData, true)
 
-  exit()
-}).catch(err => console.error(err))
+  await exit()
+})

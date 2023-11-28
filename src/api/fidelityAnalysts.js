@@ -18,7 +18,7 @@ const formatFidelityStarmine = starmineOpinion => {
   )}\n(${previousNormalizedRating})\n`
 }
 
-const reportRowXpathFrag = name => `//table[@data-tc="table-firm-opinions"][.//td="${name}"]`
+const reportRowXpathFrag = name => `//table[@data-tc="table-firm-opinions"]/tbody/tr[.//td="${name}"]`
 
 /**
  * @param {string} ticker
