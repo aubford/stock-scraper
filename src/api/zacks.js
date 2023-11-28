@@ -46,6 +46,14 @@ const getMainData = async ticker => {
   }
 }
 
+const getSection = (name, cb) => {
+  try {
+    return cb()
+  } catch (err) {
+    console.warn(new ReError(`Failed to get section: ${name}`, err, "getSection").setCode(404))
+  }
+}
+
 /**
  * @param {object} logger
  * @param {string} ticker
@@ -84,20 +92,29 @@ const fetchData = async (logger, ticker) => {
 
   // detailed estimates
 
-  const detailSection = fetcher.$x(`//section[@id="detail_estimate"]/table`)
-  const detailXpath = text =>
-    detailSection.getTextByX(
-      `//${textContainsPredicate("td", text)}/following-sibling::*/span`
-    )
+  const {
+    zacksEpsEstimateCurrentYr,
+    zacksEpsEstimateNextYr,
+    zacksAvgAnalystRatingOutOfFive,
+    zacksEarningsESP,
+  } = getSection("detailed estimates", () => {
+    const detailSection = fetcher.$x(`//section[@id="detail_estimate"]/table`)
+    const detailXpath = text =>
+      detailSection.getTextByX(
+        `//${textContainsPredicate("td", text)}/following-sibling::*/span`
+      )
 
-  const zacksEpsEstimateCurrentYr = detailXpath("Current Year")
-  const zacksEpsEstimateNextYr = detailXpath("Next Year")
-  const zacksAvgAnalystRatingOutOfFive = detailSection.getTextByX(
-    `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
-  )
-  const zacksEarningsESP = detailSection.getTextByX(
-    `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
-  )
+    return {
+      zacksEpsEstimateCurrentYr: detailXpath("Current Year"),
+      zacksEpsEstimateNextYr: detailXpath("Next Year"),
+      zacksAvgAnalystRatingOutOfFive: detailSection.getTextByX(
+        `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
+      ),
+      zacksEarningsESP: detailSection.getTextByX(
+        `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
+      ),
+    }
+  })
 
   // revisions
 

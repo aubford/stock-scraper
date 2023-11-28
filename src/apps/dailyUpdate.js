@@ -1,41 +1,85 @@
 const { chunk, fromPairs } = require("lodash")
 const { yahoo, zacks, wsj } = require("../api")
-const { scrapbookWriteOut, getStockTickers, getStockDataFile } = require("../util")
+const {
+  scrapbookWriteOut,
+  vooWriteOut,
+  getStockTickers,
+  getVooTickers,
+  formatErrorObject,
+  exit,
+  makePrettyDate,
+  getEarningsPriceChange,
+} = require("../util")
 
-const stockData = getStockDataFile()
-const tickers = getStockTickers()
+const IS_VOO = process.argv.includes("--voo")
 
-const fetchData = async ticker => {
-  const prices = await yahoo.fetchHistoricalPrices(ticker)
-  const yahooData = await yahoo.fetch(ticker)
-  const zacksData = await zacks.fetch(ticker)
-  const wsjData = await wsj.fetch(ticker)
+const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
-  if (prices && zacksData && wsjData && yahooData) {
-    console.log(`Fetched OK: ${ticker}`)
-    return [
+/**
+ * @script dailyUpdate
+ */
+
+const fetchStockData = async ticker => {
+  const [yahooData, prices, wsjData, zacksData] = await Promise.all([
+    yahoo.fetch(ticker),
+    yahoo.fetchHistoricalPrices(ticker),
+    wsj.fetch(ticker),
+    zacks.fetch(ticker),
+  ])
+
+  const { yahooDailyPricesDates, yahooDailyPrices } = prices
+  return [
+    ticker,
+    {
       ticker,
-      { ...stockData[ticker], ...prices, ...zacksData, ...wsjData, ...yahooData },
-    ]
-  }
-  console.log(`*** FAILURE: ${ticker} ***`)
-  return [ticker, stockData[ticker]]
+      dailyUpdateAt: makePrettyDate(),
+      tickerSearch: `//${ticker}`,
+      earningsPriceChange: getEarningsPriceChange(
+        zacksData.zacksLastEarningsDate,
+        yahooDailyPrices,
+        yahooDailyPricesDates
+      ),
+      ...yahooData,
+      ...wsjData,
+      ...zacksData,
+      ...prices,
+    },
+  ]
 }
 
-const run = async () => {
+const handleFetchTicker = async ticker => {
+  console.log(`* STARTING: ${ticker}`)
+  try {
+    const res = await fetchStockData(ticker)
+    console.log(`* TICKER COMPLETED OK: ${ticker}`)
+    return [ticker, res]
+  } catch (error) {
+    console.error(`${ticker}: xxx SCRIPT IS BROKEN! xxx`, error)
+    return [ticker, formatErrorObject(error, ticker, true)]
+  }
+}
+
+const runDailyUpdate = async () => {
   await yahoo.fetchVooIndexHistoricalPrices()
 
   let res = []
   const tickerChunks = chunk(tickers, 8)
   for (const tickerChunk of tickerChunks) {
-    const companyData = await Promise.stagger(fetchData, tickerChunk, 550)
+    const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 550)
     res = res.concat(companyData)
   }
   return res
 }
 
-run().then(companyData => {
+runDailyUpdate().then(companyData => {
   const updatedData = fromPairs(companyData)
-  scrapbookWriteOut(updatedData)
-  process.exit(0)
+
+  // Check if the '--voo' flag was passed
+  if (IS_VOO) {
+    vooWriteOut(updatedData, true)
+  } else {
+    scrapbookWriteOut(updatedData, true)
+  }
+
+  exit()
 })

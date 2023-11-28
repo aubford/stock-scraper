@@ -7,7 +7,7 @@ const {
   clearErrors,
 } = require("./util")
 
-const scrapeDataForTicker = async (ticker, browser) => {
+const scrapeDataForVoo = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
@@ -58,7 +58,7 @@ module.exports = async (allTickers, browser, shouldMerge) => {
 
     for (const ticker of tickers) {
       try {
-        newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
+        newStockData[ticker] = await scrapeDataForVoo(ticker, browser)
         console.log(`* TICKER COMPLETED OK: ${ticker}`)
       } catch (error) {
         console.log(`${ticker}: xxx FAIL xxx`, error)

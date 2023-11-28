@@ -26,7 +26,7 @@
     "vooB": "node --require ./preload.js src/apps/voo/fetchVooB.js && npm run prettyVoo",
     "update": "node --require ./preload.js src/apps/update.js",
     "all": "npm run extra && npm run csv && npm run update && npm run voo && npm run vooB",
-    "daily-update": "jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && npm run prettyStock",
+    "daily-update": "jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo",
     "csv": "node --require ./preload.js ./src/csv/processCSVs.js && npm run prettyStock",
     "update-fidelity": "node --require ./preload.js ./src/apps/updateFidelity.js && npm run prettyStock",
     "update-merill": "node --require ./preload.js ./src/apps/updateMerill.js && npm run prettyStock",

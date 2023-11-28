@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{stock-scraper/node_modules}" />
-    <file url="PROJECT" libraries="{@types/babel-core, @types/babel-plugin-syntax-jsx, @types/babel-types, @types/babel-webpack-plugin, @types/chai, @types/cheerio, @types/css, @types/enzyme, @types/enzyme-adapter-react-15, @types/enzyme-adapter-react-16, @types/es-feature-detection, @types/es6-collections, @types/es6-set-proptypes, @types/jest, @types/jsdoc-to-markdown, @types/leaflet, @types/leaflet-areaselect, @types/leaflet-draw, @types/less, @types/lodash, @types/mapbox, @types/meteor, @types/meteor-roles, @types/mocha, @types/moment-jalaali, @types/moment-timezone, @types/mongodb, @types/node, @types/node-fetch, @types/prettier, @types/puppeteer, @types/puppeteer-core, @types/react, @types/react-addons-create-fragment, @types/react-dom, @types/underscore, stock-scraper/node_modules}" />
+    <file url="PROJECT" libraries="{@types/babel-core, @types/babel-plugin-syntax-jsx, @types/babel-types, @types/babel-webpack-plugin, @types/chai, @types/cheerio, @types/css, @types/enzyme, @types/enzyme-adapter-react-15, @types/enzyme-adapter-react-16, @types/es-feature-detection, @types/es6-collections, @types/es6-set-proptypes, @types/jest, @types/jsdoc-to-markdown, @types/leaflet, @types/leaflet-areaselect, @types/leaflet-draw, @types/less, @types/lodash, @types/mapbox, @types/meteor, @types/meteor-roles, @types/mocha, @types/moment-jalaali, @types/moment-timezone, @types/mongodb, @types/node, @types/node-fetch, @types/prettier, @types/puppeteer, @types/puppeteer-core, @types/react, @types/react-addons-create-fragment, @types/react-dom, @types/underscore}" />
     <includedPredefinedLibrary name="HTTP Pre-Request and Response Handler" />
     <includedPredefinedLibrary name="Node.js Core" />
   </component>

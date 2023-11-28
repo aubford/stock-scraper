@@ -38,6 +38,7 @@ const getStockDataFile = () => {
 }
 
 const getStockTickers = () => Object.keys(getStockDataFile())
+const getVooTickers = () => require("./database/vooTickers")
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
@@ -45,8 +46,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   const existingData = JSON.parse(stockDataFile)
 
   const writeToFile = shouldMerge
-    ? // handle extra and buffet data by ignoring them
-      assignWith(existingData, data, (a, b) => (isArray(a) ? a : { ...a, ...b }))
+    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
     : {
         ...existingData,
         ...data,
@@ -68,10 +68,10 @@ const metaWriteOut = data => {
 
 const vooWriteOut = (data, shouldMerge) => {
   /** @type {*} */
-  const stockDataFile = fs.readFileSync(VOO_LOCATION)
-  const existingData = JSON.parse(stockDataFile)
+  const vooDataFile = fs.readFileSync(VOO_LOCATION)
+  const existingData = JSON.parse(vooDataFile)
   const writeToFile = shouldMerge
-    ? assignWith({}, existingData, data, (a, b) => (isArray(a) ? b || a : { ...a, ...b }))
+    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
     : {
         ...existingData,
         ...data,
@@ -125,9 +125,17 @@ const begin = () => {
   exec("caffeinate")
 }
 
+/**
+ * Success and close
+ * @returns {void}
+ */
 const exit = async () => {
   exec("killall caffeinate")
-  console.log("🎉🎉 Scraping Complete: SUCCESS 🎉🎉")
+  console.log(
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Scraping Complete: SUCCESS 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
+  )
 
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
@@ -171,15 +179,22 @@ class MessageError extends Error {
 /**
  * @param {Error} error
  * @param {string} ticker
+ * @param {boolean} isDailyUpdate
  * @returns {import('./types').ErrorObject}
  */
-const formatErrorObject = ({ name, message, stack, code } = {}, ticker) => ({
-  ...(ticker ? { ticker } : {}),
-  error: name ? name + ": " + message : message,
-  errorCode: code,
-  errorStack: stack,
-  sector: "ERROR",
-})
+const formatErrorObject = function (
+  { name, message, stack, code } = {},
+  ticker,
+  isDailyUpdate
+) {
+  return {
+    ...(ticker ? { ticker } : {}),
+    [isDailyUpdate ? "duError" : "error"]: name ? name + ": " + message : message,
+
+    [isDailyUpdate ? "duErrorCode" : "errorCode"]: code,
+    [isDailyUpdate ? "duErrorStack" : "errorStack"]: stack,
+  }
+}
 
 const clearErrors = () => ({
   error: "",
@@ -190,7 +205,7 @@ const clearErrors = () => ({
 const getDiffPercent = (current, prior) => (current - prior) / Math.abs(prior)
 
 const getEarningsPriceChange = (earningsDate, prices, pricesDates) => {
-  if (!isArray(pricesDates)) {
+  if (!earningsDate || !prices || !isArray(pricesDates)) {
     return null
   }
 
@@ -257,6 +272,7 @@ module.exports = {
   vooWriteOut,
   getStockDataFile,
   getStockTickers,
+  getVooTickers,
   metaWriteOut,
   clearErrors,
   // error handling
