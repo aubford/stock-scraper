@@ -1,8 +1,8 @@
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, wsj } = require("../api")
-const { vooWriteOut } = require("../util")
+const { yahoo, wsj } = require("../../api")
+const { vooWriteOut } = require("../../util")
 
-const tickers = require("../database/vooTickers")
+const tickers = require("../../database/vooTickers")
 
 const fetchData = async ticker => {
   const [yahooData, historicalPrices, wsjData] = await Promise.all([
