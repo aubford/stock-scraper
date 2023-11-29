@@ -156,6 +156,21 @@ const fetchData = async (logger, ticker) => {
   const [zacksGrowthEstimatePctFiveYr, zacksGrowthEstimatePctFiveYrInd] =
     fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
 
+  // Year over Year Growth Est.
+
+  const [
+    ,
+    ,
+    ,
+    zacksYoYGrowthEstCurrentYearSales,
+    zacksYoYGrowthEstNextYearSales,
+    ,
+    ,
+    ,
+    zacksYoYGrowthEstCurrentYearEps,
+    zacksYoYGrowthEstNextYearEps,
+  ] = fetcher.getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
+
   // STYLE SCORES ///////////////////////////
 
   await fetcher.setPage(`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`)
@@ -309,6 +324,10 @@ const fetchData = async (logger, ticker) => {
     zacksNetMarginIndustry,
     zacksROEIndustry,
     zacksSalesToAssetsIndustry,
+    zacksYoYGrowthEstCurrentYearSales,
+    zacksYoYGrowthEstNextYearSales,
+    zacksYoYGrowthEstCurrentYearEps,
+    zacksYoYGrowthEstNextYearEps,
 
     zacksGrowthEstimatePctYr,
     zacksGrowthEstimatePctYrInd,

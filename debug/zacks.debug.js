@@ -1,7 +1,7 @@
 require("../preload")
 const { zacks } = require("../src/api")
 
-const ticker = "AAPL"
+const ticker = "GILD"
 
 zacks
   .fetch(ticker)
