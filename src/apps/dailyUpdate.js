@@ -52,10 +52,10 @@ const handleFetchTicker = async ticker => {
   try {
     const res = await fetchStockData(ticker)
     console.log(`* TICKER COMPLETED OK: ${ticker}`)
-    return [ticker, res]
+    return res
   } catch (error) {
     console.error(`${ticker}: xxx SCRIPT IS BROKEN! xxx`, error)
-    return [ticker, formatErrorObject(error, ticker, true)]
+    return formatErrorObject(error, ticker, true)
   }
 }
 
