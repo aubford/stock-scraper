@@ -158,18 +158,22 @@ const fetchData = async (logger, ticker) => {
 
   // Year over Year Growth Est.
 
-  const [
-    ,
-    ,
-    ,
+  const {
     zacksYoYGrowthEstCurrentYearSales,
     zacksYoYGrowthEstNextYearSales,
-    ,
-    ,
-    ,
     zacksYoYGrowthEstCurrentYearEps,
     zacksYoYGrowthEstNextYearEps,
-  ] = fetcher.getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
+  } = getSection("YoY Growth Estimates", () => {
+    const [, , , currentYearSales, nextYearSales, , , , currentYearEps, nextYearEps] =
+      fetcher.getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
+
+    return {
+      zacksYoYGrowthEstCurrentYearSales: parseFloat(currentYearSales.replace("%", "")) / 100,
+      zacksYoYGrowthEstNextYearSales: parseFloat(nextYearSales.replace("%", "")) / 100,
+      zacksYoYGrowthEstCurrentYearEps: parseFloat(currentYearEps.replace("%", "")) / 100,
+      zacksYoYGrowthEstNextYearEps: parseFloat(nextYearEps.replace("%", "")) / 100,
+    }
+  })
 
   // STYLE SCORES ///////////////////////////
 
