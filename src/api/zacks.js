@@ -287,7 +287,6 @@ const fetchData = async (logger, ticker) => {
     zacksEpsEstimateNextYr,
     zacksPEIndustry,
 
-    zacksEgPerShareTTM: zacksPriceLastClose / zacksPegTTM,
     zacksPegTTMIndustry,
 
     zacksBookPerShare: zacksPriceLastClose / zacksPB,
