@@ -30,7 +30,7 @@
     "voo-update-zacks": "node --require ./preload.js src/apps/voo/updateZacksForVoo.js && npm run prettyStock",
     "voo-update-yw": "node --require ./preload.js src/apps/voo/updateYahooWsjForVoo.js && npm run prettyStock",
     "extra": "node --require ./preload.js ./src/apps/scrapeExtraData.js && npm run prettyStock",
-    "daily-update": "jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && sleep 480 && node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo",
+    "daily-update": "caffeinate && jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && sleep 180 && node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo && killall caffeinate",
     "voo-daily-update": "node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVzoo",
     "csv": "node --require ./preload.js ./src/csv/processCSVs.js && npm run prettyStock",
     "test-historical-prices": "jest ./test/historicalPrices.test.js"
