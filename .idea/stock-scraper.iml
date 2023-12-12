@@ -12,6 +12,8 @@
       <excludePattern pattern="vooData.json" />
       <excludePattern pattern="stockDataMeta.json" />
       <excludePattern pattern="stockDataBackupBeforeTDEnds.json" />
+      <excludePattern pattern="tdBackupStockData-23-12-12.json" />
+      <excludePattern pattern="tdBackupVooData-23-12-12.json" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
