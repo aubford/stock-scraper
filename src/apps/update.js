@@ -1,6 +1,6 @@
 const { exit, getStockTickers } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
-const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer-utils")
 
 const tickers = getStockTickers()
 

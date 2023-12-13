@@ -1,5 +1,5 @@
 const Logger = require("./Logger")
-const { goToNewBrowserPage } = require("./puppeteer")
+const { goToNewBrowserPage } = require("./puppeteer-utils")
 const { MessageError, ReError } = require("./util")
 
 const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {

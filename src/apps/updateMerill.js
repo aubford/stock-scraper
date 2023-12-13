@@ -1,7 +1,7 @@
 const { morningstar, cfra, boa } = require("../api")
 const { scrapbookWriteOut, getStockDataFile, exit } = require("../util")
 const { getTickers } = require("../database/introspectStockData")
-const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer-utils")
 
 const stockData = getStockDataFile()
 const tickers = getTickers(stockData)

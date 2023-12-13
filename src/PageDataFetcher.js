@@ -6,7 +6,7 @@ const {
   goToPage,
   interceptRequests,
   responseInterceptorFuzzy,
-} = require("./puppeteer")
+} = require("./puppeteer-utils")
 const { ReError, MessageError } = require("./util")
 
 class PageDataFetcher {

@@ -1,7 +1,7 @@
 const { fidelityAnalysts, argusAnalyst } = require("../api")
 const { scrapbookWriteOut, getStockDataFile, exit, ReError} = require("../util")
 const { getTickers } = require("../database/introspectStockData")
-const { beginAndLogin, connectAndRunApp } = require("../puppeteer")
+const { beginAndLogin, connectAndRunApp } = require("../puppeteer-utils")
 
 const stockData = getStockDataFile()
 const tickers = getTickers(stockData)
