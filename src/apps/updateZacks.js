@@ -28,6 +28,6 @@ const run = async () => {
 
 run().then(companyData => {
   const updatedData = fromPairs(companyData)
-  scrapbookWriteOut(updatedData)
+  scrapbookWriteOut(updatedData, true)
   process.exit(0)
 })

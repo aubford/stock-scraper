@@ -345,5 +345,5 @@ const fetchData = async (ticker, browser, logger) => {
   }
 }
 
-exports.fetch = (ticker, browser) =>
-  handleFetch(logger => fetchData(ticker, browser, logger), ticker, TIPRANKS)
+exports.fetch = (ticker, browser) => ({})
+  // handleFetch(logger => fetchData(ticker, browser, logger), ticker, TIPRANKS)

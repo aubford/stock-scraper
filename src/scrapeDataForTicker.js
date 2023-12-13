@@ -2,9 +2,7 @@ const {
   fidelityAnalysts,
   boa,
   argusAnalyst,
-  ford,
   morningstar,
-  // street,
   moodys,
   yahoo,
   wsj,
@@ -38,22 +36,18 @@ module.exports = async (ticker, browser) => {
     cfraLink,
   } = await boa.fetch(ticker, browser)
 
-  // ARGUS ANALYST & FORD & MORNINGSTAR
+  // ARGUS ANALYST & MORNINGSTAR
 
   const [
     zacksData,
     argusAnalystData,
-    fordData,
     morningstarData,
-    // streetData,
     wsjData,
     yahooHistoricalPricesData,
   ] = await Promise.all([
     zacks.fetch(ticker),
     argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-    ford.fetch(ticker, browser),
     morningstar.fetch(ticker, morningstarLink, browser),
-    // street.fetch(ticker, browser),
     wsj.fetch(ticker),
     yahoo.fetchHistoricalPrices(ticker),
   ])
@@ -99,7 +93,6 @@ module.exports = async (ticker, browser) => {
     ...argusAnalystData,
     ...fidelityAnalystOpinionsData,
     ...zacksData,
-    ...fordData,
     ...tipData,
     ...cfraData,
     ...yahooData,
