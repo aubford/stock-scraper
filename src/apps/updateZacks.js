@@ -1,5 +1,5 @@
 const { chunk, fromPairs } = require("lodash")
-const { zacks } = require("../api")
+const { zacks } = require("../sources")
 const { scrapbookWriteOut, getStockDataFile } = require("../util")
 
 const stockData = getStockDataFile()

@@ -1,4 +1,4 @@
-const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./api")
+const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./sources")
 const {
   makePrettyDate,
   vooWriteOut,

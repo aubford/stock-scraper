@@ -1,5 +1,5 @@
 require("../preload")
-const { zacks } = require("../src/api")
+const { zacks } = require("../src/sources")
 
 const ticker = "GILD"
 

@@ -1,7 +1,7 @@
 require("../preload")
 const puppeteer = require("puppeteer-core")
 const scrapeDataForTicker = require("../src/scrapeDataForTicker")
-const { yahoo } = require("../src/api")
+const { yahoo } = require("../src/sources")
 
 const ticker = "MRNA"
 

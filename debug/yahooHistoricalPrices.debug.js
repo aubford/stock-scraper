@@ -1,5 +1,5 @@
 require("../preload")
-const { yahoo } = require("../src/api")
+const { yahoo } = require("../src/sources")
 
 const ticker = "MRNA"
 

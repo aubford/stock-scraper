@@ -1,6 +1,6 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
 const { scrapbookWriteOut, pause, writeFile, formatErrorObject } = require("./util")
-const { yahoo } = require("./api")
+const { yahoo } = require("./sources")
 const moment = require("moment")
 const Logger = require("./Logger")
 

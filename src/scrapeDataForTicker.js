@@ -12,7 +12,7 @@ const {
   cfra,
   zacks,
   tipranks,
-} = require("./api")
+} = require("./sources")
 const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
 module.exports = async (ticker, browser) => {

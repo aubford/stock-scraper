@@ -1,5 +1,5 @@
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, zacks, wsj } = require("../api")
+const { yahoo, zacks, wsj } = require("../sources")
 const {
   scrapbookWriteOut,
   vooWriteOut,

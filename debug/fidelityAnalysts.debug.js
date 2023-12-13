@@ -1,6 +1,6 @@
 require("../preload")
 const puppeteer = require("puppeteer-core")
-const { fidelityAnalysts } = require("../src/api")
+const { fidelityAnalysts } = require("../src/sources")
 
 const ticker = "AAPL"
 

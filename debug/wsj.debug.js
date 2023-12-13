@@ -1,5 +1,5 @@
 require("../preload")
-const { wsj } = require("../src/api")
+const { wsj } = require("../src/sources")
 
 const ticker = "BAC"
 
