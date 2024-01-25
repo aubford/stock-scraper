@@ -5,7 +5,6 @@ const fidelityAnalysts = require("./fidelityAnalysts")
 const fidelityStats = require("./fidelityStats")
 const moodys = require("./moodys")
 const morningstar = require("./morningstar")
-const newConstructs = require("./newConstructs")
 const tipranks = require("./tipranks")
 const wsj = require("./wsj")
 const yahoo = require("./yahoo")
@@ -18,7 +17,6 @@ module.exports = {
   tipranks,
   yahoo,
   wsj,
-  newConstructs,
   moodys,
   boa,
   fidelityStats,
