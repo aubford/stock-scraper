@@ -1,5 +1,4 @@
 const {
-  wrapPage,
   evalX,
   getTextByX,
   newPage,
@@ -89,61 +88,6 @@ class PageDataFetcher {
     } else {
       throw new MessageError("No url provided", "setPage")
     }
-  }
-
-  async _setPageTrPopup() {
-    this.originPage = await this.newPage(
-      `https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=${this.ticker}&c_name=invest_VENDOR`,
-      { waitUntil: "domcontentloaded", logger: this.logger }
-    )
-
-    if (this.originPage.error) {
-      throw new ReError("this.originPage.error", this.originPage.error)
-    }
-
-    const analystReportsFrame = await this.originPage.waitForFrame(async frame =>
-      frame.url().includes("highcharts-analyst-reports")
-    )
-
-    if (!analystReportsFrame) {
-      throw new MessageError("No Tipranks data found")
-    }
-
-    const tipranksButton = await analystReportsFrame
-      .waitForSelector("button.see-full-report", {
-        timeout: 5000,
-      })
-      .catch(err => {
-        throw new ReError("No Tipranks button found", err).setCode(404)
-      })
-
-    await tipranksButton
-      .evaluate(el => el.click())
-      .catch(err => {
-        throw new ReError(`Error on click even though Tipranks button exists`, err)
-      })
-
-    const newTarget = await this.browser
-      .waitForTarget(target => target.type() === "page" && target.url().includes("popup"))
-      .catch(err => {
-        throw new ReError(`this.browser.waitForTarget failed`, err)
-      })
-
-    this.page = await newTarget.page()
-
-    if (!this.page) {
-      throw new MessageError(`this.page is null for Tipranks popup`)
-    }
-
-    wrapPage(this.page)
-  }
-
-  setPageTrPopup() {
-    return this._setPageTrPopup().catch(err =>
-      this.close().finally(() => {
-        throw new ReError("SET POPUP FAIL", err, "setPageTrPopup")
-      })
-    )
   }
 
   waitForXpath(xpath, frame) {
