@@ -49,7 +49,7 @@ const hedgeFundValues = [
   { first: "manning", last: "napier", value: 4 },
   { first: "night", last: "owl", value: 3 }, // night owl
   { first: "john", last: "kim", value: 3 }, // night owl
-  { first: "steven", last: "mandel", value: 3 }, // match
+  { first: "stephen", last: "mandel", value: 3 }, // match
   { first: "christopher", last: "lord", value: 3 },
   { first: "alok", last: "agrawal", value: 3 },
   { first: "william", last: "duhamel", value: 3 },

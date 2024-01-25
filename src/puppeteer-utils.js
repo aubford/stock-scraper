@@ -1,4 +1,4 @@
-const { pause, ReError, begin, promptLogin, promptUser } = require("./util")
+const { pause, ReError, begin, promptLogin, promptUser, getHtmlOrJson } = require("./util")
 const puppeteer = require("puppeteer-core")
 
 const connectAndRunApp = app => {
@@ -71,16 +71,18 @@ const interceptRequests = async (page, callback) => {
   })
 }
 
-const responseInterceptorFuzzy = (res, searchArr, callback) => {
+const responseInterceptor = (res, searchArr, callback, exact) => {
   const url = res.url()
-  const isMatch = searchArr.every(search => url.includes(search))
+  const isMatch = exact
+    ? searchArr.some(search => url === search)
+    : searchArr.some(search => url.includes(search))
+
   if (isMatch) {
-    res
-      .json()
-      .then(json => callback(json))
+    getHtmlOrJson(res)
+      .then(htmlOrJson => callback(htmlOrJson))
       .catch(err => {
         if (err.name !== "ProtocolError") {
-          console.warn("responseInterceptorFuzzy error: " + err)
+          console.warn("responseInterceptor error: " + err)
         }
       })
   }
@@ -167,7 +169,7 @@ module.exports = {
   newPage,
   goToPage,
   interceptRequests,
-  responseInterceptorFuzzy,
+  responseInterceptor,
   evalX,
   getPageCookies,
   beginAndLogin,

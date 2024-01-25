@@ -32,7 +32,7 @@ const fetchData = async (ticker, browser, logger) => {
   })
 
   let essRes = {}
-  fetcher.addResponseInterceptorFuzzy(
+  fetcher.addResponseInterceptor(
     [
       "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
     ],

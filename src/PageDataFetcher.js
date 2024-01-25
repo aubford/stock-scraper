@@ -5,7 +5,7 @@ const {
   newPage,
   goToPage,
   interceptRequests,
-  responseInterceptorFuzzy,
+  responseInterceptor,
 } = require("./puppeteer-utils")
 const { ReError, MessageError } = require("./util")
 
@@ -41,23 +41,23 @@ class PageDataFetcher {
     return this.logger
   }
 
-  addResponseInterceptorFuzzy(searchArr, callback) {
-    this.addResponseInterceptor(response => {
+  addResponseInterceptor(searchArr, callback, exact) {
+    this._addResponseInterceptor(response => {
       try {
-        responseInterceptorFuzzy(response, searchArr, callback)
+        responseInterceptor(response, searchArr, callback, exact)
       } catch (err) {
         this.logger.logError(
           new ReError(
             "error for search: " + searchArr.join(", "),
             err,
-            "addResponseInterceptorFuzzy"
+            "addResponseInterceptor"
           )
         )
       }
     })
   }
 
-  addResponseInterceptor(interceptor) {
+  _addResponseInterceptor(interceptor) {
     this.responseInterceptors.push(interceptor)
   }
 

@@ -249,6 +249,20 @@ const getPreviousQuarterStartEndDates = () => {
 
 const parseCommaFloat = str => parseFloat(str.replace(",", ""))
 
+/**
+ * From an HTTPResponse, get either JSON or HTML depending on content type
+ * @param HTTPResponse
+ * @returns {Promise<*>} - Returns a promise
+ */
+const getHtmlOrJson = HTTPResponse =>
+  HTTPResponse.headers()["content-type"].includes("html")
+    ? HTTPResponse.text().catch(err => {
+        throw new ReError("Problem getting text from HTTPResponse", err, "getHtmlOrJson")
+      })
+    : HTTPResponse.json().catch(err => {
+        throw new ReError("Problem getting json from HTTPResponse", err, "getHtmlOrJson")
+      })
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -258,6 +272,7 @@ module.exports = {
   getEarningsPriceChange,
   getPreviousQuarterStartEndDates,
   parseCommaFloat,
+  getHtmlOrJson,
   // script
   exit,
   begin,

@@ -82,9 +82,7 @@ module.exports = async (ticker, browser) => {
     cfraRating,
     morningstarLink,
     morningstarRating,
-    morganStanleyRating:
-      tipData.tipMorganStanleyRating ||
-      fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
     earningsPriceChange,
     ...moodysData,
     // ...streetData,
