@@ -1,5 +1,5 @@
 const { isString, mapValues } = require("lodash")
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { makePrettyDate } = require("../util")
 const { millBillStrToNum } = require("./util")
 const { handleFetch } = require("./util/www")

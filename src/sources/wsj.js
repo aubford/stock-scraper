@@ -6,7 +6,7 @@ const stockData = require("../../stockData.json")
 const shortDateCalendar = require("../../shortDateCalendar.json")
 const { min } = require("lodash")
 const { JSDOM } = require("jsdom")
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 
 const buildWsjData = ({ wsjChart, ...wsjData }) => {
   const charts = wsjChart

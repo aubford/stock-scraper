@@ -1,4 +1,4 @@
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { handleFetch } = require("./util/www")
 
 /**

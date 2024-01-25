@@ -1,7 +1,7 @@
 const { prevSiblingTextContains, extractNumbers } = require("./util")
 const { makePrettyDate } = require("../util")
 const Logger = require("../Logger")
-const fetchPdfData = require("../fetchPdfData")
+const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
 const hasCFRA = (rating, ticker, analystName) => {

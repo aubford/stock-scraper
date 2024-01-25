@@ -1,6 +1,6 @@
 const { fetchText } = require("./util")
 const { getPageCookies } = require("../puppeteer-utils")
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { MessageError } = require("../util")
 const { handleFetch } = require("./util/www")
 

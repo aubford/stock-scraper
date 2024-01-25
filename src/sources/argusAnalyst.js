@@ -1,5 +1,5 @@
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
-const fetchPdfData = require("../fetchPdfData")
+const fetchPdfData = require("../fetchers/fetchPdfData")
 const { MessageError } = require("../util")
 const { handleFetch } = require("./util/www")
 

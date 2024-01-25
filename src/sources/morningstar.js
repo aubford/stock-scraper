@@ -1,4 +1,4 @@
-const fetchPdfData = require("../fetchPdfData")
+const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
 const getNthHeaderText = n =>

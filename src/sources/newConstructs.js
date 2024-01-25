@@ -1,4 +1,4 @@
-const fetchPdfData = require("../fetchPdfData")
+const fetchPdfData = require("../fetchers/fetchPdfData")
 const { makePrettyDate } = require("../util")
 const { selfTextContains } = require("./util")
 const { last } = require("lodash")

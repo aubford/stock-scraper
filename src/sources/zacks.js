@@ -1,5 +1,5 @@
 const { makePrettyDate, ReError } = require("../util")
-const JsDomFetcher = require("../JsDomFetcher")
+const JsDomFetcher = require("../fetchers/JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson, handleFetch } = require("./util/www")
 const { orderBy, sum } = require("lodash")

@@ -1,6 +1,6 @@
 const { zip, partition, flatten } = require("lodash")
 const { makePrettyDate } = require("../util")
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { handleFetch } = require("./util/www")
 
 const hedgeFundValues = [

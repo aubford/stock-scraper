@@ -1,4 +1,4 @@
-const PageDataFetcher = require("../PageDataFetcher")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { makePrettyDate } = require("../util")
 const { sortBy } = require("lodash")
 const { handleFetch } = require("./util/www")

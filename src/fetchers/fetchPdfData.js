@@ -1,6 +1,6 @@
-const Logger = require("./Logger")
-const { goToNewBrowserPage } = require("./puppeteer-utils")
-const { MessageError, ReError } = require("./util")
+const Logger = require("../Logger")
+const { goToNewBrowserPage } = require("../puppeteer-utils")
+const { MessageError, ReError } = require("../util")
 
 const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {
   if (page.error) {
