@@ -1,12 +1,5 @@
-const {
-  evalX,
-  getTextByX,
-  newPage,
-  goToPage,
-  interceptRequests,
-  responseInterceptor,
-} = require("../puppeteer-utils")
-const { ReError, MessageError, WarnError } = require("../util")
+const { evalX, getTextByX, newPage, goToPage } = require("../puppeteer-utils")
+const { ReError, MessageError, WarnError, getHtmlOrJson } = require("../util")
 
 class PageDataFetcher {
   /**
@@ -24,40 +17,9 @@ class PageDataFetcher {
     this.page = null
     this.originPage = null
     this.responseInterceptors = []
-    this.runInterceptors = response =>
-      Promise.all(this.responseInterceptors.map(interceptor => interceptor(response)))
+    this.runInterceptors = this.runInterceptors.bind(this)
 
     this.logger = logger
-  }
-
-  _checkForPage() {
-    if (!this.page) {
-      throw new MessageError("No page available")
-    }
-  }
-
-  addResponseInterceptor(searchArr, callback, exact) {
-    this._addResponseInterceptor(response =>
-      responseInterceptor(response, searchArr, callback, exact).catch(err => {
-        if (err instanceof WarnError) {
-          return this.logger.warnError(
-            new WarnError("skipped irrelevant response", "responseInterceptor")
-          )
-        }
-
-        this.logger.logError(
-          new ReError(
-            "error for search: " + searchArr.join(", "),
-            err,
-            "addResponseInterceptor"
-          )
-        )
-      })
-    )
-  }
-
-  _addResponseInterceptor(interceptor) {
-    this.responseInterceptors.push(interceptor)
   }
 
   /**
@@ -74,12 +36,58 @@ class PageDataFetcher {
     this.page = await newPage(this.browser)
 
     if (this.responseInterceptors.length) {
-      await interceptRequests(this.page, this.runInterceptors)
+      await this.interceptRequests(this.runInterceptors)
     }
 
     await goToPage(this.page, url, options)
 
     return this.page
+  }
+
+  async interceptRequests(runInterceptors) {
+    await this.page.setRequestInterception(true)
+
+    this.page.on("request", req => {
+      req.continue()
+    })
+
+    this.page.on("response", res => {
+      runInterceptors(res, this.page)
+    })
+  }
+
+  runInterceptors(response) {
+    Promise.all(
+      this.responseInterceptors.map(responseInterceptor => responseInterceptor(response))
+    )
+  }
+
+  async responseInterceptor(res, searchArr, handleInterception, exact) {
+    const url = res.url()
+    const isMatch = exact
+      ? searchArr.some(search => url === search)
+      : searchArr.some(search => url.includes(search))
+
+    if (isMatch) {
+      const htmlOrJson = await getHtmlOrJson(res)
+      handleInterception(htmlOrJson)
+    }
+  }
+
+  addResponseInterceptor(searchArr, handleInterception, exact) {
+    this.responseInterceptors.push(response =>
+      this.responseInterceptor(response, searchArr, handleInterception, exact).catch(err => {
+        if (err instanceof WarnError) {
+          return this.logger.warnError(
+            new WarnError("skipped irrelevant response", "responseInterceptor", err)
+          )
+        }
+
+        this.logger.logError(
+          new ReError("error for search: " + searchArr.join(", "), err, "responseInterceptor")
+        )
+      })
+    )
   }
 
   /**
@@ -101,6 +109,12 @@ class PageDataFetcher {
     }).catch(err => {
       throw new ReError("error caught", err, "PageDataFetcher._newPage")
     })
+  }
+
+  _checkForPage() {
+    if (!this.page) {
+      throw new MessageError("No page available")
+    }
   }
 
   waitForXpath(xpath, frame) {

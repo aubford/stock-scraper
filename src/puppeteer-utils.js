@@ -64,34 +64,6 @@ const wrapPage = page => {
 }
 
 /**
- * @param {MyPage} page
- * @param {function} callback
- * @returns {Promise<void>}
- */
-const interceptRequests = async (page, callback) => {
-  await page.setRequestInterception(true)
-  page.on("request", req => {
-    req.continue()
-  })
-
-  page.on("response", res => {
-    callback(res, page)
-  })
-}
-
-const responseInterceptor = async (res, searchArr, callback, exact) => {
-  const url = res.url()
-  const isMatch = exact
-    ? searchArr.some(search => url === search)
-    : searchArr.some(search => url.includes(search))
-
-  if (isMatch) {
-    const htmlOrJson = await getHtmlOrJson(res)
-    callback(htmlOrJson)
-  }
-}
-
-/**
  *
  * @param {Browser} browser
  * @returns {Promise<MyPage>}
@@ -187,8 +159,6 @@ module.exports = {
   goToNewBrowserPage,
   newPage,
   goToPage,
-  interceptRequests,
-  responseInterceptor,
   evalX,
   getPageCookies,
   beginAndLogin,
