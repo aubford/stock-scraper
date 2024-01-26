@@ -17,7 +17,8 @@ class PageDataFetcher {
     this.page = null
     this.originPage = null
     this.responseInterceptors = []
-    this.runInterceptors = this.runInterceptors.bind(this)
+
+    this.asyncErr = null
 
     this.logger = logger
   }
@@ -36,7 +37,7 @@ class PageDataFetcher {
     this.page = await newPage(this.browser)
 
     if (this.responseInterceptors.length) {
-      await this.interceptRequests(this.runInterceptors)
+      await this.interceptRequests()
     }
 
     await goToPage(this.page, url, options)
@@ -44,22 +45,18 @@ class PageDataFetcher {
     return this.page
   }
 
-  async interceptRequests(runInterceptors) {
+  async interceptRequests() {
     await this.page.setRequestInterception(true)
 
     this.page.on("request", req => {
       req.continue()
     })
 
-    this.page.on("response", res => {
-      runInterceptors(res, this.page)
-    })
+    this.page.on("response", response => this.runInterceptors(response))
   }
 
   runInterceptors(response) {
-    Promise.all(
-      this.responseInterceptors.map(responseInterceptor => responseInterceptor(response))
-    )
+    this.responseInterceptors.forEach(responseInterceptor => responseInterceptor(response))
   }
 
   async responseInterceptor(res, searchArr, handleInterception, exact) {
@@ -83,11 +80,28 @@ class PageDataFetcher {
           )
         }
 
-        this.logger.logError(
-          new ReError("error for search: " + searchArr.join(", "), err, "responseInterceptor")
+        this.setAsyncErr(
+          new ReError(
+            "error for search: " + searchArr.join(", "),
+            err,
+            "responseInterceptor (async)"
+          )
         )
       })
     )
+  }
+
+  /**
+   * Set async error if not already set so we can respond to the first error that occurs like a synchronous flow
+   * @param {string} msg
+   * @param {ReError | MessageError | WarnError} err
+   * @param {string} funcName
+   */
+  setAsyncErr(msg, err, funcName) {
+    this.logger.logError(new ReError(msg, err, funcName + " (setAsyncErr log)"))
+    if (!this.asyncErr) {
+      this.asyncErr = new ReError(msg, err, funcName)
+    }
   }
 
   /**

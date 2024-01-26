@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer-core")
 const scrapeDataForTicker = require("../src/scrapeDataForTicker")
 const { yahoo } = require("../src/sources")
 
-const ticker = "MRNA"
+const ticker = "AAPL"
 
 puppeteer
   .connect(CONNECTION)

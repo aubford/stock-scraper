@@ -152,11 +152,11 @@ class ReError extends Error {
   /**
    * @param {string} message
    * @param {Error} cause
-   * @param {string} [funcName]
+   * @param {string} funcName
    */
   constructor(message, cause, funcName) {
     super(message, { cause })
-    this.name = funcName ? `( ${funcName} )` : ""
+    this.name = `( ${funcName} )`
     this.code = cause.code
   }
 
@@ -169,11 +169,11 @@ class ReError extends Error {
 class MessageError extends Error {
   /**
    * @param {string} message
-   * @param {string} [funcName]
+   * @param {string} funcName
    */
   constructor(message, funcName) {
     super(message)
-    this.name = funcName ? `(${funcName} )` : ""
+    this.name = `( ${funcName} )`
     this.code = null
 
     Error.captureStackTrace(this, MessageError)
@@ -195,7 +195,7 @@ class WarnError extends Error {
    */
   constructor(message, funcName, cause) {
     cause ? super(message, { cause }) : super(message)
-    this.name = funcName ? `( ${funcName} )` : ""
+    this.name = `( ${funcName} )`
     this.stack = ""
   }
 }
