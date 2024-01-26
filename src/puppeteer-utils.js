@@ -1,4 +1,12 @@
-const { pause, ReError, begin, promptLogin, promptUser, getHtmlOrJson } = require("./util")
+const {
+  pause,
+  ReError,
+  begin,
+  promptLogin,
+  promptUser,
+  getHtmlOrJson,
+  WarnError,
+} = require("./util")
 const puppeteer = require("puppeteer-core")
 
 const connectAndRunApp = app => {
@@ -71,30 +79,36 @@ const interceptRequests = async (page, callback) => {
   })
 }
 
-const responseInterceptor = (res, searchArr, callback, exact) => {
+const responseInterceptor = async (res, searchArr, callback, exact) => {
   const url = res.url()
   const isMatch = exact
     ? searchArr.some(search => url === search)
     : searchArr.some(search => url.includes(search))
 
   if (isMatch) {
-    getHtmlOrJson(res)
-      .then(htmlOrJson => callback(htmlOrJson))
-      .catch(err => {
-        if (err.name !== "ProtocolError") {
-          console.warn("responseInterceptor error: " + err)
-        }
-      })
+    const htmlOrJson = await getHtmlOrJson(res)
+    callback(htmlOrJson)
   }
 }
 
+/**
+ *
+ * @param {Browser} browser
+ * @returns {Promise<MyPage>}
+ */
 const newPage = async browser => {
-  /** @type {MyPage} */
   const page = await browser.newPage()
   wrapPage(page)
-  return page
+  return /** @type {MyPage} */ page
 }
 
+/**
+ *
+ * @param {MyPage} page
+ * @param {string} url
+ * @param {Object} options
+ * @returns {Promise<void>}
+ */
 const goToPage = async (page, url, options = {}) => {
   try {
     await page.goto(url, options)
@@ -108,9 +122,14 @@ const goToPage = async (page, url, options = {}) => {
   }
 }
 
-/** @returns {Promise<MyPage>} */
+/**
+ * @param {Browser} browser
+ * @param {string} url
+ * @param {Object} options
+ * @returns {Promise<{MyPage}>}
+ */
 const goToNewBrowserPage = async (browser, url, options = {}) => {
-  const page = await newPage(browser, url)
+  const page = await newPage(browser)
   await goToPage(page, url, options)
   return page
 }

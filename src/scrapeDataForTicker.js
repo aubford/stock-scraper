@@ -6,17 +6,16 @@ const {
   moodys,
   yahoo,
   wsj,
-  newConstructs,
   cfra,
   zacks,
-  tipranks,
+  // tipranks,
 } = require("./sources")
 const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
 module.exports = async (ticker, browser) => {
   // TIPRANKS
 
-  const tipData = await tipranks.fetch(ticker, browser)
+  // const tipData = await tipranks.fetch(ticker, browser)
 
   // FIDELITY
 
@@ -36,28 +35,22 @@ module.exports = async (ticker, browser) => {
     cfraLink,
   } = await boa.fetch(ticker, browser)
 
-  // ARGUS ANALYST & MORNINGSTAR
-
-  const [
-    zacksData,
-    argusAnalystData,
-    morningstarData,
-    wsjData,
-    yahooHistoricalPricesData,
-  ] = await Promise.all([
+  const [yahooHistoricalPricesData, zacksData, argusAnalystData] = await Promise.all([
+    yahoo.fetchHistoricalPrices(ticker),
     zacks.fetch(ticker),
     argusAnalyst.fetch(ticker, browser, argusAnalystLink),
+  ])
+
+  const [wsjData, morningstarData] = await Promise.all([
+    wsj.fetch(ticker, browser),
     morningstar.fetch(ticker, morningstarLink, browser),
-    wsj.fetch(ticker),
-    yahoo.fetchHistoricalPrices(ticker),
   ])
 
   // MULTI
 
-  const [moodysData, yahooData, ncData, cfraData] = await Promise.all([
+  const [moodysData, yahooData, cfraData] = await Promise.all([
     moodys.fetch(ticker, browser),
     yahoo.fetch(ticker),
-    newConstructs.fetch(ticker, browser),
     cfra.fetch(ticker, cfraRating, cfraLink, browser),
   ])
 
@@ -85,13 +78,11 @@ module.exports = async (ticker, browser) => {
     morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
     earningsPriceChange,
     ...moodysData,
-    // ...streetData,
-    ...ncData,
     ...morningstarData,
     ...argusAnalystData,
     ...fidelityAnalystOpinionsData,
     ...zacksData,
-    ...tipData,
+    // ...tipData,
     ...cfraData,
     ...yahooData,
     ...yahooHistoricalPricesData,

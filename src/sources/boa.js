@@ -1,5 +1,6 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { handleFetch } = require("./util/www")
+const { classContains } = require("./util/xpath")
 
 /**
  * @param {string} ticker
@@ -16,7 +17,9 @@ const fetchData = async (ticker, browser, logger) => {
   const [boaRating, [boaVolatility, boaInvestment, boaIncome] = []] =
     await boaFetcher.fetchPageData([
       `//*[@id="mod_equityRatings"]/div[2]/div[1]/div[1]`,
-      `//*[@id="mod_equityRatings"]//span[@class="fl ratingBlock ratingBlockActive"]`,
+      `//*[@id="mod_equityRatings"]//span[${classContains(
+        "fl ratingBlock ratingBlockActive"
+      )}]`,
     ])
 
   const morningstarLink = await boaFetcher.fetchHref(

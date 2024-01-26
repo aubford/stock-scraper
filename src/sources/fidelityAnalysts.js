@@ -67,7 +67,7 @@ const fetchData = async (ticker, browser, logger) => {
   const fordOpinion = firmOpinions?.find(({ firmId }) => firmId === 696)
   const jefferiesOpinion = firmOpinions?.find(({ firmId }) => firmId === 36)
 
-  const res = {
+  return {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings: sortBy(firmOpinions, "starmineSectorScore")
       .map(
@@ -87,8 +87,6 @@ const fetchData = async (ticker, browser, logger) => {
     zacksDate,
     zacksLink,
   }
-
-  return res
 }
 
 exports.fetch = (ticker, browser) =>

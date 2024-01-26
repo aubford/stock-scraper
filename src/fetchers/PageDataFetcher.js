@@ -6,7 +6,7 @@ const {
   interceptRequests,
   responseInterceptor,
 } = require("../puppeteer-utils")
-const { ReError, MessageError } = require("../util")
+const { ReError, MessageError, WarnError } = require("../util")
 
 class PageDataFetcher {
   /**
@@ -36,15 +36,15 @@ class PageDataFetcher {
     }
   }
 
-  getLogger() {
-    return this.logger
-  }
-
   addResponseInterceptor(searchArr, callback, exact) {
-    this._addResponseInterceptor(response => {
-      try {
-        responseInterceptor(response, searchArr, callback, exact)
-      } catch (err) {
+    this._addResponseInterceptor(response =>
+      responseInterceptor(response, searchArr, callback, exact).catch(err => {
+        if (err instanceof WarnError) {
+          return this.logger.warnError(
+            new WarnError("skipped irrelevant response", "responseInterceptor")
+          )
+        }
+
         this.logger.logError(
           new ReError(
             "error for search: " + searchArr.join(", "),
@@ -52,15 +52,25 @@ class PageDataFetcher {
             "addResponseInterceptor"
           )
         )
-      }
-    })
+      })
+    )
   }
 
   _addResponseInterceptor(interceptor) {
     this.responseInterceptors.push(interceptor)
   }
 
+  /**
+   * @param {string} url
+   * @param {Object} [options]
+   * @returns {Promise<MyPage>}
+   * @private
+   */
   async _newPage(url, options) {
+    if (this.page && !this.page.isClosed()) {
+      await this.page.closeSafe()
+    }
+
     this.page = await newPage(this.browser)
 
     if (this.responseInterceptors.length) {
@@ -72,22 +82,25 @@ class PageDataFetcher {
     return this.page
   }
 
-  newPage(url, options) {
-    return this._newPage(url, options).catch(err => {
-      throw new ReError("error caught", err, "newPage")
-    })
-  }
-
-  async setPage(url, options) {
-    if (url) {
-      await this.newPage(url, {
-        waitUntil: "domcontentloaded",
-        logger: this.logger,
-        ...options,
-      })
-    } else {
-      throw new MessageError("No url provided", "setPage")
+  /**
+   * Go to a new page and set interceptors if any
+   * have been added to the PageDataFetcher
+   * @param {string} url
+   * @param {Object} [options]
+   * @returns {Promise<MyPage>}
+   */
+  setPage(url, options) {
+    if (!url) {
+      throw new MessageError("No url provided", "PageDataFetcher.setPage")
     }
+
+    return this._newPage(url, {
+      waitUntil: "domcontentloaded",
+      logger: this.logger,
+      ...options,
+    }).catch(err => {
+      throw new ReError("error caught", err, "PageDataFetcher._newPage")
+    })
   }
 
   waitForXpath(xpath, frame) {
@@ -97,6 +110,7 @@ class PageDataFetcher {
           new MessageError("*** INVALID XPATH *** for xpath: " + xpath, "waitForXpath")
         )
       } else {
+        // todo: handle this up the chain based on importance
         this.logger.warnError(new MessageError(`failed for xpath: ${xpath}`, "waitForXpath"))
       }
       return false
@@ -188,7 +202,7 @@ class PageDataFetcher {
 
   click(selector) {
     return this._click(selector).catch(err => {
-      this.logger.logError(err, "click")
+      this.logger.logError(err)
     })
   }
 
@@ -212,7 +226,7 @@ class PageDataFetcher {
 
   clickForXpath(xPath) {
     return this._clickForXpath(xPath).catch(err => {
-      this.logger.logError(err, "clickForXpath")
+      this.logger.logError(err)
     })
   }
 
@@ -236,7 +250,7 @@ class PageDataFetcher {
 
   clickWhile(selector) {
     return this._clickWhile(selector).catch(err => {
-      this.logger.logError(err, "clickWhile")
+      this.logger.logError(err)
     })
   }
 
@@ -246,7 +260,7 @@ class PageDataFetcher {
    */
   fetchHref(selector) {
     return evalX(this.page, selector, node => node.href).catch(err => {
-      this.logger.logError(err, "fetchHref")
+      this.logger.logError(err)
     })
   }
 
@@ -262,7 +276,7 @@ class PageDataFetcher {
       (node, attr) => node.getAttribute(attr),
       attribute
     ).catch(err => {
-      this.logger.logError(err, "fetchAttribute")
+      this.logger.logError(err)
     })
   }
 

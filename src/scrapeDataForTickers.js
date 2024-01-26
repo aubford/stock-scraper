@@ -2,7 +2,6 @@ const scrapeDataForTicker = require("./scrapeDataForTicker")
 const { scrapbookWriteOut, pause, writeFile, formatErrorObject } = require("./util")
 const { yahoo } = require("./sources")
 const moment = require("moment")
-const Logger = require("./Logger")
 
 const metaWriteBadFetches = badFetches => {
   /** @type {*} */
@@ -27,12 +26,11 @@ module.exports = async (allTickers, browser, shouldMerge) => {
     console.log("Searching for tickers:", tickers)
 
     for (const ticker of tickers) {
-      const logger = new Logger(ticker, "* SCRAPING")
       try {
         newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
-        logger.log(`* TICKER COMPLETED OK: ${ticker}`)
+        console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
       } catch (error) {
-        logger.error("xxx FAIL xxx", error)
+        console.error("🚨🚨🚨 SCRAPE FAIL 🚨🚨🚨", error)
         badFetches.push(ticker)
         newStockData[ticker] = formatErrorObject(error, ticker)
       }

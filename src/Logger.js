@@ -1,19 +1,29 @@
-// Error.prototype.setName = function (name) {
-//   this.name = `[${name}]`
-// }
-
 class Logger {
-  constructor(ticker, contextName, skipStartLog) {
-    this.lineStart = `${ticker} - ${contextName}: `
-    if (!skipStartLog) {
-      this.log("Start")
-    }
+  /**
+   * @param {string} ticker
+   * @param {string} contextName
+   */
+  constructor(ticker, contextName) {
+    this.lineStart = contextName ? `${ticker} - ${contextName}: ` : `${ticker} - `
   }
 
+  start() {
+    this.log("⭐ Start ⭐")
+  }
+
+  /**
+   * simple log
+   * @param {string} msg
+   */
   log(msg) {
     console.log(this.lineStart + `ℹ️ -> ${msg}`)
   }
 
+  /**
+   * log an error message and tack on an Error if it exists
+   * @param {string} msg
+   * @param {Error} err
+   */
   error(msg, err) {
     if (err) {
       console.error(this.lineStart + `🚨 -> ${msg}`, err)
@@ -22,13 +32,19 @@ class Logger {
     }
   }
 
-  logError(err, funcName) {
-    if (funcName && !err.nameLock) {
-      err.name = `[${funcName}]`
-    }
+  /**
+   * log an error without a message
+   * @param err
+   */
+  logError(err) {
     console.error(this.lineStart + `🚨 ->`, err)
   }
 
+  /**
+   * log a warning message and tack on an error if it exists; remove error stack for conciseness
+   * @param {string} msg
+   * @param {Error} [err]
+   */
   warn(msg, err) {
     if (err) {
       err.stack = ""
@@ -38,10 +54,11 @@ class Logger {
     }
   }
 
-  warnError(err, funcName) {
-    if (funcName && !err.nameLock) {
-      err.name = `[${funcName}]`
-    }
+  /**
+   * log an error as a warning; remove error stack for conciseness
+   * @param {Error} err
+   */
+  warnError(err) {
     err.stack = ""
     console.warn(this.lineStart + `⚠️ ->`, err)
   }

@@ -17,7 +17,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
       moodys.fetch(ticker, browser),
       yahoo.fetch(ticker),
       yahoo.fetchHistoricalPrices(ticker),
-      wsj.fetch(ticker),
+      wsj.fetch(ticker, browser),
       zacks.fetch(ticker),
       tipranks.fetch(ticker, browser),
     ])

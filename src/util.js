@@ -30,7 +30,7 @@ const newStockInfo = ticker => ({
 
 const readFile = location => {
   const file = fs.readFileSync(location)
-  return JSON.parse(file)
+  return JSON.parse(/** @type string */ file)
 }
 
 const getStockDataFile = () => {
@@ -99,7 +99,6 @@ const promptForTickers = () => promptUser("Tickers: ")
 
 const promptLogin = newPage => {
   const pages = [
-    "https://invest.ameritrade.com/grid/p/site#r=jPage/https://research.ameritrade.com/grid/wwws/research/stocks/analystreports?symbol=USB&c_name=invest_VENDOR",
     "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary",
     "https://www.moodys.com",
     "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
@@ -118,6 +117,9 @@ const pause = async ms => {
   return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
+/**
+ * @returns {string}
+ */
 const makePrettyDate = () => moment().format("MMM DD h:mma")
 
 const begin = () => {
@@ -147,10 +149,14 @@ const exit = async () => {
 const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
 
 class ReError extends Error {
+  /**
+   * @param {string} message
+   * @param {Error} cause
+   * @param {string} [funcName]
+   */
   constructor(message, cause, funcName) {
     super(message, { cause })
-    this.name = funcName ? `[${funcName}]` : ""
-    this.nameLock = !!funcName
+    this.name = funcName ? `( ${funcName} )` : ""
     this.code = cause.code
   }
 
@@ -161,10 +167,13 @@ class ReError extends Error {
 }
 
 class MessageError extends Error {
+  /**
+   * @param {string} message
+   * @param {string} [funcName]
+   */
   constructor(message, funcName) {
     super(message)
-    this.name = funcName ? `[${funcName}]` : ""
-    this.nameLock = !!funcName
+    this.name = funcName ? `(${funcName} )` : ""
     this.code = null
 
     Error.captureStackTrace(this, MessageError)
@@ -173,6 +182,21 @@ class MessageError extends Error {
   setCode(code) {
     this.code = code
     return this
+  }
+}
+
+class WarnError extends Error {
+  /**
+   * Error for passing through the promise chains to be caught but then
+   * treated/logged as a warning instead of an error
+   * @param {string} message
+   * @param {string} funcName - enclosing function for context
+   * @param {Error} [cause]
+   */
+  constructor(message, funcName, cause) {
+    cause ? super(message, { cause }) : super(message)
+    this.name = funcName ? `( ${funcName} )` : ""
+    this.stack = ""
   }
 }
 
@@ -250,18 +274,32 @@ const getPreviousQuarterStartEndDates = () => {
 const parseCommaFloat = str => parseFloat(str.replace(",", ""))
 
 /**
- * From an HTTPResponse, get either JSON or HTML depending on content type
- * @param HTTPResponse
+ * From a response, get either JSON or HTML depending on content type
+ * @param {Object} response
  * @returns {Promise<*>} - Returns a promise
  */
-const getHtmlOrJson = HTTPResponse =>
-  HTTPResponse.headers()["content-type"].includes("html")
-    ? HTTPResponse.text().catch(err => {
-        throw new ReError("Problem getting text from HTTPResponse", err, "getHtmlOrJson")
-      })
-    : HTTPResponse.json().catch(err => {
-        throw new ReError("Problem getting json from HTTPResponse", err, "getHtmlOrJson")
-      })
+const getHtmlOrJson = response => {
+  const contentType = response.headers()["content-type"]
+  if (!contentType) {
+    throw new WarnError(
+      "No content type in response: Likely a provisional call",
+      "getHtmlOrJson"
+    )
+  }
+
+  if (contentType.includes("html")) {
+    return response.text().catch(err => {
+      throw new ReError("Problem getting text from response", err, "getHtmlOrJson")
+    })
+  }
+  if (contentType.includes("json")) {
+    return response.json().catch(err => {
+      throw new ReError("Problem getting json from response", err, "getHtmlOrJson")
+    })
+  }
+
+  throw new WarnError("not html or json", "getHtmlOrJson")
+}
 
 module.exports = {
   // data manipulation
@@ -293,5 +331,6 @@ module.exports = {
   // error handling
   ReError,
   MessageError,
+  WarnError,
   formatErrorObject,
 }

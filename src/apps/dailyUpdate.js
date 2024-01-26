@@ -10,6 +10,7 @@ const {
   makePrettyDate,
   getEarningsPriceChange,
 } = require("../util")
+const { connectAndRunApp } = require("../puppeteer-utils")
 
 const IS_VOO = process.argv.includes("--voo")
 
@@ -19,11 +20,16 @@ const tickers = IS_VOO ? getVooTickers() : getStockTickers()
  * @script dailyUpdate
  */
 
-const fetchStockData = async ticker => {
+/**
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @returns {Promise<Array>}
+ */
+const fetchStockData = async (ticker, browser) => {
   const [yahooData, prices, wsjData, zacksData] = await Promise.all([
     yahoo.fetch(ticker),
     yahoo.fetchHistoricalPrices(ticker),
-    wsj.fetch(ticker),
+    wsj.fetch(ticker, browser),
     zacks.fetch(ticker),
   ])
 
@@ -47,20 +53,24 @@ const fetchStockData = async ticker => {
   ]
 }
 
-const handleFetchTicker = async ticker => {
-  console.log(`* STARTING: ${ticker}`)
-  try {
-    const res = await fetchStockData(ticker)
-    console.log(`* TICKER COMPLETED OK: ${ticker}`)
-    return res
-  } catch (error) {
-    console.error(`${ticker}: xxx SCRIPT IS BROKEN! xxx`, error)
-    return formatErrorObject(error, ticker, true)
-  }
-}
-
-const runDailyUpdate = async () => {
+/**
+ * @param {Browser} browser
+ * @returns {Promise<*[]>}
+ */
+const runDailyUpdate = async browser => {
   await yahoo.fetchVooIndexHistoricalPrices()
+
+  const handleFetchTicker = async ticker => {
+    console.log(`* STARTING: ${ticker}`)
+    try {
+      const res = await fetchStockData(ticker, browser)
+      console.log(`* TICKER COMPLETED OK: ${ticker}`)
+      return res
+    } catch (error) {
+      console.error(`${ticker}: xxx SCRIPT IS BROKEN! xxx`, error)
+      return formatErrorObject(error, ticker, true)
+    }
+  }
 
   let res = []
   const tickerChunks = chunk(tickers, 8)
@@ -71,15 +81,17 @@ const runDailyUpdate = async () => {
   return res
 }
 
-runDailyUpdate().then(companyData => {
-  const updatedData = fromPairs(companyData)
+connectAndRunApp(async browser => {
+  runDailyUpdate(browser).then(companyData => {
+    const updatedData = fromPairs(companyData)
 
-  // Check if the '--voo' flag was passed
-  if (IS_VOO) {
-    vooWriteOut(updatedData, true)
-  } else {
-    scrapbookWriteOut(updatedData, true)
-  }
+    // Check if the '--voo' flag was passed
+    if (IS_VOO) {
+      vooWriteOut(updatedData, true)
+    } else {
+      scrapbookWriteOut(updatedData, true)
+    }
 
-  exit()
+    exit()
+  })
 })

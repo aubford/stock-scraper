@@ -20,6 +20,7 @@ const fetchJson = async (...fetchArgs) => {
 
 const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   const logger = new Logger(ticker, "getFidelitySecretUrl")
+  logger.start()
   if (!fidelityLink) {
     throw new MessageError("No fidelityLink provided")
   }
@@ -41,6 +42,7 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
 
 const handleFetch = (fetchCallback, ticker, contextName) => {
   const logger = new Logger(ticker, contextName)
+  logger.start()
   return fetchCallback(logger, ticker)
     .then(res => {
       logger.completeOk()

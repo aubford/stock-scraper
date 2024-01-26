@@ -4,7 +4,7 @@ const matchChars = text => `translate(text()," ","")="${chars(text)}"`
 
 const containsChars = text => `contains(translate(text()," ",""),"${chars(text)}")`
 
-const containsClass = text => `contains(@class,"${text}")`
+const classContains = text => `contains(@class,"${text}")`
 
 const selfTextContains = text => `//*[${containsChars(text)}]`
 
@@ -30,7 +30,7 @@ const followingSiblingTextIs = (text, num = 1) =>
 
 module.exports = {
   matchChars,
-  containsClass,
+  classContains,
   containsChars,
   selfTextContains,
   prevSiblingTextIs,

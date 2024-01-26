@@ -4,10 +4,13 @@ const { makePrettyDate, pause, MessageError, formatErrorObject } = require("../u
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
 const shortDateCalendar = require("../../shortDateCalendar.json")
-const { min } = require("lodash")
-const { JSDOM } = require("jsdom")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 
+/**
+ * @param wsjChart
+ * @param wsjData
+ * @returns {Object}
+ */
 const buildWsjData = ({ wsjChart, ...wsjData }) => {
   const charts = wsjChart
     ? {
@@ -35,13 +38,14 @@ const buildWsjData = ({ wsjChart, ...wsjData }) => {
 }
 
 /**
- * @param ticker {string}
- * @param browser {Browser}
- * @param tries {number} - just used for recursion
- * @returns {Promise<{wsjChart,wsjShortPct,wsjShortChange}> | []}
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @param {number} tries - just used for recursion
+ * @returns {Promise<Object>}
  */
 exports.fetch = async (ticker, browser, tries = 1) => {
   const logger = new Logger(ticker, "WSJ")
+  logger.start()
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   const researchUrl = url + "/research-ratings"
   const financialsUrl = url + "/financials"
@@ -64,8 +68,14 @@ exports.fetch = async (ticker, browser, tries = 1) => {
     await fetcher.setPage(researchUrl)
     await fetcher.setPage(financialsUrl)
 
+    if (essRes.length !== 3) {
+      await pause(2000 * tries)
+    }
+
+    await fetcher.close()
+    
     const [mainPage, researchPage, financialsPage] = essRes
-    const analystRatingsDoc = Cheerio.load(/**@type * */ researchPage)
+    const analystRatingsDoc = Cheerio.load(researchPage)
     const wsjChart = analystRatingsDoc(".cr_analystRatings .data_data")
       .contents()
       .get()
@@ -110,20 +120,16 @@ exports.fetch = async (ticker, browser, tries = 1) => {
       stockData[ticker]?.wsjChartCurrent?.length > 0 ||
       vooData[ticker]?.wsjChartCurrent?.length > 0
 
-    if (noChart) {
+    if (noChart && shouldHaveChart) {
       logger.error("NO CHART!")
 
-      if (tries < 6) {
-        if (shouldHaveChart || tries < 3) {
-          logger.error("RETRY WSJ!")
-          await pause(min([5000, 2000 * tries]))
-          return exports.fetch(ticker, tries + 1)
-        }
+      if (tries < 2) {
+        logger.error("RETRY WSJ!")
+        await pause(2000)
+        return await exports.fetch(ticker, browser, tries + 1)
       }
 
-      if (shouldHaveChart) {
-        throw new MessageError("Should have chart & NO CHART found after multiple tries!")
-      }
+      throw new MessageError("Should have chart & NO CHART found after multiple tries!")
     }
 
     logger.completeOk("Done")
