@@ -151,7 +151,7 @@ const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
 class ReError extends Error {
   /**
    * @param {string} message
-   * @param {Error} cause
+   * @param {Error | Object} cause
    * @param {string} funcName
    */
   constructor(message, cause, funcName) {

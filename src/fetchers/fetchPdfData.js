@@ -1,21 +1,25 @@
 const Logger = require("../Logger")
 const { goToNewBrowserPage } = require("../puppeteer-utils")
-const { MessageError, ReError } = require("../util")
+const { WarnError, ReError, MessageError } = require("../util")
 
 const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {
   if (page.error) {
-    throw new MessageError("goToNewBrowserPage returned truthy page.error")
+    throw new MessageError("goToNewBrowserPage returned truthy page.error", "fetchPdfData")
   }
 
   const dataNotAvailableText = await page.$x(
     `//body[contains(text(),'data is not available to create this report')]`
   )
   if (dataNotAvailableText.length > 0) {
-    throw new MessageError(`Data not available text found in PDF`).setCode(404)
+    throw new WarnError(`Data not available text found in PDF`, "fetchPdfData")
   }
 
   await page.waitForXPath(xPathArr[0], { timeout }).catch(err => {
-    throw new ReError(`waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`, err)
+    throw new ReError(
+      `waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`,
+      err,
+      "fetchPdfData"
+    )
   })
 
   if (waitForPostScroll) {
@@ -24,7 +28,8 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
     await page.waitForXPath(waitForPostScroll, { timeout }).catch(err => {
       throw new ReError(
         `waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`,
-        err
+        err,
+        "fetchPdfData"
       )
     })
   }
@@ -35,7 +40,7 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
 /**
  * @param {object} logger
  * @param {object} options
- * @param {object}    options.browser
+ * @param {Browser}    options.browser
  * @param {string}    options.url
  * @param {string[]}  options.xPathArr
  * @param {string[]}  options.waitForPostScroll
@@ -47,7 +52,7 @@ const fetchPdfData = async (
   { browser, url, xPathArr, waitForPostScroll, timeout = XPATH_TIMEOUT }
 ) => {
   if (!url) {
-    throw new MessageError(`fetchPdfData: NO REPORT`).setCode(404)
+    throw new MessageError(`NO REPORT`, 'fetchPdfData')
   }
 
   /** @type MyPage */

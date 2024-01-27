@@ -1,10 +1,10 @@
-const Logger = require("../Logger")
 const Cheerio = require("cheerio")
-const { makePrettyDate, pause, MessageError, formatErrorObject } = require("../util")
+const { makePrettyDate, pause, MessageError, ReError} = require("../util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
 const shortDateCalendar = require("../../shortDateCalendar.json")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
+const { handleFetch } = require("./util/www")
 
 /**
  * @param wsjChart
@@ -40,12 +40,11 @@ const buildWsjData = ({ wsjChart, ...wsjData }) => {
 /**
  * @param {string} ticker
  * @param {Browser} browser
+ * @param {Logger} logger
  * @param {number} tries - just used for recursion
  * @returns {Promise<Object>}
  */
-exports.fetch = async (ticker, browser, tries = 1) => {
-  const logger = new Logger(ticker, "WSJ")
-  logger.start()
+const fetchData = async (ticker, browser, logger, tries = 1) => {
   const url = `https://www.wsj.com/market-data/quotes/${ticker}`
   const researchUrl = url + "/research-ratings"
   const financialsUrl = url + "/financials"
@@ -54,89 +53,96 @@ exports.fetch = async (ticker, browser, tries = 1) => {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
 
+  const interceptor = fetcher.addResponseInterceptor([url, researchUrl, financialsUrl], true)
+
+  let mainPage
+  let researchPage
+  let financialsPage
   try {
-    let essRes = []
-    fetcher.addResponseInterceptor(
-      [url, researchUrl, financialsUrl],
-      res => {
-        essRes.push(res)
-      },
-      true
-    )
-
     await fetcher.setPage(url)
+    mainPage = await interceptor.waitForResult()
+
     await fetcher.setPage(researchUrl)
+    researchPage = await interceptor.waitForResult()
+
     await fetcher.setPage(financialsUrl)
-
-    if (essRes.length !== 3) {
+    financialsPage = await interceptor.waitForResult()
+  } catch (err) {
+    if (tries < 2) {
+      logger.error("RETRY WSJ!")
       await pause(2000 * tries)
+      return await fetchData(ticker, browser, logger, tries + 1)
     }
-
-    await fetcher.close()
     
-    const [mainPage, researchPage, financialsPage] = essRes
-    const analystRatingsDoc = Cheerio.load(researchPage)
-    const wsjChart = analystRatingsDoc(".cr_analystRatings .data_data")
+    throw new ReError("Failed to fetch WSJ pages", err, "fetchData")
+  }
+
+  await fetcher.close()
+
+  const analystRatingsDoc = Cheerio.load(researchPage)
+  const wsjChart = analystRatingsDoc(".cr_analystRatings .data_data")
+    .contents()
+    .get()
+    .map(node => node.data)
+
+  const [, wsjHighTarget, , wsjMedianTarget, , wsjLowTarget, , wsjAverageTarget] =
+    analystRatingsDoc(".cr_data.rr_stockprice .data_data")
       .contents()
       .get()
       .map(node => node.data)
 
-    const [, wsjHighTarget, , wsjMedianTarget, , wsjLowTarget, , wsjAverageTarget] =
-      analystRatingsDoc(".cr_data.rr_stockprice .data_data")
-        .contents()
-        .get()
-        .map(node => node.data)
+  const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
+  const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
 
-    const mainPageDoc = Cheerio.load(/**@type * */ mainPage)
-    const financialsPageDoc = Cheerio.load(/**@type * */ financialsPage)
+  const wsjShortDateRaw = mainPageDoc(`h3:contains("Short Interest ") span`).text()
+  const wsjShortDate = wsjShortDateRaw
+    ? wsjShortDateRaw.replace("(", "").replace(")", "")
+    : wsjShortDateRaw
 
-    const wsjShortDateRaw = mainPageDoc(`h3:contains("Short Interest ") span`).text()
-    const wsjShortDate = wsjShortDateRaw
-      ? wsjShortDateRaw.replace("(", "").replace(")", "")
-      : wsjShortDateRaw
-
-    const retVal = {
-      wsjPriceTargets: `$${wsjLowTarget} - $${wsjAverageTarget} ($${wsjMedianTarget}) - $${wsjHighTarget}`,
-      wsjHighTarget,
-      wsjMedianTarget,
-      wsjLowTarget,
-      wsjAverageTarget,
-      wsjUpdatedAt: makePrettyDate(),
-      wsjChart,
-      wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
-      wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
-      wsjShortDate,
-      wsjShortDatePrev: shortDateCalendar[shortDateCalendar.indexOf(wsjShortDate) - 1],
-      wsjLastEarningsDate: financialsPageDoc(`span.data_lbl:contains("Last Report")`)
-        .next()
-        .text(),
-      wsjNextEarningsDate: financialsPageDoc(`span.data_lbl:contains("Next Report")`)
-        .next()
-        .text(),
-    }
-
-    const noChart = !retVal.wsjChart || retVal.wsjChart.length === 0
-    const shouldHaveChart =
-      stockData[ticker]?.wsjChartCurrent?.length > 0 ||
-      vooData[ticker]?.wsjChartCurrent?.length > 0
-
-    if (noChart && shouldHaveChart) {
-      logger.error("NO CHART!")
-
-      if (tries < 2) {
-        logger.error("RETRY WSJ!")
-        await pause(2000)
-        return await exports.fetch(ticker, browser, tries + 1)
-      }
-
-      throw new MessageError("Should have chart & NO CHART found after multiple tries!")
-    }
-
-    logger.completeOk("Done")
-
-    return buildWsjData(retVal)
-  } catch (error) {
-    logger.logError(error)
-    return formatErrorObject(error, ticker)
+  const retVal = {
+    wsjPriceTargets: `$${wsjLowTarget} - $${wsjAverageTarget} ($${wsjMedianTarget}) - $${wsjHighTarget}`,
+    wsjHighTarget,
+    wsjMedianTarget,
+    wsjLowTarget,
+    wsjAverageTarget,
+    wsjUpdatedAt: makePrettyDate(),
+    wsjChart,
+    wsjShortPct: mainPageDoc(`h5:contains("Percent of Float")`).next().text(),
+    wsjShortChange: mainPageDoc(`h5:contains("Change from Last")`).next().text(),
+    wsjShortDate,
+    wsjShortDatePrev: shortDateCalendar[shortDateCalendar.indexOf(wsjShortDate) - 1],
+    wsjLastEarningsDate: financialsPageDoc(`span.data_lbl:contains("Last Report")`)
+      .next()
+      .text(),
+    wsjNextEarningsDate: financialsPageDoc(`span.data_lbl:contains("Next Report")`)
+      .next()
+      .text(),
   }
+
+  const noChart = !retVal.wsjChart || retVal.wsjChart.length === 0
+  const shouldHaveChart =
+    stockData[ticker]?.wsjChartCurrent?.length > 0 ||
+    vooData[ticker]?.wsjChartCurrent?.length > 0
+
+  if (noChart && shouldHaveChart) {
+    logger.error("NO CHART!")
+
+    if (tries < 2) {
+      logger.error("RETRY WSJ!")
+      await pause(2000 * tries)
+      return await fetchData(ticker, browser, logger, tries + 1)
+    }
+
+    throw new MessageError(
+      "Should have chart & NO CHART found after multiple tries!",
+      "fetchData"
+    )
+  }
+
+  logger.completeOk("Done")
+
+  return buildWsjData(retVal)
 }
+
+exports.fetch = (ticker, browser) =>
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, "WSJ")

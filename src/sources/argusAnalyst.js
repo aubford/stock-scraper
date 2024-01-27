@@ -1,6 +1,6 @@
 const { getFidelitySecretUrl, prevSiblingTextIs, extractNumbers } = require("./util")
 const fetchPdfData = require("../fetchers/fetchPdfData")
-const { MessageError } = require("../util")
+const { WarnError } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -11,7 +11,7 @@ const { handleFetch } = require("./util/www")
  */
 const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
   if (!analystPageLink) {
-    throw new MessageError("No Argust Analyst Report!").setCode(404)
+    throw new WarnError("No Argust Analyst Report!", "fetchArgusAnalyst")
   }
 
   const url = await getFidelitySecretUrl(analystPageLink, browser, ticker)

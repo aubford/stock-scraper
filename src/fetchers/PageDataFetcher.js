@@ -1,5 +1,6 @@
 const { evalX, getTextByX, newPage, goToPage } = require("../puppeteer-utils")
-const { ReError, MessageError, WarnError, getHtmlOrJson } = require("../util")
+const { ReError, MessageError } = require("../util")
+const ResponseInterceptor = require("./ResponseInterceptor")
 
 class PageDataFetcher {
   /**
@@ -17,8 +18,6 @@ class PageDataFetcher {
     this.page = null
     this.originPage = null
     this.responseInterceptors = []
-
-    this.asyncErr = null
 
     this.logger = logger
   }
@@ -52,56 +51,23 @@ class PageDataFetcher {
       req.continue()
     })
 
-    this.page.on("response", response => this.runInterceptors(response))
-  }
-
-  runInterceptors(response) {
-    this.responseInterceptors.forEach(responseInterceptor => responseInterceptor(response))
-  }
-
-  async responseInterceptor(res, searchArr, handleInterception, exact) {
-    const url = res.url()
-    const isMatch = exact
-      ? searchArr.some(search => url === search)
-      : searchArr.some(search => url.includes(search))
-
-    if (isMatch) {
-      const htmlOrJson = await getHtmlOrJson(res)
-      handleInterception(htmlOrJson)
-    }
-  }
-
-  addResponseInterceptor(searchArr, handleInterception, exact) {
-    this.responseInterceptors.push(response =>
-      this.responseInterceptor(response, searchArr, handleInterception, exact).catch(err => {
-        if (err instanceof WarnError) {
-          return this.logger.warnError(
-            new WarnError("skipped irrelevant response", "responseInterceptor", err)
-          )
-        }
-
-        this.setAsyncErr(
-          new ReError(
-            "error for search: " + searchArr.join(", "),
-            err,
-            "responseInterceptor (async)"
-          )
-        )
-      })
+    this.page.on("response", response =>
+      this.responseInterceptors.forEach(responseInterceptor =>
+        responseInterceptor.handleInterception(response)
+      )
     )
   }
 
   /**
-   * Set async error if not already set so we can respond to the first error that occurs like a synchronous flow
-   * @param {string} msg
-   * @param {ReError | MessageError | WarnError} err
-   * @param {string} funcName
+   * Add an http call interceptor and return the manager for collecting the data
+   * @param {Array<string>} searchArr
+   * @param {boolean} [exact]
+   * @returns {ResponseInterceptor}
    */
-  setAsyncErr(msg, err, funcName) {
-    this.logger.logError(new ReError(msg, err, funcName + " (setAsyncErr log)"))
-    if (!this.asyncErr) {
-      this.asyncErr = new ReError(msg, err, funcName)
-    }
+  addResponseInterceptor(searchArr, exact) {
+    const responseInterceptor = new ResponseInterceptor(this.logger, searchArr, exact)
+    this.responseInterceptors.push(responseInterceptor)
+    return responseInterceptor
   }
 
   /**
@@ -127,7 +93,7 @@ class PageDataFetcher {
 
   _checkForPage() {
     if (!this.page) {
-      throw new MessageError("No page available")
+      throw new MessageError("No page available", "PageDataFetcher._checkForPage")
     }
   }
 
@@ -164,7 +130,10 @@ class PageDataFetcher {
 
     const xpathFound = await this.waitForXpath(selectorToWaitFor || xPathArr[0], mainFrame)
     if (!xpathFound) {
-      throw new MessageError(`Xpath not found for selector: ${selectorToWaitFor}`)
+      throw new MessageError(
+        `Xpath not found for selector: ${selectorToWaitFor}`,
+        "PageDataFetcher._fetchPageDataInFrame"
+      )
     }
 
     const values = await Promise.all(xPathArr.map(xpath => getTextByX(mainFrame, xpath)))
@@ -204,7 +173,7 @@ class PageDataFetcher {
   _waitForSelector(selector) {
     this._checkForPage()
     if (!selector) {
-      throw new MessageError(`Missing selector`)
+      throw new MessageError(`Missing selector`, "PageDataFetcher._waitForSelector")
     }
 
     return this.page.waitForSelector(selector, { timeout: this.timeout }).catch(err => {
@@ -219,12 +188,16 @@ class PageDataFetcher {
   async _click(selector) {
     this._checkForPage()
     if (!selector) {
-      throw new MessageError(`Missing selector`)
+      throw new MessageError(`Missing selector`, "PageDataFetcher._click")
     }
 
     const el = await this._waitForSelector(selector)
     return el.click().catch(err => {
-      throw new ReError(`Page click failed for selector: ${selector}`, err)
+      throw new ReError(
+        `Page click failed for selector: ${selector}`,
+        err,
+        "PageDataFetcher._click"
+      )
     })
   }
 
@@ -236,7 +209,10 @@ class PageDataFetcher {
 
   async _clickForXpath(xPath) {
     if (!this.page || !xPath) {
-      throw new MessageError(`Missing page/xPath (xPath: ${xPath})`)
+      throw new MessageError(
+        `Missing page/xPath (xPath: ${xPath})`,
+        "PageDataFetcher._clickForXpath"
+      )
     }
 
     const el = await this.waitForXpath(xPath)
@@ -264,7 +240,10 @@ class PageDataFetcher {
    */
   async _clickWhile(selector) {
     if (!this.page || !selector) {
-      throw new MessageError(`Missing page/selector (selector: ${selector})`)
+      throw new MessageError(
+        `Missing page/selector (selector: ${selector})`,
+        "PageDataFetcher._clickWhile"
+      )
     }
 
     while (await this.page.$(selector)) {

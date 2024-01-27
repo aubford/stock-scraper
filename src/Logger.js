@@ -8,7 +8,7 @@ class Logger {
   }
 
   start() {
-    this.log("⭐ Start ⭐")
+    this.log("⭐ Start")
   }
 
   /**
@@ -22,7 +22,7 @@ class Logger {
   /**
    * log an error message and tack on an Error if it exists
    * @param {string} msg
-   * @param {Error} err
+   * @param {Error} [err]
    */
   error(msg, err) {
     if (err) {

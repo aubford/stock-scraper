@@ -1,4 +1,4 @@
-const { makePrettyDate, ReError } = require("../util")
+const { makePrettyDate, WarnError } = require("../util")
 const JsDomFetcher = require("../fetchers/JsDomFetcher")
 const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson, handleFetch } = require("./util/www")
@@ -41,16 +41,16 @@ const getMainData = async ticker => {
       confirmed_reporting_date,
       expected_reporting_date,
     }
-  } catch (e) {
-    throw new ReError("Failed to fetch mainData", e, "getMainData").setCode(404)
+  } catch (err) {
+    throw new WarnError("Failed to fetch mainData", "getMainData", err)
   }
 }
 
-const getSection = (name, cb) => {
+const getSection = (logger, name, cb) => {
   try {
     return cb()
   } catch (err) {
-    console.warn(new ReError(`Failed to get section: ${name}`, err, "getSection").setCode(404))
+    logger.warnError(new WarnError(`Failed to get section: ${name}`, "getSection", err))
   }
 }
 
@@ -97,7 +97,7 @@ const fetchData = async (logger, ticker) => {
     zacksEpsEstimateNextYr,
     zacksAvgAnalystRatingOutOfFive,
     zacksEarningsESP,
-  } = getSection("detailed estimates", () => {
+  } = getSection(logger, "detailed estimates", () => {
     const detailSection = fetcher.$x(`//section[@id="detail_estimate"]/table`)
     const detailXpath = text =>
       detailSection.getTextByX(
@@ -163,7 +163,7 @@ const fetchData = async (logger, ticker) => {
     zacksYoYGrowthEstNextYearSales,
     zacksYoYGrowthEstCurrentYearEps,
     zacksYoYGrowthEstNextYearEps,
-  } = getSection("YoY Growth Estimates", () => {
+  } = getSection(logger, "YoY Growth Estimates", () => {
     const [, , , currentYearSales, nextYearSales, , , , currentYearEps, nextYearEps] =
       fetcher.getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
 
@@ -185,7 +185,6 @@ const fetchData = async (logger, ticker) => {
     zacksVGM,
     zacksCashPrice,
     zacksEVEbitda,
-    zacksPegTTM,
     zacksPB,
     ,
     ,
@@ -346,4 +345,4 @@ const fetchData = async (logger, ticker) => {
   }
 }
 
-exports.fetch = ticker => handleFetch(fetchData, ticker, ZACKS)
+exports.fetch = ticker => handleFetch(fetchData, ticker, "ZACKS")

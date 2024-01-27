@@ -6,11 +6,8 @@ const { handleFetch } = require("./util/www")
 const formatFidelityStarmine = starmineOpinion => {
   if (!starmineOpinion) return ""
 
-  const {
-    currentNormalizedRating,
-    ratingChangeDate,
-    previousNormalizedRating,
-  } = starmineOpinion
+  const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
+    starmineOpinion
 
   return `${currentNormalizedRating}\n${ratingChangeDate?.substring(
     6,
@@ -18,7 +15,8 @@ const formatFidelityStarmine = starmineOpinion => {
   )}\n(${previousNormalizedRating})\n`
 }
 
-const reportRowXpathFrag = name => `//table[@data-tc="table-firm-opinions"]/tbody/tr[.//td="${name}"]`
+const reportRowXpathFrag = name =>
+  `//table[@data-tc="table-firm-opinions"]/tbody/tr[.//td="${name}"]`
 
 /**
  * @param {string} ticker
@@ -31,15 +29,9 @@ const fetchData = async (ticker, browser, logger) => {
     timeout: FIDELITY_ANALYST_TIMEOUT,
   })
 
-  let essRes = {}
-  fetcher.addResponseInterceptor(
-    [
-      "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
-    ],
-    res => {
-      essRes = res.data
-    }
-  )
+  const analystInterceptor = fetcher.addResponseInterceptor([
+    "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
+  ])
 
   await fetcher.setPage(
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
@@ -57,9 +49,13 @@ const fetchData = async (ticker, browser, logger) => {
     reportRowXpathFrag("Argus Analyst") + `//a/@href`,
   ])
 
+  const essRes = await analystInterceptor.waitForResult().catch(err => {
+    logger.warnError(err)
+  })
+
   await fetcher.close()
 
-  const { essCurrentRating, essScore, firmOpinions } = essRes
+  const { essCurrentRating, essScore, firmOpinions } = essRes.data
 
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
   const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
@@ -89,4 +85,4 @@ const fetchData = async (ticker, browser, logger) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(logger => fetchData(ticker, browser, logger), ticker, FIDELITY)
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, "FIDELITY")
