@@ -1,5 +1,4 @@
 const { groupBy, mapValues } = require("lodash")
-const open = require("open")
 
 const {
   renameCSVs,
@@ -8,11 +7,11 @@ const {
   getUnrealizedCostBasis,
   getUnrealizedShares,
 } = require("./csv-util")
-const { metaWriteOut, promptUser } = require("../util")
+const { metaWriteOut, promptUser, openInChrome } = require("../util")
 
 renameCSVs()
 
-open("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
+openInChrome("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
 
 const SYMBOL_HEADER = "Symbol"
 

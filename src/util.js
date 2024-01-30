@@ -2,6 +2,7 @@ const moment = require("moment")
 const { isArray, assignWith } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
+const open = require("open")
 
 /**
  * @typedef {Page} MyPage
@@ -301,6 +302,11 @@ const getHtmlOrJson = response => {
   throw new WarnError("not html or json", "getHtmlOrJson")
 }
 
+const openInChrome = url =>
+  open(url, {
+    app: { name: open.apps.chrome },
+  })
+
 module.exports = {
   // data manipulation
   makePrettyDate,
@@ -328,6 +334,7 @@ module.exports = {
   getVooTickers,
   metaWriteOut,
   clearErrors,
+  openInChrome,
   // error handling
   ReError,
   MessageError,

@@ -1,16 +1,7 @@
 const Cheerio = require("cheerio")
 const { goToNewBrowserPage, connectAndRunApp } = require("../puppeteer-utils")
 const { metaWriteOut, ReError } = require("../util")
-const { webSocketDebuggerUrl } = require("../../ws.json")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
-
-const connection = {
-  browserWSEndpoint: webSocketDebuggerUrl,
-  defaultViewport: {
-    width: 1400,
-    height: 1800,
-  },
-}
 
 const getMagicFormulaData = async (minMarketCap, cookieArr) => {
   const cookie = cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
