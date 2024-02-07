@@ -1,12 +1,4 @@
-const {
-  pause,
-  ReError,
-  begin,
-  promptLogin,
-  promptUser,
-  getHtmlOrJson,
-  WarnError,
-} = require("./util")
+const { pause, ReError, begin, promptLogin, promptUser } = require("./util")
 const puppeteer = require("puppeteer-core")
 
 const connectAndRunApp = app => {

@@ -24,9 +24,9 @@ it("makes sure dates are correct", async () => {
 
   // all dates are before today
   expect(
-    [...yahooDailyPricesDates, ...vooDates].every(date =>
-      moment(date).isBefore(moment().startOf("day"))
-    )
+    [...yahooDailyPricesDates, ...vooDates].every(date => {
+      return moment(date, 'M/D/YYYY').isBefore(moment().startOf("day"))
+    })
   )
 
   // prices match known historical price for date

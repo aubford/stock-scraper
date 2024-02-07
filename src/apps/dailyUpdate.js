@@ -73,15 +73,15 @@ const runDailyUpdate = async browser => {
   }
 
   let res = []
-  const tickerChunks = chunk(tickers, 8)
+  const tickerChunks = chunk(tickers, 3)
   for (const tickerChunk of tickerChunks) {
-    const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 550)
+    const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 500)
     res = res.concat(companyData)
   }
   return res
 }
 
-connectAndRunApp(async browser => {
+connectAndRunApp(browser =>
   runDailyUpdate(browser).then(companyData => {
     const updatedData = fromPairs(companyData)
 
@@ -94,4 +94,4 @@ connectAndRunApp(async browser => {
 
     exit()
   })
-})
+)

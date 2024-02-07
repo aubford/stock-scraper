@@ -125,10 +125,8 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
     vooData[ticker]?.wsjChartCurrent?.length > 0
 
   if (noChart && shouldHaveChart) {
-    logger.error("NO CHART!")
-
     if (tries < 2) {
-      logger.error("RETRY WSJ!")
+      logger.error("NO CHART! RETRY WSJ!")
       await pause(2000 * tries)
       return await fetchData(ticker, browser, logger, tries + 1)
     }

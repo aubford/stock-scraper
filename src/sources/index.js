@@ -9,6 +9,7 @@ const tipranks = require("./tipranks")
 const wsj = require("./wsj")
 const yahoo = require("./yahoo")
 const zacks = require("./zacks")
+const slickCharts = require("./slickCharts")
 
 module.exports = {
   argusAnalyst,
@@ -22,4 +23,5 @@ module.exports = {
   fidelityStats,
   fidelityAnalysts,
   zacks,
+  slickCharts,
 }
