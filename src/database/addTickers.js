@@ -21,6 +21,9 @@ promptForTickers().then(promptRes => {
   )
   console.log("Added tickers: " + addedTickers)
 
-  writeFile(STOCK_DATA_LOCATION, newData)
+  if (addedTickers.length) {
+    writeFile(STOCK_DATA_LOCATION, newData)
+  }
+
   process.exit(0)
 })

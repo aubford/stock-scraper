@@ -8,15 +8,10 @@ const {
   wsj,
   cfra,
   zacks,
-  // tipranks,
 } = require("./sources")
 const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
 module.exports = async (ticker, browser) => {
-  // TIPRANKS
-
-  // const tipData = await tipranks.fetch(ticker, browser)
-
   // FIDELITY
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
@@ -82,7 +77,6 @@ module.exports = async (ticker, browser) => {
     ...argusAnalystData,
     ...fidelityAnalystOpinionsData,
     ...zacksData,
-    // ...tipData,
     ...cfraData,
     ...yahooData,
     ...yahooHistoricalPricesData,
