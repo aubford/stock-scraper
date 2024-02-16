@@ -10,8 +10,10 @@ const wsj = require("./wsj")
 const yahoo = require("./yahoo")
 const zacks = require("./zacks")
 const slickCharts = require("./slickCharts")
+const dataroma = require("./dataroma")
 
 module.exports = {
+  dataroma,
   argusAnalyst,
   cfra,
   morningstar,

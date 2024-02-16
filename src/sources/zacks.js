@@ -67,7 +67,7 @@ const fetchData = async (logger, ticker) => {
     dividend_freq,
     confirmed_reporting_date,
     expected_reporting_date,
-  } = await getMainData(ticker, logger)
+  } = await getMainData(ticker)
 
   const zacksEstimatedNextEarningsDate = new Date(expected_reporting_date * 1000)
     .toLocaleString()

@@ -7,8 +7,12 @@ const getFirstLastValue = str => {
   return [first(split), last(split)]
 }
 
+/**
+ * @param {string} text
+ * @returns {string}
+ */
 const extractNumbers = text =>
-  text && text !== "--" ? text.match(/[\d,\\.]/g).join("") : ""
+  text && text !== "--" ? text.match(/[\d,\\.]/g)?.join("")  || "" : ""
 
 const millBillStrToNum = str => {
   const num = extractNumbers(str)

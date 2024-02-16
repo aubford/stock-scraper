@@ -1,4 +1,12 @@
-const { yahoo, wsj, tipranks, fidelityAnalysts, moodys, zacks } = require("./sources")
+const {
+  yahoo,
+  wsj,
+  tipranks,
+  fidelityAnalysts,
+  moodys,
+  zacks,
+  dataroma,
+} = require("./sources")
 const {
   makePrettyDate,
   vooWriteOut,
@@ -20,6 +28,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
       wsj.fetch(ticker, browser),
       zacks.fetch(ticker),
       tipranks.fetch(ticker, browser),
+      dataroma.fetch(ticker, browser),
     ])
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
