@@ -1,5 +1,5 @@
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, zacks, wsj } = require("../sources")
+const { yahoo, zacks } = require("../sources")
 const {
   scrapbookWriteOut,
   vooWriteOut,
@@ -10,7 +10,6 @@ const {
   makePrettyDate,
   getEarningsPriceChange,
 } = require("../util")
-const { connectAndRunApp } = require("../puppeteer-utils")
 
 const IS_VOO = process.argv.includes("--voo")
 
@@ -22,14 +21,12 @@ const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
 /**
  * @param {string} ticker
- * @param {Browser} browser
  * @returns {Promise<Array>}
  */
-const fetchStockData = async (ticker, browser) => {
-  const [yahooData, prices, wsjData, zacksData] = await Promise.all([
+const fetchStockData = async ticker => {
+  const [yahooData, prices, zacksData] = await Promise.all([
     yahoo.fetch(ticker),
     yahoo.fetchHistoricalPrices(ticker),
-    wsj.fetch(ticker, browser),
     zacks.fetch(ticker),
   ])
 
@@ -46,7 +43,6 @@ const fetchStockData = async (ticker, browser) => {
         yahooDailyPricesDates
       ),
       ...yahooData,
-      ...wsjData,
       ...zacksData,
       ...prices,
     },
@@ -54,16 +50,15 @@ const fetchStockData = async (ticker, browser) => {
 }
 
 /**
- * @param {Browser} browser
  * @returns {Promise<*[]>}
  */
-const runDailyUpdate = async browser => {
+const runDailyUpdate = async () => {
   await yahoo.fetchVooIndexHistoricalPrices()
 
   const handleFetchTicker = async ticker => {
     console.log(`* STARTING: ${ticker}`)
     try {
-      const res = await fetchStockData(ticker, browser)
+      const res = await fetchStockData(ticker)
       console.log(`* TICKER COMPLETED OK: ${ticker}`)
       return res
     } catch (error) {
@@ -81,17 +76,15 @@ const runDailyUpdate = async browser => {
   return res
 }
 
-connectAndRunApp(browser =>
-  runDailyUpdate(browser).then(companyData => {
-    const updatedData = fromPairs(companyData)
+runDailyUpdate().then(companyData => {
+  const updatedData = fromPairs(companyData)
 
-    // Check if the '--voo' flag was passed
-    if (IS_VOO) {
-      vooWriteOut(updatedData, true)
-    } else {
-      scrapbookWriteOut(updatedData, true)
-    }
+  // Check if the '--voo' flag was passed
+  if (IS_VOO) {
+    vooWriteOut(updatedData, true)
+  } else {
+    scrapbookWriteOut(updatedData, true)
+  }
 
-    exit()
-  })
-)
+  exit()
+})
