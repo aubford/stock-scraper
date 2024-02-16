@@ -1,6 +1,6 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { makePrettyDate, WarnError, ReError} = require("../util")
-const { sortBy, partition } = require("lodash")
+const { makePrettyDate, WarnError, ReError } = require("../util")
+const { sortBy, partition, isArray } = require("lodash")
 const { handleFetch } = require("./util/www")
 
 const formatFidelityStarmine = starmineOpinion => {
@@ -50,30 +50,34 @@ const fetchData = async (ticker, browser, logger) => {
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=${ticker}`
   )
 
-  const [zacksDate, zacksLink] = await fetcher.fetchPageData([
-    reportRowXpathFrag("Zacks Investment Research, Inc") + `//time`,
-    reportRowXpathFrag("Zacks Investment Research, Inc") + `//a/@href`,
-  ]).catch(err => {
-    if(err instanceof WarnError) {
-      logger.warn("get Zacks link/date failed", err)
-      return []
-    }
-    throw new ReError("get Zacks link/date err", err, 'fetchData')
-  })
+  const [zacksDate, zacksLink] = await fetcher
+    .fetchPageData([
+      reportRowXpathFrag("Zacks Investment Research, Inc") + `//time`,
+      reportRowXpathFrag("Zacks Investment Research, Inc") + `//a/@href`,
+    ])
+    .catch(err => {
+      if (err instanceof WarnError) {
+        logger.warn("get Zacks link/date failed", err)
+        return []
+      }
+      throw new ReError("get Zacks link/date err", err, "fetchData")
+    })
 
   await fetcher.clickForXpath(`//button[@data-tc="other"]`)
-  
+
   fetcher.setTimeout(4)
-  const [argusAnalystDate, argusAnalystLink] = await fetcher.fetchPageData([
-    reportRowXpathFrag("Argus Analyst") + `//time`,
-    reportRowXpathFrag("Argus Analyst") + `//a/@href`,
-  ]).catch(err => {
-    if(err instanceof WarnError) {
-      logger.warn("get Argus link/date failed", err)
-      return []
-    }
-    throw new ReError("get Argus link/date err", err, 'fetchData')
-  })
+  const [argusAnalystDate, argusAnalystLink] = await fetcher
+    .fetchPageData([
+      reportRowXpathFrag("Argus Analyst") + `//time`,
+      reportRowXpathFrag("Argus Analyst") + `//a/@href`,
+    ])
+    .catch(err => {
+      if (err instanceof WarnError) {
+        logger.warn("get Argus link/date failed", err)
+        return []
+      }
+      throw new ReError("get Argus link/date err", err, "fetchData")
+    })
 
   const essRes = await analystInterceptor.waitForResult().catch(err => {
     logger.warnError(err)
@@ -109,8 +113,11 @@ const fetchData = async (ticker, browser, logger) => {
     zacksRecommendation: formatFidelityStarmine(zacksOpinion),
     fordRecommendation: formatFidelityStarmine(fordOpinion),
     jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),
-    equitySummaryScoreHistory: equitySummaryScore1YearHistory
-      ?.map(({ description, asOfDate }) => `${description} ${asOfDate}`)
+    equitySummaryScoreHistory: (isArray(equitySummaryScore1YearHistory)
+      ? equitySummaryScore1YearHistory
+      : []
+    )
+      .map(({ description, asOfDate }) => `${description} ${asOfDate}`)
       .reverse()
       .join("\n"),
     argusAnalystDate,
