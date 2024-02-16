@@ -2,7 +2,7 @@ require("../preload")
 const puppeteer = require("puppeteer-core")
 const { fidelityAnalysts } = require("../src/sources")
 
-const ticker = "AAPL"
+const ticker = "TSN"
 
 puppeteer
   .connect(CONNECTION)

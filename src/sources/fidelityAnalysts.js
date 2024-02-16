@@ -1,6 +1,6 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { makePrettyDate } = require("../util")
-const { sortBy } = require("lodash")
+const { sortBy, partition } = require("lodash")
 const { handleFetch } = require("./util/www")
 
 const formatFidelityStarmine = starmineOpinion => {
@@ -9,10 +9,21 @@ const formatFidelityStarmine = starmineOpinion => {
   const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
     starmineOpinion
 
-  return `${currentNormalizedRating}\n${ratingChangeDate?.substring(
+  return `${currentNormalizedRating} (${previousNormalizedRating}) ${ratingChangeDate?.substring(
     6,
     10
-  )}\n(${previousNormalizedRating})\n`
+  )}`
+}
+
+const formatRatings = firmOpinions => {
+  const sortedFirmOpinions = sortBy(firmOpinions, "starmineSectorScore")
+
+  return sortedFirmOpinions
+    .map(
+      analystOpinion =>
+        (analystOpinion.firmName || "").substring(0, 7) + " " + formatFidelityStarmine(analystOpinion)
+    )
+    .join("\n")
 }
 
 const reportRowXpathFrag = name =>
@@ -62,16 +73,21 @@ const fetchData = async (ticker, browser, logger) => {
   const fordOpinion = firmOpinions?.find(({ firmId }) => firmId === 696)
   const jefferiesOpinion = firmOpinions?.find(({ firmId }) => firmId === 36)
 
+  const [upDownGrades, otherRatings] = partition(
+    firmOpinions,
+    firmOpinion =>
+      firmOpinion.currentNormalizedRating &&
+      firmOpinion.previousNormalizedRating &&
+      firmOpinion.currentNormalizedRating !== firmOpinion.previousNormalizedRating
+  )
+
+  const fidelityAnalystRatings = upDownGrades.length
+    ? formatRatings(upDownGrades) + "\n\n" + formatRatings(otherRatings)
+    : formatRatings(otherRatings)
+
   return {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
-    fidelityAnalystRatings: sortBy(firmOpinions, "starmineSectorScore")
-      .map(
-        analystOpinion =>
-          (analystOpinion.firmName || "").substring(0, 10) +
-          " - " +
-          formatFidelityStarmine(analystOpinion)
-      )
-      .join(""),
+    fidelityAnalystRatings,
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
     fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
     zacksRecommendation: formatFidelityStarmine(zacksOpinion),
