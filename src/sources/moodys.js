@@ -1,7 +1,7 @@
 const { fetchText } = require("./util")
 const { getPageCookies } = require("../puppeteer-utils")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { MessageError } = require("../util")
+const { WarnError } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -40,7 +40,7 @@ const getMoodysLink = async (ticker, cookie) => {
   const org = data.organizations.find(org => org.ticker === ticker)
   const link = org?.link
   if (!link) {
-    throw new MessageError(`No moodysLink found`, "getMoodysLink")
+    throw new WarnError(`No moodysLink found`, "getMoodysLink")
   }
   return link
 }

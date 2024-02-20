@@ -302,9 +302,9 @@ const getHtmlOrJson = response => {
   throw new WarnError("not html or json", "getHtmlOrJson")
 }
 
-const openInChrome = url =>
+const openInBrowser = url =>
   open(url, {
-    app: { name: open.apps.chrome },
+    app: { name: open.apps.edge },
   })
 
 module.exports = {
@@ -334,7 +334,7 @@ module.exports = {
   getVooTickers,
   metaWriteOut,
   clearErrors,
-  openInChrome,
+  openInBrowser,
   // error handling
   ReError,
   MessageError,

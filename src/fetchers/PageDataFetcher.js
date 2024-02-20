@@ -1,5 +1,5 @@
 const { evalX, getTextByX, newPage, goToPage } = require("../puppeteer-utils")
-const { ReError, MessageError } = require("../util")
+const { ReError, MessageError, WarnError } = require("../util")
 const ResponseInterceptor = require("./ResponseInterceptor")
 
 class PageDataFetcher {
@@ -100,14 +100,9 @@ class PageDataFetcher {
   waitForXpath(xpath, frame) {
     return (frame || this.page).waitForXPath(xpath, { timeout: this.timeout }).catch(err => {
       if (err.message.includes("is not a valid XPath expression")) {
-        this.logger.logError(
-          new MessageError("*** INVALID XPATH *** for xpath: " + xpath, "waitForXpath")
-        )
-      } else {
-        // todo: handle this up the chain based on importance
-        this.logger.warnError(new MessageError(`failed for xpath: ${xpath}`, "waitForXpath"))
+        throw new WarnError("*** INVALID XPATH *** for xpath: " + xpath, "waitForXpath", err)
       }
-      return false
+      throw new WarnError(`Failed for xpath: ${xpath}`, "waitForXpath", err)
     })
   }
 
@@ -163,11 +158,13 @@ class PageDataFetcher {
   }
 
   fetchPageData(xPathArr, selectorToWaitFor) {
-    return this._fetchPageData(xPathArr, selectorToWaitFor).catch(err => {
-      this.close().finally(() => {
+    return this._fetchPageData(xPathArr, selectorToWaitFor)
+      .catch(err => {
+        if(err instanceof WarnError) {
+          throw err
+        }
         throw new ReError("Failed to fetch page data", err, "fetchPageData")
       })
-    })
   }
 
   _waitForSelector(selector) {
@@ -228,6 +225,10 @@ class PageDataFetcher {
     )
   }
 
+  /**
+   * @param {string} xPath
+   * @returns {Promise<*>}
+   */
   clickForXpath(xPath) {
     return this._clickForXpath(xPath).catch(err => {
       this.logger.logError(err)
@@ -255,6 +256,10 @@ class PageDataFetcher {
     }
   }
 
+  /**
+   * @param {string} selector
+   * @returns {Promise<void>}
+   */
   clickWhile(selector) {
     return this._clickWhile(selector).catch(err => {
       this.logger.logError(err)
@@ -294,6 +299,13 @@ class PageDataFetcher {
     if (this.page && !this.page.isClosed()) {
       await this.page.closeSafe()
     }
+  }
+
+  /**
+   * @param {number} seconds - time in seconds
+   */
+  setTimeout(seconds) {
+    this.timeout = seconds * 1000
   }
 }
 

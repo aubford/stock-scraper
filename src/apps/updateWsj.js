@@ -6,13 +6,14 @@ const {
   getStockTickers,
   getVooTickers,
   formatErrorObject,
-  exit,
+  exit, promptUser,
 } = require("../util")
 const { connectAndRunApp } = require("../puppeteer-utils")
 
 const IS_VOO = process.argv.includes("--voo")
+const IS_SUBSET = process.argv.includes("--subset")
 
-const tickers = IS_VOO ? getVooTickers() : getStockTickers()
+let tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
 /**
  * @param {string} ticker
@@ -20,7 +21,7 @@ const tickers = IS_VOO ? getVooTickers() : getStockTickers()
  * @returns {Promise<Array>}
  */
 const fetchStockData = async (ticker, browser) => {
-  const wsjData = wsj.fetch(ticker, browser)
+  const wsjData = await wsj.fetch(ticker, browser)
 
   return [
     ticker,
@@ -35,7 +36,14 @@ const fetchStockData = async (ticker, browser) => {
  * @param {Browser} browser
  * @returns {Promise<*[]>}
  */
-const runDailyUpdate = async browser => {
+const run = async browser => {
+  if(IS_SUBSET) {
+    const promptResponse = await promptUser('Tickers: ')
+    tickers = promptResponse.split(/[^A-Z]/).filter(a => a)
+  }
+  
+  console.log("Searching for tickers:", tickers)
+  
   const handleFetchTicker = async ticker => {
     console.log(`* STARTING: ${ticker}`)
     try {
@@ -58,7 +66,7 @@ const runDailyUpdate = async browser => {
 }
 
 connectAndRunApp(browser =>
-  runDailyUpdate(browser).then(companyData => {
+  run(browser).then(companyData => {
     const updatedData = fromPairs(companyData)
 
     // Check if the '--voo' flag was passed

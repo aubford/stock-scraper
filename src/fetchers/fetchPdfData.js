@@ -1,4 +1,3 @@
-const Logger = require("../Logger")
 const { goToNewBrowserPage } = require("../puppeteer-utils")
 const { WarnError, ReError, MessageError } = require("../util")
 
@@ -38,7 +37,6 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
 }
 
 /**
- * @param {object} logger
  * @param {object} options
  * @param {Browser}    options.browser
  * @param {string}    options.url
@@ -47,18 +45,20 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
  * @param {Number}    options.timeout
  * @returns {Promise<*[]>}
  */
-const fetchPdfData = async (
-  logger,
-  { browser, url, xPathArr, waitForPostScroll, timeout = XPATH_TIMEOUT }
-) => {
+const fetchPdfData = async ({
+  browser,
+  url,
+  xPathArr,
+  waitForPostScroll,
+  timeout = XPATH_TIMEOUT,
+}) => {
   if (!url) {
-    throw new MessageError(`NO REPORT`, 'fetchPdfData')
+    throw new WarnError(`NO REPORT`, "fetchPdfData")
   }
 
   /** @type MyPage */
   const page = await goToNewBrowserPage(browser, url, {
     waitUntil: "networkidle2",
-    logger,
   }).catch(err => {
     throw new ReError("goToNewBrowserPage failed", err, "fetchPdfData").setCode(true)
   })
@@ -77,16 +77,7 @@ const fetchPdfData = async (
   })
 
   await page.closeSafe()
-  logger.completeOk("PDF: Done")
   return values
 }
 
-module.exports = options => {
-  const logger = new Logger(options.ticker, options.analystName + " PDF")
-  return fetchPdfData(logger, options).catch(err => {
-    if (err.code) {
-      throw err
-    }
-    throw new ReError("fetch error!", err, "fetchPdfData")
-  })
-}
+module.exports = fetchPdfData

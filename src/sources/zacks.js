@@ -6,7 +6,7 @@ const { orderBy, sum } = require("lodash")
 const { getDiffPercent } = require("../util")
 
 const getEstimateSum = tableRowCellArr =>
-  tableRowCellArr.slice(0, 3).reduce((acc, curr) => {
+  tableRowCellArr.slice(0, 4).reduce((acc, curr) => {
     return acc + Number(curr)
   }, 0)
 
@@ -185,6 +185,7 @@ const fetchData = async (logger, ticker) => {
     zacksVGM,
     zacksCashPrice,
     zacksEVEbitda,
+    ,
     zacksPB,
     ,
     ,

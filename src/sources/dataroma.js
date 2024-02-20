@@ -1,8 +1,17 @@
 const JsDomFetcher = require("../fetchers/JsDomFetcher")
 const { handleFetch } = require("./util/www")
-const Logger = require("../Logger")
 const { extractNumbers } = require("./util/str")
 const { tail } = require("lodash")
+const { orderBy } = require("lodash/collection")
+
+const getMovementNumber = activity => {
+  const movementNum = Number(extractNumbers(activity))
+  return activity.includes("Reduce")
+    ? movementNum * -1
+    : activity === "Buy"
+    ? 100
+    : movementNum
+}
 
 // sellout(-2.25) -40 sell(-1.5) -8 trim(-1) -3 rebalance(-.5) 0 hold(.75) 3 buy(2) 20 bigbuy(3) 100
 const getMovementValue = movement => {
@@ -12,7 +21,6 @@ const getMovementValue = movement => {
     trimThreshold = -3,
     sellThreshold = -8,
     sellOutThreshold = -40,
-      
     bigBuyVal = 3,
     buyVal = 2,
     holdVal = 0.75,
@@ -62,35 +70,34 @@ const fetchData = async (logger, ticker) => {
   await fetcher.setPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
   const ownershipRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
   const ownershipData = ownershipRows.map(row => {
-    const [, firm, pctOfPortfolio, activity, , value] = row.getTextArrByX(`td`)
+    const [, firm, pctOfPortfolio, activity, , valueString] = row.getTextArrByX(`td`)
+    const value = valueString.replaceAll(",", "") 
     return {
       firm,
       pctOfPortfolio,
       activity: activity?.trim() || "0",
-      value,
+      value: (value / 1000000).toFixed(2) + "M",
     }
   })
 
-  const dataromaActions = ownershipData
+  const sells = await getSells(ticker, fetcher)
+
+  const dataromaActions = orderBy(
+    ownershipData,
+    ({ activity }) => getMovementNumber(activity),
+    "desc"
+  )
+    .concat(sells)
     .map(({ firm, pctOfPortfolio, activity, value }) => {
-      return `${firm}\n [${activity}, ${pctOfPortfolio}] $${value}`
+      return `${firm}\n [${activity}, ${pctOfPortfolio}] ${value}`
     })
     .join("\n")
 
-  const sells = await getSells(ticker, fetcher)
-
-  const dataromaRating = ownershipData
-    .concat(sells)
-    .reduce((sum, { activity }) => {
-      const movementNum = Number(extractNumbers(activity))
-      const movement = activity.includes("Reduce")
-        ? movementNum * -1
-        : activity === "Buy"
-        ? 100
-        : movementNum
-      const value = getMovementValue(movement)
-      return sum + value
-    }, 0)
+  const dataromaRating = ownershipData.concat(sells).reduce((sum, { activity }) => {
+    const movement = getMovementNumber(activity)
+    const value = getMovementValue(movement)
+    return sum + value
+  }, 0)
 
   return { dataromaRating, dataromaActions }
 }

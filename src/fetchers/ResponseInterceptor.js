@@ -12,9 +12,7 @@ class ResponseInterceptor {
   handleInterception(response) {
     this.processResponse(response).catch(err => {
       if (err instanceof WarnError) {
-        return this.logger.warnError(
-          new WarnError("skipped irrelevant response", "ResponseInterceptor", err)
-        )
+        return
       }
 
       this.setAsyncErr("error for search: " + this.searchArr.join(", "), err)

@@ -7,12 +7,12 @@ const {
   getUnrealizedCostBasis,
   getUnrealizedShares,
 } = require("./csv-util")
-const { metaWriteOut, promptUser, openInChrome } = require("../util")
+const { metaWriteOut, promptUser, openInBrowser } = require("../util")
 const { slickCharts } = require("../sources")
 
 renameCSVs()
 
-openInChrome("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
+openInBrowser("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
 
 const SYMBOL_HEADER = "Symbol"
 
@@ -21,14 +21,14 @@ const main = async () => {
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)
   const unrealizedTaxLots = groupBy(unrealizedTaxLotsCsv, SYMBOL_HEADER)
 
-  const weights = await slickCharts.fetch()
+  const spWeights = await slickCharts.fetch()
 
   metaWriteOut({
-    myStocks: mapValues(unrealizedTaxLots, (csvRows, ticker) => ({
+    myStocks: mapValues(unrealizedTaxLots, (csvRows) => ({
       my_costBasis: getUnrealizedCostBasis(csvRows),
-      my_shares: getUnrealizedShares(csvRows),
-      sp_weight: weights[ticker] || "0",
+      my_shares: getUnrealizedShares(csvRows)
     })),
+    spWeights
   })
 }
 

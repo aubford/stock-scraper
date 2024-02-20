@@ -19,7 +19,7 @@ try {
 
 // Constants
 
-const timeoutCoeff = 2
+const timeoutCoeff = 1
 
 global.SHOULD_MERGE = false
 
@@ -27,36 +27,26 @@ global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
 global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
 
-global.NEW_CONSTRUCTS_TIMEOUT = 75 * 1000 * timeoutCoeff
-global.TIPRANKS_TIMEOUT = 30 * 1000 * timeoutCoeff
 global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.FIDELITY_STATS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_ANALYST_TIMEOUT = 25 * 1000 * timeoutCoeff
 global.MOODYS_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MORNINGSTAR_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.ARGUS_RESEARCH_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.TD_TIMEOUT = 20 * 1000 * timeoutCoeff
 
 global.ARGUS_ANALYST_KEY = "Argus Analyst"
 global.ARGUS_RESEARCH_KEY = "Argus Research A6/Quantitative (i)"
 global.ZACKS_KEY = "Zacks Investment Research, Inc (i)"
 global.FIDELITY = "FIDELITY"
-global.FIDELITY_STATS = "FIDELITY_STATS"
-global.TIPRANKS = "TIPRANKS"
-global.NEW_CONSTRUCTS = "NEW_CONSTRUCTS"
 global.MOODYS = "MOODYS"
 global.ARGUS_ANALYST = "ARGUS_ANALYST"
-global.ARGUS_RESEARCH = "ARGUS_RESEARCH"
 global.YAHOO = "YAHOO"
 global.YAHOO_PRICES = "YAHOO_PRICES"
 global.ZACKS = "ZACKS"
 global.MORNINGSTAR = "MORNINGSTAR"
 global.CFRA = "CFRA"
 global.BOA = "BOA"
-global.TD = "TD"
 global.YAHOO_MODULES = [
   "assetProfile",
   "balanceSheetHistory",

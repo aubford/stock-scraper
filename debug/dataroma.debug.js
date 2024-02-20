@@ -1,9 +1,9 @@
 require("../preload")
-const { zacks } = require("../src/sources")
+const { dataroma } = require("../src/sources")
 
 const ticker = "AAPL"
 
-zacks
+dataroma
   .fetch(ticker)
   .then(res => {
     console.log(res)

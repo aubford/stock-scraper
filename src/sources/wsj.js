@@ -61,9 +61,11 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
   try {
     await fetcher.setPage(url)
     mainPage = await interceptor.waitForResult()
+    await pause(2000)
 
     await fetcher.setPage(researchUrl)
     researchPage = await interceptor.waitForResult()
+    await pause(2000)
 
     await fetcher.setPage(financialsUrl)
     financialsPage = await interceptor.waitForResult()

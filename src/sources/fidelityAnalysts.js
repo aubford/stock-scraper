@@ -1,5 +1,5 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { makePrettyDate } = require("../util")
+const { makePrettyDate, WarnError, ReError} = require("../util")
 const { sortBy, partition } = require("lodash")
 const { handleFetch } = require("./util/www")
 
@@ -10,7 +10,7 @@ const formatFidelityStarmine = starmineOpinion => {
     starmineOpinion
 
   return `${currentNormalizedRating} (${previousNormalizedRating}) ${ratingChangeDate?.substring(
-    6,
+    5,
     10
   )}`
 }
@@ -21,7 +21,9 @@ const formatRatings = firmOpinions => {
   return sortedFirmOpinions
     .map(
       analystOpinion =>
-        (analystOpinion.firmName || "").substring(0, 7) + " " + formatFidelityStarmine(analystOpinion)
+        (analystOpinion.firmName || "").substring(0, 8) +
+        " " +
+        formatFidelityStarmine(analystOpinion)
     )
     .join("\n")
 }
@@ -51,14 +53,27 @@ const fetchData = async (ticker, browser, logger) => {
   const [zacksDate, zacksLink] = await fetcher.fetchPageData([
     reportRowXpathFrag("Zacks Investment Research, Inc") + `//time`,
     reportRowXpathFrag("Zacks Investment Research, Inc") + `//a/@href`,
-  ])
+  ]).catch(err => {
+    if(err instanceof WarnError) {
+      logger.warn("get Zacks link/date failed", err)
+      return []
+    }
+    throw new ReError("get Zacks link/date err", err, 'fetchData')
+  })
 
   await fetcher.clickForXpath(`//button[@data-tc="other"]`)
-
+  
+  fetcher.setTimeout(4)
   const [argusAnalystDate, argusAnalystLink] = await fetcher.fetchPageData([
     reportRowXpathFrag("Argus Analyst") + `//time`,
     reportRowXpathFrag("Argus Analyst") + `//a/@href`,
-  ])
+  ]).catch(err => {
+    if(err instanceof WarnError) {
+      logger.warn("get Argus link/date failed", err)
+      return []
+    }
+    throw new ReError("get Argus link/date err", err, 'fetchData')
+  })
 
   const essRes = await analystInterceptor.waitForResult().catch(err => {
     logger.warnError(err)
@@ -66,7 +81,8 @@ const fetchData = async (ticker, browser, logger) => {
 
   await fetcher.close()
 
-  const { essCurrentRating, essScore, firmOpinions } = essRes.data
+  const { essCurrentRating, essScore, firmOpinions, equitySummaryScore1YearHistory } =
+    essRes.data
 
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
   const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
@@ -93,6 +109,10 @@ const fetchData = async (ticker, browser, logger) => {
     zacksRecommendation: formatFidelityStarmine(zacksOpinion),
     fordRecommendation: formatFidelityStarmine(fordOpinion),
     jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),
+    equitySummaryScoreHistory: equitySummaryScore1YearHistory
+      ?.map(({ description, asOfDate }) => `${description} ${asOfDate}`)
+      .reverse()
+      .join("\n"),
     argusAnalystDate,
     argusAnalystLink,
     zacksDate,

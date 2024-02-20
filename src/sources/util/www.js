@@ -51,8 +51,9 @@ const handleFetch = (fetchCallback, ticker, contextName) => {
     .catch(error => {
       if (error instanceof WarnError) {
         logger.warnError(error)
+        return {}
       }
-      logger.error("Fetch Aborted Error!", error)
+      logger.error("Fetch Aborted", error)
       return formatErrorObject(error, ticker)
     })
 }

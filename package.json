@@ -5,8 +5,8 @@
   "main": "src/apps/start.js",
   "scripts": {
     "all": "npm run extra && npm run csv && npm run update && npm run voo && npm run vooB",
-    "daily-update": "caffeinate & jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && sleep 180 && node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo && killall caffeinate",
-    "voo-daily-update": "node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo",
+    "daily-update": "caffeinate & jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && npm run prettyStock && killall caffeinate",
+    "voo-daily-update": "caffeinate & node --require ./preload.js ./src/apps/dailyUpdate.js --voo && npm run prettyStock && npm run prettyVoo && killall caffeinate",
     "update": "node --require ./preload.js src/apps/update.js",
     "csv": "node --require ./preload.js ./src/csv/processCSVs.js && npm run prettyStock",
     "init": "ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\" ./vooData.json",
@@ -27,6 +27,7 @@
     "start": "node --require ./preload.js ./src/apps/start.js && npm run prettyStock",
     "test": "jest",
     "uplog": "node --require ./src/database/getDatabaseInfo.js --eval 'getSectorUpdated()'",
+    "update-wsj-subset": "node --require ./preload.js ./src/apps/updateWsj.js --subset && npm run prettyStock",
     "update-fidelity": "node --require ./preload.js ./src/apps/updateFidelity.js && npm run prettyStock",
     "update-merill": "node --require ./preload.js ./src/apps/updateMerill.js && npm run prettyStock",
     "update-zacks": "node --require ./preload.js ./src/apps/updateZacks.js && npm run prettyStock",
