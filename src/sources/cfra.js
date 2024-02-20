@@ -17,7 +17,7 @@ const prevSiblingTextContainsForCfra = text =>
 const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
   const noCFRACoverage = cfraRating === "no rating"
 
-  if (noCFRACoverage) {
+  if (noCFRACoverage || !cfraLink) {
     new Logger(ticker, "CFRA").log(`NO REPORT OR RATING`)
     return {
       cfraTarget: "",

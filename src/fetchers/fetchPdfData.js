@@ -17,8 +17,8 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
     throw new ReError(
       `waitForXpath timed out -> xpath: ${xPathArr[0]} <=> url: ${url}`,
       err,
-      "fetchPdfData"
-    )
+      "handlePage"
+    ).setCode(400)
   })
 
   if (waitForPostScroll) {
@@ -28,8 +28,8 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
       throw new ReError(
         `waitForXpath after scroll timed out -> xpath: ${waitForPostScroll} <=> url: ${url}`,
         err,
-        "fetchPdfData"
-      )
+        "handlePage"
+      ).setCode(400)
     })
   }
 

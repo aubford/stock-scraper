@@ -1,9 +1,6 @@
 const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
-const getNthHeaderText = n =>
-  `(//span[text()="ESG Risk Rating Assessment"])[1]/../following-sibling::span[${n}]/span[normalize-space(text()) != ""]`
-
 /**
  * @param {string} ticker
  * @param {string} url
@@ -11,33 +8,32 @@ const getNthHeaderText = n =>
  * @returns {Promise<{morningstarFairValue:*, morningstarUncertainty:*, morningstarDate:*, morningstarCapitalAllocation:*, morningstarMoat:*}>}
  */
 const fetchData = async (ticker, url, browser) => {
+  if (!url) {
+    return {}
+  }
+
   const [
-    morningstarFairValue,
-    [, morningstarDate] = [],
-    morningstarMoat,
-    morningstarMoatTrend,
+    [morningstarFairValue, morningstarDate],
     morningstarUncertainty,
     morningstarCapitalAllocation,
+    morningstarMoat,
   ] = await fetchPdfData({
     ticker,
     browser,
     analystName: MORNINGSTAR,
     url,
     xPathArr: [
-      `(//span[contains(text(), "USD")])[2]`,
-      getNthHeaderText(3),
-      getNthHeaderText(7),
-      getNthHeaderText(8),
-      getNthHeaderText(9),
-      getNthHeaderText(10),
+      `(//span[contains(text(), "Fair Value Estimate")])[1]/following-sibling::span`,
+      `(//span[contains(text(), "Uncertainty")])[1]/following-sibling::span[1]`,
+      `(//span[contains(text(), "Capital Allocation")])[1]/following-sibling::span[1]`,
+      `(//span[contains(text(), "Economic Moat")])[1]/../following-sibling::span[3]/span`,
     ],
     timeout: MORNINGSTAR_TIMEOUT,
   })
 
   return {
-    morningstarFairValue: morningstarFairValue.replace("USD", ""),
+    morningstarFairValue: morningstarFairValue.replace(" USD", ""),
     morningstarDate: morningstarDate ? morningstarDate.split(" ").slice(0, 3).join(" ") : "",
-    morningstarMoatTrend,
     morningstarMoat,
     morningstarUncertainty,
     morningstarCapitalAllocation,
