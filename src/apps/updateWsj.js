@@ -8,7 +8,7 @@ const {
   formatErrorObject,
   exit, promptUser,
 } = require("../util")
-const { connectAndRunApp } = require("../puppeteer-utils")
+const { connectAndRunApp } = require("../util/puppeteer-utils")
 
 const IS_VOO = process.argv.includes("--voo")
 const IS_SUBSET = process.argv.includes("--subset")

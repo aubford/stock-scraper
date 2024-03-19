@@ -1,7 +1,7 @@
 const { exit } = require("../../util")
 const scrapeDataForVoo = require("../../scrapeDataForVoo")
 const allTickers = require("../../database/vooTickers")
-const { beginAndLogin, connectAndRunApp } = require("../../puppeteer-utils")
+const { beginAndLogin, connectAndRunApp } = require("../../util/puppeteer-utils")
 
 const tickers = allTickers.slice(allTickers.length / 2)
 

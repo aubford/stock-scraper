@@ -1,13 +1,13 @@
-const { fetchText } = require("../util")
 const moment = require("moment")
 const transform = require("./transform")
+const { handleFetch, fetchText } = require("../util")
+const { YAHOO_MODULES } = require("./util")
 const {
   formatMsDate,
   getPreviousQuarterStartEndDates,
   MessageError,
   metaWriteOut,
 } = require("../../util")
-const { handleFetch } = require("../util/www")
 
 const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
 
@@ -52,7 +52,7 @@ const fetchData = async ticker => {
   return transform(parsed)
 }
 
-exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, YAHOO)
+exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, "YAHOO")
 
 const fetchPrices = async (logger, ticker) => {
   const res = await fetchText(
@@ -118,7 +118,7 @@ const fetchPrices = async (logger, ticker) => {
  * @returns {Promise<{yahooPrevQtrAvgPrice: number, yahooPrevQtrRange: string, yahooDailyPricesDates: string[], yahooDailyPrices: string[]}>}
  */
 exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
-  const data = await handleFetch(fetchPrices, "VOO", YAHOO_PRICES)
+  const data = await handleFetch(fetchPrices, "VOO", "YAHOO PRICES")
   global.vooHistoricalPricesData = data
 
   if (!noWriteOut) {
@@ -131,16 +131,13 @@ exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
 const fetchStockPrices = async (logger, ticker) => {
   if (!global.vooHistoricalPricesData) {
     throw new MessageError(
-      "fetchVooIndexHistoricalPrices must be called before calling fetchHistoricalPrices"
+      "fetchVooIndexHistoricalPrices must be called before calling fetchHistoricalPrices",
+      "fetchStockPrices"
     )
   }
 
-  const {
-    yahooPrevQtrAvgPrice,
-    yahooPrevQtrRange,
-    yahooDailyPricesDates,
-    yahooDailyPrices,
-  } = await fetchPrices(logger, ticker)
+  const { yahooPrevQtrAvgPrice, yahooPrevQtrRange, yahooDailyPricesDates, yahooDailyPrices } =
+    await fetchPrices(logger, ticker)
 
   const someDatesMissing = global.vooHistoricalPricesData.yahooDailyPricesDates.some(
     date => !yahooDailyPricesDates.includes(date)
@@ -158,4 +155,4 @@ const fetchStockPrices = async (logger, ticker) => {
 }
 
 exports.fetchHistoricalPrices = async ticker =>
-  handleFetch(fetchStockPrices, ticker, YAHOO_PRICES)
+  handleFetch(fetchStockPrices, ticker, "YAHOO PRICES")

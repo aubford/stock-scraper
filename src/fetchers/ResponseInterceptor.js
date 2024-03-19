@@ -35,7 +35,6 @@ class ResponseInterceptor {
    * Set async error if not already set so we can respond to the first error that occurs like a synchronous flow
    * @param {string} msg
    * @param {ReError | MessageError | WarnError} err
-   * @param {string} funcName
    */
   setAsyncErr(msg, err) {
     this.logger.logError(new ReError(msg, err, "ResponseInterceptor (setAsyncErr log)"))

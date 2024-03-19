@@ -59,10 +59,10 @@ const runDailyUpdate = async () => {
     console.log(`* STARTING: ${ticker}`)
     try {
       const res = await fetchStockData(ticker)
-      console.log(`* TICKER COMPLETED OK: ${ticker}`)
+      console.log(`* TICKER COMPLETED: ${ticker}`)
       return res
     } catch (error) {
-      console.error(`${ticker}: xxx SCRIPT IS BROKEN! xxx`, error)
+      console.error(`${ticker}: xxx Uncaught Error! xxx`, error)
       return formatErrorObject(error, ticker, true)
     }
   }

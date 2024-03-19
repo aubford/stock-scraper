@@ -1,5 +1,5 @@
 const Cheerio = require("cheerio")
-const { makePrettyDate, pause, MessageError, ReError} = require("../util")
+const { makePrettyDate, pause, MessageError, ReError } = require("../util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
 const shortDateCalendar = require("../../shortDateCalendar.json")
@@ -50,7 +50,7 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
   const financialsUrl = url + "/financials"
 
   const fetcher = new PageDataFetcher(ticker, browser, logger, {
-    timeout: FIDELITY_ANALYST_TIMEOUT,
+    timeout: WSJ_TIMEOUT,
   })
 
   const interceptor = fetcher.addResponseInterceptor([url, researchUrl, financialsUrl], true)
@@ -75,7 +75,7 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
       await pause(2000 * tries)
       return await fetchData(ticker, browser, logger, tries + 1)
     }
-    
+
     throw new ReError("Failed to fetch WSJ pages", err, "fetchData")
   }
 

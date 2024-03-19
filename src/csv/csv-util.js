@@ -5,31 +5,20 @@ const os = require("os")
 const csv = require("csv-parser")
 const { parseCommaFloat } = require("../util")
 
-const HOLDINGS = "Holdings"
 const UNREALIZED_GAIN_LOSS_TAX_LOTS = "UnrealizedGainLossTaxLots"
-const UNREALIZED_GAIN_LOSS_SUMMARY = "UnrealizedGainLossSummary"
-const REALIZED_GAIN_LOSS_TAX_LOTS = "RealizedGainLossTaxLots"
-const EXPORT_DATA = "ExportData"
 const downloadsPath = path.join(os.homedir(), "Downloads")
 
 const renameFile = (baseName, directoryPath) => {
-  // read directory
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
       return console.log("Unable to scan directory: " + err)
     }
 
-    // iterate over files
     files.forEach(function (file) {
-      // create a dynamic regular expression to match the baseName with trailing numbers and .csv extension
       let pattern = new RegExp(`^${baseName}.+.csv$`)
-
-      // check if file name matches pattern
       if (file.match(pattern)) {
-        // construct new file name
         let newFilePath = path.join(directoryPath, baseName + ".csv")
 
-        // rename file
         fs.rename(path.join(directoryPath, file), newFilePath, function (err) {
           if (err) console.log("ERROR: " + err)
         })
@@ -41,11 +30,7 @@ const renameFile = (baseName, directoryPath) => {
 }
 
 const renameCSVs = () => {
-  renameFile(HOLDINGS, downloadsPath)
   renameFile(UNREALIZED_GAIN_LOSS_TAX_LOTS, downloadsPath)
-  renameFile(UNREALIZED_GAIN_LOSS_SUMMARY, downloadsPath)
-  renameFile(REALIZED_GAIN_LOSS_TAX_LOTS, downloadsPath)
-  renameFile(EXPORT_DATA, downloadsPath)
 }
 
 /**

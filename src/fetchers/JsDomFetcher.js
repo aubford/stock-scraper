@@ -1,6 +1,6 @@
 const { JSDOM } = require("jsdom")
 const fs = require("fs")
-const Logger = require("../Logger")
+const Logger = require("../util/Logger")
 
 const getTestPage = options => JSDOM.fromFile("./http/response.html", options)
 

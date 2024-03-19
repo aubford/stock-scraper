@@ -1,4 +1,5 @@
 const moment = require("moment")
+const fs = require("fs")
 const { isArray, assignWith } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
@@ -39,7 +40,7 @@ const getStockDataFile = () => {
 }
 
 const getStockTickers = () => Object.keys(getStockDataFile())
-const getVooTickers = () => require("./database/vooTickers")
+const getVooTickers = () => require("../database/vooTickers")
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */

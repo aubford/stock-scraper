@@ -8,6 +8,8 @@ testOutput.json
 .idea/usage.statistics.xml
 .idea/dictionaries
 .idea/i18nSettings.xml
+.idea/copilot
+jsdomOutput.html
 response.json
 
 /stockData.json

@@ -1,4 +1,4 @@
-const { evalX, getTextByX, newPage, goToPage } = require("../puppeteer-utils")
+const { evalX, getTextByX, newPage, goToPage } = require("../util/puppeteer-utils")
 const { ReError, MessageError, WarnError } = require("../util")
 const ResponseInterceptor = require("./ResponseInterceptor")
 

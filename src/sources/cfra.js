@@ -1,4 +1,4 @@
-const Logger = require("../Logger")
+const Logger = require("../util/Logger")
 const { prevSiblingTextContains, extractNumbers } = require("./util")
 const { makePrettyDate } = require("../util")
 const fetchPdfData = require("../fetchers/fetchPdfData")
@@ -30,7 +30,7 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
   const [cfraTargetStr, [, cfraFairValue] = [], cfraDate] = await fetchPdfData({
     ticker,
     browser,
-    analystName: CFRA,
+    analystName: "CFRA",
     url: cfraLink,
     xPathArr: [
       prevSiblingTextContainsForCfra("12-Mo. Target Price"),

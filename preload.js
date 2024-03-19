@@ -1,7 +1,3 @@
-// Modules
-global._ = require("lodash")
-global.fs = require("fs")
-
 try {
   const { webSocketDebuggerUrl } = require("./ws.json")
   global.CONNECTION = {
@@ -17,8 +13,6 @@ try {
 
 // Error.stackTraceLimit = 1
 
-// Constants
-
 const timeoutCoeff = 1
 
 global.SHOULD_MERGE = false
@@ -27,7 +21,7 @@ global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
 global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
 
-global.ZACKS_TIMEOUT = 10 * 1000 * timeoutCoeff
+global.WSJ_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_ANALYST_TIMEOUT = 25 * 1000 * timeoutCoeff
 global.MOODYS_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
@@ -35,55 +29,6 @@ global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MORNINGSTAR_TIMEOUT = 20 * 1000 * timeoutCoeff
 
-global.ARGUS_ANALYST_KEY = "Argus Analyst"
-global.ARGUS_RESEARCH_KEY = "Argus Research A6/Quantitative (i)"
-global.ZACKS_KEY = "Zacks Investment Research, Inc (i)"
-global.FIDELITY = "FIDELITY"
-global.MOODYS = "MOODYS"
-global.ARGUS_ANALYST = "ARGUS_ANALYST"
-global.YAHOO = "YAHOO"
-global.YAHOO_PRICES = "YAHOO_PRICES"
-global.ZACKS = "ZACKS"
-global.MORNINGSTAR = "MORNINGSTAR"
-global.CFRA = "CFRA"
-global.BOA = "BOA"
-global.YAHOO_MODULES = [
-  "assetProfile",
-  "balanceSheetHistory",
-  "balanceSheetHistoryQuarterly",
-  "calendarEvents",
-  "cashflowStatementHistory",
-  "cashflowStatementHistoryQuarterly",
-  "defaultKeyStatistics",
-  "earnings",
-  "earningsHistory",
-  "earningsTrend",
-  "esgScores",
-  "financialData",
-  "fundOwnership",
-  "fundPerformance",
-  "fundProfile",
-  "incomeStatementHistory",
-  "incomeStatementHistoryQuarterly",
-  "indexTrend",
-  "industryTrend",
-  "insiderHolders",
-  "insiderTransactions",
-  "institutionOwnership",
-  "majorDirectHolders",
-  "majorHoldersBreakdown",
-  "netSharePurchaseActivity",
-  "price",
-  "recommendationTrend",
-  "secFilings",
-  "sectorTrend",
-  "summaryDetail",
-  "summaryProfile",
-  "topHoldings",
-  "upgradeDowngradeHistory",
-]
-
-global.BAD_FETCHES = []
 global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
 global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`

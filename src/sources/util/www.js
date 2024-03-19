@@ -1,5 +1,5 @@
-const { goToNewBrowserPage } = require("../../puppeteer-utils")
-const Logger = require("../../Logger")
+const { goToNewBrowserPage } = require("../../util/puppeteer-utils")
+const Logger = require("../../util/Logger")
 const { ReError, MessageError, formatErrorObject, WarnError} = require("../../util")
 
 /**

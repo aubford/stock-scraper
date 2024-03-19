@@ -1,4 +1,4 @@
-const { pause, ReError, begin, promptLogin, promptUser } = require("./util")
+const { pause, ReError, begin, promptLogin, promptUser } = require("./index")
 const puppeteer = require("puppeteer-core")
 
 const connectAndRunApp = app => {
@@ -82,7 +82,7 @@ const goToPage = async (page, url, options = {}) => {
     await page.closeSafe()
     await pause(60 * 1000)
 
-    throw new ReError(`PAGE LOAD ERROR`, clone, "goToPage")
+    throw new ReError("PAGE LOAD ERROR", clone, "goToPage")
   }
 }
 

@@ -1,5 +1,5 @@
 const Cheerio = require("cheerio")
-const { goToNewBrowserPage, connectAndRunApp } = require("../puppeteer-utils")
+const { goToNewBrowserPage, connectAndRunApp } = require("../util/puppeteer-utils")
 const { metaWriteOut, ReError } = require("../util")
 const { fromPairs, isArray, findIndex, uniq } = require("lodash")
 

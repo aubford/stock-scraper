@@ -1,5 +1,5 @@
 const { fetchText } = require("./util")
-const { getPageCookies } = require("../puppeteer-utils")
+const { getPageCookies } = require("../util/puppeteer-utils")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { WarnError } = require("../util")
 const { handleFetch } = require("./util/www")
@@ -75,4 +75,4 @@ const fetchData = async (ticker, browser, logger) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(logger => fetchData(ticker, browser, logger), ticker, MOODYS)
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, "MOODYS")

@@ -1,4 +1,4 @@
-const { goToNewBrowserPage } = require("../puppeteer-utils")
+const { goToNewBrowserPage } = require("../util/puppeteer-utils")
 const { WarnError, ReError, MessageError } = require("../util")
 
 const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {
@@ -37,11 +37,11 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
 }
 
 /**
- * @param {object} options
- * @param {Browser}    options.browser
+ * @param {object}    options
+ * @param {Browser}   options.browser
  * @param {string}    options.url
  * @param {string[]}  options.xPathArr
- * @param {string[]}  options.waitForPostScroll
+ * @param {string[]}  [options.waitForPostScroll]
  * @param {Number}    options.timeout
  * @returns {Promise<*[]>}
  */

@@ -1,6 +1,6 @@
 const { exit } = require("../util")
 const scrapeDataForTickers = require("../scrapeDataForTickers")
-const { beginAndLogin, connectAndRunApp } = require("../puppeteer-utils")
+const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
 connectAndRunApp(async browser => {
   const promptResponse = await beginAndLogin(browser, "Tickers: ")

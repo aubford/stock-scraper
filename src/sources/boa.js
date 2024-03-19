@@ -53,4 +53,4 @@ const fetchData = async (ticker, browser, logger) => {
 }
 
 exports.fetch = (ticker, browser) =>
-  handleFetch(logger => fetchData(ticker, browser, logger), ticker, BOA)
+  handleFetch(logger => fetchData(ticker, browser, logger), ticker, "BOA")

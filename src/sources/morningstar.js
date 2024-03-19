@@ -20,7 +20,7 @@ const fetchData = async (ticker, url, browser) => {
   ] = await fetchPdfData({
     ticker,
     browser,
-    analystName: MORNINGSTAR,
+    analystName: "MORNINGSTAR",
     url,
     xPathArr: [
       `(//span[contains(text(), "Fair Value Estimate")])[1]/following-sibling::span`,
@@ -41,4 +41,4 @@ const fetchData = async (ticker, url, browser) => {
 }
 
 exports.fetch = (ticker, url, browser) =>
-  handleFetch(() => fetchData(ticker, url, browser), ticker, MORNINGSTAR)
+  handleFetch(() => fetchData(ticker, url, browser), ticker, "MORNINGSTAR")
