@@ -2,7 +2,7 @@ require("../preload")
 const { cfra } = require("../src/sources")
 const puppeteer = require("puppeteer-core")
 
-const ticker = "MRNA"
+const ticker = "AXP"
 
 puppeteer
   .connect(CONNECTION)

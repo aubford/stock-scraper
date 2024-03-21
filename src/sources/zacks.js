@@ -12,7 +12,7 @@ const getEstimateSum = tableRowCellArr =>
 
 const getEstimateChange = (current, prev) =>
   current === prev
-    ? ""
+    ? `${current ? current.toFixed(2) : ""}\n(===)`
     : `${current ? current.toFixed(2) : ""}\n(${prev ? prev.toFixed(2) : ""})`
 
 const getMainData = async ticker => {
@@ -260,14 +260,12 @@ const fetchData = async (logger, ticker) => {
       zacksCurrentEpsEstimateSum,
       zacksWeekEpsEstimateSum
     ),
-    zacksEstimateChangeMonth: getEstimateChange(
-      zacksCurrentEpsEstimateSum,
-      zacksMonthEpsEstimateSum
-    ),
-    zacksEstimateChangeBiMonth: getEstimateChange(
-      zacksCurrentEpsEstimateSum,
-      zacksBiMonthEpsEstimateSum
-    ),
+    zacksEstimateChangeMonth: zacksMonthEpsEstimateSum
+      ? zacksMonthEpsEstimateSum.toFixed(2)
+      : "?",
+    zacksEstimateChangeBiMonth: zacksBiMonthEpsEstimateSum
+      ? zacksBiMonthEpsEstimateSum.toFixed(2)
+      : "?",
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
     zacksPastMonthRevisionSum: monthRevisionsUp - monthRevisionsDown,
 
