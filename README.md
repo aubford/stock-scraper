@@ -3,3 +3,4 @@
 3. Clone repo
 4. Run script: init
 5. nvm alias default [version in .nvmrc]
+6. npm i -g wait-on
