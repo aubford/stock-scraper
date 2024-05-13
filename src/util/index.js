@@ -23,11 +23,11 @@ const writeFile = (location, data) => {
 }
 
 // want new tickers to update first when running update.js script
-const aubiesBurthday = new Date(1985, 7, 24)
+const aubsBirthday = new Date(1985, 7, 24)
 const newStockInfo = ticker => ({
   ticker,
   sector: "NEW_STOCKS",
-  scrapeDataUpdatedAt: aubiesBurthday,
+  scrapeDataUpdatedAt: aubsBirthday,
 })
 
 const readFile = location => {
