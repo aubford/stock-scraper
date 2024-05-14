@@ -15,7 +15,7 @@ openInBrowser("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
 const SYMBOL_HEADER = "Symbol"
 
 const main = async () => {
-  await promptUser("Download CSV and then press Enter")
+  await promptUser(`Download "security" CSV and then press Enter`)
   renameCSVs()
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)
   const unrealizedTaxLots = groupBy(unrealizedTaxLotsCsv, SYMBOL_HEADER)
