@@ -256,14 +256,16 @@ const fetchData = async (logger, ticker) => {
       zacksCurrentEpsEstimateSum,
       zacksBiMonthEpsEstimateSum
     ),
-    zacksEstimateChangeWeek: getEstimateChange(
-      zacksCurrentEpsEstimateSum,
-      zacksWeekEpsEstimateSum
-    ),
-    zacksEstimateChangeMonth: zacksMonthEpsEstimateSum
+    zacksEstimateSumCurrent: zacksCurrentEpsEstimateSum
+      ? zacksCurrentEpsEstimateSum.toFixed(2)
+      : "?",
+    zacksEstimateSumWeekAgo: zacksWeekEpsEstimateSum
+      ? zacksWeekEpsEstimateSum.toFixed(2)
+      : "?",
+    zacksEstimateSumMonthAgo: zacksMonthEpsEstimateSum
       ? zacksMonthEpsEstimateSum.toFixed(2)
       : "?",
-    zacksEstimateChangeBiMonth: zacksBiMonthEpsEstimateSum
+    zacksEstimateSumTwoMonthAgo: zacksBiMonthEpsEstimateSum
       ? zacksBiMonthEpsEstimateSum.toFixed(2)
       : "?",
     zacksPastWeekRevisionSum: weekRevisionsUp - weekRevisionsDown,
