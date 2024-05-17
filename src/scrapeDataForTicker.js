@@ -36,7 +36,7 @@ module.exports = async (ticker, browser) => {
       yahoo.fetchHistoricalPrices(ticker),
       zacks.fetch(ticker),
       argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-      dataroma.fetch(ticker, browser),
+      dataroma.fetch(ticker),
     ])
 
   const [wsjData, morningstarData] = await Promise.all([

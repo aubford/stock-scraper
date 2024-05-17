@@ -28,7 +28,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
       wsj.fetch(ticker, browser),
       zacks.fetch(ticker),
       tipranks.fetch(ticker, browser),
-      dataroma.fetch(ticker, browser),
+      dataroma.fetch(ticker),
     ])
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData

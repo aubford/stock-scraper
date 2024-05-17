@@ -1,5 +1,5 @@
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, zacks } = require("../sources")
+const { yahoo, zacks, dataroma } = require("../sources")
 const {
   scrapbookWriteOut,
   vooWriteOut,
@@ -12,6 +12,7 @@ const {
 } = require("../util")
 
 const IS_VOO = process.argv.includes("--voo")
+const INCLUDE_DATAROMA = process.argv.includes("--dataroma")
 
 const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
@@ -24,11 +25,15 @@ const tickers = IS_VOO ? getVooTickers() : getStockTickers()
  * @returns {Promise<Array>}
  */
 const fetchStockData = async ticker => {
-  const [yahooData, prices, zacksData] = await Promise.all([
+  const fetchPromises = [
     yahoo.fetch(ticker),
     yahoo.fetchHistoricalPrices(ticker),
     zacks.fetch(ticker),
-  ])
+  ]
+  if (INCLUDE_DATAROMA) {
+    fetchPromises.push(dataroma.fetch(ticker))
+  }
+  const [yahooData, prices, zacksData, dataromaData = {}] = await Promise.all(fetchPromises)
 
   const { yahooDailyPricesDates, yahooDailyPrices } = prices
   return [
@@ -45,6 +50,7 @@ const fetchStockData = async ticker => {
       ...yahooData,
       ...zacksData,
       ...prices,
+      ...dataromaData,
     },
   ]
 }
