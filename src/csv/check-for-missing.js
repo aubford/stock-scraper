@@ -17,7 +17,7 @@ const stockTickers = Object.keys(myStocks)
 const missingStocks = stockTickers.filter(ticker => !stockData[ticker])
 
 if (missingStocks.length) {
-  console.log("Missing stocks from stockData.json:", missingStocks)
+  console.log("Missing stocks from stockData.json that exist in stockDataMeta.myStocks:", missingStocks)
   process.exit(1)
 } else {
   console.log("No missing stocks")
