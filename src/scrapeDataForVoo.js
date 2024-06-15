@@ -1,7 +1,6 @@
 const {
   yahoo,
   wsj,
-  tipranks,
   fidelityAnalysts,
   moodys,
   zacks,
@@ -27,7 +26,6 @@ const scrapeDataForVoo = async (ticker, browser) => {
       yahoo.fetchHistoricalPrices(ticker),
       wsj.fetch(ticker, browser),
       zacks.fetch(ticker),
-      tipranks.fetch(ticker, browser),
       dataroma.fetch(ticker),
     ])
 
