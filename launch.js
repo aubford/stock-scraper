@@ -1,5 +1,16 @@
 const { spawn, exec } = require("child_process")
 
+/** The main function! */
+const GET_THE_WS_ADDY = () =>
+  exec(`curl 'http://localhost:9222/json/version' > ws.json; echo "Curl Result: $(curl 'http://localhost:9222/json/version')"`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`error getting addy: ${err}`)
+      return
+    }
+    console.log(`get addy stdout: ${stdout}`)
+    console.log(`get addy stderr: ${stderr}`)
+  })
+
 const log = (err, stdout, stderr) => {
   if (err) {
     console.error(`exec error: ${err}`)
@@ -43,13 +54,6 @@ exec("killall Google\\ Chrome; ", (...args) => {
   })
   waitOn.on("close", code => {
     console.log(`wait-on process exited with code ${code}`)
-    exec("curl http://localhost:9222/json/version > ws.json", (err, stdout, stderr) => {
-      if (err) {
-        console.error(`exec error: ${err}`)
-        return
-      }
-      console.log(`curl stdout: ${stdout}`)
-      console.log(`curl stderr: ${stderr}`)
-    })
+    GET_THE_WS_ADDY()
   })
 })
