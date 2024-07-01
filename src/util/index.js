@@ -12,7 +12,7 @@ const open = require("open")
  * @property error
  */
 
-const writeFile = (location, data) => {
+const writeJsonFile = (location, data) => {
   try {
     fs.writeFileSync(location, JSON.stringify(data))
     console.log(`\n\n** WRITE TO FILE: ${location} -> SUCCESS **\n`)
@@ -30,13 +30,13 @@ const newStockInfo = ticker => ({
   scrapeDataUpdatedAt: aubsBirthday,
 })
 
-const readFile = location => {
+const readJsonFile = location => {
   const file = fs.readFileSync(location)
   return JSON.parse(/** @type string */ file)
 }
 
 const getStockDataFile = () => {
-  return readFile(STOCK_DATA_LOCATION)
+  return readJsonFile(STOCK_DATA_LOCATION)
 }
 
 const getStockTickers = () => Object.keys(getStockDataFile())
@@ -54,7 +54,7 @@ const scrapbookWriteOut = (data, shouldMerge) => {
         ...data,
       }
 
-  writeFile(STOCK_DATA_LOCATION, writeToFile)
+  writeJsonFile(STOCK_DATA_LOCATION, writeToFile)
 }
 
 const metaWriteOut = data => {
@@ -62,7 +62,7 @@ const metaWriteOut = data => {
   const existingFile = fs.readFileSync(META_LOCATION)
   const existingMeta = JSON.parse(existingFile)
 
-  writeFile(META_LOCATION, {
+  writeJsonFile(META_LOCATION, {
     ...existingMeta,
     ...data,
   })
@@ -79,7 +79,7 @@ const vooWriteOut = (data, shouldMerge) => {
         ...data,
       }
 
-  writeFile(VOO_LOCATION, writeToFile)
+  writeJsonFile(VOO_LOCATION, writeToFile)
 }
 
 const promptUser = async question => {
@@ -326,8 +326,8 @@ module.exports = {
   promptUser,
   pause,
   // write/read file
-  writeFile,
-  readFile,
+  writeFile: writeJsonFile,
+  readFile: readJsonFile,
   scrapbookWriteOut,
   vooWriteOut,
   getStockDataFile,

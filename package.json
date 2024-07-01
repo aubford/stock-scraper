@@ -19,7 +19,7 @@
     "check": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/stockData.json')[process.argv[1]])\"",
     "checkv": "node --eval \"console.log(require('$STOCK_SCRAPBOOK_LOCATION/vooData.json')[process.argv[1]])\"",
     "add-tickers": "node --require ./preload.js ./src/database/addTickers.js && npm run prettyStock",
-    "voo-add-tickers": "node --require ./preload.js ./src/database/vooAddTickers.js && npm run prettyStock",
+    "voo-update-tickers": "node --require ./preload.js ./src/apps/voo/fetch-tickers.js",
     "prune-tickers": "node --require ./preload.js ./src/database/pruneTickers.js && npm run prettyStock && npm run check-for-missing",
     "prettyStock": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "prettyVoo": "prettier --write \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\"",

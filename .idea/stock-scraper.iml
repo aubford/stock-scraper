@@ -59,5 +59,6 @@
     <orderEntry type="library" name="@types/prettier" level="application" />
     <orderEntry type="library" name="@types/moment-jalaali" level="application" />
     <orderEntry type="library" name="@types/es6-set-proptypes" level="application" />
+    <orderEntry type="library" name="@types/assert" level="application" />
   </component>
 </module>
