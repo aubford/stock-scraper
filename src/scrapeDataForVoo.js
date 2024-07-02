@@ -56,7 +56,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
   }
 }
 
-module.exports = async (allTickers, browser, shouldMerge) => {
+module.exports = async (allTickers, browser) => {
   await yahoo.fetchVooIndexHistoricalPrices(true)
   const newStockData = {}
 
@@ -75,5 +75,5 @@ module.exports = async (allTickers, browser, shouldMerge) => {
   }
 
   await scrapeDataForTickers(allTickers)
-  vooWriteOut(newStockData, shouldMerge)
+  vooWriteOut(newStockData)
 }

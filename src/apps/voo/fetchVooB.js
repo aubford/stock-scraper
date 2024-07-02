@@ -7,7 +7,7 @@ const tickers = allTickers.slice(allTickers.length / 2)
 
 connectAndRunApp(async browser => {
   await beginAndLogin(browser, "Press Enter")
-  await scrapeDataForVoo(tickers, browser, SHOULD_MERGE)
+  await scrapeDataForVoo(tickers, browser)
 
   exit()
 })

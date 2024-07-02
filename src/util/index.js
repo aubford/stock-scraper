@@ -68,18 +68,8 @@ const metaWriteOut = data => {
   })
 }
 
-const vooWriteOut = (data, shouldMerge) => {
-  /** @type {*} */
-  const vooDataFile = fs.readFileSync(VOO_LOCATION)
-  const existingData = JSON.parse(vooDataFile)
-  const writeToFile = shouldMerge
-    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
-    : {
-        ...existingData,
-        ...data,
-      }
-
-  writeJsonFile(VOO_LOCATION, writeToFile)
+const vooWriteOut = data => {
+  writeJsonFile(VOO_LOCATION, data)
 }
 
 const promptUser = async question => {
