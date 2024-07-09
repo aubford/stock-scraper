@@ -40,6 +40,13 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
   }
 }
 
+/**
+ * Wrapper for all the sources fetch calls.
+ * @param {function(Logger, string): Promise<Object>} fetchCallback - The callback function to fetch data.
+ * @param {string} ticker - The stock ticker symbol.
+ * @param {string} contextName - The context name for logging.
+ * @returns {Promise<Object>} - A promise that resolves with the fetched data or an error object.
+ */
 const handleFetch = (fetchCallback, ticker, contextName) => {
   const logger = new Logger(ticker, contextName)
   logger.start()
