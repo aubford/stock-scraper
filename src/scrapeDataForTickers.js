@@ -1,5 +1,5 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
-const { scrapbookWriteOut, pause, writeFile, formatErrorObject } = require("./util")
+const { stagingWriteOut, pause, writeFile, formatErrorObject } = require("./util")
 const { yahoo } = require("./sources")
 const moment = require("moment")
 
@@ -17,7 +17,7 @@ const metaWriteBadFetches = badFetches => {
   })
 }
 
-module.exports = async (allTickers, browser, shouldMerge) => {
+module.exports = async (allTickers, browser) => {
   await yahoo.fetchVooIndexHistoricalPrices()
   let badFetches = []
   const newStockData = {}
@@ -28,6 +28,7 @@ module.exports = async (allTickers, browser, shouldMerge) => {
     for (const ticker of tickers) {
       try {
         newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
+        stagingWriteOut(newStockData)
         console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
       } catch (error) {
         console.error("🚨🚨🚨 SCRAPE FAIL 🚨🚨🚨", error)
@@ -60,6 +61,4 @@ module.exports = async (allTickers, browser, shouldMerge) => {
       metaWriteBadFetches(badFetches)
     }
   }
-
-  scrapbookWriteOut(newStockData, shouldMerge)
 }

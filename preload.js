@@ -15,8 +15,6 @@ try {
 
 const timeoutCoeff = 2
 
-global.SHOULD_MERGE = false
-
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
 global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
@@ -31,6 +29,8 @@ global.MORNINGSTAR_TIMEOUT = 20 * 1000 * timeoutCoeff
 
 global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
+global.STOCK_DATA_STAGING = `${__dirname}/stockDataStaging.json`
+global.VOO_DATA_STAGING = `${__dirname}/vooDataStaging.json`
 global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
 global.STOCK_DATA_BACKUP_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataBackup.json`

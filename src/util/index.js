@@ -31,8 +31,13 @@ const newStockInfo = ticker => ({
 })
 
 const readJsonFile = location => {
-  const file = fs.readFileSync(location)
-  return JSON.parse(/** @type string */ file)
+  if (!fs.existsSync(location)) {
+    console.log(`File does not exist at ${location}`)
+    return {}
+  }
+
+  const file = fs.readFileSync(location, { encoding: 'utf8', flag: 'r' })
+  return JSON.parse(file)
 }
 
 const getStockDataFile = () => {
@@ -40,7 +45,17 @@ const getStockDataFile = () => {
 }
 
 const getStockTickers = () => Object.keys(getStockDataFile())
+const getUnstagedStockTickers = () => {
+  const allTickers = getStockTickers()
+  const stagedTickers = Object.keys(readJsonFile(STOCK_DATA_STAGING))
+  return allTickers.filter(ticker => !stagedTickers.includes(ticker))
+}
 const getVooTickers = () => require("../database/vooTickers")
+const getUnstagedVooTickers = () => {
+  const allTickers = getVooTickers()
+  const stagedTickers = Object.keys(readJsonFile(VOO_DATA_STAGING))
+  return allTickers.filter(ticker => !stagedTickers.includes(ticker))
+}
 
 const scrapbookWriteOut = (data, shouldMerge) => {
   /** @type {*} */
@@ -57,10 +72,17 @@ const scrapbookWriteOut = (data, shouldMerge) => {
   writeJsonFile(STOCK_DATA_LOCATION, writeToFile)
 }
 
+const stagingWriteOut = data => {
+  /** @type {*} */
+  const existingData = readJsonFile(STOCK_DATA_STAGING)
+  const writeToFile = assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
+
+  writeJsonFile(STOCK_DATA_STAGING, writeToFile)
+}
+
 const metaWriteOut = data => {
   /** @type {*} */
-  const existingFile = fs.readFileSync(META_LOCATION)
-  const existingMeta = JSON.parse(existingFile)
+  const existingMeta = readJsonFile(META_LOCATION)
 
   writeJsonFile(META_LOCATION, {
     ...existingMeta,
@@ -69,6 +91,12 @@ const metaWriteOut = data => {
 }
 
 const vooWriteOut = data => {
+  const existingData = readJsonFile(VOO_DATA_STAGING)
+  const writeToFile = assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
+  writeJsonFile(VOO_DATA_STAGING, writeToFile)
+}
+
+const vooStagingWriteOut = data => {
   writeJsonFile(VOO_LOCATION, data)
 }
 
@@ -319,13 +347,17 @@ module.exports = {
   writeFile: writeJsonFile,
   readFile: readJsonFile,
   scrapbookWriteOut,
+  stagingWriteOut,
   vooWriteOut,
+  vooStagingWriteOut,
   getStockDataFile,
   getStockTickers,
   getVooTickers,
   metaWriteOut,
   clearErrors,
   openInBrowser,
+  getUnstagedStockTickers,
+  getUnstagedVooTickers,
   // error handling
   ReError,
   MessageError,
