@@ -7,7 +7,7 @@ connectAndRunApp(async browser => {
 
   const tickers = promptResponse.split(/[^A-Z]/).filter(a => a)
 
-  await scrapeDataForTickers(tickers, browser, SHOULD_MERGE)
+  await scrapeDataForTickers(tickers, browser)
 
   exit()
 })

@@ -36,7 +36,7 @@ const readJsonFile = location => {
     return {}
   }
 
-  const file = fs.readFileSync(location, { encoding: 'utf8', flag: 'r' })
+  const file = fs.readFileSync(location, { encoding: "utf8", flag: "r" })
   return JSON.parse(file)
 }
 
@@ -269,7 +269,7 @@ const getNearestWeekDay = momentDate =>
     ? momentDate.subtract(1, "days")
     : momentDate
 
-const getQuarterDates = () => {
+const getQuarterEndDates = () => {
   const thisYearQuarterDates = ["09/30", "06/30", "03/31"].map(date =>
     getNearestWeekDay(moment(date, "MM/DD"))
   )
@@ -280,14 +280,14 @@ const getQuarterDates = () => {
 }
 
 const getPreviousQuarterStartEndDates = () => {
-  const quarterDates = getQuarterDates()
+  const quarterEndDates = getQuarterEndDates()
   const now = moment()
 
-  const prevQtrEndDate = quarterDates.find(date => date.isBefore(now))
+  const prevQtrEndDate = quarterEndDates.find(date => date.isBefore(now))
 
   return {
     prevQtrEndDate,
-    prevQtrStartDate: quarterDates[quarterDates.indexOf(prevQtrEndDate) + 1],
+    prevQtrStartDate: quarterEndDates[quarterEndDates.indexOf(prevQtrEndDate) + 1],
   }
 }
 

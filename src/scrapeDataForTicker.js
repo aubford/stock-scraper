@@ -39,16 +39,16 @@ module.exports = async (ticker, browser) => {
       dataroma.fetch(ticker),
     ])
 
-  const [wsjData, morningstarData] = await Promise.all([
+  const [wsjData, morningstarData, yahooData] = await Promise.all([
     wsj.fetch(ticker, browser),
     morningstar.fetch(ticker, morningstarLink, browser),
+    yahoo.fetch(ticker),
   ])
 
   // MULTI
 
-  const [moodysData, yahooData, cfraData] = await Promise.all([
-    moodys.fetch(ticker, browser),
-    yahoo.fetch(ticker),
+  const [moodysData, cfraData] = await Promise.all([
+    moodys.fetch(ticker, browser, yahooData.name),
     cfra.fetch(ticker, cfraRating, cfraLink, browser),
   ])
 

@@ -1,15 +1,16 @@
 const { fetchText } = require("./util")
 const { getPageCookies } = require("../util/puppeteer-utils")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { WarnError } = require("../util")
+const { WarnError, ReError, getStockDataFile } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
  * @param {string} ticker
  * @param {Object} cookie
+ * @param {string} name
  * @returns {Promise<*|null>}
  */
-const getMoodysLink = async (ticker, cookie) => {
+const getMoodysLink = async (ticker, cookie, name) => {
   const text = await fetchText(
     "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
     {
@@ -28,15 +29,19 @@ const getMoodysLink = async (ticker, cookie) => {
       referrer:
         "https://www.moodys.com/credit-ratings/ATT-Inc-credit-rating-702550/reports?category=Ratings_and_Assessments_Reports_rc|Issuer_Reports_rc|Issuer_Data_Reports&type=Rating_Action_rc|Announcement_rc|Announcement_of_Periodic_Review_rc,Credit_Opinion_ir_rc,Peer_Snapshot_rc",
       referrerPolicy: "strict-origin-when-cross-origin",
-      body: `{"data":["${ticker}","en"]}`,
+      body: `{"data":["${name}","en"]}`,
       method: "POST",
       mode: "cors",
     }
   )
-  const { data } = JSON.parse(text)
-  if (data.ticker) {
-    return `/search?keyword=${ticker}`
+
+  let data
+  try {
+    data = JSON.parse(text).data
+  } catch (err) {
+    throw new ReError("Moody's blocked!", err, "getMoodysLink")
   }
+
   const org = data.organizations.find(org => org.ticker === ticker)
   const link = org?.link
   if (!link) {
@@ -51,20 +56,27 @@ const getMoodysLink = async (ticker, cookie) => {
  * @param {object} logger
  * @returns Promise<Object>
  */
-const fetchData = async (ticker, browser, logger) => {
-  const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
-  const moodysLink = await getMoodysLink(ticker, moodysCookies)
+const fetchData = async (ticker, browser, logger, stockName) => {
+  const stockData = getStockDataFile()
+
+  let moodysLink
+  if (stockData[ticker]?.moodysLink) {
+    moodysLink = stockData[ticker].moodysLink
+  } else {
+    const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
+    moodysLink = await getMoodysLink(ticker, moodysCookies, stockName || ticker)
+  }
 
   const moodysFetcher = new PageDataFetcher(ticker, browser, logger, {
     timeout: MOODYS_TIMEOUT,
   })
-  await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
+    await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
   const [moodysRating, moodysOutlook] = await moodysFetcher.fetchPageData(
     [
-      "//span[contains(text(),'LONG TERM RATING') or contains(text(),'LONG TERM DEBT')]/following-sibling::div[1]/a/div",
-      "//span[contains(text(),'OUTLOOK')]/following-sibling::div[1]/a/div",
+      "//div[@id='rating-table']//table//tr[1]/td[2]/div/text()",
+      "//div[@id='rating-table']//table//tr[1]/td[4]/div/text()",
     ],
-    `//div[@class="mis-ratings-container"]`
+    "//div[@id='rating-table']"
   )
   await moodysFetcher.close()
   return {
@@ -74,5 +86,5 @@ const fetchData = async (ticker, browser, logger) => {
   }
 }
 
-exports.fetch = (ticker, browser) =>
-  handleFetch(logger => fetchData(ticker, browser, logger), ticker, "MOODYS")
+exports.fetch = (ticker, browser, stockName) =>
+  handleFetch(logger => fetchData(ticker, browser, logger, stockName), ticker, "MOODYS")

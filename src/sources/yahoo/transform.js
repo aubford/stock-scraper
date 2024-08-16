@@ -290,7 +290,7 @@ module.exports = ({ quoteSummary }) => {
       operatingMargins, // TTM
     } = {},
     upgradeDowngradeHistory: { history: upgradeDowngradeHistory } = {},
-    price: { regularMarketPrice },
+    price: { regularMarketPrice, longName },
     balanceSheetHistory: { balanceSheetStatements: balanceSheetStatementsAnnu } = {},
     cashflowStatementHistory: { cashflowStatements: cashflowStatementsAnnu } = {},
     incomeStatementHistory: { incomeStatementHistory: incomeStatementsAnnu } = {},
@@ -425,6 +425,7 @@ module.exports = ({ quoteSummary }) => {
       : 0
 
   return {
+    name: longName,
     ...(statementDataOk ? statementData : mapValues(statementData, () => 0)),
     ...selectValueTypes(
       // RAW //

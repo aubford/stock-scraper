@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/apps/start.js",
   "scripts": {
-    "commit": "mv $STOCK_SCRAPBOOK_LOCATION/stockDataStaging.json $STOCK_SCRAPBOOK_LOCATION/stockData.json",
+    "commit": "mv ~/workspace/stock-scraper/stockDataStaging.json \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\"",
     "all": "npm run extra && npm run csv && npm run update && npm run voo && npm run vooB",
     "daily-update": "caffeinate & jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js && npm run prettyStock && killall caffeinate",
     "daily-update-dataroma": "caffeinate & jest ./test/historicalPrices.test.js && node --require ./preload.js ./src/apps/dailyUpdate.js --dataroma && npm run prettyStock && killall caffeinate",

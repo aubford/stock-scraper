@@ -54,6 +54,14 @@ const fetchData = async ticker => {
 
 exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, "YAHOO")
 
+// this compensates for holidays
+const getIndexOfDateOrPrevDateIfNotFound = (dates, date) => {
+  const index = dates.indexOf(date.format("M/D/YYYY"))
+  return index === -1
+    ? getIndexOfDateOrPrevDateIfNotFound(dates, date.subtract(1, "day"))
+    : index
+}
+
 const fetchPrices = async (logger, ticker) => {
   const res = await fetchText(
     `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
@@ -85,9 +93,8 @@ const fetchPrices = async (logger, ticker) => {
     prices.shift()
   }
 
-  // may need to adjust this for holidays in the future!!
-  const prevQtrStartDateIndex = dates.indexOf(prevQtrStartDate.format("M/D/YYYY"))
-  const prevQtrEndDateIndex = dates.indexOf(prevQtrEndDate.format("M/D/YYYY")) + 1
+  const prevQtrStartDateIndex = getIndexOfDateOrPrevDateIfNotFound(dates, prevQtrStartDate)
+  const prevQtrEndDateIndex = getIndexOfDateOrPrevDateIfNotFound(dates, prevQtrEndDate)
 
   const qtrPrices = prices
     .slice(prevQtrEndDateIndex, prevQtrStartDateIndex)
@@ -155,4 +162,4 @@ const fetchStockPrices = async (logger, ticker) => {
 }
 
 exports.fetchHistoricalPrices = async ticker =>
-  handleFetch(fetchStockPrices, ticker, "YAHOO PRICES")
+  await handleFetch(fetchStockPrices, ticker, "YAHOO PRICES")
