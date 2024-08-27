@@ -11,16 +11,6 @@ const {
 
 const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
 
-const returnErrorData = (errorMsg, logger) => {
-  logger.error(errorMsg)
-  return {
-    yahooPrevQtrAvgPrice: errorMsg,
-    yahooPrevQtrRange: errorMsg,
-    yahooDailyPricesDates: errorMsg,
-    yahooDailyPrices: errorMsg,
-  }
-}
-
 /**
  * @param ticker
  * @returns {Promise<any>}
@@ -55,14 +45,16 @@ const fetchData = async ticker => {
 exports.fetch = ticker => handleFetch(() => fetchData(ticker), ticker, "YAHOO")
 
 // this compensates for holidays
-const getIndexOfDateOrPrevDateIfNotFound = (dates, date) => {
+const getIndexOfDateOrPrevDateIfNotFound = (dates, date, iterations = 0) => {
   const index = dates.indexOf(date.format("M/D/YYYY"))
   return index === -1
-    ? getIndexOfDateOrPrevDateIfNotFound(dates, date.subtract(1, "day"))
+    ? iterations < 4
+      ? getIndexOfDateOrPrevDateIfNotFound(dates, date.subtract(1, "day"), iterations + 1)
+      : null
     : index
 }
 
-const fetchPrices = async (logger, ticker) => {
+const fetchPrices = async ticker => {
   const res = await fetchText(
     `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?region=US&lang=en-US&includePrePost=false&interval=1d&useYfid=true&range=5y&corsDomain=finance.yahoo.com&.tsrc=finance`,
     {
@@ -94,7 +86,12 @@ const fetchPrices = async (logger, ticker) => {
   }
 
   const prevQtrStartDateIndex = getIndexOfDateOrPrevDateIfNotFound(dates, prevQtrStartDate)
+
   const prevQtrEndDateIndex = getIndexOfDateOrPrevDateIfNotFound(dates, prevQtrEndDate)
+
+  if (!prevQtrStartDateIndex || !prevQtrEndDateIndex) {
+    throw new MessageError("Prev Qtr Start or End Date not found", "fetchPrices")
+  }
 
   const qtrPrices = prices
     .slice(prevQtrEndDateIndex, prevQtrStartDateIndex)
@@ -108,7 +105,10 @@ const fetchPrices = async (logger, ticker) => {
   const yahooDailyPrices = prices.slice(0, indexOfJan152020)
 
   if (yahooDailyPricesDates.length !== yahooDailyPrices.length) {
-    return returnErrorData("Error: prices and dates are not the same length", logger)
+    throw new MessageError(
+      "Prices and dates are not the same length!",
+      "fetchHistoricalPrices:fetchPrices"
+    )
   }
 
   return {
@@ -125,7 +125,7 @@ const fetchPrices = async (logger, ticker) => {
  * @returns {Promise<{yahooPrevQtrAvgPrice: number, yahooPrevQtrRange: string, yahooDailyPricesDates: string[], yahooDailyPrices: string[]}>}
  */
 exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
-  const data = await handleFetch(fetchPrices, "VOO", "YAHOO PRICES")
+  const data = await handleFetch(() => fetchPrices("VOO"), "VOO", "YAHOO PRICES")
   global.vooHistoricalPricesData = data
 
   if (!noWriteOut) {
@@ -135,7 +135,7 @@ exports.fetchVooIndexHistoricalPrices = async noWriteOut => {
   return data
 }
 
-const fetchStockPrices = async (logger, ticker) => {
+const fetchStockPrices = async (_, ticker) => {
   if (!global.vooHistoricalPricesData) {
     throw new MessageError(
       "fetchVooIndexHistoricalPrices must be called before calling fetchHistoricalPrices",
@@ -144,13 +144,17 @@ const fetchStockPrices = async (logger, ticker) => {
   }
 
   const { yahooPrevQtrAvgPrice, yahooPrevQtrRange, yahooDailyPricesDates, yahooDailyPrices } =
-    await fetchPrices(logger, ticker)
+    await fetchPrices(ticker)
 
-  const someDatesMissing = global.vooHistoricalPricesData.yahooDailyPricesDates.some(
-    date => !yahooDailyPricesDates.includes(date)
+  // Compensate for stocks that recently went IPO
+  const vooPrices = global.vooHistoricalPricesData.yahooDailyPricesDates.slice(
+    0,
+    yahooDailyPricesDates.length
   )
-  if (someDatesMissing && !["SNOW", "ABNB", "NU"].includes(ticker)) {
-    return returnErrorData("Error: Some dates missing relative to VOO data", logger)
+
+  const someDatesMissing = vooPrices.some(date => !yahooDailyPricesDates.includes(date))
+  if (someDatesMissing) {
+    throw new MessageError("Some dates missing relative to VOO data", "fetchStockPrices")
   }
 
   return {

@@ -1,4 +1,4 @@
-require("../preload")
+require("../globalEnv")
 const { zacks } = require("../src/sources")
 
 const ticker = "AAPL"

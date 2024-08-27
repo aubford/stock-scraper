@@ -1,5 +1,5 @@
 const { morningstar, cfra, boa } = require("../sources")
-const { scrapbookWriteOut, getStockDataFile, exit, getStockTickers } = require("../util")
+const { stagingWriteOut, getStockDataFile, exit, getStockTickers } = require("../util")
 const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
 const stockData = getStockDataFile()
@@ -57,7 +57,7 @@ connectAndRunApp(async browser => {
     }
   }
 
-  scrapbookWriteOut(newData, true)
+  stagingWriteOut(newData, true)
 
   await exit()
 })

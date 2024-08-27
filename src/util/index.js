@@ -1,6 +1,6 @@
 const moment = require("moment")
 const fs = require("fs")
-const { isArray, assignWith } = require("lodash")
+const { isArray, assignWith, omitBy, isEmpty } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 const open = require("open")
@@ -40,6 +40,8 @@ const readJsonFile = location => {
   return JSON.parse(file)
 }
 
+// read stock data files /////////
+
 const getStockDataFile = () => {
   return readJsonFile(STOCK_DATA_LOCATION)
 }
@@ -47,38 +49,64 @@ const getStockDataFile = () => {
 const getStockTickers = () => Object.keys(getStockDataFile())
 const getUnstagedStockTickers = () => {
   const allTickers = getStockTickers()
-  const stagedTickers = Object.keys(readJsonFile(STOCK_DATA_STAGING))
+  const stagedStocks = readJsonFile(STOCK_DATA_STAGING)
+  // filter out tickers that have an error
+  const stagedTickers = Object.keys(stagedStocks).filter(ticker => !stagedStocks[ticker].error)
   return allTickers.filter(ticker => !stagedTickers.includes(ticker))
 }
 const getVooTickers = () => require("../database/vooTickers")
 const getUnstagedVooTickers = () => {
   const allTickers = getVooTickers()
-  const stagedTickers = Object.keys(readJsonFile(VOO_DATA_STAGING))
+  const stagedStocks = readJsonFile(VOO_DATA_STAGING)
+  // filter out tickers that have an error
+  const stagedTickers = Object.keys(stagedStocks).filter(ticker => !stagedStocks[ticker].error)
   return allTickers.filter(ticker => !stagedTickers.includes(ticker))
 }
 
-const scrapbookWriteOut = (data, shouldMerge) => {
-  /** @type {*} */
-  const stockDataFile = fs.readFileSync(STOCK_DATA_LOCATION)
-  const existingData = JSON.parse(stockDataFile)
+// Determine if there are any tickers in stockDataMeta.myStocks (from Merill CSV) that are not in stockData.json
+// return 1 if there are missing tickers, 0 if not for use in check-for-missing.js
+const warnMissingCsvStockTickers = () => {
+  const stockDataMeta = readJsonFile(META_LOCATION)
+  const stockTickers = getStockTickers()
+  const missingTickers = Object.keys(stockDataMeta.myStocks).filter(
+    ticker => !stockTickers.includes(ticker) && !NO_FETCH_STOCKS.includes(ticker)
+  )
+  if (missingTickers.length) {
+    console.log(
+      "Missing stocks from stockData.json that exist in stockDataMeta.myStocks:",
+      missingTickers
+    )
+    return 1
+  } else {
+    console.log("No missing stocks")
+    return 0
+  }
+}
 
-  const writeToFile = shouldMerge
-    ? assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
+// write stock data files /////////
+
+// Remove empty values so that we don't overwrite existing data with failed scrapes
+const removeEmptyValues = obj =>
+  omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
+
+// Core write to file function
+const writeOut = (fileLocation, data, shouldMerge) => {
+  const existingContent = readJsonFile(fileLocation)
+  const newContent = shouldMerge
+    ? assignWith({}, existingContent, data, (a, b) => ({ ...a, ...removeEmptyValues(b) }))
     : {
-        ...existingData,
+        ...existingContent,
         ...data,
       }
 
-  writeJsonFile(STOCK_DATA_LOCATION, writeToFile)
+  writeJsonFile(fileLocation, newContent)
 }
 
-const stagingWriteOut = data => {
-  /** @type {*} */
-  const existingData = readJsonFile(STOCK_DATA_STAGING)
-  const writeToFile = assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
-
-  writeJsonFile(STOCK_DATA_STAGING, writeToFile)
-}
+const scrapbookWriteOut = (data, shouldMerge) =>
+  writeOut(STOCK_DATA_LOCATION, data, shouldMerge)
+const stagingWriteOut = (data, shouldMerge) => writeOut(STOCK_DATA_STAGING, data, shouldMerge)
+const vooWriteOut = (data, shouldMerge) => writeOut(VOO_LOCATION, data, shouldMerge)
+const vooStagingWriteOut = (data, shouldMerge) => writeOut(VOO_DATA_STAGING, data, shouldMerge)
 
 const metaWriteOut = data => {
   /** @type {*} */
@@ -90,15 +118,7 @@ const metaWriteOut = data => {
   })
 }
 
-const vooWriteOut = data => {
-  const existingData = readJsonFile(VOO_DATA_STAGING)
-  const writeToFile = assignWith({}, existingData, data, (a, b) => ({ ...a, ...b }))
-  writeJsonFile(VOO_DATA_STAGING, writeToFile)
-}
-
-const vooStagingWriteOut = data => {
-  writeJsonFile(VOO_LOCATION, data)
-}
+// general utils /////////
 
 const promptUser = async question => {
   const readlineInterface = readline.createInterface({
@@ -131,6 +151,22 @@ const promptLogin = newPage => {
       })
     )
   }
+}
+
+const promptForYes = async question => {
+  const res = await promptUser(question + " (y/n): ")
+  const lowerCaseRes = res.toLowerCase()
+  return lowerCaseRes === "y" || lowerCaseRes === "yes"
+}
+
+const promptForVooAndStagingFileLocation = async () => {
+  const isVoo = await promptForYes("VOO?")
+  const isNotStaging = await promptForYes("Real data:")
+
+  if (isNotStaging) {
+    return isVoo ? VOO_LOCATION : STOCK_DATA_LOCATION
+  }
+  return isVoo ? VOO_DATA_STAGING : STOCK_DATA_STAGING
 }
 
 const pause = async ms => {
@@ -234,7 +270,6 @@ const formatErrorObject = function (
   return {
     ...(ticker ? { ticker } : {}),
     [isDailyUpdate ? "duError" : "error"]: name ? name + ": " + message : message,
-
     [isDailyUpdate ? "duErrorCode" : "errorCode"]: code,
     [isDailyUpdate ? "duErrorStack" : "errorStack"]: stack,
   }
@@ -342,10 +377,13 @@ module.exports = {
   promptForTickers,
   promptLogin,
   promptUser,
+  promptForYes,
+  promptForVooAndStagingFileLocation,
   pause,
   // write/read file
-  writeFile: writeJsonFile,
-  readFile: readJsonFile,
+  writeJsonFile,
+  readJsonFile,
+  writeOut,
   scrapbookWriteOut,
   stagingWriteOut,
   vooWriteOut,
@@ -353,6 +391,7 @@ module.exports = {
   getStockDataFile,
   getStockTickers,
   getVooTickers,
+  warnMissingCsvStockTickers,
   metaWriteOut,
   clearErrors,
   openInBrowser,

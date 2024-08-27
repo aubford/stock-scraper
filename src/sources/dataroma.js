@@ -65,7 +65,7 @@ const getSells = async (ticker, fetcher) => {
 }
 
 const fetchData = async (logger, ticker) => {
-  const fetcher = new JsDomFetcher("Dataroma", ticker)
+  const fetcher = new JsDomFetcher()
 
   await fetcher.setPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
   const ownershipRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)

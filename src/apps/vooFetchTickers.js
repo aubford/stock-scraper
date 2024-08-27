@@ -1,5 +1,5 @@
-const { slickCharts } = require("../../sources")
-const { metaWriteOut } = require("../../util")
+const { slickCharts } = require("../sources")
+const { metaWriteOut } = require("../util")
 const fs = require("fs")
 
 const main = async () => {
@@ -7,7 +7,7 @@ const main = async () => {
   const tickers = Object.keys(spWeights)
 
   fs.writeFileSync(
-    "src/database/vooTickers.js",
+    "../database/vooTickers.js",
     `module.exports = ${JSON.stringify(tickers)}`
   )
   metaWriteOut({

@@ -1,7 +1,7 @@
 const { fetchText } = require("./util")
 const { getPageCookies } = require("../util/puppeteer-utils")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { WarnError, ReError, getStockDataFile } = require("../util")
+const { WarnError, ReError, getStockDataFile, readJsonFile } = require("../util")
 const { handleFetch } = require("./util/www")
 
 /**
@@ -10,7 +10,16 @@ const { handleFetch } = require("./util/www")
  * @param {string} name
  * @returns {Promise<*|null>}
  */
-const getMoodysLink = async (ticker, cookie, name) => {
+const getMoodysLinks = async (ticker, cookie, name) => {
+  const stockData = getStockDataFile()
+  const vooData = readJsonFile(VOO_LOCATION)
+
+  const existingMoodysLink = stockData[ticker]?.moodysLink || vooData[ticker]?.moodysLink
+
+  if (existingMoodysLink) {
+    return [existingMoodysLink]
+  }
+
   const text = await fetchText(
     "https://www.moodys.com/services/mdc-global?name=getTypeAheadResult",
     {
@@ -42,42 +51,52 @@ const getMoodysLink = async (ticker, cookie, name) => {
     throw new ReError("Moody's blocked!", err, "getMoodysLink")
   }
 
-  const org = data.organizations.find(org => org.ticker === ticker)
-  const link = org?.link
-  if (!link) {
+  const links = data.organizations
+    .filter(org => org.ticker === ticker && org.link)
+    .map(org => org.link)
+  if (!links.length) {
     throw new WarnError(`No moodysLink found`, "getMoodysLink")
   }
-  return link
+  return links
 }
 
 /**
  * @param {string} ticker
  * @param {Browser} browser
  * @param {object} logger
+ * @param {string} [stockName]
  * @returns Promise<Object>
  */
 const fetchData = async (ticker, browser, logger, stockName) => {
-  const stockData = getStockDataFile()
-
-  let moodysLink
-  if (stockData[ticker]?.moodysLink) {
-    moodysLink = stockData[ticker].moodysLink
-  } else {
-    const moodysCookies = await getPageCookies(browser, "https://www.moodys.com/")
-    moodysLink = await getMoodysLink(ticker, moodysCookies, stockName || ticker)
-  }
-
   const moodysFetcher = new PageDataFetcher(ticker, browser, logger, {
     timeout: MOODYS_TIMEOUT,
   })
+  const cookie = await getPageCookies(browser, "https://www.moodys.com/")
+  const moodysLinks = await getMoodysLinks(ticker, cookie, stockName || ticker)
+
+  let moodysLink = ""
+  const fetchMoodysRecurse = async () => {
+    if (!moodysLinks.length) {
+      throw new WarnError("No moodysLink found", "fetchMoodysRecurse")
+    }
+    moodysLink = moodysLinks.pop()
+
     await moodysFetcher.setPage(`https://www.moodys.com${moodysLink}`)
-  const [moodysRating, moodysOutlook] = await moodysFetcher.fetchPageData(
-    [
-      "//div[@id='rating-table']//table//tr[1]/td[2]/div/text()",
-      "//div[@id='rating-table']//table//tr[1]/td[4]/div/text()",
-    ],
-    "//div[@id='rating-table']"
-  )
+    try {
+      return await moodysFetcher.fetchPageData(
+        [
+          "//div[@id='rating-table']//table//tr[1]/td[2]/div/text()",
+          "//div[@id='rating-table']//table//tr[1]/td[4]/div/text()",
+        ],
+        "//div[@id='rating-table']"
+      )
+    } catch (error) {
+      logger.warn("Moodys failed for link: " + moodysLink)
+      return await fetchMoodysRecurse()
+    }
+  }
+
+  const [moodysRating, moodysOutlook] = await fetchMoodysRecurse()
   await moodysFetcher.close()
   return {
     moodysRating,

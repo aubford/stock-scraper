@@ -1,4 +1,4 @@
-require("../preload")
+require("../globalEnv")
 const { boa } = require("../src/sources")
 const puppeteer = require("puppeteer-core")
 

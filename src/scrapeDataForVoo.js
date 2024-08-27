@@ -1,14 +1,7 @@
+const { yahoo, wsj, fidelityAnalysts, moodys, zacks, dataroma } = require("./sources")
 const {
-  yahoo,
-  wsj,
-  fidelityAnalysts,
-  moodys,
-  zacks,
-  dataroma,
-} = require("./sources")
-const {
+  vooStagingWriteOut,
   makePrettyDate,
-  vooWriteOut,
   formatErrorObject,
   getEarningsPriceChange,
   clearErrors,
@@ -19,7 +12,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
-  const [moodysData, yahooData, yahooHistoricalPricesData, wsjData, zacksData, tipData] =
+  const [moodysData, yahooData, yahooHistoricalPricesData, wsjData, zacksData, dataromaData] =
     await Promise.all([
       moodys.fetch(ticker, browser),
       yahoo.fetch(ticker),
@@ -45,35 +38,32 @@ const scrapeDataForVoo = async (ticker, browser) => {
     tickerSearch: `//${ticker}`,
     ...moodysData,
     ...fidelityAnalystOpinionsData,
-    ...tipData,
+    ...dataromaData,
     ...yahooData,
     ...wsjData,
     ...zacksData,
     ...yahooHistoricalPricesData,
-    morganStanleyRating:
-      tipData.tipMorganStanleyRating ||
-      fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
   }
 }
 
 module.exports = async (allTickers, browser) => {
   await yahoo.fetchVooIndexHistoricalPrices(true)
-  const newStockData = {}
 
   const scrapeDataForTickers = async tickers => {
     console.log("Searching for tickers:", tickers)
 
     for (const ticker of tickers) {
       try {
-        newStockData[ticker] = await scrapeDataForVoo(ticker, browser)
-        console.log(`* TICKER COMPLETED OK: ${ticker}`)
+        const res = await scrapeDataForVoo(ticker, browser)
+        vooStagingWriteOut({ [ticker]: res })
+        console.log(`* TICKER COMPLETED OK: ${ticker}\n`)
       } catch (error) {
+        vooStagingWriteOut({ [ticker]: formatErrorObject(error, ticker) })
         console.log(`${ticker}: xxx FAIL xxx`, error)
-        newStockData[ticker] = formatErrorObject(error, ticker)
       }
     }
   }
 
   await scrapeDataForTickers(allTickers)
-  vooWriteOut(newStockData)
 }

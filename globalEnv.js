@@ -1,5 +1,5 @@
 try {
-  const { webSocketDebuggerUrl } = require("./ws.json")
+  const { webSocketDebuggerUrl } = require(__dirname + "/ws.json")
   global.CONNECTION = {
     browserWSEndpoint: webSocketDebuggerUrl,
     defaultViewport: {
@@ -8,12 +8,12 @@ try {
     },
   }
 } catch (err) {
-  console.log("skipped ws connection")
+  console.log("skipped ws connection", err)
 }
 
 // Error.stackTraceLimit = 1
 
-const timeoutCoeff = 2
+const timeoutCoeff = 1
 
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
@@ -21,7 +21,7 @@ global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
 
 global.WSJ_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.FIDELITY_ANALYST_TIMEOUT = 25 * 1000 * timeoutCoeff
-global.MOODYS_TIMEOUT = 20 * 1000 * timeoutCoeff
+global.MOODYS_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
 global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
@@ -33,7 +33,7 @@ global.STOCK_DATA_STAGING = `${__dirname}/stockDataStaging.json`
 global.VOO_DATA_STAGING = `${__dirname}/vooDataStaging.json`
 global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
-global.STOCK_DATA_BACKUP_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataBackup.json`
+global.NO_FETCH_STOCKS = ["GOOG", "BRKB", "CSCCF", "RSP", "VOO", "VTI", "PWCDF", "LLYVA", "LLYVK"]
 
 Promise.stagger = async (asyncFunc, paramArr, ms) => {
   const staggered = paramArr.map(async (params, idx) => {

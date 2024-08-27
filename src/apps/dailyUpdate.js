@@ -9,88 +9,93 @@ const {
   exit,
   makePrettyDate,
   getEarningsPriceChange,
+  promptForYes,
 } = require("../util")
-
-const IS_VOO = process.argv.includes("--voo")
-const INCLUDE_DATAROMA = process.argv.includes("--dataroma")
-
-const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
 /**
  * @script dailyUpdate
  */
 
-/**
- * @param {string} ticker
- * @returns {Promise<Array>}
- */
-const fetchStockData = async ticker => {
-  const fetchPromises = [
-    yahoo.fetch(ticker),
-    yahoo.fetchHistoricalPrices(ticker),
-    zacks.fetch(ticker),
-  ]
-  if (INCLUDE_DATAROMA) {
-    fetchPromises.push(dataroma.fetch(ticker))
-  }
-  const [yahooData, prices, zacksData, dataromaData = {}] = await Promise.all(fetchPromises)
+const app = async () => {
+  const IS_VOO = await promptForYes("Is VOO?")
+  const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
 
-  const { yahooDailyPricesDates, yahooDailyPrices } = prices
-  return [
-    ticker,
-    {
-      ticker,
-      dailyUpdateAt: makePrettyDate(),
-      tickerSearch: `//${ticker}`,
-      earningsPriceChange: getEarningsPriceChange(
-        zacksData.zacksLastEarningsDate,
-        yahooDailyPrices,
-        yahooDailyPricesDates
-      ),
-      ...yahooData,
-      ...zacksData,
-      ...prices,
-      ...dataromaData,
-    },
-  ]
-}
+  const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
-/**
- * @returns {Promise<*[]>}
- */
-const runDailyUpdate = async () => {
-  await yahoo.fetchVooIndexHistoricalPrices()
-
-  const handleFetchTicker = async ticker => {
-    console.log(`* STARTING: ${ticker}`)
-    try {
-      const res = await fetchStockData(ticker)
-      console.log(`* TICKER COMPLETED: ${ticker}`)
-      return res
-    } catch (error) {
-      console.error(`${ticker}: xxx Uncaught Error! xxx`, error)
-      return formatErrorObject(error, ticker, true)
+  /**
+   * @param {string} ticker
+   * @returns {Promise<Array>}
+   */
+  const fetchStockData = async ticker => {
+    const fetchPromises = [
+      yahoo.fetch(ticker),
+      yahoo.fetchHistoricalPrices(ticker),
+      zacks.fetch(ticker),
+    ]
+    if (INCLUDE_DATAROMA) {
+      fetchPromises.push(dataroma.fetch(ticker))
     }
+    const [yahooData, prices, zacksData, dataromaData = {}] = await Promise.all(fetchPromises)
+
+    const { yahooDailyPricesDates, yahooDailyPrices } = prices
+    return [
+      ticker,
+      {
+        ticker,
+        dailyUpdateAt: makePrettyDate(),
+        tickerSearch: `//${ticker}`,
+        earningsPriceChange: getEarningsPriceChange(
+          zacksData.zacksLastEarningsDate,
+          yahooDailyPrices,
+          yahooDailyPricesDates
+        ),
+        ...yahooData,
+        ...zacksData,
+        ...prices,
+        ...dataromaData,
+      },
+    ]
   }
 
-  let res = []
-  const tickerChunks = chunk(tickers, 3)
-  for (const tickerChunk of tickerChunks) {
-    const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 500)
-    res = res.concat(companyData)
+  /**
+   * @returns {Promise<*[]>}
+   */
+  const runDailyUpdate = async () => {
+    await yahoo.fetchVooIndexHistoricalPrices()
+
+    const handleFetchTicker = async ticker => {
+      console.log(`* STARTING: ${ticker}`)
+      try {
+        const res = await fetchStockData(ticker)
+        console.log(`* TICKER COMPLETED: ${ticker}`)
+        return res
+      } catch (error) {
+        console.error(`${ticker}: xxx Uncaught Error! xxx`, error)
+        return formatErrorObject(error, ticker, true)
+      }
+    }
+
+    let res = []
+    const tickerChunks = chunk(tickers, 3)
+    for (const tickerChunk of tickerChunks) {
+      const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 500)
+      res = res.concat(companyData)
+    }
+    return res
   }
-  return res
+
+  runDailyUpdate().then(companyData => {
+    const updatedData = fromPairs(companyData)
+
+    // Check if the '--voo' flag was passed
+    if (IS_VOO) {
+      vooWriteOut(updatedData, true)
+    } else {
+      scrapbookWriteOut(updatedData, true)
+    }
+
+    exit()
+  })
 }
 
-runDailyUpdate().then(companyData => {
-  const updatedData = fromPairs(companyData)
-
-  // Check if the '--voo' flag was passed
-  if (IS_VOO) {
-    vooWriteOut(updatedData, true)
-  } else {
-    scrapbookWriteOut(updatedData, true)
-  }
-
-  exit()
-})
+app()

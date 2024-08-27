@@ -1,6 +1,6 @@
 const { fidelityAnalysts, argusAnalyst } = require("../sources")
 const {
-  scrapbookWriteOut,
+  stagingWriteOut,
   getStockDataFile,
   exit,
   ReError,
@@ -37,7 +37,7 @@ connectAndRunApp(async browser => {
     }
   }
 
-  scrapbookWriteOut(newData, true)
+  stagingWriteOut(newData, true)
 
   await exit()
 })

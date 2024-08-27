@@ -1,4 +1,4 @@
-require("../preload")
+require("../globalEnv")
 const { fetchHistoricalPrices, fetchVooIndexHistoricalPrices } = require("../src/sources/yahoo")
 const moment = require("moment")
 const { zip } = require("lodash")

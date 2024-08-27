@@ -1,5 +1,5 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
-const { stagingWriteOut, pause, writeFile, formatErrorObject } = require("./util")
+const { stagingWriteOut, pause, writeJsonFile, formatErrorObject, vooStagingWriteOut } = require("./util")
 const { yahoo } = require("./sources")
 const moment = require("moment")
 
@@ -8,7 +8,7 @@ const metaWriteBadFetches = badFetches => {
   const existingFile = fs.readFileSync(META_LOCATION)
   const existingMeta = JSON.parse(existingFile)
 
-  writeFile(META_LOCATION, {
+  writeJsonFile(META_LOCATION, {
     ...existingMeta,
     badFetches: existingMeta.badFetches.concat({
       date: moment().format("MMM D YY: h:mm a"),
@@ -29,6 +29,7 @@ module.exports = async (allTickers, browser) => {
       try {
         newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
         stagingWriteOut(newStockData)
+        vooStagingWriteOut(newStockData)
         console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
       } catch (error) {
         console.error("🚨🚨🚨 SCRAPE FAIL 🚨🚨🚨", error)

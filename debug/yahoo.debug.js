@@ -5,12 +5,10 @@ const ticker = "SNOW"
 
 const run = async () => {
   await yahoo.fetchVooIndexHistoricalPrices(true)
-
-  const res = await yahoo.fetchHistoricalPrices(ticker).catch(err => {
+  const res = await yahoo.fetch(ticker).catch(err => {
     console.error(err)
   })
-
-  console.log(res)
+  return res
 }
 
-run()
+run().then(console.log)

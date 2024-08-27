@@ -1,4 +1,4 @@
-require("../preload")
+require("../globalEnv")
 const puppeteer = require("puppeteer-core")
 const { fidelityAnalysts } = require("../src/sources")
 

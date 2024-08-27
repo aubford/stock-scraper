@@ -1,4 +1,4 @@
-require("../preload")
+require("../globalEnv")
 const { wsj } = require("../src/sources")
 const puppeteer = require("puppeteer-core")
 

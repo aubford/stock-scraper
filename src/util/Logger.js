@@ -47,8 +47,8 @@ class Logger {
    */
   warn(msg, err) {
     if (err) {
-      err.stack = ""
-      console.warn(this.lineStart + `⚠️ -> ${msg}`, err)
+      const clone = { ...err, stack: "" }
+      console.warn(this.lineStart + `⚠️ -> ${msg}`, clone)
     } else {
       console.warn(this.lineStart + `⚠️ -> ${msg}`)
     }
@@ -59,8 +59,8 @@ class Logger {
    * @param {Error} err
    */
   warnError(err) {
-    err.stack = ""
-    console.warn(this.lineStart + `⚠️ ->`, err)
+    const clone = { ...err, stack: "" }
+    console.warn(this.lineStart + `⚠️ ->`, clone)
   }
 
   completeOk(msg = "Done") {

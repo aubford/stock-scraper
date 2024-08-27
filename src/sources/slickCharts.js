@@ -3,7 +3,7 @@ const { fromPairs } = require("lodash")
 const { extractNumbers } = require("./util")
 
 const fetchData = async () => {
-  const fetcher = new JsDomFetcher("Zacks", "SP500")
+  const fetcher = new JsDomFetcher()
 
   await fetcher.setPage(`https://www.slickcharts.com/sp500`)
 

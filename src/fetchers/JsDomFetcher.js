@@ -1,18 +1,17 @@
 const { JSDOM } = require("jsdom")
 const fs = require("fs")
-const Logger = require("../util/Logger")
+const { MessageError } = require("../util")
 
 const getTestPage = options => JSDOM.fromFile("./http/response.html", options)
 
 class JsDomNode {
-  constructor(logger, element, dom) {
+  constructor(element, dom) {
     this.dom = dom
     this.element = element
-    this.logger = logger
   }
 
   spawn(element) {
-    return new JsDomElement(this.logger, element, this.dom)
+    return new JsDomElement(element, this.dom)
   }
 
   /**
@@ -31,7 +30,11 @@ class JsDomNode {
     if (el) {
       return this.spawn(el)
     }
-    this.logger.error("No element found for selector: " + selector)
+
+    throw new MessageError(
+      "No element found for selector: " + selector,
+      "JsDomFetcher:JsDomNode:$"
+    )
   }
 
   $$(selector) {
@@ -48,7 +51,10 @@ class JsDomNode {
     if (node) {
       return node
     }
-    this.logger.error("No element found for xpath: " + xpath)
+    throw new MessageError(
+      "No element found for xpath: " + xpath,
+      "JsDomFetcher:JsDomNode:_xpath"
+    )
   }
 
   _xpaths(xpath) {
@@ -60,7 +66,10 @@ class JsDomNode {
       return Array.from({ length: result.snapshotLength }, (_, i) => result.snapshotItem(i))
     }
 
-    this.logger.error("No element found for xpath: " + xpath)
+    throw new MessageError(
+      "No element found for xpath: " + xpath,
+      "JsDomFetcher:JsDomNode:_xpaths"
+    )
   }
 
   $x(xpath) {
@@ -97,8 +106,8 @@ class JsDomNode {
 }
 
 class JsDomElement extends JsDomNode {
-  constructor(logger, element, dom) {
-    super(logger, element, dom)
+  constructor(element, dom) {
+    super(element, dom)
     this.textContent = element.textContent
   }
 
@@ -108,17 +117,9 @@ class JsDomElement extends JsDomNode {
 }
 
 class JsDomFetcher extends JsDomNode {
-  /**
-   * @param {string} contextName
-   * @param {string} ticker
-   * @param {*} browser
-   * @param {number} timeout
-   */
-  constructor(contextName, ticker, { timeout, testing } = {}) {
-    const logger = new Logger(ticker, contextName + " JsDomFetcher")
-    super(logger)
+  constructor({ timeout, testing } = {}) {
+    super()
 
-    this.ticker = ticker
     this.timeout = timeout
     this.testing = testing
   }

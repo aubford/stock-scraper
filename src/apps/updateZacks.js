@@ -1,6 +1,6 @@
 const { chunk, fromPairs } = require("lodash")
 const { zacks } = require("../sources")
-const { scrapbookWriteOut, getStockDataFile } = require("../util")
+const { stagingWriteOut, getStockDataFile } = require("../util")
 
 const stockData = getStockDataFile()
 const tickers = Object.keys(stockData)
@@ -28,6 +28,6 @@ const run = async () => {
 
 run().then(companyData => {
   const updatedData = fromPairs(companyData)
-  scrapbookWriteOut(updatedData, true)
+  stagingWriteOut(updatedData, true)
   process.exit(0)
 })

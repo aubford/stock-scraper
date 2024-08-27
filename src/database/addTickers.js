@@ -1,8 +1,8 @@
-const { promptForTickers, readFile, writeFile } = require("../util")
+const { promptForTickers, readJsonFile, writeJsonFile } = require("../util")
 
 // want new tickers to update first when running update.js script
 const randomOldDate = new Date(2000, 7, 24)
-const stockFile = readFile(STOCK_DATA_LOCATION)
+const stockFile = readJsonFile(STOCK_DATA_LOCATION)
 
 promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/)
@@ -22,7 +22,7 @@ promptForTickers().then(promptRes => {
   console.log("Added tickers: " + addedTickers)
 
   if (addedTickers.length) {
-    writeFile(STOCK_DATA_LOCATION, newData)
+    writeJsonFile(STOCK_DATA_LOCATION, newData)
   }
 
   process.exit(0)

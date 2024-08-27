@@ -82,7 +82,7 @@ const fetchData = async (logger, ticker) => {
     ? orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
     : [[]]
 
-  const fetcher = new JsDomFetcher("Zacks", ticker)
+  const fetcher = new JsDomFetcher()
 
   // DETAILED EARNINGS ESTIMATES ///////////
 

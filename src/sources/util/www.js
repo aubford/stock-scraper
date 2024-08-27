@@ -1,6 +1,7 @@
 const { goToNewBrowserPage } = require("../../util/puppeteer-utils")
 const Logger = require("../../util/Logger")
-const { ReError, MessageError, formatErrorObject, WarnError} = require("../../util")
+const { ReError, MessageError, formatErrorObject, WarnError } = require("../../util")
+const { snakeCase } = require("lodash")
 
 /**
  * @returns {Promise<string>}
@@ -58,10 +59,14 @@ const handleFetch = (fetchCallback, ticker, contextName) => {
     .catch(error => {
       if (error instanceof WarnError) {
         logger.warnError(error)
-        return {}
+        return { ["warnError_" + snakeCase(contextName)]: error }
       }
       logger.error("Fetch Aborted", error)
-      return formatErrorObject(error, ticker)
+      const errorObject = formatErrorObject(error)
+      return {
+        ...errorObject,
+        ["error_" + snakeCase(contextName)]: errorObject.error,
+      }
     })
 }
 

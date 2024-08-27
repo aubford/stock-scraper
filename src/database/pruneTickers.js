@@ -1,4 +1,4 @@
-const { writeFile, promptForTickers, getStockDataFile } = require("../util")
+const { writeJsonFile, promptForTickers, getStockDataFile } = require("../util")
 
 promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/).filter(a => a)
@@ -8,6 +8,6 @@ promptForTickers().then(promptRes => {
       delete stockDataFile[ticker]
     }
   }
-  writeFile(STOCK_DATA_LOCATION, stockDataFile)
+  writeJsonFile(STOCK_DATA_LOCATION, stockDataFile)
   process.exit(0)
 })

@@ -152,9 +152,7 @@ class PageDataFetcher {
       return []
     }
 
-    const values = await Promise.all(xPathArr.map(this.page.getTextByX))
-    this.logger.completeOk("Page: Done")
-    return values
+    return await Promise.all(xPathArr.map(this.page.getTextByX))
   }
 
   fetchPageData(xPathArr, selectorToWaitFor) {
