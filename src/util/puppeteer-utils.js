@@ -1,12 +1,11 @@
 const { pause, ReError, begin, promptLogin, promptUser } = require("./index")
 const puppeteer = require("puppeteer-core")
 
-const connectAndRunApp = app => {
+const connectAndRunApp = app =>
   puppeteer
     .connect(CONNECTION)
     .then(app)
     .catch(err => console.error(err))
-}
 
 /**
  * @param page {MyPage}

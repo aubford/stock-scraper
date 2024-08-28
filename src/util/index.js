@@ -180,7 +180,6 @@ const makePrettyDate = () => moment().format("MMM DD h:mma")
 
 const begin = () => {
   console.warn("********  Turn on PDF Viewer extension!!!! ********")
-  exec("caffeinate")
 }
 
 /**
@@ -188,7 +187,6 @@ const begin = () => {
  * @returns {void}
  */
 const exit = async () => {
-  exec("killall caffeinate")
   console.log(
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Scraping Complete: SUCCESS 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
@@ -198,8 +196,6 @@ const exit = async () => {
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
   exec("afplay /System/Library/Sounds/Ping.aiff")
-
-  process.exit(0)
 }
 
 const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]

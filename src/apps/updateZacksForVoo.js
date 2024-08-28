@@ -28,8 +28,8 @@ const run = async () => {
   return res
 }
 
-run().then(companyData => {
-  const updatedData = fromPairs(companyData)
-  vooWriteOut(updatedData, true)
-  process.exit(0)
-})
+module.exports = () =>
+  run().then(companyData => {
+    const updatedData = fromPairs(companyData)
+    vooWriteOut(updatedData, true)
+  })

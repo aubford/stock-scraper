@@ -71,34 +71,36 @@ const getBuffetData = async () => {
   return fromPairs(chunk)
 }
 
-connectAndRunApp(async browser => {
-  const newPage = url =>
-    goToNewBrowserPage(browser, url).catch(err => {
-      throw new ReError("goToNewBrowserPage failed", err, "scrapeExtraData")
+module.exports = () =>
+  connectAndRunApp(async browser => {
+    const newPage = url =>
+      goToNewBrowserPage(browser, url).catch(err => {
+        throw new ReError("goToNewBrowserPage failed", err, "scrapeExtraData")
+      })
+
+    const page = await newPage(
+      "https://www.magicformulainvesting.com/Screening/StockScreening"
+    )
+
+    await page.waitForSelector(`.nav-text`)
+    if (await page.$("input#login")) {
+      await page.click(`input#login`)
+    }
+
+    const cookies = await page.cookies()
+
+    const magicTickers = await aggregateMagicFormulaTickers(cookies)
+    const buffetData = await getBuffetData()
+
+    if (!isArray(magicTickers)) {
+      throw new Error("***  FAILURE: magicTickers is not an Array ***")
+    }
+
+    console.log("Magic Tickers: ", magicTickers)
+    console.log("Buffett Data: ", buffetData)
+
+    metaWriteOut({
+      magicTickers,
+      buffetData,
     })
-
-  const page = await newPage("https://www.magicformulainvesting.com/Screening/StockScreening")
-
-  await page.waitForSelector(`.nav-text`)
-  if (await page.$("input#login")) {
-    await page.click(`input#login`)
-  }
-
-  const cookies = await page.cookies()
-
-  const magicTickers = await aggregateMagicFormulaTickers(cookies)
-  const buffetData = await getBuffetData()
-
-  if (!isArray(magicTickers)) {
-    throw new Error("***  FAILURE: magicTickers is not an Array ***")
-  }
-
-  console.log("Magic Tickers: ", magicTickers)
-  console.log("Buffett Data: ", buffetData)
-
-  metaWriteOut({
-    magicTickers,
-    buffetData,
   })
-  process.exit(0)
-})

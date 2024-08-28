@@ -2,7 +2,7 @@ const { promptForYes, getUnstagedVooTickers, exit, getVooTickers } = require("..
 const scrapeDataForVoo = require("../scrapeDataForVoo")
 const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
-connectAndRunApp(async browser => {
+module.exports = () => connectAndRunApp(async browser => {
   const fetchUnstagedOnly = await promptForYes("Fetch unstaged only? (plus staged w/ errors)")
   const tickers = fetchUnstagedOnly ? getUnstagedVooTickers() : getVooTickers()
 

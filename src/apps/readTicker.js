@@ -6,4 +6,4 @@ const app = async () => {
   return readJsonFile(fileLocation)[ticker]
 }
 
-app().then(console.log)
+module.exports = () => app().then(console.log)

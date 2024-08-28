@@ -45,7 +45,7 @@ const fetchTickerData = async (ticker, browser) => {
   }
 }
 
-connectAndRunApp(async browser => {
+module.exports = () => connectAndRunApp(async browser => {
   await beginAndLogin(browser, "Press Enter")
 
   const newData = {}

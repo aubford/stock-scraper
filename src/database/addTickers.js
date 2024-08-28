@@ -4,7 +4,7 @@ const { promptForTickers, readJsonFile, writeJsonFile } = require("../util")
 const randomOldDate = new Date(2000, 7, 24)
 const stockFile = readJsonFile(STOCK_DATA_LOCATION)
 
-promptForTickers().then(promptRes => {
+module.exports = promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/)
   const toAdd = tickers.reduce(
     (acc, ticker) => ({
@@ -24,6 +24,4 @@ promptForTickers().then(promptRes => {
   if (addedTickers.length) {
     writeJsonFile(STOCK_DATA_LOCATION, newData)
   }
-
-  process.exit(0)
 })

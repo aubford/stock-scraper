@@ -81,4 +81,4 @@ const app = async browser => {
   })
 }
 
-connectAndRunApp(app)
+module.exports = () => connectAndRunApp(app)

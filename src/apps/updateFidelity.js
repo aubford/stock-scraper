@@ -25,19 +25,20 @@ const fetchTickerData = async (ticker, browser) => {
   }
 }
 
-connectAndRunApp(async browser => {
-  await beginAndLogin(browser, "Press Enter")
+module.exports = () =>
+  connectAndRunApp(async browser => {
+    await beginAndLogin(browser, "Press Enter")
 
-  const newData = {}
-  for (const ticker of tickers) {
-    try {
-      newData[ticker] = await fetchTickerData(ticker, browser)
-    } catch (err) {
-      throw new ReError(`${ticker}: xxx TOP LEVEL FAIL xxx`, err,"")
+    const newData = {}
+    for (const ticker of tickers) {
+      try {
+        newData[ticker] = await fetchTickerData(ticker, browser)
+      } catch (err) {
+        throw new ReError(`${ticker}: xxx TOP LEVEL FAIL xxx`, err, "")
+      }
     }
-  }
 
-  stagingWriteOut(newData, true)
+    stagingWriteOut(newData, true)
 
-  await exit()
-})
+    await exit()
+  })

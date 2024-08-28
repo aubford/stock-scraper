@@ -1,6 +1,6 @@
 const { writeJsonFile, promptForTickers, getStockDataFile } = require("../util")
 
-promptForTickers().then(promptRes => {
+module.exports = () => promptForTickers().then(promptRes => {
   const tickers = promptRes.split(/[^A-Z]/).filter(a => a)
   const stockDataFile = getStockDataFile()
   for (const ticker in stockDataFile) {
@@ -9,5 +9,4 @@ promptForTickers().then(promptRes => {
     }
   }
   writeJsonFile(STOCK_DATA_LOCATION, stockDataFile)
-  process.exit(0)
 })

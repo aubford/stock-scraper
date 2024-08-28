@@ -18,6 +18,7 @@ const app = async () => {
   return errorsOnly(readJsonFile(fileLocation), isVerbose ? predicateVerbose : predicateSimple)
 }
 
-app().then(res => {
-  console.log(res)
-})
+module.exports = () =>
+  app().then(res => {
+    console.log(res)
+  })

@@ -1,7 +1,6 @@
 const { promptUser } = require("./util")
 require("../globalEnv")
 
-
 try {
   const { webSocketDebuggerUrl } = require("../ws.json")
   global.CONNECTION = {
@@ -65,19 +64,33 @@ function getAppFileNames() {
   }
 }
 
-promptUser("App: ").then(res => {
+const run = async () => {
+  const res = await promptUser("App: ")
   if (res === "help") {
     console.log("Here are the available apps:")
     console.log("Main apps: ", getAppFileNames())
     console.log("Other apps: csv, csvCheckForMissing, addTickers, pruneTickers, showTickers")
   }
-  if (res === "csvCheckForMissing") {
-    require("./csv/csvCheckForMissing.js")
-  } else if (res === "csv") {
-    require("./csv/processCSVs.js")
+
+  let app
+  if (res === "csv") {
+    app = require("./csv/processCSVs.js")
   } else if (["addTickers", "pruneTickers", "showTickers"].includes(res)) {
-    require(`./database/${res}`)
+    app = require(`./database/${res}`)
   } else {
-    require(`./apps/${res}`)
+    app = require(`./apps/${res}`)
   }
-})
+
+  await app()
+  await run()
+}
+
+run()
+  .then(() => {
+    console.log("Exiting...")
+    process.exit(0)
+  })
+  .catch(err => {
+    console.error("Error:", err)
+    process.exit(1)
+  })

@@ -23,4 +23,4 @@ const app = async () => {
   }
 }
 
-app()
+module.exports = app

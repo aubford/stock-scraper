@@ -9,9 +9,9 @@ const app = async () => {
   writeOut(fileLocation, newDataToWrite, mergeRes)
 }
 
-app()
-  .then(() => {
-    console.log("✨Commit successful! ✨")
-    process.exit(0)
-  })
-  .catch(err => console.error("Error:", err))
+module.exports = async () =>
+  app()
+    .then(() => {
+      console.log("✨ Commit successful! ✨")
+    })
+    .catch(err => console.error("Error:", err))
