@@ -16,9 +16,9 @@ const {
  * @script dailyUpdate
  */
 
-const app = async () => {
-  const IS_VOO = await promptForYes("Is VOO?")
-  const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
+const app = async (isVoo, includeDataroma) => {
+  const IS_VOO = isVoo || (await promptForYes("Is VOO?"))
+  const INCLUDE_DATAROMA = includeDataroma || (await promptForYes("Include Dataroma?"))
 
   const tickers = IS_VOO ? getVooTickers() : getStockTickers()
 
@@ -87,14 +87,13 @@ const app = async () => {
   runDailyUpdate().then(companyData => {
     const updatedData = fromPairs(companyData)
 
-    // Check if the '--voo' flag was passed
     if (IS_VOO) {
       vooWriteOut(updatedData, true)
     } else {
       scrapbookWriteOut(updatedData, true)
     }
 
-    exit()
+    return exit()
   })
 }
 

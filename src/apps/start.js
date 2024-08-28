@@ -8,5 +8,5 @@ module.exports = () =>
     const tickers = promptResponse.split(/[^A-Z]/).filter(a => a)
     await scrapeDataForTickers(tickers, browser)
 
-    exit()
+    await exit()
   })

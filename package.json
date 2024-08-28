@@ -6,6 +6,7 @@
   "scripts": {
     "launch": "node ./launch.js",
     "app": "caffeinate & jest ./test/historicalPrices.test.js && node src/index.js && npm run prettyStocks && npm run check-for-missing && killall caffeinate",
+    "all": "caffeinate & jest ./test/historicalPrices.test.js && node src/all.js && npm run prettyStocks && npm run check-for-missing && killall caffeinate",
     "init": "npm i; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockData.json\" ./stockData.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/stockDataMeta.json\" ./stockDataMeta.json; ln -s \"$STOCK_SCRAPBOOK_LOCATION/vooData.json\" ./vooData.json",
     "check-for-missing": "node ./src/csv/csvCheckForMissing.js",
     "prettyStocks": "prettier --write \"{stockData,vooData,stockDataStaging,vooDataStaging,stockDataMeta}.json\"",

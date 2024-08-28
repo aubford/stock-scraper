@@ -13,6 +13,7 @@
       <excludePattern pattern="stockDataBackupBeforeTDEnds.json" />
       <excludePattern pattern="tdBackupStockData-23-12-12.json" />
       <excludePattern pattern="tdBackupVooData-23-12-12.json" />
+      <excludePattern pattern="playground.js" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -12,9 +12,9 @@ const errorsOnly = (stockData, predicate) => {
   return omitBy(errorKeys, isEmpty)
 }
 
-const app = async () => {
-  const fileLocation = await promptForVooAndStagingFileLocation()
-  const isVerbose = await promptForYes("Verbose?")
+const app = async (file, verbose) => {
+  const fileLocation = file || (await promptForVooAndStagingFileLocation())
+  const isVerbose = verbose || (await promptForYes("Verbose?"))
   return errorsOnly(readJsonFile(fileLocation), isVerbose ? predicateVerbose : predicateSimple)
 }
 

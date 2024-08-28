@@ -4,6 +4,7 @@ const { isArray, assignWith, omitBy, isEmpty } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
 const open = require("open")
+const vooTickers = require("../database/vooTickers")
 
 /**
  * @typedef {Page} MyPage
@@ -54,7 +55,7 @@ const getUnstagedStockTickers = () => {
   const stagedTickers = Object.keys(stagedStocks).filter(ticker => !stagedStocks[ticker].error)
   return allTickers.filter(ticker => !stagedTickers.includes(ticker))
 }
-const getVooTickers = () => require("../database/vooTickers")
+const getVooTickers = () => vooTickers
 const getUnstagedVooTickers = () => {
   const allTickers = getVooTickers()
   const stagedStocks = readJsonFile(VOO_DATA_STAGING)
@@ -90,6 +91,13 @@ const removeEmptyValues = obj =>
   omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
 
 // Core write to file function
+/**
+ * 
+ * @param fileLocation
+ * @param data
+ * @param shouldMerge
+ * @returns {void}
+ */
 const writeOut = (fileLocation, data, shouldMerge) => {
   const existingContent = readJsonFile(fileLocation)
   const newContent = shouldMerge

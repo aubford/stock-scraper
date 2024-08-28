@@ -77,7 +77,7 @@ const app = async browser => {
       stagingWriteOut(updatedData, true)
     }
 
-    exit()
+    return exit()
   })
 }
 

@@ -47,7 +47,7 @@ const fetchData = async (ticker, browser, logger) => {
   ])
 
   await fetcher.setPage(
-    `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=${ticker}`
+    `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=${ticker}`
   )
 
   const [zacksDate, zacksLink] = await fetcher.fetchPageData([

@@ -1,4 +1,4 @@
-# This is all data fetched by https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbols=AVGO
+# This is all data fetched by https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=AVGO
 # We just need to obtain the markit auth token and then we can just fetch all this!!!!!!
 # The markit token exists in Redux store as state.token!!
 
@@ -40,7 +40,7 @@ Content-Type: application/json
 
 ### ESS rating
 
-GET https://research2relay.fidelity.wallst.com/pi/stock-api/v1/AnalystOpinions?symbols=AVGO
+GET https://research2relay.fidelity.wallst.com/pi/stock-api/v1/AnalystOpinions?symbol=AVGO
 Accept: application/json, text/plain, */*
 Accept-Language: en-US,en;q=0.9
 Connection: keep-alive

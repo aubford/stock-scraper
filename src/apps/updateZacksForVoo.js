@@ -1,6 +1,6 @@
 const { chunk, fromPairs } = require("lodash")
 const { zacks } = require("../sources")
-const { vooWriteOut } = require("../util")
+const { vooStagingWriteOut } = require("../util")
 
 const tickers = require("../database/vooTickers")
 
@@ -31,5 +31,5 @@ const run = async () => {
 module.exports = () =>
   run().then(companyData => {
     const updatedData = fromPairs(companyData)
-    vooWriteOut(updatedData, true)
+    vooStagingWriteOut(updatedData, true)
   })

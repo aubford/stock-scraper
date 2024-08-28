@@ -1,5 +1,5 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
-const { stagingWriteOut, pause, writeJsonFile, formatErrorObject, vooStagingWriteOut } = require("./util")
+const { stagingWriteOut, pause, writeJsonFile, formatErrorObject } = require("./util")
 const { yahoo } = require("./sources")
 const moment = require("moment")
 
@@ -29,7 +29,6 @@ module.exports = async (allTickers, browser) => {
       try {
         newStockData[ticker] = await scrapeDataForTicker(ticker, browser)
         stagingWriteOut(newStockData)
-        vooStagingWriteOut(newStockData)
         console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
       } catch (error) {
         console.error("🚨🚨🚨 SCRAPE FAIL 🚨🚨🚨", error)

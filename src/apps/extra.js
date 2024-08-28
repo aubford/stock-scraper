@@ -71,7 +71,7 @@ const getBuffetData = async () => {
   return fromPairs(chunk)
 }
 
-module.exports = () =>
+module.exports = async () =>
   connectAndRunApp(async browser => {
     const newPage = url =>
       goToNewBrowserPage(browser, url).catch(err => {
