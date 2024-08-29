@@ -2,7 +2,7 @@ require("../globalEnv")
 const { moodys } = require("../src/sources")
 const puppeteer = require("puppeteer-core")
 
-const ticker = "JCI"
+const ticker = "SHOP"
 
 puppeteer
   .connect(CONNECTION)
