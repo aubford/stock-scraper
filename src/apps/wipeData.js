@@ -1,10 +1,30 @@
-const { writeOut, readJsonFile, promptForYes, writeJsonFile } = require("../util")
+const {
+  writeOut,
+  readJsonFile,
+  promptForYes,
+  writeJsonFile,
+  getStockTickers,
+} = require("../util")
 
 const app = async () => {
   const isVoo = await promptForYes("Is VOO?")
-  const fileLocation = isVoo ? VOO_LOCATION : STOCK_DATA_LOCATION
+  if (isVoo) {
+    return writeJsonFile(VOO_LOCATION, {})
+  }
 
-  writeJsonFile(fileLocation, {})
+  const fullReset = await promptForYes("Full reset?")
+  writeJsonFile(
+    STOCK_DATA_LOCATION,
+    fullReset
+      ? {}
+      : getStockTickers().reduce(
+          (acc, ticker) => ({
+            [ticker]: { ticker },
+            ...acc,
+          }),
+          {}
+        )
+  )
 }
 
 module.exports = async () =>
