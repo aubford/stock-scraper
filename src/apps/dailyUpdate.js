@@ -85,7 +85,7 @@ const app = async (isVoo, includeDataroma) => {
     return res
   }
 
-  runDailyUpdate().then(companyData => {
+  return runDailyUpdate().then(companyData => {
     const updatedData = fromPairs(companyData)
 
     if (IS_VOO) {
