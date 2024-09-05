@@ -15,6 +15,7 @@ openInBrowser("https://olui2.fs.ml.com/TFPDownloads/TFPDownloads.aspx")
 const SYMBOL_HEADER = "Symbol"
 
 const main = async () => {
+  console.log("🚀 Get CSV 🚀")
   await promptUser(`Download "security" CSV and then press Enter`)
   renameCSVs()
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)

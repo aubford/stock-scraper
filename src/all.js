@@ -3,7 +3,7 @@ const extra = require("./apps/extra")
 const csv = require("./csv/processCSVs")
 const update = require("./apps/update")
 const voo = require("./apps/fetchVoo")
-const readErrors = require("./apps/readErrors")
+const analysis = require("./apps/analysis")
 const commit = require("./apps/commit")
 const { readJsonFile, writeOut, getVooTickers } = require("./util")
 const { pickBy } = require("lodash")
@@ -23,8 +23,8 @@ const main = async () => {
   // overwrite VOO staging with new stock data to avoid redundant scrapes
   writeOut(VOO_DATA_STAGING, alreadyFetchedVooTickers)
   await voo(true)
-  await readErrors()
-  await commit()
+  await analysis()
+  await commit(false)
 }
 
 main()

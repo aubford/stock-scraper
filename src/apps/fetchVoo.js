@@ -4,6 +4,7 @@ const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
 module.exports = async skipPrompt =>
   connectAndRunApp(async browser => {
+    console.log("🚀 Fetching VOO 🚀")  
     let fetchUnstagedOnly = true
     if (!skipPrompt) {
       fetchUnstagedOnly = await promptForYes("Fetch unstaged only? (plus staged w/ errors)")
@@ -16,5 +17,5 @@ module.exports = async skipPrompt =>
     }
     await scrapeDataForVoo(tickers, browser)
 
-    return exit()
+    return exit('fetchVoo')
   })

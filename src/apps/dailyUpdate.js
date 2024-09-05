@@ -17,6 +17,7 @@ const {
  */
 
 const app = async (isVoo, includeDataroma) => {
+  console.log("🚀 Daily Update 🚀")
   const IS_VOO = isVoo || (await promptForYes("Is VOO?"))
   const INCLUDE_DATAROMA = includeDataroma || (await promptForYes("Include Dataroma?"))
 
@@ -93,7 +94,7 @@ const app = async (isVoo, includeDataroma) => {
       scrapbookWriteOut(updatedData, true)
     }
 
-    return exit()
+    return exit('Daily Update')
   })
 }
 

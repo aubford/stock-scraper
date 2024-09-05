@@ -73,6 +73,7 @@ const getBuffetData = async () => {
 
 module.exports = async () =>
   connectAndRunApp(async browser => {
+    console.log("🚀 Extra 🚀")
     const newPage = url =>
       goToNewBrowserPage(browser, url).catch(err => {
         throw new ReError("goToNewBrowserPage failed", err, "scrapeExtraData")

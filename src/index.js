@@ -66,6 +66,10 @@ function getAppFileNames() {
 
 const run = async () => {
   const res = await promptUser("App: ")
+  if(res === "exit") {
+    return
+  }
+  
   if (res === "help") {
     console.log("Here are the available apps:")
     console.log("Main apps: ", getAppFileNames())
