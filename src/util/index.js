@@ -196,7 +196,7 @@ const begin = () => {
 const exit = async name => {
   console.log(
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
-    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Scraping Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉\n`,
+    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉\n`,
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
   )
 

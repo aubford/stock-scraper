@@ -43,33 +43,34 @@ const getDRKeysObj = obj => {
 }
 // Object.keys(stockDataStaging['AAPL']) /* ?+ */
 
-const removeEmptyValues = obj =>
-  omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
+// const removeEmptyValues = obj =>
+//   omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
+//
+// const writeOut = (fileLocation, data, shouldMerge) => {
+//   const existingContent = readJsonFile(fileLocation)
+//
+//   getDRKeys(existingContent) /* ?+ */
+//   getDRKeys(data) /* ?+ */
+//
+//   const newContent = true
+//     ? assignWith(existingContent, data, (objVal, srcVal) => {
+//         getDRKeysObj(srcVal) /* ?+ */
+//         const empty = removeEmptyValues(srcVal)
+//         return { ...objVal, ...empty }
+//       })
+//     : {
+//         ...existingContent,
+//         ...data,
+//       }
+//
+//   getDRKeys(newContent) /* ?+ */
+//
+//   return newContent
+//
+//   // writeJsonFile(fileLocation, newContent)
+// }
 
-const writeOut = (fileLocation, data, shouldMerge) => {
-  const existingContent = readJsonFile(fileLocation)
-
-  getDRKeys(existingContent) /* ?+ */
-  getDRKeys(data) /* ?+ */
-
-  const newContent = true
-    ? assignWith(existingContent, data, (objVal, srcVal) => {
-        getDRKeysObj(srcVal) /* ?+ */
-        const empty = removeEmptyValues(srcVal)
-        return { ...objVal, ...empty }
-      })
-    : {
-        ...existingContent,
-        ...data,
-      }
-
-  getDRKeys(newContent) /* ?+ */
-
-  return newContent
-
-  // writeJsonFile(fileLocation, newContent)
-}
-
-getDRKeys(stockData)
-getDRKeys(stockDataStaging)
-getDRKeys(writeOut(STOCK_DATA_LOCATION, stockDataStaging, true))
+getDRKeys(stockData) /* ?+ */
+getDRKeys(vooData) /* ?+ */
+getDRKeys(stockDataStaging) /* ?+ */
+getDRKeys(vooDataStaging) /* ?+ */

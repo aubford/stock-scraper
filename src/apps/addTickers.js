@@ -1,4 +1,4 @@
-const { promptForTickers, readJsonFile, writeJsonFile } = require("../util")
+const { promptForTickers, readJsonFile, writeJsonFile, exit } = require("../util")
 
 // want new tickers to update first when running update.js script
 const randomOldDate = new Date(2000, 7, 24)
@@ -24,4 +24,6 @@ module.exports = () =>  promptForTickers().then(promptRes => {
   if (addedTickers.length) {
     writeJsonFile(STOCK_DATA_LOCATION, newData)
   }
+
+  exit('Add Tickers')
 })

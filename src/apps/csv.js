@@ -6,7 +6,7 @@ const {
   parseCSV,
   getUnrealizedCostBasis,
   getUnrealizedShares,
-} = require("./csv-util")
+} = require("../csv/csv-util")
 const { metaWriteOut, promptUser, openInBrowser } = require("../util")
 const { slickCharts } = require("../sources")
 

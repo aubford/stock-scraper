@@ -50,7 +50,7 @@ const fs = require("fs")
 const path = require("path")
 
 function getAppFileNames() {
-  const appsDir = path.join(__dirname, "src", "apps")
+  const appsDir = path.join(__dirname, "apps")
 
   try {
     const files = fs.readdirSync(appsDir)
@@ -66,24 +66,17 @@ function getAppFileNames() {
 
 const run = async () => {
   const res = await promptUser("App: ")
-  if(res === "exit") {
+  if (res === "exit") {
     return
   }
-  
+
   if (res === "help") {
     console.log("Here are the available apps:")
     console.log("Main apps: ", getAppFileNames())
-    console.log("Other apps: csv, csvCheckForMissing, addTickers, pruneTickers, showTickers")
+    console.log("Other apps: csv, addTickers, pruneTickers, showTickers")
   }
 
-  let app
-  if (res === "csv") {
-    app = require("./csv/processCSVs.js")
-  } else if (["addTickers", "pruneTickers", "showTickers"].includes(res)) {
-    app = require(`./database/${res}`)
-  } else {
-    app = require(`./apps/${res}`)
-  }
+  const app = require(`./apps/${res}`)
 
   await app()
   await run()
