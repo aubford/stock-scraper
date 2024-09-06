@@ -71,14 +71,13 @@ const run = async () => {
   }
 
   if (res === "help") {
-    console.log("Here are the available apps:")
-    console.log("Main apps: ", getAppFileNames())
-    console.log("Other apps: csv, addTickers, pruneTickers, showTickers")
+    console.log("Available apps:\n")
+    console.log(getAppFileNames(), "\n")
+  } else {
+    const app = require(`./apps/${res}`)
+    await app()
   }
 
-  const app = require(`./apps/${res}`)
-
-  await app()
   await run()
 }
 
