@@ -92,7 +92,6 @@ const removeEmptyValues = obj =>
 
 // Core write to file function
 /**
- * 
  * @param fileLocation
  * @param data
  * @param shouldMerge
@@ -101,7 +100,7 @@ const removeEmptyValues = obj =>
 const writeOut = (fileLocation, data, shouldMerge) => {
   const existingContent = readJsonFile(fileLocation)
   const newContent = shouldMerge
-    ? assignWith({}, existingContent, data, (a, b) => ({ ...a, ...removeEmptyValues(b) }))
+    ? assignWith(existingContent, data, (a, b) => ({ ...a, ...removeEmptyValues(b) }))
     : {
         ...existingContent,
         ...data,
@@ -197,7 +196,7 @@ const begin = () => {
 const exit = async name => {
   console.log(
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
-    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Scraping Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n`,
+    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Scraping Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉\n`,
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
   )
 

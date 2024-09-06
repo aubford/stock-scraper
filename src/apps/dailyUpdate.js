@@ -1,8 +1,6 @@
 const { chunk, fromPairs } = require("lodash")
 const { yahoo, zacks, dataroma } = require("../sources")
 const {
-  scrapbookWriteOut,
-  vooWriteOut,
   getStockTickers,
   getVooTickers,
   formatErrorObject,
@@ -10,6 +8,8 @@ const {
   makePrettyDate,
   getEarningsPriceChange,
   promptForYes,
+  stagingWriteOut,
+  vooStagingWriteOut,
 } = require("../util")
 
 /**
@@ -89,12 +89,12 @@ const app = async (isVoo, includeDataroma) => {
     const updatedData = fromPairs(companyData)
 
     if (IS_VOO) {
-      vooWriteOut(updatedData, true)
+      vooStagingWriteOut(updatedData, true)
     } else {
-      scrapbookWriteOut(updatedData, true)
+      stagingWriteOut(updatedData, true)
     }
 
-    return exit('Daily Update')
+    return exit("Daily Update")
   })
 }
 

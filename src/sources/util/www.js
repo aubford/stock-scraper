@@ -59,7 +59,7 @@ const handleFetch = (fetchCallback, ticker, contextName) => {
     .catch(error => {
       const errorObject = formatErrorObject(error)
       if (error instanceof WarnError) {
-        logger.warnError(errorObject.error)
+        logger.warn(errorObject.error)
         return { ["warnError_" + snakeCase(contextName)]: errorObject.error }
       }
       logger.error("Fetch Aborted", error)
