@@ -1,5 +1,8 @@
+// noinspection ES6MissingAwait
+
 const { chunk, fromPairs } = require("lodash")
 const { yahoo, zacks, dataroma } = require("../sources")
+const { union } = require("lodash")
 const {
   getStockTickers,
   getVooTickers,
@@ -18,10 +21,11 @@ const {
 
 const app = async (isVoo, includeDataroma) => {
   console.log("🚀 Daily Update 🚀")
-  const IS_VOO = isVoo || (await promptForYes("Is VOO?"))
   const INCLUDE_DATAROMA = includeDataroma || (await promptForYes("Include Dataroma?"))
 
-  const tickers = IS_VOO ? getVooTickers() : getStockTickers()
+  const stockTickers = getStockTickers()
+  const vooTickers = getVooTickers()
+  const tickers = union(vooTickers, stockTickers)
 
   /**
    * @param {string} ticker
@@ -59,7 +63,7 @@ const app = async (isVoo, includeDataroma) => {
   }
 
   /**
-   * @returns {Promise<*[]>}
+   * @returns {Promise<Array<[string, Object]>>}
    */
   const runDailyUpdate = async () => {
     await yahoo.fetchVooIndexHistoricalPrices()
@@ -85,17 +89,15 @@ const app = async (isVoo, includeDataroma) => {
     return res
   }
 
-  return runDailyUpdate().then(companyData => {
-    const updatedData = fromPairs(companyData)
+  const companyData = await runDailyUpdate()
 
-    if (IS_VOO) {
-      vooStagingWriteOut(updatedData, true)
-    } else {
-      stagingWriteOut(updatedData, true)
-    }
+  const vooData = companyData.filter(([ticker]) => vooTickers.includes(ticker))
+  const stockData = companyData.filter(([ticker]) => stockTickers.includes(ticker))
 
-    return exit("Daily Update")
-  })
+  vooStagingWriteOut(fromPairs(vooData), true)
+  stagingWriteOut(fromPairs(stockData), true)
+
+  return exit("Daily Update")
 }
 
 module.exports = app

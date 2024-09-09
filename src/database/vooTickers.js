@@ -172,7 +172,6 @@ module.exports = [
   "MCHP",
   "NEM",
   "DLR",
-  "GEV",
   "SRE",
   "F",
   "CPRT",

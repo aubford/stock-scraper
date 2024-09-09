@@ -47,7 +47,9 @@ const getStockDataFile = () => {
   return readJsonFile(STOCK_DATA_LOCATION)
 }
 
+/** @returns {string[]} */
 const getStockTickers = () => Object.keys(getStockDataFile())
+/** @returns {string[]} */
 const getUnstagedStockTickers = () => {
   const allTickers = getStockTickers()
   const stagedStocks = readJsonFile(STOCK_DATA_STAGING)
@@ -55,7 +57,9 @@ const getUnstagedStockTickers = () => {
   const stagedTickers = Object.keys(stagedStocks).filter(ticker => !stagedStocks[ticker].error)
   return allTickers.filter(ticker => !stagedTickers.includes(ticker))
 }
+/** @returns {string[]} */
 const getVooTickers = () => vooTickers
+/** @returns {string[]} */
 const getUnstagedVooTickers = () => {
   const allTickers = getVooTickers()
   const stagedStocks = readJsonFile(VOO_DATA_STAGING)
