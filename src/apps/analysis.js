@@ -66,19 +66,20 @@ const logUpdates = (data, verbose) => {
 
 const app = async skipPrompts => {
   console.log("🚀 Analysis 🚀")
+  const committed = skipPrompts ? false : await promptForYes("Committed data?")
   const verbose = skipPrompts ? false : await promptForYes("Verbose?")
   const predicate = verbose ? predicateVerbose : predicateSimple
-  
+
   warnMissingCsvStockTickers()
 
   console.log("⭐⭐⭐⭐⭐⭐️ StockDataStaging Errors:")
-  const stockDataStaging = readJsonFile(STOCK_DATA_STAGING)
+  const stockDataStaging = readJsonFile(committed ? STOCK_DATA_LOCATION : STOCK_DATA_STAGING)
   const stockDataStagingErrors = errorsOnly(stockDataStaging, predicate)
   console.log(JSON.stringify(stockDataStagingErrors, null, 2))
   console.log("\n")
 
   console.log("🌞🌞🌞🌞🌞🌞️ vooDataStaging Errors:")
-  const vooDataStaging = readJsonFile(VOO_DATA_STAGING)
+  const vooDataStaging = readJsonFile(committed ? VOO_LOCATION : VOO_DATA_STAGING)
   const vooDataStagingErrors = errorsOnly(vooDataStaging, predicate)
   console.log(JSON.stringify(vooDataStagingErrors, null, 2))
 

@@ -1,10 +1,12 @@
-const { writeOut, readJsonFile, promptForYes } = require("../util")
+const { writeOut, deleteFile, readJsonFile, promptForYes } = require("../util")
 
 const commit = async (isVoo, merge) => {
-  const newDataToWrite = readJsonFile(isVoo ? VOO_DATA_STAGING : STOCK_DATA_STAGING)
+  const stagingFileLocation = isVoo ? VOO_DATA_STAGING : STOCK_DATA_STAGING
+  const newDataToWrite = readJsonFile(stagingFileLocation)
   const fileLocation = isVoo ? VOO_LOCATION : STOCK_DATA_LOCATION
 
   writeOut(fileLocation, newDataToWrite, merge)
+  deleteFile(stagingFileLocation, true)
 }
 
 const app = async () => {

@@ -113,6 +113,25 @@ const writeOut = (fileLocation, data, shouldMerge) => {
   writeJsonFile(fileLocation, newContent)
 }
 
+const deleteFile = (fileLocation, backup) => {
+  try {
+    if (backup) {
+      const backupLocation = `${fileLocation.replace(".json", "")}_${moment()
+        .format("MMM-DD")
+        .toLowerCase()}.json`
+      fs.copyFileSync(fileLocation, backupLocation)
+      console.log(`Created backup: ${backupLocation}`)
+    }
+    fs.unlinkSync(fileLocation)
+    console.log(`Deleted file: ${fileLocation}`)
+  } catch (error) {
+    console.error(`Error deleting file: ${error.message}`)
+    if (backup) {
+      console.error(`Backup may not have been created.`)
+    }
+  }
+}
+
 const scrapbookWriteOut = (data, shouldMerge) =>
   writeOut(STOCK_DATA_LOCATION, data, shouldMerge)
 const stagingWriteOut = (data, shouldMerge) => writeOut(STOCK_DATA_STAGING, data, shouldMerge)
@@ -145,8 +164,9 @@ const promptUser = async question => {
   })
 }
 
-// async
-const promptForTickers = () => promptUser("Tickers: ")
+/** @returns {Promise<string[]>} */
+const promptForTickers = async () =>
+  promptUser("Tickers: ").then(res => res.split(/[^A-Z]/).filter(a => a))
 
 const promptLogin = newPage => {
   const pages = [
@@ -391,6 +411,7 @@ module.exports = {
   writeJsonFile,
   readJsonFile,
   writeOut,
+  deleteFile,
   scrapbookWriteOut,
   stagingWriteOut,
   vooWriteOut,

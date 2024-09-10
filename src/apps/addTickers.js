@@ -4,8 +4,8 @@ const { promptForTickers, readJsonFile, writeJsonFile, exit } = require("../util
 const randomOldDate = new Date(2000, 7, 24)
 const stockFile = readJsonFile(STOCK_DATA_LOCATION)
 
-module.exports = () =>  promptForTickers().then(promptRes => {
-  const tickers = promptRes.trim().split(/[^A-Z]/)
+module.exports = async () => {
+  const tickers = await promptForTickers()
   const toAdd = tickers.reduce(
     (acc, ticker) => ({
       [ticker]: { sector: "NEW_STOCKS", scrapeDataUpdatedAt: randomOldDate, ticker },
@@ -25,5 +25,5 @@ module.exports = () =>  promptForTickers().then(promptRes => {
     writeJsonFile(STOCK_DATA_LOCATION, newData)
   }
 
-  exit('Add Tickers')
-})
+  exit("Add Tickers")
+}
