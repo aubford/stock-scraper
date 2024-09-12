@@ -1,6 +1,6 @@
 require("../globalEnv")
 const extra = require("./apps/extra")
-const csv = require("./csv/processCSVs")
+const csv = require("./apps/csv")
 const update = require("./apps/update")
 const voo = require("./apps/fetchVoo")
 const analysis = require("./apps/analysis")

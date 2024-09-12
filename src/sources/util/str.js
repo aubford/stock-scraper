@@ -12,7 +12,9 @@ const getFirstLastValue = str => {
  * @returns {string}
  */
 const extractNumbers = text =>
-  text && text !== "--" ? text.match(/[\d,\\.]/g)?.join("")  || "" : ""
+  text && typeof text === "string" && text !== "--"
+    ? text.match(/[\d,\\.]/g)?.join("") || ""
+    : ""
 
 const millBillStrToNum = str => {
   const num = extractNumbers(str)
