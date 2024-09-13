@@ -85,8 +85,10 @@ const fetchData = async (ticker, browser, logger, stockName) => {
     try {
       return await moodysFetcher.fetchPageData(
         [
-          "//div[@id='rating-table']//table//tr[1]/td[2]/div/text()",
-          "//div[@id='rating-table']//table//tr[1]/td[4]/div/text()",
+          `//div[@id='rating-table']//table//tr[1]/td[2]/div/text()`,
+          `//div[@id='rating-table']//table//tr[1]/td[@data-index='rating_rank']/div/text()`,
+          `//div[@id='rating-table']//table//tr[1]/td[@data-index='rating_outlook']/div/text()`,
+          `//div[@id='rating-table']//table//tr[1]/td[@data-index='rating_date']/div/text()`,
         ],
         "//div[@id='rating-table']"
       )
@@ -96,11 +98,12 @@ const fetchData = async (ticker, browser, logger, stockName) => {
     }
   }
 
-  const [moodysRating, moodysOutlook] = await fetchMoodysRecurse()
+  const [moodysRating, moodysOutlook, moodysDate] = await fetchMoodysRecurse()
   await moodysFetcher.close()
   return {
     moodysRating,
     moodysOutlook,
+    moodysDate,
     moodysLink,
   }
 }
