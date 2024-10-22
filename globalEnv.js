@@ -16,16 +16,16 @@ try {
 const timeoutCoeff = 1
 
 global.PAUSE_MS = 1000 * timeoutCoeff
-global.DEFAULT_NAVIGATION_TIMEOUT = 60 * 1000 * timeoutCoeff
-global.XPATH_TIMEOUT = 30 * 1000 * timeoutCoeff
+global.DEFAULT_NAVIGATION_TIMEOUT = 20 * 1000 * timeoutCoeff
+global.XPATH_TIMEOUT = 10 * 1000 * timeoutCoeff
 
 global.WSJ_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.FIDELITY_ANALYST_TIMEOUT = 30 * 1000 * timeoutCoeff
+global.FIDELITY_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.MOODYS_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.CFRA_TIMEOUT = 20 * 1000 * timeoutCoeff
+global.CFRA_TIMEOUT = 5 * 1000 * timeoutCoeff
 global.BOA_TIMEOUT = 10 * 1000 * timeoutCoeff
 global.ARGUS_ANALYST_TIMEOUT = 10 * 1000 * timeoutCoeff
-global.MORNINGSTAR_TIMEOUT = 20 * 1000 * timeoutCoeff
+global.MORNINGSTAR_TIMEOUT = 10 * 1000 * timeoutCoeff
 
 global.SCRAPBOOK_LOCATION = process.env.STOCK_SCRAPBOOK_LOCATION
 global.STOCK_DATA_LOCATION = `${SCRAPBOOK_LOCATION}/stockData.json`
