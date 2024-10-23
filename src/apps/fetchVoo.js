@@ -17,5 +17,5 @@ module.exports = async skipPrompt =>
     }
     await scrapeDataForVoo(tickers, browser)
 
-    return exit('fetchVoo')
+    return exit("fetchVoo")
   })

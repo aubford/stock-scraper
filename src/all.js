@@ -15,6 +15,7 @@ const vooTickers = getVooTickers()
 const main = async () => {
   await extra()
   await csv()
+  // if it hangs here, make sure there aren't other puppeteer processes running 
   await update(true)
   const updatedStockData = readJsonFile(STOCK_DATA_STAGING)
   const alreadyFetchedVooTickers = pickBy(updatedStockData, (val, key) =>
@@ -24,7 +25,7 @@ const main = async () => {
   writeOut(VOO_DATA_STAGING, alreadyFetchedVooTickers)
   await voo(true)
   await analysis()
-  await commit(false)
+  await commit()
 }
 
 main()

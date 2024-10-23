@@ -4,3 +4,5 @@
 4. Run script: init
 5. nvm alias default [version in .nvmrc]
 6. npm i -g wait-on
+
+Note: Make sure only one puppeteer instance is running at a time.

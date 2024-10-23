@@ -175,13 +175,12 @@ const promptLogin = newPage => {
     "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
   ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
 
-  return () => {
+  return () =>
     Promise.all(pages).then(pages =>
       pages.forEach(page => {
         page.closeSafe()
       })
     )
-  }
 }
 
 const promptForYes = async question => {
@@ -201,6 +200,7 @@ const promptForVooAndStagingFileLocation = async () => {
 }
 
 const pause = async ms => {
+  console.log(`\n\n** PAUSING FOR: ${ms}ms **\n`)  
   return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -226,6 +226,7 @@ const exit = async name => {
 
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
+  console.log("********************* HIT ******************")  
   exec("afplay /System/Library/Sounds/Ping.aiff")
 }
 

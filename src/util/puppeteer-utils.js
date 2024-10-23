@@ -4,7 +4,12 @@ const puppeteer = require("puppeteer-core")
 const connectAndRunApp = app =>
   puppeteer
     .connect(CONNECTION)
-    .then(app)
+    .then(browser =>
+      app(browser).then(() => {
+        browser.disconnect()
+        console.dir("Browser:", browser)  
+      })
+    )
     .catch(err => console.error(err))
 
 /**
@@ -139,7 +144,7 @@ const beginAndLogin = async (browser, prompt) => {
 
   const promptResponse = await promptUser(prompt)
 
-  closeLoginPages()
+  await closeLoginPages()
 
   return promptResponse
 }

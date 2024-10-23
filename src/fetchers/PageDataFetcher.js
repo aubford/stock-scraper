@@ -77,18 +77,20 @@ class PageDataFetcher {
    * @param {Object} [options]
    * @returns {Promise<MyPage>}
    */
-  setPage(url, options) {
+  async setPage(url, options) {
     if (!url) {
       throw new MessageError("No url provided", "PageDataFetcher.setPage")
     }
 
-    return this._newPage(url, {
+    const newPage = await this._newPage(url, {
       waitUntil: "domcontentloaded",
       logger: this.logger,
       ...options,
     }).catch(err => {
       throw new ReError("error caught", err, "PageDataFetcher._newPage")
     })
+
+    return newPage
   }
 
   _checkForPage() {
@@ -155,14 +157,14 @@ class PageDataFetcher {
     return await Promise.all(xPathArr.map(this.page.getTextByX))
   }
 
-  fetchPageData(xPathArr, selectorToWaitFor) {
-    return this._fetchPageData(xPathArr, selectorToWaitFor)
-      .catch(err => {
-        if(err instanceof WarnError) {
-          throw err
-        }
-        throw new ReError("Failed to fetch page data", err, "fetchPageData")
-      })
+  async fetchPageData(xPathArr, selectorToWaitFor) {
+    const pageData = await this._fetchPageData(xPathArr, selectorToWaitFor).catch(err => {
+      if (err instanceof WarnError) {
+        throw err
+      }
+      throw new ReError("Failed to fetch page data", err, "fetchPageData")
+    })
+    return pageData
   }
 
   _waitForSelector(selector) {
