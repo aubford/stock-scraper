@@ -2,7 +2,7 @@ const { exit, getUnstagedStockTickers, getStockTickers, promptForYes } = require
 const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
-module.exports = async (skipPrompt) => connectAndRunApp(async browser => {
+module.exports = async (skipPrompt) => await connectAndRunApp(async browser => {
   console.log("🚀 Update Stocks 🚀")
   let fetchUnstagedOnly = false
   if (!skipPrompt) {

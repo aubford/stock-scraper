@@ -1,4 +1,4 @@
-const { writeJsonFile, promptForTickers, getStockDataFile, exit } = require("../util")
+const { writeJsonFile, promptForTickers, getStockDataFile } = require("../util")
 const showTickers = require("./showTickers")
 
 module.exports = async () => {

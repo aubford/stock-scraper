@@ -1,4 +1,4 @@
-const { getStockTickers, exit } = require("../util")
+const { getStockTickers } = require("../util")
 
 module.exports = () => {
   console.log(getStockTickers().sort())

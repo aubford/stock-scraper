@@ -97,7 +97,7 @@ const app = async (isVoo, includeDataroma) => {
   vooStagingWriteOut(fromPairs(vooData), true)
   stagingWriteOut(fromPairs(stockData), true)
 
-  return exit("Daily Update")
+  await exit("Daily Update")
 }
 
 module.exports = app

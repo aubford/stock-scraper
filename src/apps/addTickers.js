@@ -25,5 +25,5 @@ module.exports = async () => {
     writeJsonFile(STOCK_DATA_LOCATION, newData)
   }
 
-  exit("Add Tickers")
+  await exit("Add Tickers")
 }
