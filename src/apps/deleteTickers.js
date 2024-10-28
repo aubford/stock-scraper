@@ -1,7 +1,7 @@
 const { writeJsonFile, promptForTickers, getStockDataFile } = require("../util")
 const showTickers = require("./showTickers")
 
-module.exports = async () => {
+const main = async () => {
   const tickers = await promptForTickers()
   const stockDataFile = getStockDataFile()
 
@@ -16,3 +16,5 @@ module.exports = async () => {
   console.log("New Tickers: ")
   showTickers()
 }
+
+module.exports = main
