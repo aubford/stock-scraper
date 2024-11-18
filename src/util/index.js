@@ -167,7 +167,7 @@ const promptUser = async question => {
 /** @returns {Promise<string[]>} */
 const promptForTickers = async () => {
   const tickers = await promptUser("Tickers: ")
-  return tickers.split(" ").filter(a => a)
+  return tickers.split(/\s+/).filter(a => a)
 }
 
 const promptLogin = newPage => {

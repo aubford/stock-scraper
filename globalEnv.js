@@ -33,7 +33,7 @@ global.STOCK_DATA_STAGING = `${__dirname}/stockDataStaging.json`
 global.VOO_DATA_STAGING = `${__dirname}/vooDataStaging.json`
 global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
-global.NO_FETCH_STOCKS = ["GOOG", "BRKB", "CSCCF", "RSP", "VOO", "VTI", "PWCDF", "LLYVA", "LLYVK"]
+global.NO_FETCH_STOCKS = ["GOOG", "BRKB", "BRK.B", "CSCCF", "RSP", "VOO", "VTI", "PWCDF", "LLYVA", "LLYVK", "HEIA"]
 
 Promise.stagger = async (asyncFunc, paramArr, ms) => {
   const staggered = paramArr.map(async (params, idx) => {
