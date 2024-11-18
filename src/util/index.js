@@ -202,7 +202,7 @@ const promptForVooAndStagingFileLocation = async () => {
 }
 
 const pause = async ms => {
-  console.log(`\n\n** PAUSING FOR: ${ms}ms **\n`)  
+  console.log(`\n\n** PAUSING FOR: ${ms}ms **\n`)
   return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -228,7 +228,6 @@ const exit = async name => {
 
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
-  console.log("********************* HIT ******************")  
   exec("afplay /System/Library/Sounds/Ping.aiff")
 }
 
