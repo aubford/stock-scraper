@@ -1,6 +1,4 @@
 const {
-  writeOut,
-  readJsonFile,
   promptForYes,
   writeJsonFile,
   getStockTickers,

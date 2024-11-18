@@ -10,7 +10,7 @@ module.exports = async (tickers, browser) => {
   for (const ticker of tickers) {
     try {
       const stockData = await scrapeDataForTicker(ticker, browser)
-      stagingWriteOut({ ticker: stockData })
+      stagingWriteOut({ [stockData.ticker]: stockData })
       console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
     } catch (error) {
       console.error("🚨🚨🚨 SCRAPE FAIL 🚨🚨🚨", error)

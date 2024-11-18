@@ -7,7 +7,6 @@ const connectAndRunApp = app =>
     .then(browser =>
       app(browser).then(() => {
         browser.disconnect()
-        console.dir("Browser:", browser)  
       })
     )
     .catch(err => console.error(err))
@@ -84,7 +83,7 @@ const goToPage = async (page, url, options = {}) => {
     const clone = { ...error }
 
     await page.closeSafe()
-    await pause(60 * 1000)
+    await pause(5 * 1000)
 
     throw new ReError("PAGE LOAD ERROR", clone, "goToPage")
   }

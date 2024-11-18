@@ -12,6 +12,11 @@ const {
 } = require("./sources")
 const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
+/**
+ * @param {string} ticker
+ * @param {Browser} browser
+ * @returns {Promise<Object>}
+ */
 module.exports = async (ticker, browser) => {
   // FIDELITY
 
