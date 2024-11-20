@@ -49,8 +49,8 @@ const getFidelitySecretUrl = async (fidelityLink, browser, ticker) => {
  * @param {string[]} skips - Tickers to skip
  * @returns {Promise<Object>} - A promise that resolves with the fetched data or an error object.
  */
-const handleFetch = (fetchCallback, ticker, contextName,  skips ) => {
-  if (skips?.includes(contextName)) {
+const handleFetch = async (fetchCallback, ticker, contextName, skips) => {
+  if (skips?.includes(ticker)) {
     return Promise.resolve({})
   }
 

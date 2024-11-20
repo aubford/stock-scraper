@@ -1,4 +1,4 @@
-const { yahoo, wsj, fidelityAnalysts, moodys, zacks, dataroma } = require("./sources")
+const { yahoo, wsj, fidelityAnalysts, zacks, dataroma } = require("./sources")
 const {
   vooStagingWriteOut,
   makePrettyDate,
@@ -12,9 +12,8 @@ const scrapeDataForVoo = async (ticker, browser) => {
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
-  const [moodysData, yahooData, yahooHistoricalPricesData, wsjData, zacksData, dataromaData] =
+  const [yahooData, yahooHistoricalPricesData, wsjData, zacksData, dataromaData] =
     await Promise.all([
-      moodys.fetch(ticker, browser),
       yahoo.fetch(ticker),
       yahoo.fetchHistoricalPrices(ticker),
       wsj.fetch(ticker, browser),
@@ -36,7 +35,6 @@ const scrapeDataForVoo = async (ticker, browser) => {
     updatedAt: makePrettyDate(),
     ticker,
     tickerSearch: `//${ticker}`,
-    ...moodysData,
     ...fidelityAnalystOpinionsData,
     ...dataromaData,
     ...yahooData,

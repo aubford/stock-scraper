@@ -193,7 +193,7 @@ const promptForYes = async question => {
 
 const promptForVooAndStagingFileLocation = async () => {
   const isVoo = await promptForYes("VOO?")
-  const isNotStaging = await promptForYes("Real data:")
+  const isNotStaging = await promptForYes("Committed data?")
 
   if (isNotStaging) {
     return isVoo ? VOO_LOCATION : STOCK_DATA_LOCATION
