@@ -1,3 +1,20 @@
 {
-    "typescript.format.enable": false
+  "typescript.format.enable": false,
+  "files.exclude": {
+    "**backups": false,
+    "**src/database": false,
+    "**debug": false,
+    "**.idea": false,
+    "**.vscode": false,
+    "**stockData.json": false,
+    "**stockDataMeta.json": false,
+    "**vooData.json": false,
+    "**shortDateCalendar.json": false,
+    "**ws.json": false,
+    "**playground.js": false,
+    "**package-lock.json": false,
+    "**.nvmrc": false,
+    "**.npmrc": false,
+    "**.gitignore": false
+  }
 }

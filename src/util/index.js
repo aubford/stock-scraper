@@ -94,8 +94,8 @@ const warnMissingCsvStockTickers = () => {
 const removeEmptyValues = obj =>
   omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
 
-// Core write to file function
 /**
+ * Core write to file function
  * @param fileLocation
  * @param data
  * @param shouldMerge
@@ -173,7 +173,7 @@ const promptForTickers = async () => {
 const promptLogin = newPage => {
   const pages = [
     "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary",
-    "https://www.moodys.com",
+    // "https://www.moodys.com",
     "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
   ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
 

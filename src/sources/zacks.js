@@ -10,11 +10,6 @@ const getEstimateSum = tableRowCellArr =>
     return acc + Number(curr)
   }, 0)
 
-const getEstimateChange = (current, prev) =>
-  current === prev
-    ? `${current ? current.toFixed(2) : ""}\n(===)`
-    : `${current ? current.toFixed(2) : ""}\n(${prev ? prev.toFixed(2) : ""})`
-
 const getMainData = async ticker => {
   try {
     const mainData = await fetchJson(`https://quote-feed.zacks.com/index.php?t=${ticker}`)
