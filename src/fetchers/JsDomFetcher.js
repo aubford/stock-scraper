@@ -54,7 +54,7 @@ class JsDomNode {
     throw new MessageError(
       "No element found for xpath: " + xpath,
       "JsDomFetcher:JsDomNode:_xpath"
-    )
+    ).setCode(489)
   }
 
   _xpaths(xpath) {
@@ -69,7 +69,7 @@ class JsDomNode {
     throw new MessageError(
       "No element found for xpath: " + xpath,
       "JsDomFetcher:JsDomNode:_xpaths"
-    )
+    ).setCode(489)
   }
 
   $x(xpath) {

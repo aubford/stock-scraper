@@ -98,7 +98,7 @@ const removeEmptyValues = obj =>
  * Core write to file function
  * @param fileLocation
  * @param data
- * @param shouldMerge
+ * @param [shouldMerge]
  * @returns {void}
  */
 const writeOut = (fileLocation, data, shouldMerge) => {
@@ -222,8 +222,12 @@ const begin = () => {
 const exit = async name => {
   console.log(
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
-    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉\n`,
-    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n`,
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
   )
 
   exec("afplay /System/Library/Sounds/Ping.aiff")

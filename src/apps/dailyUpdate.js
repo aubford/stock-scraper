@@ -11,8 +11,8 @@ const {
   makePrettyDate,
   getEarningsPriceChange,
   promptForYes,
-  stagingWriteOut,
-  vooStagingWriteOut,
+  scrapbookWriteOut,
+  vooWriteOut,
 } = require("../util")
 
 /**
@@ -94,8 +94,8 @@ const app = async (isVoo, includeDataroma) => {
   const vooData = companyData.filter(([ticker]) => vooTickers.includes(ticker))
   const stockData = companyData.filter(([ticker]) => stockTickers.includes(ticker))
 
-  vooStagingWriteOut(fromPairs(vooData), true)
-  stagingWriteOut(fromPairs(stockData), true)
+  vooWriteOut(fromPairs(vooData), true)
+  scrapbookWriteOut(fromPairs(stockData), true)
 
   await exit("Daily Update")
 }

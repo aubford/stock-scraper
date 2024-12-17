@@ -73,13 +73,23 @@ class ResponseInterceptor {
         if (this.asyncErr) {
           clearInterval(intervalId)
           reject(this.asyncErr)
+          return
         }
 
-        const data = this.getData()
-        if (data) {
+        try {
+          const data = this.getData()
+          if (data) {
+            clearInterval(intervalId)
+            resolve(data)
+            return
+          }
+        } catch (err) {
           clearInterval(intervalId)
-          resolve(data)
-        } else if (Date.now() - startTime > timeout) {
+          reject(err)
+          return
+        }
+
+        if (Date.now() - startTime > timeout) {
           clearInterval(intervalId)
           reject(
             new MessageError(

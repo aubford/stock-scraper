@@ -47,6 +47,31 @@ const getMovementValue = movement => {
   return movement >= holdThreshold ? getPositiveVal(movement) : getNegativeVal(movement)
 }
 
+/**
+ * @param ticker
+ * @param fetcher
+ * @returns {Promise<{firm: *, activity, pctOfPortfolio: *, value: string}[]>}
+ */
+const getOwnership = async (ticker, fetcher) => {
+  await fetcher.setPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
+  const ownershipRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
+  return ownershipRows.map(row => {
+    const [, firm, pctOfPortfolio, activity, , valueString] = row.getTextArrByX(`td`)
+    const value = valueString.replaceAll(",", "")
+    return {
+      firm,
+      pctOfPortfolio,
+      activity: activity?.trim() || "0",
+      value: (value / 1000000).toFixed(2) + "M",
+    }
+  })
+}
+
+/**
+ * @param ticker
+ * @param fetcher
+ * @returns {Promise<{firm: *, activity: string, pctOfPortfolio: string, value: string}[]>}
+ */
 const getSells = async (ticker, fetcher) => {
   await fetcher.setPage(`https://dataroma.com/m/activity.php?sym=${ticker}&typ=a`)
   const activityRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
@@ -64,23 +89,26 @@ const getSells = async (ticker, fetcher) => {
   }))
 }
 
+/**
+ * @param logger
+ * @param ticker
+ * @returns {Promise<{dataromaActions: string, dataromaRating: *}>}
+ */
 const fetchData = async (logger, ticker) => {
   const fetcher = new JsDomFetcher()
 
-  await fetcher.setPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
-  const ownershipRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
-  const ownershipData = ownershipRows.map(row => {
-    const [, firm, pctOfPortfolio, activity, , valueString] = row.getTextArrByX(`td`)
-    const value = valueString.replaceAll(",", "")
-    return {
-      firm,
-      pctOfPortfolio,
-      activity: activity?.trim() || "0",
-      value: (value / 1000000).toFixed(2) + "M",
+  const ownershipData = await getOwnership(ticker, fetcher).catch(err => {
+    if (err.code === 489) {
+      return []
     }
+    throw err
   })
-
-  const sells = await getSells(ticker, fetcher)
+  const sells = await getSells(ticker, fetcher).catch(err => {
+    if (err.code === 489) {
+      return []
+    }
+    throw err
+  })
 
   const dataromaActions = orderBy(
     ownershipData,
@@ -102,42 +130,4 @@ const fetchData = async (logger, ticker) => {
   return { dataromaRating, dataromaActions }
 }
 
-exports.fetch = ticker =>
-  handleFetch(fetchData, ticker, "Dataroma", [
-    "O",
-    "DXCM",
-    "SMCI",
-    "PRU",
-    "STZ",
-    "GWW",
-    "RSG",
-    "COR",
-    "RCL",
-    "IR",
-    "MNST",
-    "KDP",
-    "EXC",
-    "EA",
-    "XYL",
-    "ED",
-    "HIG",
-    "HAL",
-    "XEL",
-    "TRGP",
-    "RMD",
-    "IRM",
-    "CHD",
-    "WEC",
-    "WST",
-    "DTE",
-    "ETR",
-    "TER",
-    "STE",
-    "PPL",
-    "INVH",
-    "LDOS",
-    "ES",
-    "FE",
-    "HUBB",
-    "CNP",
-  ])
+exports.fetch = ticker => handleFetch(fetchData, ticker, "Dataroma")
