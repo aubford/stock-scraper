@@ -17,5 +17,4 @@ module.exports = async (tickers, browser) => {
       stagingWriteOut({ ticker: formatErrorObject(error, ticker) })
     }
   }
-  console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
 }
