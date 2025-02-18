@@ -2,7 +2,7 @@ const { JSDOM } = require("jsdom")
 const fs = require("fs")
 const { MessageError } = require("../util")
 
-const getTestPage = options => JSDOM.fromFile("./http/response.html", options)
+const getTestPage = options => JSDOM.fromFile("/Users/aubrey/workspace/stock-scraper/http/response.html", options)  
 
 class JsDomNode {
   constructor(element, dom) {
@@ -126,12 +126,26 @@ class JsDomFetcher extends JsDomNode {
 
   async setPage(url, scripts) {
     const options = scripts ? { runScripts: "dangerously" } : {}
-    this.dom = await (this.testing ? getTestPage(options) : JSDOM.fromURL(url, options))
+    const res  = await (this.testing ? getTestPage(options) : JSDOM.fromURL(url, options))
+    this.dom = res
   }
+
+  async setPageViaFetch(url, { fetchOptions, scripts }) {
+    const options = scripts ? { runScripts: "dangerously" } : {}
+    const response = await fetch(url, fetchOptions)
+    const html = await response.text()
+    const res = new JSDOM(html, {
+      url,
+      ...options,
+    })
+    this.dom = res
+    this.logHTML()
+  }
+  
 
   logHTML() {
     const html = this.dom.serialize()
-    fs.writeFileSync("../../test/jsdomOutput.html", html)
+    fs.writeFileSync("/Users/aubrey/workspace/stock-scraper/test/jsdomOutput.html", html)
   }
 }
 
