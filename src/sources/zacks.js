@@ -4,6 +4,8 @@ const { containsChars, textContainsPredicate } = require("./util/xpath")
 const { fetchJson, handleFetch } = require("./util/www")
 const { orderBy, sum } = require("lodash")
 const { getDiffPercent } = require("../util")
+const PageDataFetcher = require("../fetchers/PageDataFetcher")
+const { pause } = require("../util")
 
 const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 4).reduce((acc, curr) => {
@@ -52,9 +54,10 @@ const getSection = (logger, name, cb) => {
 /**
  * @param {Logger} logger
  * @param {string} ticker
+ * @param {Browser} browser
  * @returns {Promise<Object>}
  */
-const fetchData = async (logger, ticker) => {
+const fetchData = async (logger, ticker, browser) => {
   const {
     zacksEpsTTM,
     dividend,
@@ -77,38 +80,21 @@ const fetchData = async (logger, ticker) => {
     ? orderBy(Object.entries(eps_surprise), Date).filter(i => i[1] !== "N/A")
     : [[]]
 
+  const pageFetcher = new PageDataFetcher(ticker, browser, logger)
   const fetcher = new JsDomFetcher()
 
   // DETAILED EARNINGS ESTIMATES ///////////
 
-  const fetchOptions = {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
-      accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "max-age=0",
-      priority: "u=0, i",
-      "sec-ch-ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "document",
-      "sec-fetch-mode": "navigate",
-      "sec-fetch-site": "none",
-      "sec-fetch-user": "?1",
-      "upgrade-insecure-requests": "1",
-      cookie:
-        "overlay_popup_22=1; nlbi_2944342=dUJyEnvHxl8ifadGUJ37GgAAAAAjKBIGuOCYI52dmRkpW69X; visid_incap_2944342=p/MkikhTQpGE6yToiDf0x6E5PmcAAAAAQUIPAAAAAABagYm05u2UQfp7tp+pTeSQ; visid_incap_2934056=/8223OaUSHGD66loOf1sD6I5PmcAAAAAQUIPAAAAAAA1574i194ylKQ2f0aWrs0n; AMCVS_3064401053DB594D0A490D4C%40AdobeOrg=1; disclosure_flag=Y; visid_incap_2879622=os6JduGjQhaaTKm7zlvaeSjKj2cAAAAAQUIPAAAAAADl21eRsN9SOEq2yD5xy4Nt; user_session=8531522868edd108a0b5889ebcccb34a; recentQuotes=MS%2CMDT%2CAAPL; incap_ses_172_2879622=MB9lG1eLwG07tzAjWBFjAjOqtGcAAAAAPmxQhhcCxMkLQ30Hkt1zbw==; incap_ses_172_2934056=r6CFTw45Ri5xuHwjWBFjAsq5tGcAAAAANfuZWNyOVZynef7dKr03MQ==; AMCV_3064401053DB594D0A490D4C%40AdobeOrg=77933605%7CMCIDTS%7C20138%7CMCMID%7C30889052653821893719091468314326963359%7CMCAID%7CNONE%7CMCOPTOUT-1739904499s%7CNONE%7CvVersion%7C4.5.1; incap_ses_172_2944342=Uzq5ObMD4QNY+60jWBFjAqvDtGcAAAAAn2iiydpNJ77sGg/CvoPbrQ==; nlbi_2944342_2147483392=T84NbxZf/jmlQYviUJ37GgAAAABQhAEoUS4x7qq2Gn5zyaQx; reese84=3:2cYv0mi1trFOl89UlO6VRQ==:58/VkJBNzQ9nHgvhFMHrAl2P2z+S7eZUgcozUIAwcf87rc7PR7wfuvaPU/Ls/rtiJ7QeWxWHy9KUEVWJ5752EOHwc2t5w5fGiTiMDdA3INZpVM/f/CPYOv0ZOl+MtoEfdXq6SxSPquzDOlFR6t3dXxCo7oGbF+SbSLJyBc8XD4o42bA510zfoQhIv0hyzFiouPuRmiBbUODw7bB4nV+lXkmwomC++3FiwzYJInfJMEcvXmw0qHkPmlmUPfhdnkIxOCUPb6PW3GzROHAM23UJkvRadL/tksV7++NF6xIbg1Qa7hZi42dfjUhwzljaDhk5lylsC2N3uQxxWxo53OJeYWzB37J5gOuu5nDO0V7zgboRx4aAhHa4Gt0JtCa2iIGJreAOYtJojlL8cYxFZ89BFC4j2hhbwXE610wM4pUfPBHmf/yXlIBmmu2Q5DCPxaQBpNPI5JWDKvHvkOAcwMDxy4q2F2uHAQ8McNU3LkS0RHc=:2eKH4vXS1+hQtzpI1YEvzrqYTN0HhOfw849j+F6j6f4=",
-      Referer: "https://www.zacks.com/stock/quote/AAPL/detailed-earning-estimates",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
-  }
-
-  await fetcher.setPageViaFetch(
-    `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`,
-    { fetchOptions }
+  const detailsInterceptor = pageFetcher.addResponseInterceptor(
+    [`https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`],
+    false,
+    { expectString: true }
   )
+  await pageFetcher.setPage(
+    `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`
+  )
+  const detailsHtml = await detailsInterceptor.waitForResult()
+  fetcher.setHTMLtoDOM(detailsHtml)
 
   // detailed estimates
 
@@ -197,10 +183,17 @@ const fetchData = async (logger, ticker) => {
 
   // STYLE SCORES ///////////////////////////
 
-  await fetcher.setPageViaFetch(
-    `https://www.zacks.com/stock/research/${ticker}/stock-style-scores`,
-    { fetchOptions }
+  pause(1500)
+  const styleInterceptor = pageFetcher.addResponseInterceptor(
+    [`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`],
+    false,
+    { expectString: true }
   )
+  await pageFetcher.setPage(
+    `https://www.zacks.com/stock/research/${ticker}/stock-style-scores`
+  )
+  const styleHtml = await styleInterceptor.waitForResult()
+  fetcher.setHTMLtoDOM(styleHtml)
 
   const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)
   const [
@@ -256,6 +249,8 @@ const fetchData = async (logger, ticker) => {
     zacksSalesToAssetsIndustry,
     zacksProjSalesGrowthIndustry,
   ] = fetcher.getTextArrByX(`//tbody[2]/tr/td[3]`)
+
+  await pageFetcher.close()
 
   // RESULT /////////////////////////////////
 
@@ -369,4 +364,5 @@ const fetchData = async (logger, ticker) => {
   }
 }
 
-exports.fetch = ticker => handleFetch(fetchData, ticker, "ZACKS")
+exports.fetch = (ticker, browser) =>
+  handleFetch(logger => fetchData(logger, ticker, browser), ticker, "ZACKS")

@@ -39,7 +39,7 @@ module.exports = async (ticker, browser) => {
   const [yahooHistoricalPricesData, zacksData, argusAnalystData, dataromaData] =
     await Promise.all([
       yahoo.fetchHistoricalPrices(ticker),
-      zacks.fetch(ticker),
+      zacks.fetch(ticker, browser),
       argusAnalyst.fetch(ticker, browser, argusAnalystLink),
       dataroma.fetch(ticker),
     ])

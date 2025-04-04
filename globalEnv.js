@@ -13,7 +13,7 @@ try {
 
 // Error.stackTraceLimit = 1
 
-const timeoutCoeff = 1
+const timeoutCoeff = 2
 
 global.PAUSE_MS = 1000 * timeoutCoeff
 global.DEFAULT_NAVIGATION_TIMEOUT = 20 * 1000 * timeoutCoeff

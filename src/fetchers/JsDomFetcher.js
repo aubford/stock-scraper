@@ -2,14 +2,23 @@ const { JSDOM } = require("jsdom")
 const fs = require("fs")
 const { MessageError } = require("../util")
 
-const getTestPage = options => JSDOM.fromFile("/Users/aubrey/workspace/stock-scraper/http/response.html", options)  
+const getTestPage = options =>
+  JSDOM.fromFile("/Users/aubrey/workspace/stock-scraper/http/response.html", options)
 
 class JsDomNode {
+  /**
+   * @param {Element} element
+   * @param {JSDOM} dom
+   */
   constructor(element, dom) {
     this.dom = dom
     this.element = element
   }
 
+  /**
+   * @param {Element} element
+   * @returns {JsDomElement}
+   */
   spawn(element) {
     return new JsDomElement(element, this.dom)
   }
@@ -21,10 +30,17 @@ class JsDomNode {
     return this.dom.window.document
   }
 
+  /**
+   * @returns {Document}
+   */
   getElement() {
     return this.document()
   }
 
+  /**
+   * @param {string} selector
+   * @returns {JsDomElement}
+   */
   $(selector) {
     const el = this.document().querySelector(selector)
     if (el) {
@@ -37,6 +53,10 @@ class JsDomNode {
     )
   }
 
+  /**
+   * @param {string} selector
+   * @returns {JsDomElement[] | undefined}
+   */
   $$(selector) {
     const elementArr = Array.from(this.document().querySelectorAll(selector))
     if (elementArr.length && elementArr.every(el => el)) {
@@ -44,6 +64,10 @@ class JsDomNode {
     }
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {JsDomElement}
+   */
   _xpath(xpath) {
     const document = this.document()
     const contextNode = this.getElement()
@@ -57,6 +81,10 @@ class JsDomNode {
     ).setCode(489)
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {JsDomElement[]}
+   */
   _xpaths(xpath) {
     const document = this.document()
     const contextNode = this.getElement()
@@ -72,6 +100,10 @@ class JsDomNode {
     ).setCode(489)
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {JsDomElement | undefined}
+   */
   $x(xpath) {
     const node = this._xpath(xpath)
     if (node) {
@@ -79,6 +111,10 @@ class JsDomNode {
     }
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {JsDomElement[]}
+   */
   $$x(xpath) {
     const snapshots = this._xpaths(xpath)
     if (snapshots) {
@@ -88,6 +124,10 @@ class JsDomNode {
     return []
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {string | undefined}
+   */
   getTextByX(xpath) {
     const node = this._xpath(xpath)
     if (node) {
@@ -95,6 +135,10 @@ class JsDomNode {
     }
   }
 
+  /**
+   * @param {string} xpath
+   * @returns {string[]}
+   */
   getTextArrByX(xpath) {
     const snapshots = this._xpaths(xpath)
     if (snapshots) {
@@ -106,16 +150,28 @@ class JsDomNode {
 }
 
 class JsDomElement extends JsDomNode {
+  /**
+   * @param {Element} element
+   * @param {JSDOM} dom
+   */
   constructor(element, dom) {
     super(element, dom)
     this.textContent = element.textContent
   }
 
+  /**
+   * @returns {Element}
+   */
   getElement() {
     return this.element
   }
 }
 
+/**
+ * @param {Object} options
+ * @param {number} options.timeout
+ * @param {boolean} options.testing
+ */
 class JsDomFetcher extends JsDomNode {
   constructor({ timeout, testing } = {}) {
     super()
@@ -124,25 +180,28 @@ class JsDomFetcher extends JsDomNode {
     this.testing = testing
   }
 
+  /**
+   * @param {string} html
+   * @param {boolean} [scripts]
+   * @returns {void}
+   */
+  setHTMLtoDOM(html, scripts) {
+    const options = scripts ? { runScripts: "dangerously" } : {}
+    const res = new JSDOM(html, options)
+    this.dom = res
+  }
+
+  /**
+   * @param {string} url
+   * @param {boolean} scripts
+   */
   async setPage(url, scripts) {
     const options = scripts ? { runScripts: "dangerously" } : {}
-    const res  = await (this.testing ? getTestPage(options) : JSDOM.fromURL(url, options))
+    const res = await (this.testing ? getTestPage(options) : JSDOM.fromURL(url, options))
     this.dom = res
   }
 
-  async setPageViaFetch(url, { fetchOptions, scripts }) {
-    const options = scripts ? { runScripts: "dangerously" } : {}
-    const response = await fetch(url, fetchOptions)
-    const html = await response.text()
-    const res = new JSDOM(html, {
-      url,
-      ...options,
-    })
-    this.dom = res
-    this.logHTML()
-  }
-  
-
+  /** @returns {void} */
   logHTML() {
     const html = this.dom.serialize()
     fs.writeFileSync("/Users/aubrey/workspace/stock-scraper/test/jsdomOutput.html", html)

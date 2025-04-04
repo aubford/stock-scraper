@@ -62,10 +62,14 @@ class PageDataFetcher {
    * Add an http call interceptor and return the manager for collecting the data
    * @param {Array<string>} searchArr
    * @param {boolean} [exact]
+   * @param {string} [expectedType]
    * @returns {ResponseInterceptor}
    */
-  addResponseInterceptor(searchArr, exact) {
-    const responseInterceptor = new ResponseInterceptor(this.logger, searchArr, exact)
+  addResponseInterceptor(searchArr, exact, { expectString, negativeSearchArr = [] } = {}) {
+    const responseInterceptor = new ResponseInterceptor(this.logger, searchArr, exact, {
+      expectString,
+      negativeSearchArr,
+    })
     this.responseInterceptors.push(responseInterceptor)
     return responseInterceptor
   }

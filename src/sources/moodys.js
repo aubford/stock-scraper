@@ -108,6 +108,7 @@ const fetchData = async (ticker, browser, logger, stockName) => {
   }
 }
 
+// skip for now
 exports.fetch = () => ({})
 // exports.fetch = (ticker, browser, stockName) =>
 //   handleFetch(logger => fetchData(ticker, browser, logger, stockName), ticker, "MOODYS")

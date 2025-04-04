@@ -1,12 +1,15 @@
 const { getHtmlOrJson, WarnError, ReError, MessageError } = require("../util")
 
 class ResponseInterceptor {
-  constructor(logger, searchArr, exact) {
+  constructor(logger, searchArr, exact, { expectString, negativeSearchArr = [] } = {}) {
     this.data = []
     this.logger = logger
     this.searchArr = searchArr
     this.exact = exact
     this.asyncErr = null
+    this.expectString = expectString
+    this.responses = []
+    this.negativeSearchArr = negativeSearchArr
   }
 
   handleInterception(response) {
@@ -27,7 +30,18 @@ class ResponseInterceptor {
 
     if (isMatch) {
       const htmlOrJson = await getHtmlOrJson(res)
-      this.data.push(htmlOrJson)
+      if (this.expectString) {
+        if (
+          typeof htmlOrJson === "string"
+          // && !this.negativeSearchArr.some(search => htmlOrJson.includes(search))
+        ) {
+          this.data.push(htmlOrJson)
+          this.responses.push(res)
+        }
+      } else {
+        this.data.push(htmlOrJson)
+        this.responses.push(res)
+      }
     }
   }
 
@@ -93,7 +107,7 @@ class ResponseInterceptor {
           clearInterval(intervalId)
           reject(
             new MessageError(
-              "Timeout waiting for condition to become truthy",
+              `Timeout waiting for condition to become truthy: ${this.searchArr.join(", ")}`,
               "ResponseInterceptor"
             )
           )

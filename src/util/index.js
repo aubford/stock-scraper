@@ -202,7 +202,7 @@ const promptForVooAndStagingFileLocation = async () => {
 }
 
 const pause = async ms => {
-  console.log(`\n\n** PAUSING FOR: ${ms}ms **\n`)
+  console.log(`** PAUSING FOR: ${ms}ms **`)
   return await new Promise(resolve => setTimeout(resolve, ms))
 }
 
@@ -227,12 +227,16 @@ const exit = async name => {
     `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n`,
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
-    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
   )
 
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
   exec("afplay /System/Library/Sounds/Ping.aiff")
+  
+  console.log("**** DON'T FORGET TO COMMIT! ****")
+  console.log("**** DON'T FORGET TO COMMIT! ****")
+  console.log("**** DON'T FORGET TO COMMIT! ****")
 }
 
 const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
@@ -377,11 +381,13 @@ const getHtmlOrJson = response => {
 
   if (contentType.includes("html")) {
     return response.text().catch(err => {
+      console.log(response)
       throw new ReError("Problem getting text from response", err, "getHtmlOrJson")
     })
   }
   if (contentType.includes("json")) {
     return response.json().catch(err => {
+      console.log(contentType)
       throw new ReError("Problem getting json from response", err, "getHtmlOrJson")
     })
   }

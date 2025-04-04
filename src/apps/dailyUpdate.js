@@ -1,7 +1,7 @@
 // noinspection ES6MissingAwait
 
 const { chunk, fromPairs } = require("lodash")
-const { yahoo, zacks, dataroma } = require("../sources")
+const { yahoo, dataroma } = require("../sources")
 const { union } = require("lodash")
 const {
   getStockTickers,
@@ -35,12 +35,11 @@ const app = async (isVoo, includeDataroma) => {
     const fetchPromises = [
       yahoo.fetch(ticker),
       yahoo.fetchHistoricalPrices(ticker),
-      zacks.fetch(ticker),
     ]
     if (INCLUDE_DATAROMA) {
       fetchPromises.push(dataroma.fetch(ticker))
     }
-    const [yahooData, prices, zacksData, dataromaData = {}] = await Promise.all(fetchPromises)
+    const [yahooData, prices, dataromaData = {}] = await Promise.all(fetchPromises)
 
     const { yahooDailyPricesDates, yahooDailyPrices } = prices
     return [
@@ -50,12 +49,10 @@ const app = async (isVoo, includeDataroma) => {
         dailyUpdateAt: makePrettyDate(),
         tickerSearch: `//${ticker}`,
         earningsPriceChange: getEarningsPriceChange(
-          zacksData.zacksLastEarningsDate,
           yahooDailyPrices,
           yahooDailyPricesDates
         ),
         ...yahooData,
-        ...zacksData,
         ...prices,
         ...dataromaData,
       },

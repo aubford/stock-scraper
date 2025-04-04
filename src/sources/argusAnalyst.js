@@ -26,7 +26,7 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
   ] = await fetchPdfData({
     ticker,
     browser,
-    analystName: 'ARGUS',
+    analystName: "ARGUS",
     url,
     xPathArr: [
       prevSiblingTextIs("ARGUS RATING: ", 2),
@@ -56,8 +56,7 @@ const fetchArgusAnalyst = async (ticker, browser, analystPageLink) => {
 }
 
 exports.fetch = (ticker, browser, analystPageLink) =>
-  handleFetch(
-    () => fetchArgusAnalyst(ticker, browser, analystPageLink),
-    ticker,
-    "ARGUS"
-  )
+  handleFetch(() => fetchArgusAnalyst(ticker, browser, analystPageLink), ticker, "ARGUS")
+
+// skip for now
+exports.fetch = () => ({})
