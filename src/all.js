@@ -8,7 +8,7 @@ const commit = require("./apps/commit")
 const { readJsonFile, writeOut, getVooTickers } = require("./util")
 const { pickBy } = require("lodash")
 
-const vooTickers = getVooTickers()
+const vooTickers = getVooTickers().slice(0, 300)
 
 // old "all" script: "npm run extra && npm run csv && npm run update && npm run voo && npm run vooB"
 

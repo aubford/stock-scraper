@@ -16,6 +16,6 @@
     "**.nvmrc": false,
     "**.npmrc": false,
     "**.gitignore": false,
-    "backups": true
+    "backups": false
   }
 }

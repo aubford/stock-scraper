@@ -12,14 +12,19 @@ const scrapeDataForVoo = async (ticker, browser) => {
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
-  const [yahooData, yahooHistoricalPricesData, wsjData, zacksData, dataromaData] =
-    await Promise.all([
-      yahoo.fetch(ticker),
-      yahoo.fetchHistoricalPrices(ticker),
-      wsj.fetch(ticker, browser),
-      zacks.fetch(ticker, browser),
-      dataroma.fetch(ticker),
-    ])
+  const [
+    // yahooData,
+    yahooHistoricalPricesData,
+    wsjData,
+    zacksData,
+    dataromaData,
+  ] = await Promise.all([
+    // yahoo.fetch(ticker),
+    yahoo.fetchHistoricalPrices(ticker),
+    wsj.fetch(ticker, browser),
+    zacks.fetch(ticker, browser),
+    dataroma.fetch(ticker),
+  ])
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
   const earningsPriceChange = getEarningsPriceChange(
@@ -37,7 +42,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
     tickerSearch: `//${ticker}`,
     ...fidelityAnalystOpinionsData,
     ...dataromaData,
-    ...yahooData,
+    // ...yahooData,
     ...wsjData,
     ...zacksData,
     ...yahooHistoricalPricesData,

@@ -17,22 +17,11 @@ const { prevQtrEndDate, prevQtrStartDate } = getPreviousQuarterStartEndDates()
  */
 const fetchData = async ticker => {
   const url = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?formatted=true&crumb=47pvnt0rqyG&lang=en-US&
-    region=US&modules=${YAHOO_MODULES.join(",")}&corsDomain=finance.yahoo.com`
+    region=US&modules=summaryDetail&corsDomain=finance.yahoo.com`
 
   const headers = {
-    authority: "query2.finance.yahoo.com",
     accept: "*/*",
-    "accept-language": "en-US,en;q=0.9",
-    cookie: `GUC=AQEBCAFksvxk5kIaXAP3&s=AQAAAB8Z3HN7&g=ZLGrgw; A1=d=AQABBLOY6WMCEMhuu3C-Fi8rBgsnmUiasHAFEgEBCAH8smTmZNwr0iMA_eMBAAcIs5jpY0iasHA&S=AQAAAgBA6SZJ8psOFc_1xpYQHYs; A3=d=AQABBLOY6WMCEMhuu3C-Fi8rBgsnmUiasHAFEgEBCAH8smTmZNwr0iMA_eMBAAcIs5jpY0iasHA&S=AQAAAgBA6SZJ8psOFc_1xpYQHYs; A1S=d=AQABBLOY6WMCEMhuu3C-Fi8rBgsnmUiasHAFEgEBCAH8smTmZNwr0iMA_eMBAAcIs5jpY0iasHA&S=AQAAAgBA6SZJ8psOFc_1xpYQHYs&j=US; cmp=t=1689625511&j=0&u=1YNN; gpp=DBABBg~BVoIgACA.QA; gpp_sid=8; PRF=t%3D${ticker}%26newChartbetateaser%3D0%252C1690835111451; gam_id=y-ZHBu0pJE2uIGFFZh15bXOM6urixU3I2h~A; tbla_id=d59288aa-4fa7-40a8-a9d9-4ccb6155cd77-tuctae31e33`,
-    dnt: "1",
-    origin: "https://finance.yahoo.com",
     referer: `https://finance.yahoo.com/quote/${ticker}/`,
-    "sec-ch-ua": '"Not.A/Brand";v="8", "Chromium";v="114", "Google Chrome";v="114"',
-    "sec-ch-ua-mobile": "?0",
-    "sec-ch-ua-platform": '"macOS"',
-    "sec-fetch-dest": "empty",
-    "sec-fetch-mode": "cors",
-    "sec-fetch-site": "same-site",
     "user-agent":
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
   }

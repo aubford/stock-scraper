@@ -11,6 +11,7 @@ testOutput.json
 .idea/copilot
 jsdomOutput.html
 response.json
+backups/
 
 /stockData.json
 /vooData.json

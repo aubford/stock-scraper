@@ -1,15 +1,22 @@
 const { spawn, exec } = require("child_process")
+const os = require("os")
+const fs = require("fs")
+const https = require("https")
+const http = require("http")
 
 /** The main function! */
 const GET_THE_WS_ADDY = () =>
-  exec(`curl 'http://localhost:9222/json/version' > ws.json; echo "Curl Result: $(curl 'http://localhost:9222/json/version')"`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`error getting addy: ${err}`)
-      return
+  exec(
+    `curl 'http://localhost:9222/json/version' > ws.json; echo "Curl Result: $(curl 'http://localhost:9222/json/version')"`,
+    (err, stdout, stderr) => {
+      if (err) {
+        console.error(`error getting addy: ${err}`)
+        return
+      }
+      console.log(`get addy stdout: ${stdout}`)
+      console.log(`get addy stderr: ${stderr}`)
     }
-    console.log(`get addy stdout: ${stdout}`)
-    console.log(`get addy stderr: ${stderr}`)
-  })
+  )
 
 const log = (err, stdout, stderr) => {
   if (err) {
@@ -28,8 +35,10 @@ const log = (err, stdout, stderr) => {
 exec("killall Google\\ Chrome; ", (...args) => {
   log(...args)
 
+  const userDataDir = `${os.homedir()}/chrome-debug-profile`
   const chrome = spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", [
     "--remote-debugging-port=9222",
+    `--user-data-dir=${userDataDir}`,
     "--no-first-run",
     "--no-default-browser-check",
     "--disable-features=IsolateOrigins",

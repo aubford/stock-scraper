@@ -44,18 +44,13 @@ module.exports = async (ticker, browser) => {
       dataroma.fetch(ticker),
     ])
 
-  const [wsjData, morningstarData, yahooData] = await Promise.all([
+  const [wsjData, morningstarData] = await Promise.all([
     wsj.fetch(ticker, browser),
     morningstar.fetch(ticker, morningstarLink, browser),
-    yahoo.fetch(ticker),
   ])
 
-  // MULTI
-
-  const [moodysData, cfraData] = await Promise.all([
-    moodys.fetch(ticker, browser, yahooData.name),
-    cfra.fetch(ticker, cfraRating, cfraLink, browser),
-  ])
+  const cfraData = await cfra.fetch(ticker, cfraRating, cfraLink, browser)
+  // const yahooData = await yahoo.fetch(ticker)
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
   const earningsPriceChange = getEarningsPriceChange(
@@ -80,13 +75,12 @@ module.exports = async (ticker, browser) => {
     morningstarRating,
     morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
     earningsPriceChange,
-    ...moodysData,
     ...morningstarData,
     ...argusAnalystData,
     ...fidelityAnalystOpinionsData,
     ...zacksData,
     ...cfraData,
-    ...yahooData,
+    // ...yahooData,
     ...yahooHistoricalPricesData,
     ...wsjData,
     ...dataromaData,
