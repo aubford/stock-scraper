@@ -2,6 +2,7 @@ const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { makePrettyDate, WarnError, ReError } = require("../util")
 const { sortBy, partition, isArray } = require("lodash")
 const { handleFetch } = require("./util/www")
+const { pause } = require("../util")
 
 const formatFidelityStarmine = starmineOpinion => {
   if (!starmineOpinion) return ""
@@ -28,8 +29,10 @@ const formatRatings = firmOpinions => {
     .join("\n")
 }
 
+const VISIBLE_PANEL = `//div[contains(@class,'pvd-tab-panel--visible')]`
+
 const reportRowXpathFrag = name =>
-  `//table[@data-tc="table-firm-opinions"]/tbody/tr[.//td="${name}"]`
+  `${VISIBLE_PANEL}//table//tr[.//a[contains(., "${name}")]]`
 
 /**
  * @param {string} ticker
@@ -43,17 +46,18 @@ const fetchData = async (ticker, browser, logger) => {
   })
 
   const analystInterceptor = fetcher.addResponseInterceptor([
-    "https://api.markitdigital.com/fidelity-equities-investarstarmine-analystsummaryscore/v1/analystSummaryScore",
+    "digital/research/api/opinion-detail",
   ])
 
   await fetcher.setPage(
-    `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=${ticker}`
+    `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=${ticker}`,
+    { waitUntil: "load" }
   )
 
   const [zacksDate, zacksLink] = await fetcher
     .fetchPageData([
-      reportRowXpathFrag("Zacks Investment Research, Inc") + `//time`,
-      reportRowXpathFrag("Zacks Investment Research, Inc") + `//a/@href`,
+      reportRowXpathFrag("Zacks Investment Research") + `//td[last()]//span`,
+      reportRowXpathFrag("Zacks Investment Research") + `//a/@href`,
     ])
     .catch(err => {
       if (err instanceof WarnError) {
@@ -63,12 +67,10 @@ const fetchData = async (ticker, browser, logger) => {
       throw new ReError("get Zacks link/date err", err, "fetchData")
     })
 
-  await fetcher.clickForXpath(`//button[@data-tc="other"]`)
-
   fetcher.setTimeout(4)
   const [argusAnalystDate, argusAnalystLink] = await fetcher
     .fetchPageData([
-      reportRowXpathFrag("Argus Analyst") + `//time`,
+      reportRowXpathFrag("Argus Analyst") + `//td[last()]//span`,
       reportRowXpathFrag("Argus Analyst") + `//a/@href`,
     ])
     .catch(err => {
@@ -79,14 +81,35 @@ const fetchData = async (ticker, browser, logger) => {
       throw new ReError("get Argus link/date err", err, "fetchData")
     })
 
+  // Wait a bit for the response to be fully processed
+  await pause(1000)
+
   const essRes = await analystInterceptor.waitForResult().catch(err => {
     logger.warnError(err)
   })
 
   await fetcher.close()
 
+  if (!essRes?.opinionData?.[ticker]) {
+    logger.warn(`No Fidelity opinion data found for ${ticker}`)
+    return {
+      fidelityAnalystsUpdatedAt: makePrettyDate(),
+      fidelityAnalystRatings: "",
+      fidelitySummaryScore: "",
+      fidelityMorganStanleyRecommendation: "",
+      zacksRecommendation: "",
+      fordRecommendation: "",
+      jefferiesRecommendation: "",
+      equitySummaryScoreHistory: "",
+      argusAnalystDate,
+      argusAnalystLink,
+      zacksDate,
+      zacksLink,
+    }
+  }
+
   const { essCurrentRating, essScore, firmOpinions, equitySummaryScore1YearHistory } =
-    essRes.data
+    essRes.opinionData[ticker]
 
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
   const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)

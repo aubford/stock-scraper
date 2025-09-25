@@ -1,4 +1,5 @@
 *Data*.json
-backups
+backups/
 debug
 .idea
+http/

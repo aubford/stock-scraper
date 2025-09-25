@@ -91,9 +91,15 @@ const fetchData = async (logger, ticker, browser) => {
     { expectString: true }
   )
   await pageFetcher.setPage(
-    `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`
+    `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`,
+    { waitUntil: "networkidle2" }
   )
-  const detailsHtml = await detailsInterceptor.waitForResult()
+
+  const detailsHtml = await detailsInterceptor.waitForResult().catch(err => {
+    logger.warnError(err)
+    return null
+  })
+
   fetcher.setHTMLtoDOM(detailsHtml)
 
   // detailed estimates
@@ -120,7 +126,7 @@ const fetchData = async (logger, ticker, browser) => {
         `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
       ),
     }
-  })
+  }) || {}
 
   // revisions
 
@@ -179,20 +185,25 @@ const fetchData = async (logger, ticker, browser) => {
       zacksYoYGrowthEstCurrentYearEps: parseFloat(currentYearEps.replace("%", "")) / 100,
       zacksYoYGrowthEstNextYearEps: parseFloat(nextYearEps.replace("%", "")) / 100,
     }
-  })
+  }) || {}
 
   // STYLE SCORES ///////////////////////////
 
-  pause(1500)
   const styleInterceptor = pageFetcher.addResponseInterceptor(
     [`https://www.zacks.com/stock/research/${ticker}/stock-style-scores`],
     false,
     { expectString: true }
   )
   await pageFetcher.setPage(
-    `https://www.zacks.com/stock/research/${ticker}/stock-style-scores`
+    `https://www.zacks.com/stock/research/${ticker}/stock-style-scores`,
+    { waitUntil: "networkidle2" }
   )
-  const styleHtml = await styleInterceptor.waitForResult()
+
+  const styleHtml = await styleInterceptor.waitForResult().catch(err => {
+    logger.warnError(err)
+    return null
+  })
+
   fetcher.setHTMLtoDOM(styleHtml)
 
   const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)

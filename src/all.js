@@ -13,9 +13,11 @@ const vooTickers = getVooTickers().slice(0, 300)
 // old "all" script: "npm run extra && npm run csv && npm run update && npm run voo && npm run vooB"
 
 const main = async () => {
+  console.log("🚀 Starting all 🚀")
+  console.log("🚀 DONT FORGET TO LAUNCH BROWSER!!! 🚀")
   await extra()
   await csv()
-  // if it hangs here, make sure there aren't other puppeteer processes running 
+  // if it hangs here, make sure there aren't other puppeteer processes running
   await update(true)
   const updatedStockData = readJsonFile(STOCK_DATA_STAGING)
   const alreadyFetchedVooTickers = pickBy(updatedStockData, (val, key) =>

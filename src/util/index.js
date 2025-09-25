@@ -233,7 +233,7 @@ const exit = async name => {
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
   exec("afplay /System/Library/Sounds/Ping.aiff")
-  
+
   console.log("**** DON'T FORGET TO COMMIT! ****")
   console.log("**** DON'T FORGET TO COMMIT! ****")
   console.log("**** DON'T FORGET TO COMMIT! ****")
@@ -388,6 +388,13 @@ const getHtmlOrJson = response => {
   if (contentType.includes("json")) {
     return response.json().catch(err => {
       console.log(contentType)
+      // If we can't get the response body due to ProtocolError, try to get it from the request
+      if (err.message && err.message.includes("No data found for resource")) {
+        throw new WarnError(
+          "Response body no longer available (likely intercepted too late)",
+          "getHtmlOrJson"
+        )
+      }
       throw new ReError("Problem getting json from response", err, "getHtmlOrJson")
     })
   }
