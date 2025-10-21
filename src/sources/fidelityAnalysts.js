@@ -1,5 +1,5 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { makePrettyDate, WarnError, ReError } = require("../util")
+const { makePrettyDate, formatMsDate, WarnError, ReError } = require("../util")
 const { sortBy, partition, isArray } = require("lodash")
 const { handleFetch } = require("./util/www")
 const { pause } = require("../util")
@@ -140,7 +140,7 @@ const fetchData = async (ticker, browser, logger) => {
       ? equitySummaryScore1YearHistory
       : []
     )
-      .map(({ description, asOfDate }) => `${description} ${asOfDate}`)
+      .map(({ description, asOfDate }) => `${description} ${formatMsDate(asOfDate)}`)
       .reverse()
       .join("\n"),
     argusAnalystDate,
