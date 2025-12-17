@@ -85,7 +85,7 @@ const goToPage = async (page, url, options = {}) => {
     await page.closeSafe()
     await pause(5 * 1000)
 
-    throw new ReError("PAGE LOAD ERROR", clone, "goToPage")
+    throw new ReError("PAGE LOAD ERROR", clone, `goToPage: ${url}`)
   }
 }
 

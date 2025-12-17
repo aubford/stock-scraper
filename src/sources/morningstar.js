@@ -23,7 +23,7 @@ const fetchData = async (ticker, url, browser) => {
     analystName: "MORNINGSTAR",
     url,
     xPathArr: [
-      `(//span[contains(text(), "Fair Value Estimate")])[1]/following-sibling::span`,
+      `(//span[normalize-space(.)='Fair Value Estimate']/ancestor::span[@class='markedContent'][1]/following-sibling::span[@class='markedContent'][1]//span[normalize-space()][1])[1]`,
       `(//span[contains(text(), "Uncertainty")])[1]/following-sibling::span[1]`,
       `(//span[contains(text(), "Capital Allocation")])[1]/following-sibling::span[1]`,
       `(//span[contains(text(), "Economic Moat")])[1]/../following-sibling::span[3]/span`,

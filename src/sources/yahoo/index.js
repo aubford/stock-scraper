@@ -64,8 +64,14 @@ const fetchPrices = async ticker => {
   )
 
   const data = JSON.parse(res).chart.result[0]
-  const dates = data.timestamp.map(date => formatMsDate(date * 1000)).reverse()
-  const prices = data.indicators.quote[0].close.map(price => price.toFixed(2)).reverse()
+  const rawDates = data.timestamp.map(date => formatMsDate(date * 1000)).reverse()
+  const rawPrices = data.indicators.quote[0].close.reverse()
+
+  // Filter out null prices and their corresponding dates
+  const datePricePairs = rawDates.map((date, i) => [date, rawPrices[i]]).filter(([_, price]) => price !== null)
+  const dates = datePricePairs.map(([date]) => date)
+  const prices = datePricePairs.map(([_, price]) => price.toFixed(2))
+
   const indexOfJan152020 = dates.indexOf("1/15/2020")
 
   const todayDate = moment().format("M/D/YYYY")
