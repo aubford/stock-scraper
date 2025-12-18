@@ -1,7 +1,7 @@
 require("../globalEnv")
 const { yahoo } = require("../src/sources")
 
-const ticker = "SNOW"
+const ticker = "AON"
 
 const run = async () => {
   await yahoo.fetchVooIndexHistoricalPrices(true)

@@ -91,7 +91,7 @@ const fetchData = async (logger, ticker, browser) => {
 
   await pageFetcher.setPage(
     `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`,
-    { waitUntil: "networkidle2" }
+    { waitUntil: "domcontentloaded" }
   )
 
   // Wait for the table to be rendered by JavaScript
@@ -190,7 +190,7 @@ const fetchData = async (logger, ticker, browser) => {
   )
   await pageFetcher.setPage(
     `https://www.zacks.com/stock/research/${ticker}/stock-style-scores`,
-    { waitUntil: "networkidle2" }
+    { waitUntil: "domcontentloaded" }
   )
 
   const styleHtml = await styleInterceptor.waitForResult().catch(err => {
