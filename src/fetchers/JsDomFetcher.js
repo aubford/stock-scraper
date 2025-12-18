@@ -182,12 +182,10 @@ class JsDomFetcher extends JsDomNode {
 
   /**
    * @param {string} html
-   * @param {boolean} [scripts]
    * @returns {void}
    */
-  setHTMLtoDOM(html, scripts) {
-    const options = scripts ? { runScripts: "dangerously" } : {}
-    const res = new JSDOM(html, options)
+  setHTMLtoDOM(html) {
+    const res = new JSDOM(html)
     this.dom = res
   }
 

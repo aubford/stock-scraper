@@ -5,7 +5,6 @@ const { fetchJson, handleFetch } = require("./util/www")
 const { orderBy, sum } = require("lodash")
 const { getDiffPercent } = require("../util")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
-const { pause } = require("../util")
 
 const getEstimateSum = tableRowCellArr =>
   tableRowCellArr.slice(0, 4).reduce((acc, curr) => {
@@ -43,9 +42,9 @@ const getMainData = async ticker => {
   }
 }
 
-const getSection = (logger, name, cb) => {
+const getSection = async (logger, name, cb) => {
   try {
-    return cb()
+    return await cb()
   } catch (err) {
     logger.warnError(new WarnError(`Failed to get section: ${name}`, "getSection", err))
   }
@@ -81,26 +80,24 @@ const fetchData = async (logger, ticker, browser) => {
     : [[]]
 
   const pageFetcher = new PageDataFetcher(ticker, browser, logger)
-  const fetcher = new JsDomFetcher()
+
+  // Helper function to replace JSDOM getTextArrByX with Puppeteer
+  const getTextArrByX = async (xpath) => {
+    const result = await pageFetcher.page.getTextByX(xpath)
+    return Array.isArray(result) ? result : result ? [result] : []
+  }
 
   // DETAILED EARNINGS ESTIMATES ///////////
 
-  const detailsInterceptor = pageFetcher.addResponseInterceptor(
-    [`https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`],
-    false,
-    { expectString: true }
-  )
   await pageFetcher.setPage(
     `https://www.zacks.com/stock/quote/${ticker}/detailed-earning-estimates`,
     { waitUntil: "networkidle2" }
   )
 
-  const detailsHtml = await detailsInterceptor.waitForResult().catch(err => {
+  // Wait for the table to be rendered by JavaScript
+  await pageFetcher.waitForXpath(`//td[text()='Up Last 7 Days']`).catch(err => {
     logger.warnError(err)
-    return null
   })
-
-  fetcher.setHTMLtoDOM(detailsHtml)
 
   // detailed estimates
 
@@ -109,21 +106,18 @@ const fetchData = async (logger, ticker, browser) => {
     zacksEpsEstimateNextYr,
     zacksAvgAnalystRatingOutOfFive,
     zacksEarningsESP,
-  } = getSection(logger, "detailed estimates", () => {
-    const detailSection = fetcher.$x(`//section[@id="detail_estimate"]/table`)
-    const detailXpath = text =>
-      detailSection.getTextByX(
-        `//${textContainsPredicate("td", text)}/following-sibling::*/span`
-      )
+  } = await getSection(logger, "detailed estimates", async () => {
+    const detailXpath = (text) =>
+      `//section[@id="detail_estimate"]/table//${textContainsPredicate("td", text)}/following-sibling::*/span`
 
     return {
-      zacksEpsEstimateCurrentYr: detailXpath("Current Year"),
-      zacksEpsEstimateNextYr: detailXpath("Next Year"),
-      zacksAvgAnalystRatingOutOfFive: detailSection.getTextByX(
-        `//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
+      zacksEpsEstimateCurrentYr: await pageFetcher.page.getTextByX(detailXpath("Current Year")),
+      zacksEpsEstimateNextYr: await pageFetcher.page.getTextByX(detailXpath("Next Year")),
+      zacksAvgAnalystRatingOutOfFive: await pageFetcher.page.getTextByX(
+        `//section[@id="detail_estimate"]/table//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
       ),
-      zacksEarningsESP: detailSection.getTextByX(
-        `//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
+      zacksEarningsESP: await pageFetcher.page.getTextByX(
+        `//section[@id="detail_estimate"]/table//td/a[@class='newwin' and text()='Earnings ESP']/../following-sibling::*`
       ),
     }
   }) || {}
@@ -133,40 +127,40 @@ const fetchData = async (logger, ticker, browser) => {
   const tableRowXpath = title => `//td[text()='${title}']/following-sibling::td`
 
   const weekRevisionsUp = sum(
-    fetcher.getTextArrByX(tableRowXpath("Up Last 7 Days")).map(Number)
+    (await getTextArrByX(tableRowXpath("Up Last 7 Days"))).map(Number)
   )
   const weekRevisionsDown = sum(
-    fetcher.getTextArrByX(tableRowXpath("Down Last 7 Days")).map(Number)
+    (await getTextArrByX(tableRowXpath("Down Last 7 Days"))).map(Number)
   )
   const monthRevisionsUp = sum(
-    fetcher.getTextArrByX(tableRowXpath("Up Last 30 Days")).map(Number)
+    (await getTextArrByX(tableRowXpath("Up Last 30 Days"))).map(Number)
   )
   const monthRevisionsDown = sum(
-    fetcher.getTextArrByX(tableRowXpath("Down Last 30 Days")).map(Number)
+    (await getTextArrByX(tableRowXpath("Down Last 30 Days"))).map(Number)
   )
 
   const zacksCurrentEpsEstimateSum = getEstimateSum(
-    fetcher.getTextArrByX(tableRowXpath("Current"))
+    await getTextArrByX(tableRowXpath("Current"))
   )
   const zacksWeekEpsEstimateSum = getEstimateSum(
-    fetcher.getTextArrByX(tableRowXpath("7 Days Ago"))
+    await getTextArrByX(tableRowXpath("7 Days Ago"))
   )
   const zacksMonthEpsEstimateSum = getEstimateSum(
-    fetcher.getTextArrByX(tableRowXpath("30 Days Ago"))
+    await getTextArrByX(tableRowXpath("30 Days Ago"))
   )
   const zacksBiMonthEpsEstimateSum = getEstimateSum(
-    fetcher.getTextArrByX(tableRowXpath("60 Days Ago"))
+    await getTextArrByX(tableRowXpath("60 Days Ago"))
   )
 
   // growth estimates
 
-  const [zacksGrowthEstimatePctYr, zacksGrowthEstimatePctYrInd] = fetcher.getTextArrByX(
+  const [zacksGrowthEstimatePctYr, zacksGrowthEstimatePctYrInd] = await getTextArrByX(
     `//td[${containsChars("Current Year (")}]/following-sibling::td`
   )
   const [zacksGrowthEstimatePctNextYr, zacksGrowthEstimatePctNextYrInd] =
-    fetcher.getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
+    await getTextArrByX(`//td[${containsChars("Next Year (")}]/following-sibling::td`)
   const [zacksGrowthEstimatePctFiveYr, zacksGrowthEstimatePctFiveYrInd] =
-    fetcher.getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
+    await getTextArrByX(`//td[${containsChars("Next 5 Years")}]/following-sibling::td`)
 
   // Year over Year Growth Est.
 
@@ -175,9 +169,9 @@ const fetchData = async (logger, ticker, browser) => {
     zacksYoYGrowthEstNextYearSales,
     zacksYoYGrowthEstCurrentYearEps,
     zacksYoYGrowthEstNextYearEps,
-  } = getSection(logger, "YoY Growth Estimates", () => {
+  } = await getSection(logger, "YoY Growth Estimates", async () => {
     const [, , , currentYearSales, nextYearSales, , , , currentYearEps, nextYearEps] =
-      fetcher.getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
+      await getTextArrByX(`//tr[td[${containsChars("Year over Year Growth Est.")}]]/td`)
 
     return {
       zacksYoYGrowthEstCurrentYearSales: parseFloat(currentYearSales.replace("%", "")) / 100,
@@ -204,6 +198,7 @@ const fetchData = async (logger, ticker, browser) => {
     return null
   })
 
+  const fetcher = new JsDomFetcher()
   fetcher.setHTMLtoDOM(styleHtml)
 
   const [zacksValue, zacksGrowth, zacksMomentum] = fetcher.getTextArrByX(`//thead//th[2]/span`)
