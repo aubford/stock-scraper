@@ -10,10 +10,7 @@ const formatFidelityStarmine = starmineOpinion => {
   const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
     starmineOpinion
 
-  return `${currentNormalizedRating} (${previousNormalizedRating}) ${ratingChangeDate?.substring(
-    5,
-    10
-  )}`
+  return `${currentNormalizedRating} (${previousNormalizedRating}) ${ratingChangeDate}`
 }
 
 const formatRatings = firmOpinions => {
