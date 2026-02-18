@@ -107,12 +107,13 @@ const fetchData = async (logger, ticker, browser) => {
     zacksAvgAnalystRatingOutOfFive,
     zacksEarningsESP,
   } = await getSection(logger, "detailed estimates", async () => {
-    const detailXpath = (text) =>
-      `//section[@id="detail_estimate"]/table//${textContainsPredicate("td", text)}/following-sibling::*/span`
+    // Current Year / Next Year live in the adjacent section (two_col), not in detail_estimate
+    const summaryEpsXpath = (label) =>
+      `//div[contains(@class,'two_col')]//td[normalize-space()='${label}']/following-sibling::*/span`
 
     return {
-      zacksEpsEstimateCurrentYr: await pageFetcher.page.getTextByX(detailXpath("Current Year")),
-      zacksEpsEstimateNextYr: await pageFetcher.page.getTextByX(detailXpath("Next Year")),
+      zacksEpsEstimateCurrentYr: await pageFetcher.page.getTextByX(summaryEpsXpath("Current Year")),
+      zacksEpsEstimateNextYr: await pageFetcher.page.getTextByX(summaryEpsXpath("Next Year")),
       zacksAvgAnalystRatingOutOfFive: await pageFetcher.page.getTextByX(
         `//section[@id="detail_estimate"]/table//${textContainsPredicate("a", "ABR")}/../following-sibling::*/span`
       ),
