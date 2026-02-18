@@ -5,6 +5,7 @@ const update = require("./apps/update")
 const voo = require("./apps/fetchVoo")
 const analysis = require("./apps/analysis")
 const commit = require("./apps/commit")
+const fetchSPWeights = require("./apps/fetchSPWeights")
 const { readJsonFile, writeOut, getVooTickers } = require("./util")
 const { pickBy } = require("lodash")
 
@@ -16,12 +17,13 @@ const main = async () => {
   console.log("🚀 Starting all 🚀")
   console.log("🚀 DONT FORGET TO LAUNCH BROWSER!!! 🚀")
   await extra()
+  await fetchSPWeights()
   await csv()
   // if it hangs here, make sure there aren't other puppeteer processes running
   await update(true)
   const updatedStockData = readJsonFile(STOCK_DATA_STAGING)
   const alreadyFetchedVooTickers = pickBy(updatedStockData, (val, key) =>
-    vooTickers.includes(key)
+    vooTickers.includes(key),
   )
   // overwrite VOO staging with new stock data to avoid redundant scrapes
   writeOut(VOO_DATA_STAGING, alreadyFetchedVooTickers)
