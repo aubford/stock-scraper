@@ -1,5 +1,6 @@
 const moment = require("moment")
 const fs = require("fs")
+const path = require("path")
 const { isArray, assignWith, omitBy, isEmpty } = require("lodash")
 const readline = require("readline")
 const { exec } = require("child_process")
@@ -119,8 +120,15 @@ const deleteFile = (fileLocation, backup) => {
       const backupLocation = `${fileLocation.replace(".json", "")}_${moment()
         .format("MMM-DD")
         .toLowerCase()}.json`
+      const backupDir = path.resolve(__dirname, "../../backups")
+      const backupFileName = path.basename(backupLocation)
+      const backupDestination = path.join(backupDir, backupFileName)
+
       fs.copyFileSync(fileLocation, backupLocation)
+      fs.mkdirSync(backupDir, { recursive: true })
+      fs.renameSync(backupLocation, backupDestination)
       console.log(`Created backup: ${backupLocation}`)
+      console.log(`Moved backup to backups folder: ${backupDestination}`)
     }
     fs.unlinkSync(fileLocation)
     console.log(`Deleted file: ${fileLocation}`)

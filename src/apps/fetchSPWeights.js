@@ -11,7 +11,7 @@ const main = async () => {
       return [ticker.split(".")[0], weight]
     }),
   )
-  const tickers = Object.keys(spWeights)
+  const tickers = Object.keys(spWeights).filter(ticker => ticker !== "BRK")
 
   fs.writeFileSync(`src/database/vooTickers.js`, `module.exports = ${JSON.stringify(tickers)}`)
   metaWriteOut({
