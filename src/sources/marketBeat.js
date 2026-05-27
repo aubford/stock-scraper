@@ -72,7 +72,7 @@ const hasRatingChange = row =>
   isRating(row.ratingTo) &&
   row.ratingFrom.toLowerCase() !== row.ratingTo.toLowerCase()
 
-const FIRM_WIDTH = 8
+const FIRM_LENGTH = 8
 
 /**
  * @param {string} html
@@ -105,15 +105,15 @@ const parseHistoryRows = html => {
     })
 }
 
-const formatFirm = firm => (firm || "").substring(0, FIRM_WIDTH).padEnd(FIRM_WIDTH)
+const formatFirm = firm => (firm || "").substring(0, FIRM_LENGTH).trimEnd()
 
-const formatPriceTargetRows = (rows, targetWidth) =>
+const formatPriceTargetRows = rows =>
   rows
     .map(
       row =>
-        `${formatFirm(row.firm)} ${formatPriceChange(row.targetFrom, row.targetTo).padEnd(
-          targetWidth
-        )} ${row.date}`
+        `${formatFirm(row.firm)} | ${formatPriceChange(row.targetFrom, row.targetTo)} | ${
+          row.date
+        }`
     )
     .join("\n")
 
@@ -122,25 +122,22 @@ const formatPriceTargets = rows => {
   const changedTargets = priceTargets.filter(hasPriceTargetChange)
   const firstTargets = priceTargets.filter(hasFirstPriceTarget)
   const reiteratedTargets = priceTargets.filter(hasReiteratedPriceTarget)
-  const targetWidth = Math.max(
-    ...priceTargets.map(row => formatPriceChange(row.targetFrom, row.targetTo).length)
-  )
 
   return [
-    formatPriceTargetRows(changedTargets, targetWidth),
-    formatPriceTargetRows(firstTargets, targetWidth),
-    formatPriceTargetRows(reiteratedTargets, targetWidth),
+    formatPriceTargetRows(changedTargets),
+    formatPriceTargetRows(firstTargets),
+    formatPriceTargetRows(reiteratedTargets),
   ]
     .filter(Boolean)
     .join("\n\n")
 }
 
-const formatAnalystRatingRows = (rows, ratingWidth) =>
+const formatAnalystRatingRows = rows =>
   rows
     .map(row => {
       const firm = formatFirm(row.firm)
-      const rating = formatRatingChange(row.ratingFrom, row.ratingTo).padEnd(ratingWidth)
-      return `${firm} ${rating} ${row.date}`
+      const rating = formatRatingChange(row.ratingFrom, row.ratingTo)
+      return `${firm} | ${rating} | ${row.date}`
     })
     .join("\n")
 
@@ -148,14 +145,8 @@ const formatAnalystRatings = rows => {
   const ratings = rows.filter(hasRating)
   const changedRatings = ratings.filter(hasRatingChange)
   const otherRatings = ratings.filter(row => !hasRatingChange(row))
-  const ratingWidth = Math.max(
-    ...ratings.map(row => formatRatingChange(row.ratingFrom, row.ratingTo).length)
-  )
 
-  return [
-    formatAnalystRatingRows(changedRatings, ratingWidth),
-    formatAnalystRatingRows(otherRatings, ratingWidth),
-  ]
+  return [formatAnalystRatingRows(changedRatings), formatAnalystRatingRows(otherRatings)]
     .filter(Boolean)
     .join("\n\n")
 }
@@ -178,7 +169,7 @@ const fetchData = async (logger, ticker) => {
   if (!response.ok) {
     throw new MessageError(
       `MarketBeat fetch failed: HTTP ${response.status}`,
-      "marketBeatTargets.fetchData"
+      "marketBeat.fetchData"
     )
   }
 

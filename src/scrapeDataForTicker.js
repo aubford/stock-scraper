@@ -9,7 +9,7 @@ const {
   cfra,
   zacks,
   dataroma,
-  marketBeatTargets,
+  marketBeat,
 } = require("./sources")
 const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util")
 
@@ -42,13 +42,13 @@ module.exports = async (ticker, browser) => {
     zacksData,
     argusAnalystData,
     dataromaData,
-    marketBeatTargetsData,
+    marketBeatData,
   ] = await Promise.all([
     yahoo.fetchHistoricalPrices(ticker),
     zacks.fetch(ticker, browser),
     argusAnalyst.fetch(ticker, browser, argusAnalystLink),
     dataroma.fetch(ticker),
-    marketBeatTargets.fetch(ticker),
+    marketBeat.fetch(ticker),
   ])
 
   const [wsjData, morningstarData] = await Promise.all([
@@ -66,7 +66,7 @@ module.exports = async (ticker, browser) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
-  } = marketBeatTargetsData
+  } = marketBeatData
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
     yahooDailyPrices,

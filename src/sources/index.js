@@ -9,7 +9,7 @@ const yahoo = require("./yahoo")
 const zacks = require("./zacks")
 const slickCharts = require("./slickCharts")
 const dataroma = require("./dataroma")
-const marketBeatTargets = require("./marketBeatTargets")
+const marketBeat = require("./marketBeat")
 
 module.exports = {
   dataroma,
@@ -23,5 +23,5 @@ module.exports = {
   fidelityAnalysts,
   zacks,
   slickCharts,
-  marketBeatTargets,
+  marketBeat,
 }

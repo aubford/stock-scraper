@@ -1,8 +1,8 @@
-const { marketBeatTargets } = require("../sources")
+const { marketBeat } = require("../sources")
 const { stagingWriteOut, getStockTickers, exit } = require("../util")
 
 module.exports = async () => {
-  console.log("🚀 Update MarketBeat Targets 🚀")
+  console.log("🚀 Update MarketBeat 🚀")
 
   const tickers = getStockTickers()
 
@@ -10,7 +10,7 @@ module.exports = async () => {
 
   for (const ticker of tickers) {
     console.log(`* STARTING: ${ticker}`)
-    const data = await marketBeatTargets.fetch(ticker)
+    const data = await marketBeat.fetch(ticker)
 
     stagingWriteOut(
       {
@@ -24,5 +24,5 @@ module.exports = async () => {
     console.log(`* TICKER COMPLETED OK: ${ticker}\n`)
   }
 
-  await exit("updateMarketBeatTargets")
+  await exit("updateMarketBeat")
 }

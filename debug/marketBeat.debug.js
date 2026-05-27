@@ -1,9 +1,9 @@
 require("../globalEnv")
-const { marketBeatTargets } = require("../src/sources")
+const { marketBeat } = require("../src/sources")
 
 const ticker = "AAPL"
 
-marketBeatTargets
+marketBeat
   .fetch(ticker)
   .then(res => {
     console.log(JSON.stringify(res, null, 2))
