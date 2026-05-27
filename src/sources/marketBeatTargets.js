@@ -45,6 +45,35 @@ const formatPriceChange = (from, to) => {
   return ""
 }
 
+const hasPriceTarget = row => row.targetTo
+
+const hasPriceTargetChange = row =>
+  row.targetFrom && row.targetTo && row.targetFrom !== row.targetTo
+
+const hasFirstPriceTarget = row => !row.targetFrom && row.targetTo
+
+const hasReiteratedPriceTarget = row =>
+  row.targetFrom && row.targetTo && row.targetFrom === row.targetTo
+
+const isRating = rating => rating && rating !== "N/A"
+
+const formatRatingChange = (from, to) => {
+  const previous = isRating(from) ? from : ""
+  const current = isRating(to) ? to : ""
+
+  if (previous && current) return `${previous}➝${current}`
+  return current || previous
+}
+
+const hasRating = row => isRating(row.ratingFrom) || isRating(row.ratingTo)
+
+const hasRatingChange = row =>
+  isRating(row.ratingFrom) &&
+  isRating(row.ratingTo) &&
+  row.ratingFrom.toLowerCase() !== row.ratingTo.toLowerCase()
+
+const FIRM_WIDTH = 8
+
 /**
  * @param {string} html
  * @returns {Array<{date:string,firm:string,analyst:string,action:string,ratingFrom:string,ratingTo:string,targetFrom:number|null,targetTo:number|null,upside:string}>}
@@ -76,10 +105,65 @@ const parseHistoryRows = html => {
     })
 }
 
+const formatFirm = firm => (firm || "").substring(0, FIRM_WIDTH).padEnd(FIRM_WIDTH)
+
+const formatPriceTargetRows = (rows, targetWidth) =>
+  rows
+    .map(
+      row =>
+        `${formatFirm(row.firm)} ${formatPriceChange(row.targetFrom, row.targetTo).padEnd(
+          targetWidth
+        )} ${row.date}`
+    )
+    .join("\n")
+
+const formatPriceTargets = rows => {
+  const priceTargets = rows.filter(hasPriceTarget)
+  const changedTargets = priceTargets.filter(hasPriceTargetChange)
+  const firstTargets = priceTargets.filter(hasFirstPriceTarget)
+  const reiteratedTargets = priceTargets.filter(hasReiteratedPriceTarget)
+  const targetWidth = Math.max(
+    ...priceTargets.map(row => formatPriceChange(row.targetFrom, row.targetTo).length)
+  )
+
+  return [
+    formatPriceTargetRows(changedTargets, targetWidth),
+    formatPriceTargetRows(firstTargets, targetWidth),
+    formatPriceTargetRows(reiteratedTargets, targetWidth),
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+}
+
+const formatAnalystRatingRows = (rows, ratingWidth) =>
+  rows
+    .map(row => {
+      const firm = formatFirm(row.firm)
+      const rating = formatRatingChange(row.ratingFrom, row.ratingTo).padEnd(ratingWidth)
+      return `${firm} ${rating} ${row.date}`
+    })
+    .join("\n")
+
+const formatAnalystRatings = rows => {
+  const ratings = rows.filter(hasRating)
+  const changedRatings = ratings.filter(hasRatingChange)
+  const otherRatings = ratings.filter(row => !hasRatingChange(row))
+  const ratingWidth = Math.max(
+    ...ratings.map(row => formatRatingChange(row.ratingFrom, row.ratingTo).length)
+  )
+
+  return [
+    formatAnalystRatingRows(changedRatings, ratingWidth),
+    formatAnalystRatingRows(otherRatings, ratingWidth),
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+}
+
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string}>}
+ * @returns {Promise<{marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string}>}
  */
 const fetchData = async (logger, ticker) => {
   const response = await fetch(buildUrl(ticker), {
@@ -107,18 +191,22 @@ const fetchData = async (logger, ticker) => {
       marketBeatTargetsUpdatedAt: makePrettyDate(),
       marketBeatTargets: [],
       marketBeatTargetsFormatted: "",
+      marketBeatAnalystRatings: [],
+      marketBeatAnalystRatingsFormatted: "",
     }
   }
 
-  const marketBeatTargetsFormatted = marketBeatTargets
-    .filter(r => r.targetTo)
-    .map(r => `${(r.firm || "").substring(0, 8)} ${formatPriceChange(r.targetFrom, r.targetTo)} ${r.date}`)
-    .join("\n")
+  const marketBeatAnalystRatings = marketBeatTargets.filter(hasRating)
+  const marketBeatAnalystRatingsFormatted = formatAnalystRatings(marketBeatAnalystRatings)
+
+  const marketBeatTargetsFormatted = formatPriceTargets(marketBeatTargets)
 
   return {
     marketBeatTargetsUpdatedAt: makePrettyDate(),
     marketBeatTargets,
     marketBeatTargetsFormatted,
+    marketBeatAnalystRatings,
+    marketBeatAnalystRatingsFormatted,
   }
 }
 

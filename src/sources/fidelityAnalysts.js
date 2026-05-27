@@ -1,6 +1,6 @@
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { makePrettyDate, formatMsDate, WarnError, ReError } = require("../util")
-const { sortBy, partition, isArray } = require("lodash")
+const { sortBy, partition, isArray, isString } = require("lodash")
 const { handleFetch } = require("./util/www")
 const { pause } = require("../util")
 
@@ -22,15 +22,14 @@ const formatRatings = firmOpinions => {
       analystOpinion =>
         (analystOpinion.firmName || "").substring(0, 8) +
         " " +
-        formatFidelityStarmine(analystOpinion)
+        formatFidelityStarmine(analystOpinion),
     )
     .join("\n")
 }
 
 const VISIBLE_PANEL = `//div[contains(@class,'pvd-tab-panel--visible')]`
 
-const reportRowXpathFrag = name =>
-  `${VISIBLE_PANEL}//table//tr[.//a[contains(., "${name}")]]`
+const reportRowXpathFrag = name => `${VISIBLE_PANEL}//table//tr[.//a[contains(., "${name}")]]`
 
 /**
  * @param {string} ticker
@@ -49,7 +48,7 @@ const fetchData = async (ticker, browser, logger) => {
 
   await fetcher.setPage(
     `https://digital.fidelity.com/prgw/digital/research/quote/dashboard/ratings-sentiment?symbol=${ticker}`,
-    { waitUntil: "load" }
+    { waitUntil: "load" },
   )
 
   const [zacksDate, zacksLink] = await fetcher
@@ -117,9 +116,10 @@ const fetchData = async (ticker, browser, logger) => {
   const [upDownGrades, otherRatings] = partition(
     firmOpinions,
     firmOpinion =>
-      firmOpinion.currentNormalizedRating &&
-      firmOpinion.previousNormalizedRating &&
-      firmOpinion.currentNormalizedRating !== firmOpinion.previousNormalizedRating
+      isString(firmOpinion.currentNormalizedRating) &&
+      isString(firmOpinion.previousNormalizedRating) &&
+      firmOpinion.currentNormalizedRating.toLowerCase() !==
+        firmOpinion.previousNormalizedRating.toLowerCase(),
   )
 
   const fidelityAnalystRatings = upDownGrades.length
