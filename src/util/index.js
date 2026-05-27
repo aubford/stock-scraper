@@ -370,6 +370,27 @@ const parseCommaFloat = str => parseFloat(str.replace(",", ""))
  * @param {Object} response
  * @returns {Promise<*>} - Returns a promise
  */
+// CDP errors that mean the body is gone (page closed / buffer evicted) — not real failures
+const isBodyGoneErr = err => {
+  const msg = err && err.message ? err.message : ""
+  return (
+    msg.includes("No data found for resource") ||
+    msg.includes("Target closed") ||
+    msg.includes("Session closed") ||
+    msg.includes("Connection closed")
+  )
+}
+
+const logBodyReadFailure = (kind, response, err) => {
+  console.log(`getHtmlOrJson ${kind} read failed:`, {
+    url: response.url ? response.url() : "?",
+    status: response.status ? response.status() : "?",
+    contentType: response.headers ? response.headers()["content-type"] : "?",
+    name: err && err.name,
+    message: err && err.message,
+  })
+}
+
 const getHtmlOrJson = response => {
   const contentType = response.headers()["content-type"]
   if (!contentType) {
@@ -381,20 +402,25 @@ const getHtmlOrJson = response => {
 
   if (contentType.includes("html")) {
     return response.text().catch(err => {
-      console.log(response)
+      if (isBodyGoneErr(err)) {
+        throw new WarnError(
+          "Response body no longer available (likely intercepted too late): " + err.message,
+          "getHtmlOrJson"
+        )
+      }
+      logBodyReadFailure("text", response, err)
       throw new ReError("Problem getting text from response", err, "getHtmlOrJson")
     })
   }
   if (contentType.includes("json")) {
     return response.json().catch(err => {
-      console.log(contentType)
-      // If we can't get the response body due to ProtocolError, try to get it from the request
-      if (err.message && err.message.includes("No data found for resource")) {
+      if (isBodyGoneErr(err)) {
         throw new WarnError(
-          "Response body no longer available (likely intercepted too late)",
+          "Response body no longer available (likely intercepted too late): " + err.message,
           "getHtmlOrJson"
         )
       }
+      logBodyReadFailure("json", response, err)
       throw new ReError("Problem getting json from response", err, "getHtmlOrJson")
     })
   }

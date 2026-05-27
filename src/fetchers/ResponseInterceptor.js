@@ -28,20 +28,24 @@ class ResponseInterceptor {
       ? this.searchArr.some(search => url === search)
       : this.searchArr.some(search => url.includes(search))
 
-    if (isMatch) {
-      const htmlOrJson = await getHtmlOrJson(res)
-      if (this.expectString) {
-        if (
-          typeof htmlOrJson === "string"
-          // && !this.negativeSearchArr.some(search => htmlOrJson.includes(search))
-        ) {
-          this.data.push(htmlOrJson)
-          this.responses.push(res)
-        }
-      } else {
+    if (!isMatch) return
+
+    // When the caller wants HTML, skip JSON sub-requests that happen to share a URL substring.
+    // This avoids reading bodies we don't care about (which can fail noisily during teardown).
+    const contentType = res.headers()["content-type"] || ""
+    if (this.expectString && !contentType.includes("html")) {
+      return
+    }
+
+    const htmlOrJson = await getHtmlOrJson(res)
+    if (this.expectString) {
+      if (typeof htmlOrJson === "string") {
         this.data.push(htmlOrJson)
         this.responses.push(res)
       }
+    } else {
+      this.data.push(htmlOrJson)
+      this.responses.push(res)
     }
   }
 

@@ -36,6 +36,51 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
   return await Promise.all(xPathArr.map(page.getTextByX))
 }
 
+const FETCH_PDF_DEADLINE_MS = 60 * 1000
+const DEADLINE_CODE = "PDF_DEADLINE"
+
+const attemptFetchPdf = async ({ browser, url, xPathArr, waitForPostScroll, timeout }) => {
+  // page is captured in outer scope so the deadline race can close it on timeout
+  const pageRef = { current: null }
+
+  const work = (async () => {
+    /** @type MyPage */
+    const page = await goToNewBrowserPage(browser, url, {
+      waitUntil: "networkidle2",
+    }).catch(err => {
+      throw new ReError("goToNewBrowserPage failed", err, "fetchPdfData").setCode(true)
+    })
+    pageRef.current = page
+
+    return await handlePage(page, { url, xPathArr, waitForPostScroll, timeout }).catch(err => {
+      if (err.code) throw err
+      throw new ReError("handlePage failed", err, "fetchPdfData").setCode(true)
+    })
+  })()
+
+  // Prevent unhandled rejection if the deadline wins the race
+  work.catch(() => {})
+
+  let deadlineTimer
+  const deadline = new Promise((_, reject) => {
+    deadlineTimer = setTimeout(() => {
+      reject(
+        new MessageError(
+          `fetchPdfData deadline ${FETCH_PDF_DEADLINE_MS}ms exceeded for ${url}`,
+          "fetchPdfData"
+        ).setCode(DEADLINE_CODE)
+      )
+    }, FETCH_PDF_DEADLINE_MS)
+  })
+
+  try {
+    return await Promise.race([work, deadline])
+  } finally {
+    clearTimeout(deadlineTimer)
+    if (pageRef.current) await pageRef.current.closeSafe()
+  }
+}
+
 /**
  * @param {object}    options
  * @param {Browser}   options.browser
@@ -45,39 +90,22 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
  * @param {Number}    options.timeout
  * @returns {Promise<*[]>}
  */
-const fetchPdfData = async ({
-  browser,
-  url,
-  xPathArr,
-  waitForPostScroll,
-  timeout = XPATH_TIMEOUT,
-}) => {
-  if (!url) {
+const fetchPdfData = async opts => {
+  if (!opts.url) {
     throw new WarnError(`NO REPORT`, "fetchPdfData")
   }
 
-  /** @type MyPage */
-  const page = await goToNewBrowserPage(browser, url, {
-    waitUntil: "networkidle2",
-  }).catch(err => {
-    throw new ReError("goToNewBrowserPage failed", err, "fetchPdfData").setCode(true)
-  })
+  const optsWithTimeout = { ...opts, timeout: opts.timeout || XPATH_TIMEOUT }
 
-  const values = await handlePage(page, {
-    url,
-    xPathArr,
-    waitForPostScroll,
-    timeout,
-  }).catch(err => {
-    page.closeSafe()
-    if (err.code) {
-      throw err
+  try {
+    return await attemptFetchPdf(optsWithTimeout)
+  } catch (err) {
+    if (err && err.code === DEADLINE_CODE) {
+      console.log(`fetchPdfData: hit ${FETCH_PDF_DEADLINE_MS}ms deadline, retrying once -> ${opts.url}`)
+      return await attemptFetchPdf(optsWithTimeout)
     }
-    throw new ReError("handlePage failed", err, "fetchPdfData").setCode(true)
-  })
-
-  await page.closeSafe()
-  return values
+    throw err
+  }
 }
 
 module.exports = fetchPdfData

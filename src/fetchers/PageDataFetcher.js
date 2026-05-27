@@ -36,7 +36,7 @@ class PageDataFetcher {
     this.page = await newPage(this.browser)
 
     if (this.responseInterceptors.length) {
-      await this._interceptRequests()
+      this._interceptRequests()
     }
 
     await goToPage(this.page, url, options)
@@ -44,13 +44,7 @@ class PageDataFetcher {
     return this.page
   }
 
-  async _interceptRequests() {
-    await this.page.setRequestInterception(true)
-
-    this.page.on("request", req => {
-      req.continue()
-    })
-
+  _interceptRequests() {
     this.page.on("response", response =>
       this.responseInterceptors.forEach(responseInterceptor =>
         responseInterceptor.handleInterception(response)

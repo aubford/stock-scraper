@@ -63,9 +63,22 @@ const fetchPrices = async ticker => {
     }
   )
 
-  const data = JSON.parse(res).chart.result[0]
-  const rawDates = data.timestamp.map(date => formatMsDate(date * 1000)).reverse()
-  const rawPrices = data.indicators.quote[0].close.reverse()
+  const parsed = JSON.parse(res)
+  const chart = parsed?.chart
+  const chartErrorDescription = chart?.error?.description
+  const data = chart?.result?.[0]
+  const timestamps = data?.timestamp
+  const closes = data?.indicators?.quote?.[0]?.close
+
+  if (!Array.isArray(timestamps) || !Array.isArray(closes)) {
+    throw new MessageError(
+      `Invalid Yahoo chart payload for ${ticker}${chartErrorDescription ? `: ${chartErrorDescription}` : ""}`,
+      "fetchPrices"
+    )
+  }
+
+  const rawDates = timestamps.map(date => formatMsDate(date * 1000)).reverse()
+  const rawPrices = closes.reverse()
 
   // Filter out null prices and their corresponding dates
   const datePricePairs = rawDates.map((date, i) => [date, rawPrices[i]]).filter(([_, price]) => price !== null)
@@ -84,7 +97,7 @@ const fetchPrices = async ticker => {
 
   const prevQtrEndDateIndex = getIndexOfDateOrPrevDateIfNotFound(dates, prevQtrEndDate)
 
-  if (!prevQtrStartDateIndex || !prevQtrEndDateIndex) {
+  if (prevQtrStartDateIndex === null || prevQtrEndDateIndex === null) {
     throw new MessageError("Prev Qtr Start or End Date not found", "fetchPrices")
   }
 

@@ -23,9 +23,12 @@ const fetchData = async (ticker, url, browser) => {
     analystName: "MORNINGSTAR",
     url,
     xPathArr: [
-      `(//div[@class='page'][@data-page-number='1']//span[normalize-space(.)='Fair Value Estimate']/ancestor::span[@class='markedContent'][1])[1]/span[position() > 1]`,
-      `(//span[contains(text(), "Uncertainty")])[1]/following-sibling::span[1]`,
-      `(//span[contains(text(), "Capital Allocation")])[1]/following-sibling::span[1]`,
+      // Morningstar's pdf.js renderer puts each label / value / date in a separate
+      // <span class="markedContent">. Grab the two markedContent siblings right after
+      // the "Fair Value Estimate" label to get [value, date].
+      `(//div[@class='page'][@data-page-number='1']//span[contains(text(), 'Fair Value Estimate')]/ancestor::span[@class='markedContent'][1]/following-sibling::span[@class='markedContent'])[position() <= 2]`,
+      `(//div[@class='page'][@data-page-number='1']//span[contains(text(), 'Uncertainty')])[1]/ancestor::span[@class='markedContent'][1]/following-sibling::span[@class='markedContent'][1]`,
+      `(//div[@class='page'][@data-page-number='1']//span[contains(text(), 'Capital Allocation')])[1]/ancestor::span[@class='markedContent'][1]/following-sibling::span[@class='markedContent'][1]`,
       `(//span[contains(text(), "Economic Moat")])[1]/../following-sibling::span[3]/span`,
     ],
     timeout: MORNINGSTAR_TIMEOUT,
