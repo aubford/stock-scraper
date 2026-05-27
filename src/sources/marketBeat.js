@@ -40,7 +40,10 @@ const parsePrice = s => {
  * @returns {string}
  */
 const formatPriceChange = (from, to) => {
-  if (from && to) return `$${from}➝$${to}`
+  if (from && to) {
+    const arrow = to > from ? "⭐️" : to < from ? "😭" : "➝"
+    return `$${from}${arrow}$${to}`
+  }
   if (to) return `$${to}`
   return ""
 }
@@ -113,7 +116,7 @@ const formatPriceTargetRows = rows =>
       row =>
         `${formatFirm(row.firm)} | ${formatPriceChange(row.targetFrom, row.targetTo)} | ${
           row.date
-        }`
+        }`,
     )
     .join("\n")
 
@@ -169,7 +172,7 @@ const fetchData = async (logger, ticker) => {
   if (!response.ok) {
     throw new MessageError(
       `MarketBeat fetch failed: HTTP ${response.status}`,
-      "marketBeat.fetchData"
+      "marketBeat.fetchData",
     )
   }
 
