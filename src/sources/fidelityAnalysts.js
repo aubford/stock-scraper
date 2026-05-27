@@ -4,13 +4,14 @@ const { sortBy, partition, isArray } = require("lodash")
 const { handleFetch } = require("./util/www")
 const { pause } = require("../util")
 
-const formatFidelityStarmine = starmineOpinion => {
+const formatFidelityStarmine = (starmineOpinion, { includeDate = true } = {}) => {
   if (!starmineOpinion) return ""
 
   const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
     starmineOpinion
 
-  return `${currentNormalizedRating} (${previousNormalizedRating}) ${ratingChangeDate}`
+  const datePart = includeDate ? ` ${ratingChangeDate}` : ""
+  return `${currentNormalizedRating} (${previousNormalizedRating})${datePart}`
 }
 
 const formatRatings = firmOpinions => {
@@ -130,7 +131,7 @@ const fetchData = async (ticker, browser, logger) => {
     fidelityAnalystRatings,
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
     fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
-    zacksRecommendation: formatFidelityStarmine(zacksOpinion),
+    zacksRecommendation: formatFidelityStarmine(zacksOpinion, { includeDate: false }),
     fordRecommendation: formatFidelityStarmine(fordOpinion),
     jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),
     equitySummaryScoreHistory: (isArray(equitySummaryScore1YearHistory)
