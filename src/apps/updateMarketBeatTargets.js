@@ -1,36 +1,18 @@
 const { marketBeatTargets } = require("../sources")
-const {
-  stagingWriteOut,
-  vooStagingWriteOut,
-  getStockTickers,
-  getVooTickers,
-  promptUser,
-  promptForYes,
-  exit,
-} = require("../util")
-
-const parseTickers = text => text.split(/[^A-Z]/).filter(Boolean)
+const { stagingWriteOut, getStockTickers, exit } = require("../util")
 
 module.exports = async () => {
   console.log("🚀 Update MarketBeat Targets 🚀")
 
-  const isVoo = await promptForYes("VOO?")
-  const isSubset = await promptForYes("Subset?")
-  let tickers = isVoo ? getVooTickers() : getStockTickers()
-
-  if (isSubset) {
-    const promptResponse = await promptUser("Tickers: ")
-    tickers = parseTickers(promptResponse)
-  }
+  const tickers = getStockTickers()
 
   console.log("Searching for tickers:", tickers)
 
   for (const ticker of tickers) {
     console.log(`* STARTING: ${ticker}`)
     const data = await marketBeatTargets.fetch(ticker)
-    const writeOut = isVoo ? vooStagingWriteOut : stagingWriteOut
 
-    writeOut(
+    stagingWriteOut(
       {
         [ticker]: {
           ticker,
