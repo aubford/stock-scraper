@@ -36,6 +36,13 @@ const scrapeDataForVoo = async (ticker, browser) => {
   ])
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
+  const {
+    marketBeatTargetsUpdatedAt,
+    marketBeatTargets,
+    marketBeatTargetsFormatted,
+    marketBeatAnalystRatings,
+    marketBeatAnalystRatingsFormatted,
+  } = marketBeatTargetsData
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
     yahooDailyPrices,
@@ -49,13 +56,17 @@ const scrapeDataForVoo = async (ticker, browser) => {
     updatedAt: makePrettyDate(),
     ticker,
     tickerSearch: `//${ticker}`,
+    marketBeatTargetsUpdatedAt,
+    marketBeatTargets,
+    marketBeatTargetsFormatted,
+    marketBeatAnalystRatings,
+    marketBeatAnalystRatingsFormatted,
     ...fidelityAnalystOpinionsData,
     ...dataromaData,
     // ...yahooData,
     ...wsjData,
     ...zacksData,
     ...yahooHistoricalPricesData,
-    ...marketBeatTargetsData,
     morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
   }
 }
