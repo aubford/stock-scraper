@@ -41,7 +41,7 @@ const parsePrice = s => {
  */
 const formatPriceChange = (from, to) => {
   if (from && to) {
-    const arrow = to > from ? "⭐️" : to < from ? "😭" : "➝"
+    const arrow = to > from ? "🍀" : to < from ? "😭" : "➝"
     return `$${from}${arrow}$${to}`
   }
   if (to) return `$${to}`
