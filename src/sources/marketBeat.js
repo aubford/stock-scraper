@@ -58,28 +58,28 @@ const hasFirstPriceTarget = row => !row.targetFrom && row.targetTo
 const hasReiteratedPriceTarget = row =>
   row.targetFrom && row.targetTo && row.targetFrom === row.targetTo
 
-const isRating = rating => rating && rating !== "N/A"
+const hasRating = row => Boolean(row.rating)
 
-const formatRatingChange = (from, to) => {
-  const previous = isRating(from) ? from : ""
-  const current = isRating(to) ? to : ""
+const hasRatingChange = row => row.rating.includes("➝")
 
-  if (previous && current) return `${previous}➝${current}`
-  return current || previous
+const isMorganStanley = row => row.firm === "Morgan Stanley"
+
+/**
+ * History table is newest-first; first Morgan Stanley row with a rating wins.
+ * @param {Array<{firm:string,rating:string,date:string}>} rows
+ * @returns {string}
+ */
+const getMorganStanleyRating = rows => {
+  const row = rows.find(r => isMorganStanley(r) && hasRating(r))
+  if (!row) return ""
+  return row.date ? `${row.rating} ${row.date}` : row.rating
 }
-
-const hasRating = row => isRating(row.ratingFrom) || isRating(row.ratingTo)
-
-const hasRatingChange = row =>
-  isRating(row.ratingFrom) &&
-  isRating(row.ratingTo) &&
-  row.ratingFrom.toLowerCase() !== row.ratingTo.toLowerCase()
 
 const FIRM_LENGTH = 8
 
 /**
  * @param {string} html
- * @returns {Array<{date:string,firm:string,analyst:string,action:string,ratingFrom:string,ratingTo:string,targetFrom:number|null,targetTo:number|null,upside:string}>}
+ * @returns {Array<{date:string,firm:string,analyst:string,action:string,rating:string,ratingFrom:string,ratingTo:string,targetFrom:number|null,targetTo:number|null,upside:string}>}
  */
 const parseHistoryRows = html => {
   const $ = cheerio.load(html)
@@ -99,6 +99,7 @@ const parseHistoryRows = html => {
         firm,
         analyst,
         action: tds.eq(3).text().trim(),
+        rating: tds.eq(4).text().trim(),
         ratingFrom,
         ratingTo,
         targetFrom: parsePrice(targetFromRaw),
@@ -139,7 +140,7 @@ const formatAnalystRatingRows = rows =>
   rows
     .map(row => {
       const firm = formatFirm(row.firm)
-      const rating = formatRatingChange(row.ratingFrom, row.ratingTo)
+      const rating = row.rating
       return `${firm} | ${rating} | ${row.date}`
     })
     .join("\n")
@@ -157,7 +158,7 @@ const formatAnalystRatings = rows => {
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string}>}
+ * @returns {Promise<{marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating:string}>}
  */
 const fetchData = async (logger, ticker) => {
   const response = await fetch(buildUrl(ticker), {
@@ -187,11 +188,13 @@ const fetchData = async (logger, ticker) => {
       marketBeatTargetsFormatted: "",
       marketBeatAnalystRatings: [],
       marketBeatAnalystRatingsFormatted: "",
+      morganStanleyRating: "",
     }
   }
 
   const marketBeatAnalystRatings = marketBeatTargets.filter(hasRating)
   const marketBeatAnalystRatingsFormatted = formatAnalystRatings(marketBeatAnalystRatings)
+  const morganStanleyRating = getMorganStanleyRating(marketBeatTargets)
 
   const marketBeatTargetsFormatted = formatPriceTargets(marketBeatTargets)
 
@@ -201,6 +204,7 @@ const fetchData = async (logger, ticker) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
+    morganStanleyRating,
   }
 }
 

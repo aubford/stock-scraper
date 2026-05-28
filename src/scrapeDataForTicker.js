@@ -66,6 +66,7 @@ module.exports = async (ticker, browser) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
+    morganStanleyRating,
   } = marketBeatData
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
@@ -87,7 +88,7 @@ module.exports = async (ticker, browser) => {
     cfraRating,
     morningstarLink,
     morningstarRating,
-    morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    morganStanleyRating,
     earningsPriceChange,
     marketBeatTargetsUpdatedAt,
     marketBeatTargets,

@@ -35,6 +35,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
+    morganStanleyRating,
   } = marketBeatData
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
@@ -60,7 +61,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
     ...wsjData,
     ...zacksData,
     ...yahooHistoricalPricesData,
-    morganStanleyRating: fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation,
+    morganStanleyRating,
   }
 }
 
