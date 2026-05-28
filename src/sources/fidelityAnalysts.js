@@ -93,6 +93,7 @@ const fetchData = async (ticker, browser, logger) => {
       fidelityAnalystsUpdatedAt: makePrettyDate(),
       fidelityAnalystRatings: "",
       fidelitySummaryScore: "",
+      fidelityMorganStanleyRecommendation: "",
       zacksRecommendation: "",
       fordRecommendation: "",
       jefferiesRecommendation: "",
@@ -108,6 +109,7 @@ const fetchData = async (ticker, browser, logger) => {
     essRes.opinionData[ticker]
 
   const zacksOpinion = firmOpinions?.find(({ firmId }) => firmId === 993)
+  const morganStanleyOpinion = firmOpinions?.find(({ firmId }) => firmId === 75)
   const fordOpinion = firmOpinions?.find(({ firmId }) => firmId === 696)
   const jefferiesOpinion = firmOpinions?.find(({ firmId }) => firmId === 36)
 
@@ -128,6 +130,7 @@ const fetchData = async (ticker, browser, logger) => {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings,
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
+    fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
     zacksRecommendation: formatFidelityStarmine(zacksOpinion, { includeDate: false }),
     fordRecommendation: formatFidelityStarmine(fordOpinion),
     jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),

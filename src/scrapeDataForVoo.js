@@ -35,8 +35,11 @@ const scrapeDataForVoo = async (ticker, browser) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
-    morganStanleyRating,
+    morganStanleyRating: marketBeatMorganStanleyRating,
   } = marketBeatData
+
+  const morganStanleyRating =
+    marketBeatMorganStanleyRating || fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
     yahooDailyPrices,
