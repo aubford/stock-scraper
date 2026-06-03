@@ -23,6 +23,35 @@ const formatMbDate = raw => {
 }
 
 /**
+ * @param {string} dateStr e.g. "5/20/2026"
+ * @returns {Date|null}
+ */
+const parseMbFormattedDate = dateStr => {
+  const [m, d, y] = dateStr.split("/").map(Number)
+  if (!m || !d || !y) return null
+  return new Date(y, m - 1, d)
+}
+
+/** @param {string} dateStr */
+const isWithinLastSixMonths = dateStr => {
+  const date = parseMbFormattedDate(dateStr)
+  if (!date) return true
+  const cutoff = new Date()
+  cutoff.setMonth(cutoff.getMonth() - 6)
+  return date >= cutoff
+}
+
+/** @param {{date:string}} a @param {{date:string}} b */
+const compareByDateDesc = (a, b) => {
+  const dateA = parseMbFormattedDate(a.date)
+  const dateB = parseMbFormattedDate(b.date)
+  if (!dateA && !dateB) return 0
+  if (!dateA) return 1
+  if (!dateB) return -1
+  return dateB - dateA
+}
+
+/**
  * Parse a "$X.XX" cell value. MarketBeat uses $0.00 to mean "no prior target
  * on record" (initiations, reiterations from before they started tracking).
  * @param {string|undefined} s
@@ -124,13 +153,17 @@ const formatPriceTargetRows = rows =>
 const formatPriceTargets = rows => {
   const priceTargets = rows.filter(hasPriceTarget)
   const changedTargets = priceTargets.filter(hasPriceTargetChange)
+  const recentChangedTargets = changedTargets.filter(row => isWithinLastSixMonths(row.date))
+  const olderChangedTargets = changedTargets.filter(row => !isWithinLastSixMonths(row.date))
   const firstTargets = priceTargets.filter(hasFirstPriceTarget)
   const reiteratedTargets = priceTargets.filter(hasReiteratedPriceTarget)
+  const otherTargets = [...olderChangedTargets, ...firstTargets, ...reiteratedTargets].sort(
+    compareByDateDesc,
+  )
 
   return [
-    formatPriceTargetRows(changedTargets),
-    formatPriceTargetRows(firstTargets),
-    formatPriceTargetRows(reiteratedTargets),
+    formatPriceTargetRows(recentChangedTargets),
+    formatPriceTargetRows(otherTargets),
   ]
     .filter(Boolean)
     .join("\n\n")
@@ -148,9 +181,15 @@ const formatAnalystRatingRows = rows =>
 const formatAnalystRatings = rows => {
   const ratings = rows.filter(hasRating)
   const changedRatings = ratings.filter(hasRatingChange)
+  const recentChangedRatings = changedRatings.filter(row => isWithinLastSixMonths(row.date))
+  const olderChangedRatings = changedRatings.filter(row => !isWithinLastSixMonths(row.date))
   const otherRatings = ratings.filter(row => !hasRatingChange(row))
+  const chronologicalOthers = [...olderChangedRatings, ...otherRatings].sort(compareByDateDesc)
 
-  return [formatAnalystRatingRows(changedRatings), formatAnalystRatingRows(otherRatings)]
+  return [
+    formatAnalystRatingRows(recentChangedRatings),
+    formatAnalystRatingRows(chronologicalOthers),
+  ]
     .filter(Boolean)
     .join("\n\n")
 }
