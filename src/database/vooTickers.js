@@ -162,7 +162,6 @@ module.exports = [
   "SHW",
   "COHR",
   "AEP",
-  "-",
   "PSX",
   "TDG",
   "MCO",
