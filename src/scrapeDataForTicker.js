@@ -61,6 +61,7 @@ module.exports = async (ticker, browser) => {
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
   const {
+    sector,
     marketBeatTargetsUpdatedAt,
     marketBeatTargets,
     marketBeatTargetsFormatted,
@@ -93,6 +94,7 @@ module.exports = async (ticker, browser) => {
     morningstarRating,
     morganStanleyRating,
     earningsPriceChange,
+    sector,
     marketBeatTargetsUpdatedAt,
     marketBeatTargets,
     marketBeatTargetsFormatted,

@@ -30,6 +30,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
   const {
+    sector,
     marketBeatTargetsUpdatedAt,
     marketBeatTargets,
     marketBeatTargetsFormatted,
@@ -53,6 +54,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
     updatedAt: makePrettyDate(),
     ticker,
     tickerSearch: `//${ticker}`,
+    sector,
     marketBeatTargetsUpdatedAt,
     marketBeatTargets,
     marketBeatTargetsFormatted,

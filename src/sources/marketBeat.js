@@ -9,7 +9,61 @@ const USER_AGENT =
 // hit NYSE and let the response settle on whichever exchange actually lists the
 // ticker. Unknown tickers redirect to /stocks/ (no #history-table), which we
 // detect downstream.
-const buildUrl = ticker => `https://www.marketbeat.com/stocks/NYSE/${ticker}/forecast/`
+const buildForecastUrl = ticker =>
+  `https://www.marketbeat.com/stocks/NYSE/${ticker}/forecast/`
+
+const buildProfileUrl = ticker => `https://www.marketbeat.com/stocks/NYSE/${ticker}/`
+
+const FETCH_HEADERS = {
+  "user-agent": USER_AGENT,
+  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "accept-language": "en-US,en;q=0.9",
+}
+
+/**
+ * @param {string} html
+ * @returns {string}
+ */
+const parseSector = html => {
+  const $ = cheerio.load(html)
+  const sectorDt = $("dt")
+    .toArray()
+    .find(el => $(el).text().trim() === "Sector")
+  if (!sectorDt) return ""
+  return $(sectorDt).next("dd").find("a").first().text().trim()
+}
+
+/** Values match Google Sheet conditional-format "Text contains" rules. */
+const MARKETBEAT_SECTOR_MAP = {
+  "Basic Materials": "Materials",
+  "Computer and Technology": "Tech",
+  "Communication Services": "Communications",
+  "Consumer Cyclical": "Discretionary",
+  "Consumer Discretionary": "Discretionary",
+  "Consumer Staples": "Staples",
+  Finance: "Financial",
+  "Financial Services": "Financial",
+  Industrials: "Industrials",
+  Medical: "Healthcare",
+  Utilities: "Utilities",
+  Aerospace: "Industrials",
+  "Auto/Tires/Trucks": "Discretionary",
+  "Business Services": "Industrials",
+  Construction: "Industrials",
+  Manufacturing: "Industrials",
+  "Real Estate": "Financial",
+  "Retail/Wholesale": "Discretionary",
+  Transportation: "Industrials",
+  "Multi-Sector Conglomerates": "Industrials",
+  Services: "Industrials",
+}
+
+/**
+ * @param {string} marketBeatSector
+ * @returns {string}
+ */
+const mapSectorForSheet = marketBeatSector =>
+  marketBeatSector ? MARKETBEAT_SECTOR_MAP[marketBeatSector] || marketBeatSector : ""
 
 /**
  * @param {string|undefined} raw e.g. "20260519000000"
@@ -206,33 +260,53 @@ const formatAnalystRatings = rows => {
 }
 
 /**
+ * @param {string} url
+ * @returns {Promise<Response>}
+ */
+const fetchMarketBeatPage = url =>
+  fetch(url, { headers: FETCH_HEADERS, redirect: "follow" })
+
+/**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating:string}>}
+ * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating:string}>}
  */
 const fetchData = async (logger, ticker) => {
-  const response = await fetch(buildUrl(ticker), {
-    headers: {
-      "user-agent": USER_AGENT,
-      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "accept-language": "en-US,en;q=0.9",
-    },
-    redirect: "follow",
-  })
+  const [forecastResponse, profileResponse] = await Promise.all([
+    fetchMarketBeatPage(buildForecastUrl(ticker)),
+    fetchMarketBeatPage(buildProfileUrl(ticker)),
+  ])
 
-  if (!response.ok) {
+  if (!forecastResponse.ok) {
     throw new MessageError(
-      `MarketBeat fetch failed: HTTP ${response.status}`,
+      `MarketBeat forecast fetch failed: HTTP ${forecastResponse.status}`,
       "marketBeat.fetchData",
     )
   }
 
-  const html = await response.text()
-  const marketBeatTargets = parseHistoryRows(html)
+  if (!profileResponse.ok) {
+    throw new MessageError(
+      `MarketBeat profile fetch failed: HTTP ${profileResponse.status}`,
+      "marketBeat.fetchData",
+    )
+  }
+
+  const [forecastHtml, profileHtml] = await Promise.all([
+    forecastResponse.text(),
+    profileResponse.text(),
+  ])
+
+  const sector = mapSectorForSheet(parseSector(profileHtml))
+  if (!sector) {
+    logger.warn(`No MarketBeat sector found for ${ticker}`)
+  }
+
+  const marketBeatTargets = parseHistoryRows(forecastHtml)
 
   if (!marketBeatTargets.length) {
     logger.warn(`No MarketBeat target history found for ${ticker}`)
     return {
+      sector,
       marketBeatTargetsUpdatedAt: makePrettyDate(),
       marketBeatTargets: [],
       marketBeatTargetsFormatted: "",
@@ -249,6 +323,7 @@ const fetchData = async (logger, ticker) => {
   const marketBeatTargetsFormatted = formatPriceTargets(marketBeatTargets)
 
   return {
+    sector,
     marketBeatTargetsUpdatedAt: makePrettyDate(),
     marketBeatTargets,
     marketBeatTargetsFormatted,
