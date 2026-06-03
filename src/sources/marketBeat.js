@@ -64,15 +64,26 @@ const parsePrice = s => {
 }
 
 /**
+ * @param {number} from
+ * @param {number} to
+ * @returns {string}
+ */
+const priceChangeEmoji = (from, to) => {
+  if (to === from) return "➝"
+  const pctChange = ((to - from) / from) * 100
+  if (pctChange >= 10) return "☄️"
+  if (pctChange > 0) return "🍀"
+  if (pctChange > -10) return "🐻"
+  return "😭"
+}
+
+/**
  * @param {number|null} from
  * @param {number|null} to
  * @returns {string}
  */
 const formatPriceChange = (from, to) => {
-  if (from && to) {
-    const arrow = to > from ? "🍀" : to < from ? "😭" : "➝"
-    return `$${from}${arrow}$${to}`
-  }
+  if (from && to) return `$${from}${priceChangeEmoji(from, to)}$${to}`
   if (to) return `$${to}`
   return ""
 }
@@ -101,7 +112,7 @@ const isMorganStanley = row => row.firm === "Morgan Stanley"
 const getMorganStanleyRating = rows => {
   const row = rows.find(r => isMorganStanley(r) && hasRating(r))
   if (!row) return ""
-  return row.date ? `${row.rating} ${row.date}` : row.rating
+  return row.date ? `${row.date} ${row.rating}` : row.rating
 }
 
 const FIRM_LENGTH = 8

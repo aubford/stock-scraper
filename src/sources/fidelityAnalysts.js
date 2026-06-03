@@ -14,6 +14,15 @@ const formatFidelityStarmine = (starmineOpinion, { includeDate = true } = {}) =>
   return `${currentNormalizedRating} (${previousNormalizedRating})${datePart}`
 }
 
+const formatFidelityMorganStanley = starmineOpinion => {
+  if (!starmineOpinion) return ""
+
+  const { currentNormalizedRating, ratingChangeDate, previousNormalizedRating } =
+    starmineOpinion
+
+  return `${ratingChangeDate} ${currentNormalizedRating} (${previousNormalizedRating})`
+}
+
 const formatRatings = firmOpinions => {
   const sortedFirmOpinions = sortBy(firmOpinions, "starmineSectorScore")
 
@@ -130,7 +139,7 @@ const fetchData = async (ticker, browser, logger) => {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings,
     fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
-    fidelityMorganStanleyRecommendation: formatFidelityStarmine(morganStanleyOpinion),
+    fidelityMorganStanleyRecommendation: formatFidelityMorganStanley(morganStanleyOpinion),
     zacksRecommendation: formatFidelityStarmine(zacksOpinion, { includeDate: false }),
     fordRecommendation: formatFidelityStarmine(fordOpinion),
     jefferiesRecommendation: formatFidelityStarmine(jefferiesOpinion),
