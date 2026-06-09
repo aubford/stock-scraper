@@ -1,5 +1,3 @@
-// noinspection ES6MissingAwait
-
 const { chunk, fromPairs, union } = require("lodash")
 const { yahoo, dataroma, marketBeat } = require("../sources")
 const {
@@ -17,9 +15,9 @@ const {
  * @script dailyUpdate
  */
 
-const app = async (isVoo, includeDataroma) => {
+const app = async () => {
   console.log("🚀 Daily Update 🚀")
-  const INCLUDE_DATAROMA = includeDataroma || (await promptForYes("Include Dataroma?"))
+  const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
 
   const stockTickers = getStockTickers()
   const vooTickers = getVooTickers()

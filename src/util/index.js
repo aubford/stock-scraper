@@ -75,12 +75,12 @@ const warnMissingCsvStockTickers = () => {
   const stockDataMeta = readJsonFile(META_LOCATION)
   const stockTickers = getStockTickers()
   const missingTickers = Object.keys(stockDataMeta.myStocks).filter(
-    ticker => !stockTickers.includes(ticker) && !NO_FETCH_STOCKS.includes(ticker)
+    ticker => !stockTickers.includes(ticker) && !NO_FETCH_STOCKS.includes(ticker),
   )
   if (missingTickers.length) {
     console.log(
       "Missing stocks from stockData.json that exist in stockDataMeta.myStocks:",
-      missingTickers
+      missingTickers,
     )
     return 1
   } else {
@@ -189,7 +189,7 @@ const promptLogin = newPage => {
     Promise.all(pages).then(pages =>
       pages.forEach(page => {
         page.closeSafe()
-      })
+      }),
     )
 }
 
@@ -225,7 +225,7 @@ const begin = () => {
 
 /**
  * Success and close
- * @returns {void}
+ * @returns {Promise<void>}
  */
 const exit = async name => {
   console.log(
@@ -235,16 +235,18 @@ const exit = async name => {
     `🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉 Complete: ${name || "Success!"} 🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n`,
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
     "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
-    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n"
+    "🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉\n",
   )
 
   exec("afplay /System/Library/Sounds/Ping.aiff")
   await pause(1000)
   exec("afplay /System/Library/Sounds/Ping.aiff")
 
-  console.log("**** DON'T FORGET TO COMMIT! ****")
-  console.log("**** DON'T FORGET TO COMMIT! ****")
-  console.log("**** DON'T FORGET TO COMMIT! ****")
+  if (name !== "Daily Update") {
+    console.log("**** DON'T FORGET TO COMMIT! ****")
+    console.log("**** DON'T FORGET TO COMMIT! ****")
+    console.log("**** DON'T FORGET TO COMMIT! ****")
+  }
 }
 
 const formatMsDate = ms => new Date(ms).toLocaleString().split(",")[0]
@@ -310,7 +312,7 @@ class WarnError extends Error {
 const formatErrorObject = function (
   { name, message, stack, code } = {},
   ticker,
-  isDailyUpdate
+  isDailyUpdate,
 ) {
   return {
     ...(ticker ? { ticker } : {}),
@@ -346,15 +348,15 @@ const getNearestWeekDay = momentDate =>
   momentDate.day() === 0
     ? momentDate.subtract(2, "days")
     : momentDate.day() === 6
-    ? momentDate.subtract(1, "days")
-    : momentDate
+      ? momentDate.subtract(1, "days")
+      : momentDate
 
 const getQuarterEndDates = () => {
   const thisYearQuarterDates = ["09/30", "06/30", "03/31"].map(date =>
-    getNearestWeekDay(moment(date, "MM/DD"))
+    getNearestWeekDay(moment(date, "MM/DD")),
   )
   const lastYearQuarterDates = ["12/31", "09/30"].map(date =>
-    getNearestWeekDay(moment(date, "MM/DD").subtract(1, "year"))
+    getNearestWeekDay(moment(date, "MM/DD").subtract(1, "year")),
   )
   return [...thisYearQuarterDates, ...lastYearQuarterDates]
 }
@@ -404,7 +406,7 @@ const getHtmlOrJson = response => {
   if (!contentType) {
     throw new WarnError(
       "No content type in response: Likely a provisional call",
-      "getHtmlOrJson"
+      "getHtmlOrJson",
     )
   }
 
@@ -413,7 +415,7 @@ const getHtmlOrJson = response => {
       if (isBodyGoneErr(err)) {
         throw new WarnError(
           "Response body no longer available (likely intercepted too late): " + err.message,
-          "getHtmlOrJson"
+          "getHtmlOrJson",
         )
       }
       logBodyReadFailure("text", response, err)
@@ -425,7 +427,7 @@ const getHtmlOrJson = response => {
       if (isBodyGoneErr(err)) {
         throw new WarnError(
           "Response body no longer available (likely intercepted too late): " + err.message,
-          "getHtmlOrJson"
+          "getHtmlOrJson",
         )
       }
       logBodyReadFailure("json", response, err)
