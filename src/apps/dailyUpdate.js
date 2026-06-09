@@ -1,15 +1,13 @@
 // noinspection ES6MissingAwait
 
-const { chunk, fromPairs } = require("lodash")
-const { yahoo, dataroma } = require("../sources")
-const { union } = require("lodash")
+const { chunk, fromPairs, union } = require("lodash")
+const { yahoo, dataroma, marketBeat } = require("../sources")
 const {
   getStockTickers,
   getVooTickers,
   formatErrorObject,
   exit,
   makePrettyDate,
-  getEarningsPriceChange,
   promptForYes,
   scrapbookWriteOut,
   vooWriteOut,
@@ -32,28 +30,20 @@ const app = async (isVoo, includeDataroma) => {
    * @returns {Promise<Array>}
    */
   const fetchStockData = async ticker => {
-    const fetchPromises = [
-      yahoo.fetch(ticker),
-      yahoo.fetchHistoricalPrices(ticker),
-    ]
+    const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeat.fetch(ticker)]
     if (INCLUDE_DATAROMA) {
       fetchPromises.push(dataroma.fetch(ticker))
     }
-    const [yahooData, prices, dataromaData = {}] = await Promise.all(fetchPromises)
+    const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)
 
-    const { yahooDailyPricesDates, yahooDailyPrices } = prices
     return [
       ticker,
       {
         ticker,
         dailyUpdateAt: makePrettyDate(),
         tickerSearch: `//${ticker}`,
-        earningsPriceChange: getEarningsPriceChange(
-          yahooDailyPrices,
-          yahooDailyPricesDates
-        ),
-        ...yahooData,
         ...prices,
+        ...marketBeatData,
         ...dataromaData,
       },
     ]
