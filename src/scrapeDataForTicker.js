@@ -3,7 +3,6 @@ const {
   boa,
   argusAnalyst,
   morningstar,
-  moodys,
   yahoo,
   wsj,
   cfra,
@@ -71,11 +70,12 @@ module.exports = async (ticker, browser) => {
   } = marketBeatData
 
   const morganStanleyRating =
-    marketBeatMorganStanleyRating || fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation
+    marketBeatMorganStanleyRating ||
+    fidelityAnalystOpinionsData.fidelityMorganStanleyRecommendation
   const earningsPriceChange = getEarningsPriceChange(
     zacksData.zacksLastEarningsDate,
     yahooDailyPrices,
-    yahooDailyPricesDates
+    yahooDailyPricesDates,
   )
 
   return {
