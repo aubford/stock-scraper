@@ -14,6 +14,9 @@ const buildForecastUrl = ticker =>
 
 const buildProfileUrl = ticker => `https://www.marketbeat.com/stocks/NYSE/${ticker}/`
 
+const buildShortInterestUrl = ticker =>
+  `https://www.marketbeat.com/stocks/NYSE/${ticker}/short-interest/`
+
 const FETCH_HEADERS = {
   "user-agent": USER_AGENT,
   accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -31,6 +34,47 @@ const parseSector = html => {
     .find(el => $(el).text().trim() === "Sector")
   if (!sectorDt) return ""
   return $(sectorDt).next("dd").find("a").first().text().trim()
+}
+
+/**
+ * @param {string} raw e.g. "20260529000000"
+ * @returns {string} zero-padded MM/DD/YY, e.g. "05/29/26"
+ */
+const formatShortDate = raw =>
+  raw && raw.length >= 8 ? `${raw.slice(4, 6)}/${raw.slice(6, 8)}/${raw.slice(2, 4)}` : ""
+
+/**
+ * @param {string} html
+ * @returns {{marketBeatShortPct:string, marketBeatShortChange:string, marketBeatShortDate:string, marketBeatShortDatePrev:string}}
+ */
+const parseShortInterest = html => {
+  const $ = cheerio.load(html)
+
+  const shortPctDt = $("dt")
+    .toArray()
+    .find(el => $(el).text().trim() === "Short Percent of Float")
+  const marketBeatShortPct = shortPctDt ? $(shortPctDt).next("dd").text().trim() : ""
+
+  // History table is the only table whose first header is "Report Date";
+  // rows are newest-first.
+  const historyTable = $("table")
+    .toArray()
+    .find(table => $(table).find("thead th").first().text().trim() === "Report Date")
+  const rows = historyTable ? $(historyTable).find("tbody tr").toArray() : []
+
+  const rowDate = row => formatShortDate($(row).find("td").first().attr("data-sort-value"))
+
+  // "Change from Previous Report" cell carries the exact fraction (e.g. "0.1232")
+  // in data-sort-value; the visible text is rounded to one decimal.
+  const changeRaw = rows[0] && $(rows[0]).find("td").eq(3).attr("data-sort-value")
+  const change = parseFloat(changeRaw)
+
+  return {
+    marketBeatShortPct,
+    marketBeatShortChange: Number.isFinite(change) ? `${(change * 100).toFixed(2)}%` : "",
+    marketBeatShortDate: rows[0] ? rowDate(rows[0]) : "",
+    marketBeatShortDatePrev: rows[1] ? rowDate(rows[1]) : "",
+  }
 }
 
 /** Values match Google Sheet conditional-format "Text contains" rules. */
@@ -269,12 +313,13 @@ const fetchMarketBeatPage = url =>
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating:string}>}
+ * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string}>}
  */
 const fetchData = async (logger, ticker) => {
-  const [forecastResponse, profileResponse] = await Promise.all([
+  const [forecastResponse, profileResponse, shortInterestResponse] = await Promise.all([
     fetchMarketBeatPage(buildForecastUrl(ticker)),
     fetchMarketBeatPage(buildProfileUrl(ticker)),
+    fetchMarketBeatPage(buildShortInterestUrl(ticker)),
   ])
 
   if (!forecastResponse.ok) {
@@ -291,14 +336,31 @@ const fetchData = async (logger, ticker) => {
     )
   }
 
-  const [forecastHtml, profileHtml] = await Promise.all([
+  if (!shortInterestResponse.ok) {
+    throw new MessageError(
+      `MarketBeat short interest fetch failed: HTTP ${shortInterestResponse.status}`,
+      "marketBeat.fetchData",
+    )
+  }
+
+  const [forecastHtml, profileHtml, shortInterestHtml] = await Promise.all([
     forecastResponse.text(),
     profileResponse.text(),
+    shortInterestResponse.text(),
   ])
 
   const sector = mapSectorForSheet(parseSector(profileHtml))
   if (!sector) {
     logger.warn(`No MarketBeat sector found for ${ticker}`)
+  }
+
+  // Drop empty short fields so a missing MarketBeat page can't clobber
+  // previously-scraped values during the merge write-out.
+  const shortInterest = Object.fromEntries(
+    Object.entries(parseShortInterest(shortInterestHtml)).filter(([, value]) => value),
+  )
+  if (!shortInterest.marketBeatShortDate) {
+    logger.warn(`No MarketBeat short interest found for ${ticker}`)
   }
 
   const marketBeatTargets = parseHistoryRows(forecastHtml)
@@ -312,7 +374,7 @@ const fetchData = async (logger, ticker) => {
       marketBeatTargetsFormatted: "",
       marketBeatAnalystRatings: [],
       marketBeatAnalystRatingsFormatted: "",
-      morganStanleyRating: "",
+      ...shortInterest,
     }
   }
 
@@ -329,7 +391,10 @@ const fetchData = async (logger, ticker) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
-    morganStanleyRating,
+    // Omit when empty: dailyUpdate/updateMarketBeat spread this raw into the
+    // merge write-out, and "" would clobber a Fidelity-sourced rating.
+    ...(morganStanleyRating ? { morganStanleyRating } : {}),
+    ...shortInterest,
   }
 }
 

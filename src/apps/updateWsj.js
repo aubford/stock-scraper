@@ -67,7 +67,7 @@ const app = async browser => {
     return res
   }
 
-  run(browser).then(companyData => {
+  return run(browser).then(companyData => {
     const updatedData = fromPairs(companyData)
 
     // Check if the '--voo' flag was passed

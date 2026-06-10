@@ -59,15 +59,8 @@ module.exports = async (ticker, browser) => {
   // const yahooData = await yahoo.fetch(ticker)
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
-  const {
-    sector,
-    marketBeatTargetsUpdatedAt,
-    marketBeatTargets,
-    marketBeatTargetsFormatted,
-    marketBeatAnalystRatings,
-    marketBeatAnalystRatingsFormatted,
-    morganStanleyRating: marketBeatMorganStanleyRating,
-  } = marketBeatData
+  const { morganStanleyRating: marketBeatMorganStanleyRating, ...marketBeatRest } =
+    marketBeatData
 
   const morganStanleyRating =
     marketBeatMorganStanleyRating ||
@@ -94,12 +87,7 @@ module.exports = async (ticker, browser) => {
     morningstarRating,
     morganStanleyRating,
     earningsPriceChange,
-    sector,
-    marketBeatTargetsUpdatedAt,
-    marketBeatTargets,
-    marketBeatTargetsFormatted,
-    marketBeatAnalystRatings,
-    marketBeatAnalystRatingsFormatted,
+    ...marketBeatRest,
     ...morningstarData,
     ...argusAnalystData,
     ...fidelityAnalystOpinionsData,
