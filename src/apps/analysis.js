@@ -57,9 +57,9 @@ const logUpdates = (data, verbose) => {
         const wsj = wsjUpdatedAt ? ` wsj: ${slcDate(wsjUpdatedAt)}` : ""
 
         console.log(
-          `${ticker}: ${main}, daily: ${daily}, zacks:${zacks}` + wsj + fidelity + cfra
+          `${ticker}: ${main}, daily: ${daily}, zacks:${zacks}` + wsj + fidelity + cfra,
         )
-      }
+      },
     )
   }
 }

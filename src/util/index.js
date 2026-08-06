@@ -58,8 +58,11 @@ const getUnstagedStockTickers = () => {
   const stagedTickers = Object.keys(stagedStocks).filter(ticker => !stagedStocks[ticker].error)
   return allTickers.filter(ticker => !stagedTickers.includes(ticker))
 }
+const VOO_TICKER_LIMIT = 250
+
 /** @returns {string[]} */
-const getVooTickers = () => vooTickers
+const getVooTickers = () => vooTickers.slice(0, VOO_TICKER_LIMIT)
+
 /** @returns {string[]} */
 const getUnstagedVooTickers = () => {
   const allTickers = getVooTickers()

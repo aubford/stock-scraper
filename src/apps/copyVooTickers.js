@@ -1,8 +1,9 @@
 const { spawn } = require("child_process")
-const vooTickers = require("../database/vooTickers")
-const { promptUser } = require("../util")
+const { promptUser, getVooTickers } = require("../util")
 
 const VALID_TICKER = /^[A-Z]+(\.[A-Z]+)?$/
+
+const vooTickers = getVooTickers()
 
 const copyToClipboard = text =>
   new Promise((resolve, reject) => {
