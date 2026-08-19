@@ -1,5 +1,13 @@
 const { first, last, endsWith } = require("lodash")
 
+const VALID_TICKER = /^[A-Z]+(\.[A-Z]+)?$/
+
+/**
+ * @param {string} ticker
+ * @returns {boolean}
+ */
+const isValidTicker = ticker => typeof ticker === "string" && VALID_TICKER.test(ticker)
+
 const chars = text => text.replace(/\s/g, "")
 
 const getFirstLastValue = str => {
@@ -30,4 +38,5 @@ module.exports = {
   getFirstLastValue,
   extractNumbers,
   millBillStrToNum,
+  isValidTicker,
 }

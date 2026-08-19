@@ -1,7 +1,7 @@
 const cheerio = require("cheerio")
 const { fromPairs } = require("lodash")
 const yauzl = require("yauzl")
-const { extractNumbers } = require("./util")
+const { extractNumbers, isValidTicker } = require("./util")
 
 const SPY_HOLDINGS_URL =
   "https://www.ssga.com/library-content/products/fund-data/etfs/us/holdings-daily-us-en-spy.xlsx"
@@ -128,7 +128,7 @@ const fetchData = async () => {
   const rows = await parseHoldingsRows(buffer)
 
   const result = rows
-    .filter(row => row.ticker && row.weight)
+    .filter(row => isValidTicker(row.ticker) && row.weight)
     .map(row => [row.ticker, extractNumbers(row.weight)])
 
   return fromPairs(result)

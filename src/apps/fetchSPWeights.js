@@ -1,5 +1,5 @@
 const { slickCharts } = require("../sources")
-const { metaWriteOut } = require("../util")
+const { metaWriteOut, isValidTicker } = require("../util")
 const fs = require("fs")
 
 const main = async () => {
@@ -11,7 +11,15 @@ const main = async () => {
       return [ticker.split(".")[0], weight]
     }),
   )
-  const tickers = Object.keys(spWeights).filter(ticker => ticker !== "BRK")
+  const skipped = Object.keys(spWeights).filter(
+    ticker => ticker === "BRK" || !isValidTicker(ticker),
+  )
+  if (skipped.length) {
+    console.log("Skipping non-ticker SPY holdings:", skipped)
+  }
+  const tickers = Object.keys(spWeights).filter(
+    ticker => ticker !== "BRK" && isValidTicker(ticker),
+  )
 
   fs.writeFileSync(`src/database/vooTickers.js`, `module.exports = ${JSON.stringify(tickers)}`)
   metaWriteOut({

@@ -6,6 +6,7 @@ const readline = require("readline")
 const { exec } = require("child_process")
 const open = require("open")
 const vooTickers = require("../database/vooTickers")
+const { isValidTicker } = require("../sources/util/str")
 
 /**
  * @typedef {Page} MyPage
@@ -61,7 +62,7 @@ const getUnstagedStockTickers = () => {
 const VOO_TICKER_LIMIT = 250
 
 /** @returns {string[]} */
-const getVooTickers = () => vooTickers.slice(0, VOO_TICKER_LIMIT)
+const getVooTickers = () => vooTickers.filter(isValidTicker).slice(0, VOO_TICKER_LIMIT)
 
 /** @returns {string[]} */
 const getUnstagedVooTickers = () => {
@@ -477,6 +478,7 @@ module.exports = {
   getStockDataFile,
   getStockTickers,
   getVooTickers,
+  isValidTicker,
   warnMissingCsvStockTickers,
   metaWriteOut,
   clearErrors,
