@@ -1,7 +1,7 @@
 const { goToNewBrowserPage } = require("../util/puppeteer-utils")
 const { WarnError, ReError, MessageError } = require("../util")
 
-const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) => {
+const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout, extract }) => {
   if (page.error) {
     throw new MessageError("goToNewBrowserPage returned truthy page.error", "fetchPdfData")
   }
@@ -33,13 +33,17 @@ const handlePage = async (page, { url, xPathArr, waitForPostScroll, timeout }) =
     })
   }
 
+  if (extract) {
+    return await extract(page)
+  }
+
   return await Promise.all(xPathArr.map(page.getTextByX))
 }
 
 const FETCH_PDF_DEADLINE_MS = 60 * 1000
 const DEADLINE_CODE = "PDF_DEADLINE"
 
-const attemptFetchPdf = async ({ browser, url, xPathArr, waitForPostScroll, timeout }) => {
+const attemptFetchPdf = async ({ browser, url, xPathArr, waitForPostScroll, timeout, extract }) => {
   // page is captured in outer scope so the deadline race can close it on timeout
   const pageRef = { current: null }
 
@@ -52,7 +56,7 @@ const attemptFetchPdf = async ({ browser, url, xPathArr, waitForPostScroll, time
     })
     pageRef.current = page
 
-    return await handlePage(page, { url, xPathArr, waitForPostScroll, timeout }).catch(err => {
+    return await handlePage(page, { url, xPathArr, waitForPostScroll, timeout, extract }).catch(err => {
       if (err.code) throw err
       throw new ReError("handlePage failed", err, "fetchPdfData").setCode(true)
     })
@@ -88,7 +92,8 @@ const attemptFetchPdf = async ({ browser, url, xPathArr, waitForPostScroll, time
  * @param {string[]}  options.xPathArr
  * @param {string[]}  [options.waitForPostScroll]
  * @param {Number}    options.timeout
- * @returns {Promise<*[]>}
+ * @param {(page: MyPage) => Promise<*>} [options.extract]
+ * @returns {Promise<*>}
  */
 const fetchPdfData = async opts => {
   if (!opts.url) {
