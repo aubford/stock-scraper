@@ -21,7 +21,8 @@ const main = async () => {
   await fetchSPWeights()
   await csv()
   // if it hangs here, make sure there aren't other puppeteer processes running
-  await update(true)
+  await update({ skipPrompt: true })
+  await update({ skipPrompt: true, fetchUnstagedOnly: true })
   if (!skipVoo) {
     const updatedStockData = readJsonFile(STOCK_DATA_STAGING)
     const alreadyFetchedVooTickers = pickBy(updatedStockData, (val, key) =>
