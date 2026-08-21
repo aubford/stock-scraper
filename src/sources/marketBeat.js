@@ -131,11 +131,11 @@ const parseMbFormattedDate = dateStr => {
 }
 
 /** @param {string} dateStr */
-const isWithinLastSixMonths = dateStr => {
+const isWithinLastFourMonths = dateStr => {
   const date = parseMbFormattedDate(dateStr)
   if (!date) return true
   const cutoff = new Date()
-  cutoff.setMonth(cutoff.getMonth() - 6)
+  cutoff.setMonth(cutoff.getMonth() - 4)
   return date >= cutoff
 }
 
@@ -262,8 +262,8 @@ const formatPriceTargetRows = rows =>
 const formatPriceTargets = rows => {
   const priceTargets = rows.filter(hasPriceTarget)
   const changedTargets = priceTargets.filter(hasPriceTargetChange)
-  const recentChangedTargets = changedTargets.filter(row => isWithinLastSixMonths(row.date))
-  const olderChangedTargets = changedTargets.filter(row => !isWithinLastSixMonths(row.date))
+  const recentChangedTargets = changedTargets.filter(row => isWithinLastFourMonths(row.date))
+  const olderChangedTargets = changedTargets.filter(row => !isWithinLastFourMonths(row.date))
   const firstTargets = priceTargets.filter(hasFirstPriceTarget)
   const reiteratedTargets = priceTargets.filter(hasReiteratedPriceTarget)
   const otherTargets = [...olderChangedTargets, ...firstTargets, ...reiteratedTargets].sort(
@@ -290,8 +290,8 @@ const formatAnalystRatingRows = rows =>
 const formatAnalystRatings = rows => {
   const ratings = rows.filter(hasRating)
   const changedRatings = ratings.filter(hasRatingChange)
-  const recentChangedRatings = changedRatings.filter(row => isWithinLastSixMonths(row.date))
-  const olderChangedRatings = changedRatings.filter(row => !isWithinLastSixMonths(row.date))
+  const recentChangedRatings = changedRatings.filter(row => isWithinLastFourMonths(row.date))
+  const olderChangedRatings = changedRatings.filter(row => !isWithinLastFourMonths(row.date))
   const otherRatings = ratings.filter(row => !hasRatingChange(row))
   const chronologicalOthers = [...olderChangedRatings, ...otherRatings].sort(compareByDateDesc)
 
