@@ -213,6 +213,34 @@ const getMorganStanleyRating = rows => {
   return row.date ? `${row.date} ${row.rating}` : row.rating
 }
 
+/**
+ * History table is newest-first; first Morgan Stanley row with a target wins.
+ * @param {Array<{firm:string,targetFrom:number|null,targetTo:number|null,date:string}>} rows
+ * @returns {{firm:string,targetFrom:number|null,targetTo:number|null,date:string}|undefined}
+ */
+const getMorganStanleyPriceTargetRow = rows =>
+  rows.find(r => isMorganStanley(r) && hasPriceTarget(r))
+
+/**
+ * @param {Array<{firm:string,targetFrom:number|null,targetTo:number|null,date:string}>} rows
+ * @returns {string}
+ */
+const getMorganStanleyPriceTarget = rows => {
+  const row = getMorganStanleyPriceTargetRow(rows)
+  if (!row) return ""
+  const target = formatPriceChange(row.targetFrom, row.targetTo)
+  return row.date ? `${row.date} ${target}` : target
+}
+
+/**
+ * @param {Array<{firm:string,targetTo:number|null}>} rows
+ * @returns {string}
+ */
+const getMorganStanleyCurrentPriceTargetNum = rows => {
+  const row = getMorganStanleyPriceTargetRow(rows)
+  return row?.targetTo != null ? String(row.targetTo) : ""
+}
+
 const FIRM_LENGTH = 8
 
 /**
@@ -313,7 +341,7 @@ const fetchMarketBeatPage = url =>
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string}>}
+ * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string}>}
  */
 const fetchData = async (logger, ticker) => {
   const [forecastResponse, profileResponse, shortInterestResponse] = await Promise.all([
@@ -374,6 +402,8 @@ const fetchData = async (logger, ticker) => {
       marketBeatTargetsFormatted: "",
       marketBeatAnalystRatings: [],
       marketBeatAnalystRatingsFormatted: "",
+      morganStanleyPriceTarget: "",
+      morganStanleyCurrentPriceTargetNum: "",
       ...shortInterest,
     }
   }
@@ -381,6 +411,9 @@ const fetchData = async (logger, ticker) => {
   const marketBeatAnalystRatings = marketBeatTargets.filter(hasRating)
   const marketBeatAnalystRatingsFormatted = formatAnalystRatings(marketBeatAnalystRatings)
   const morganStanleyRating = getMorganStanleyRating(marketBeatTargets)
+  const morganStanleyPriceTarget = getMorganStanleyPriceTarget(marketBeatTargets)
+  const morganStanleyCurrentPriceTargetNum =
+    getMorganStanleyCurrentPriceTargetNum(marketBeatTargets)
 
   const marketBeatTargetsFormatted = formatPriceTargets(marketBeatTargets)
 
@@ -394,6 +427,8 @@ const fetchData = async (logger, ticker) => {
     // Omit when empty: dailyUpdate/updateMarketBeat spread this raw into the
     // merge write-out, and "" would clobber a Fidelity-sourced rating.
     ...(morganStanleyRating ? { morganStanleyRating } : {}),
+    morganStanleyPriceTarget,
+    morganStanleyCurrentPriceTargetNum,
     ...shortInterest,
   }
 }
