@@ -3,13 +3,23 @@ const { yahoo, dataroma, marketBeat } = require("../sources")
 const {
   getStockTickers,
   getVooTickers,
-  formatErrorObject,
   exit,
   makePrettyDate,
   promptForYes,
   scrapbookWriteOut,
   vooWriteOut,
 } = require("../util")
+
+/**
+ * @param {Object} data
+ * @returns {boolean}
+ */
+const hasSourceError = data =>
+  Boolean(
+    data?.error ||
+      data?.duError ||
+      Object.keys(data || {}).some(key => key.startsWith("error_")),
+  )
 
 /**
  * @script dailyUpdate
@@ -25,7 +35,7 @@ const app = async () => {
 
   /**
    * @param {string} ticker
-   * @returns {Promise<Array>}
+   * @returns {Promise<[string, Object] | null>}
    */
   const fetchStockData = async ticker => {
     const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeat.fetch(ticker)]
@@ -33,6 +43,11 @@ const app = async () => {
       fetchPromises.push(dataroma.fetch(ticker))
     }
     const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)
+    const payload = { ...prices, ...marketBeatData, ...dataromaData }
+
+    if (hasSourceError(payload)) {
+      return null
+    }
 
     return [
       ticker,
@@ -40,9 +55,7 @@ const app = async () => {
         ticker,
         dailyUpdateAt: makePrettyDate(),
         tickerSearch: `//${ticker}`,
-        ...prices,
-        ...marketBeatData,
-        ...dataromaData,
+        ...payload,
       },
     ]
   }
@@ -57,11 +70,15 @@ const app = async () => {
       console.log(`* STARTING: ${ticker}`)
       try {
         const res = await fetchStockData(ticker)
+        if (!res) {
+          console.error(`${ticker}: xxx Fetch error, skipping write xxx`)
+          return null
+        }
         console.log(`* TICKER COMPLETED: ${ticker}`)
         return res
       } catch (error) {
-        console.error(`${ticker}: xxx Uncaught Error! xxx`, error)
-        return formatErrorObject(error, ticker, true)
+        console.error(`${ticker}: xxx Uncaught Error, skipping write xxx`, error)
+        return null
       }
     }
 
@@ -69,7 +86,7 @@ const app = async () => {
     const tickerChunks = chunk(tickers, 3)
     for (const tickerChunk of tickerChunks) {
       const companyData = await Promise.stagger(handleFetchTicker, tickerChunk, 500)
-      res = res.concat(companyData)
+      res = res.concat(companyData.filter(Boolean))
     }
     return res
   }

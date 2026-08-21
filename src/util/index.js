@@ -95,9 +95,20 @@ const warnMissingCsvStockTickers = () => {
 
 // write stock data files /////////
 
+/**
+ * lodash isEmpty treats numbers and booleans as empty, which would drop
+ * fields like yahooPrevQtrAvgPrice on merge writes.
+ * @param {*} value
+ * @returns {boolean}
+ */
+const isBlankMergeValue = value => {
+  if (typeof value === "number" || typeof value === "boolean") return false
+  return isEmpty(value)
+}
+
 // Remove empty values so that we don't overwrite existing data with failed scrapes
 const removeEmptyValues = obj =>
-  omitBy(obj, (value, key) => isEmpty(value) && !key.includes("error"))
+  omitBy(obj, (value, key) => isBlankMergeValue(value) && !key.includes("error"))
 
 /**
  * Core write to file function
