@@ -48,7 +48,11 @@ const aggregateMagicFormulaTickers = async cookies => {
   return uniq([...microCap, ...midCap, ...largeCap])
 }
 
-const getBuffetData = async () => {
+/**
+ * Last-quarter buys/sells from Berkshire's Dataroma activity page.
+ * @returns {Promise<Record<string, string>>}
+ */
+const getBuffetActivity = async () => {
   const response = await fetch("https://dataroma.com/m/m_activity.php?m=BRK&typ=a")
   const text = await response.text()
 
@@ -69,6 +73,33 @@ const getBuffetData = async () => {
     findIndex(dataArr, val => val[0] === "" && val[1] === "")
   )
   return fromPairs(chunk)
+}
+
+/**
+ * Tickers Berkshire currently holds, including names with no last-quarter activity.
+ * @returns {Promise<string[]>}
+ */
+const getBuffetHoldings = async () => {
+  const response = await fetch("https://dataroma.com/m/holdings.php?m=BRK")
+  const text = await response.text()
+  const $ = Cheerio.load(text)
+
+  return $(`table#grid > tbody > tr`)
+    .map((i, node) => $(node).children(`td.stock`).text().split(" - ")[0].trim())
+    .toArray()
+    .filter(Boolean)
+}
+
+/**
+ * @returns {Promise<Record<string, string>>}
+ */
+const getBuffetData = async () => {
+  const activity = await getBuffetActivity()
+  const holdings = await getBuffetHoldings()
+  const holds = fromPairs(
+    holdings.filter(ticker => !activity[ticker]).map(ticker => [ticker, "hold"])
+  )
+  return { ...activity, ...holds }
 }
 
 module.exports = async () =>
