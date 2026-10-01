@@ -1,7 +1,8 @@
 // One-shot test run of the "start" app, meant for agents and quick manual checks:
 //   npm run quick -- AAPL MSFT
-// Reuses (or launches) the Chrome debug target, refreshes ws.json, scrapes the given
-// tickers into the staging file, prints a per-ticker summary, and exits non-zero on failure.
+// Reuses (or launches) the Chrome debug target, refreshes ws.json, opens Fidelity + Merrill
+// login tabs (Press Enter when done), scrapes the given tickers into the staging file,
+// prints a per-ticker summary, and exits non-zero on failure.
 const fs = require("fs")
 const { ensureDebugBrowser } = require("./util/debugBrowser")
 const { isValidTicker } = require("./sources/util/str")

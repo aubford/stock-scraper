@@ -15,10 +15,11 @@ npm run quick -- AAPL MSFT
 ```
 
 Reuses the Chrome debug target on port 9222 if one is running (otherwise launches one in the
-background and waits for it), refreshes `ws.json`, runs the `start` app for the given tickers
-without any prompts, prints a per-ticker summary of the scraped record, and exits non-zero if a
-ticker fails. Results are written to `stockDataStaging.json`. This is the recommended way for
-Cursor Agents to check a change (see `AGENTS.md`).
+background and waits for it), refreshes `ws.json`, opens Fidelity and Merrill login tabs and
+waits for Enter, runs the `start` app for the given tickers, prints a per-ticker summary of the
+scraped record, and exits non-zero if a ticker fails. Results are written to
+`stockDataStaging.json`. This is the recommended way for Cursor Agents to check a change (see
+`AGENTS.md`).
 
 # To Run App
 

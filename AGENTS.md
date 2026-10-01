@@ -7,10 +7,11 @@ npm run quick -- AAPL MSFT
 ```
 
 One command does the whole dance: it reuses the Chrome debug target on port 9222 (or launches
-one detached and waits for it), rewrites `ws.json`, runs the `start` app for the given tickers
-with no prompts, prints a summary per ticker (field count, any `error_*` / `warnError_*` source
-fields, and the abbreviated record), and exits `0` only if every ticker scraped. One or two
-tickers is usually enough to see whether a change worked.
+one detached and waits for it), rewrites `ws.json`, opens Fidelity and Merrill login tabs and
+waits for Enter (so the human can sign in), runs the `start` app for the given tickers, prints
+a summary per ticker (field count, any `error_*` / `warnError_*` source fields, and the
+abbreviated record), and exits `0` only if every ticker scraped. One or two tickers is usually
+enough to see whether a change worked.
 
 - Full records land in `stockDataStaging.json` under `<TICKER>` (minified; `npm run prettyStocks`
   formats it).
