@@ -193,19 +193,36 @@ const promptForTickers = async () => {
   return tickers.split(/\s+/).filter(a => a)
 }
 
-const promptLogin = newPage => {
-  const pages = [
-    "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary",
-    // "https://www.moodys.com",
-    "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
-  ].map(url => newPage(url, { waitUntil: "domcontentloaded" }))
+const LOGIN_URLS = [
+  { name: "Fidelity", url: "https://oltx.fidelity.com/ftgw/fbc/oftop/portfolio#summary" },
+  {
+    name: "Merrill",
+    url: "https://olui2.fs.ml.com/TFPHoldings/HoldingsByAccount.aspx?as_cd=1.4.2147483647.-1",
+  },
+]
 
-  return () =>
-    Promise.all(pages).then(pages =>
-      pages.forEach(page => {
-        page.closeSafe()
-      }),
-    )
+/**
+ * Open brokerage login tabs and return a closer. Pages are awaited one-by-one so both
+ * Fidelity and Merrill are up before the caller prompts the user.
+ * @param {(url: string, options?: Object) => Promise<*>} newPage
+ * @returns {Promise<() => Promise<*[]>>}
+ */
+const promptLogin = async newPage => {
+  const pages = []
+  for (const { name, url } of LOGIN_URLS) {
+    try {
+      const page = await newPage(url, { waitUntil: "domcontentloaded" })
+      pages.push(page)
+      console.log(`Opened ${name} login tab`)
+    } catch (err) {
+      console.error(`Failed to open ${name} login tab (${url}):`, err.message || err)
+    }
+  }
+  if (!pages.length) {
+    console.warn("No login tabs opened — continuing anyway")
+  }
+
+  return () => Promise.all(pages.map(page => page.closeSafe()))
 }
 
 const promptForYes = async question => {
