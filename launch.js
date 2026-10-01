@@ -1,22 +1,7 @@
-const { spawn, exec } = require("child_process")
-const os = require("os")
-const fs = require("fs")
-const https = require("https")
-const http = require("http")
-
-/** The main function! */
-const GET_THE_WS_ADDY = () =>
-  exec(
-    `curl 'http://localhost:9222/json/version' > ws.json; echo "Curl Result: $(curl 'http://localhost:9222/json/version')"`,
-    (err, stdout, stderr) => {
-      if (err) {
-        console.error(`error getting addy: ${err}`)
-        return
-      }
-      console.log(`get addy stdout: ${stdout}`)
-      console.log(`get addy stderr: ${stderr}`)
-    }
-  )
+// Force-restarts Chrome as a remote-debugging target and writes ws.json.
+// For reuse-or-launch (no kill), see src/util/debugBrowser.js / `npm run quick`.
+const { exec } = require("child_process")
+const { launchChrome, waitForDebugTarget, writeWsJson } = require("./src/util/debugBrowser")
 
 const log = (err, stdout, stderr) => {
   if (err) {
@@ -35,15 +20,14 @@ const log = (err, stdout, stderr) => {
 exec("killall Google\\ Chrome; ", (...args) => {
   log(...args)
 
-  const userDataDir = `${os.homedir()}/chrome-debug-profile`
-  const chrome = spawn("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", [
-    "--remote-debugging-port=9222",
-    `--user-data-dir=${userDataDir}`,
-    "--no-first-run",
-    "--no-default-browser-check",
-    "--disable-features=IsolateOrigins",
-    "--site-per-process",
-  ])
+  let chrome
+  try {
+    chrome = launchChrome()
+  } catch (err) {
+    console.error(err.message)
+    process.exitCode = 1
+    return
+  }
   chrome.stdout.on("data", data => {
     console.log(`chrome stdout: ${data}`)
   })
@@ -54,15 +38,14 @@ exec("killall Google\\ Chrome; ", (...args) => {
     console.log(`chrome process exited with code ${code}`)
   })
 
-  const waitOn = spawn("wait-on", ["http://localhost:9222"])
-  waitOn.stdout.on("data", data => {
-    console.log(`wait-on stdout: ${data}`)
-  })
-  waitOn.stderr.on("data", err => {
-    console.error(`wait-on stderr: ${err}`)
-  })
-  waitOn.on("close", code => {
-    console.log(`wait-on process exited with code ${code}`)
-    GET_THE_WS_ADDY()
-  })
+  waitForDebugTarget({ chrome })
+    .then(version => {
+      const location = writeWsJson(version)
+      console.log(`Debug target ready: ${version.webSocketDebuggerUrl}`)
+      console.log(`Wrote ${location}`)
+    })
+    .catch(err => {
+      console.error(err.message)
+      process.exitCode = 1
+    })
 })

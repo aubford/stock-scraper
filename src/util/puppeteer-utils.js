@@ -5,8 +5,9 @@ const connectAndRunApp = app =>
   puppeteer
     .connect(CONNECTION)
     .then(browser =>
-      app(browser).then(() => {
+      app(browser).then(result => {
         browser.disconnect()
+        return result
       })
     )
     .catch(err => console.error(err))
