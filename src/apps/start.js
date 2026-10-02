@@ -3,7 +3,7 @@ const scrapeDataForTickers = require("../scrapeDataForTickers")
 const { beginAndLogin, connectAndRunApp } = require("../util/puppeteer-utils")
 
 /**
- * @param {{ tickers?: string[] }} [options] - given tickers skip the ticker prompt, still open login tabs
+ * @param {{ tickers?: string[] }} [options] - given tickers skip the ticker prompt, still open login tabs and only wait for Enter if a brokerage is logged out
  * @returns {Promise<import('../scrapeDataForTickers').ScrapeResult[] | void>}
  */
 module.exports = ({ tickers } = {}) =>
@@ -11,7 +11,8 @@ module.exports = ({ tickers } = {}) =>
     if (tickers && tickers.length) {
       await beginAndLogin(
         browser,
-        "Press Enter after logging into Fidelity and Merrill: "
+        "Press Enter after logging into Fidelity and Merrill: ",
+        { skipIfLoggedIn: true }
       )
     } else {
       const promptResponse = await beginAndLogin(browser, "Tickers: ")

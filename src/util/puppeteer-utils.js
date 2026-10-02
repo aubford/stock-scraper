@@ -135,16 +135,23 @@ const getPageCookies = async (browser, url) => {
   return cookieArr.map(({ name, value }) => `${name}=${value}`).join("; ")
 }
 
-const beginAndLogin = async (browser, prompt) => {
+/**
+ * @param {Browser} browser
+ * @param {string} prompt
+ * @param {{ skipIfLoggedIn?: boolean }} [options] - skip the prompt (returning "") when every brokerage is already logged in
+ * @returns {Promise<string>}
+ */
+const beginAndLogin = async (browser, prompt, { skipIfLoggedIn = false } = {}) => {
   begin()
 
-  const closeLoginPages = await promptLogin((url, options) =>
+  const { close, needsLogin } = await promptLogin((url, options) =>
     goToNewBrowserPage(browser, url, options)
   )
 
-  const promptResponse = await promptUser(prompt)
+  const promptResponse =
+    skipIfLoggedIn && !needsLogin ? "" : await promptUser(prompt)
 
-  await closeLoginPages()
+  await close()
 
   return promptResponse
 }

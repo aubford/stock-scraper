@@ -202,19 +202,35 @@ const LOGIN_URLS = [
 ]
 
 /**
+ * Logged-out brokerage pages redirect to a sign-in URL or render a password field.
+ * @param {*} page
+ * @returns {Promise<boolean>}
+ */
+const isOnLoginPage = async page => {
+  if (/sign-?in|log-?in|logon/i.test(new URL(page.url()).pathname)) {
+    return true
+  }
+  return !!(await page.$('input[type="password"]').catch(() => null))
+}
+
+/**
  * Open brokerage login tabs and return a closer. Pages are awaited one-by-one so both
  * Fidelity and Merrill are up before the caller prompts the user.
  * @param {(url: string, options?: Object) => Promise<*>} newPage
- * @returns {Promise<() => Promise<*[]>>}
+ * @returns {Promise<{ close: () => Promise<*[]>, needsLogin: boolean }>}
  */
 const promptLogin = async newPage => {
   const pages = []
+  let needsLogin = false
   for (const { name, url } of LOGIN_URLS) {
     try {
       const page = await newPage(url, { waitUntil: "domcontentloaded" })
       pages.push(page)
-      console.log(`Opened ${name} login tab`)
+      const loggedOut = await isOnLoginPage(page)
+      needsLogin = needsLogin || loggedOut
+      console.log(`Opened ${name} login tab${loggedOut ? "" : " (already logged in)"}`)
     } catch (err) {
+      needsLogin = true
       console.error(`Failed to open ${name} login tab (${url}):`, err.message || err)
     }
   }
@@ -222,7 +238,7 @@ const promptLogin = async newPage => {
     console.warn("No login tabs opened — continuing anyway")
   }
 
-  return () => Promise.all(pages.map(page => page.closeSafe()))
+  return { close: () => Promise.all(pages.map(page => page.closeSafe())), needsLogin }
 }
 
 const promptForYes = async question => {
