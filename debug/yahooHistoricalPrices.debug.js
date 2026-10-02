@@ -1,16 +1,10 @@
-require("../globalEnv")
-const { yahoo } = require("../src/sources")
+const { runDebug } = require("../src/util/runDebug")
 
-const ticker = "AON"
-
-const run = async () => {
-  await yahoo.fetchVooIndexHistoricalPrices(true)
-
-  const res = await yahoo.fetchHistoricalPrices(ticker).catch(err => {
-    console.error(err)
-  })
-
-  console.log(res)
-}
-
-run()
+runDebug(
+  async ticker => {
+    const { yahoo } = require("../src/sources")
+    await yahoo.fetchVooIndexHistoricalPrices(true)
+    return yahoo.fetchHistoricalPrices(ticker)
+  },
+  { ticker: "AON" }
+)

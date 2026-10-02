@@ -1,11 +1,3 @@
-require("../globalEnv")
-const { dataroma } = require("../src/sources")
+const { runDebug } = require("../src/util/runDebug")
 
-const ticker = "AAPL"
-
-dataroma
-  .fetch(ticker)
-  .then(res => {
-    console.log(res)
-  })
-  .catch(err => console.error(err))
+runDebug(ticker => require("../src/sources").dataroma.fetch(ticker), { ticker: "AAPL" })

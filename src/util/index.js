@@ -217,12 +217,13 @@ const isOnLoginPage = async page => {
  * Open brokerage login tabs and return a closer. Pages are awaited one-by-one so both
  * Fidelity and Merrill are up before the caller prompts the user.
  * @param {(url: string, options?: Object) => Promise<*>} newPage
+ * @param {string[]} [names] - brokerages to open (defaults to all of LOGIN_URLS)
  * @returns {Promise<{ close: () => Promise<*[]>, needsLogin: boolean }>}
  */
-const promptLogin = async newPage => {
+const promptLogin = async (newPage, names = LOGIN_URLS.map(({ name }) => name)) => {
   const pages = []
   let needsLogin = false
-  for (const { name, url } of LOGIN_URLS) {
+  for (const { name, url } of LOGIN_URLS.filter(({ name }) => names.includes(name))) {
     try {
       const page = await newPage(url, { waitUntil: "domcontentloaded" })
       pages.push(page)

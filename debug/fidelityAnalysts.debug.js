@@ -1,14 +1,6 @@
-require("../globalEnv")
-const puppeteer = require("puppeteer-core")
-const { fidelityAnalysts } = require("../src/sources")
+const { runDebug } = require("../src/util/runDebug")
 
-const ticker = "OKE"
-
-puppeteer
-  .connect(CONNECTION)
-  .then(async browser => {
-    const res = await fidelityAnalysts.fetch(ticker, browser)
-    console.log("success!!!")
-    console.log(res)
-  })
-  .catch(err => console.error(err))
+runDebug(
+  (ticker, browser) => require("../src/sources").fidelityAnalysts.fetch(ticker, browser),
+  { ticker: "OKE", login: ["Fidelity"] }
+)

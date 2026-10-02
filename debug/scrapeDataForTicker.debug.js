@@ -1,16 +1,11 @@
-require("../globalEnv")
-const puppeteer = require("puppeteer-core")
-const scrapeDataForTicker = require("../src/scrapeDataForTicker")
-const { yahoo } = require("../src/sources")
+const { runDebug } = require("../src/util/runDebug")
 
-const ticker = "CRM"
-
-puppeteer
-  .connect(CONNECTION)
-  .then(async browser => {
+runDebug(
+  async (ticker, browser) => {
+    const scrapeDataForTicker = require("../src/scrapeDataForTicker")
+    const { yahoo } = require("../src/sources")
     await yahoo.fetchVooIndexHistoricalPrices()
-    const res = await scrapeDataForTicker(ticker, browser)
-    console.log("success!!!")
-    console.log(res)
-  })
-  .catch(err => console.error(err))
+    return scrapeDataForTicker(ticker, browser)
+  },
+  { ticker: "CRM", login: ["Fidelity", "Merrill"] }
+)

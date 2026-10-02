@@ -1,14 +1,6 @@
-require("../globalEnv")
-const { wsj } = require("../src/sources")
-const puppeteer = require("puppeteer-core")
+const { runDebug } = require("../src/util/runDebug")
 
-const ticker = "BAC"
-
-puppeteer
-  .connect(CONNECTION)
-  .then(async browser => {
-    const res = await wsj.fetch(ticker, browser)
-    console.log("success!!!")
-    console.log(res)
-  })
-  .catch(err => console.error(err))
+runDebug((ticker, browser) => require("../src/sources").wsj.fetch(ticker, browser), {
+  ticker: "BAC",
+  browser: true,
+})
