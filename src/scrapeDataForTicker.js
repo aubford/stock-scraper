@@ -15,9 +15,10 @@ const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util"
 /**
  * @param {string} ticker
  * @param {Browser} browser
+ * @param {Object} [previousRecord] - last stored record, for previousDataromaRating
  * @returns {Promise<Object>}
  */
-module.exports = async (ticker, browser) => {
+module.exports = async (ticker, browser, previousRecord) => {
   // FIDELITY
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
@@ -46,7 +47,7 @@ module.exports = async (ticker, browser) => {
     yahoo.fetchHistoricalPrices(ticker),
     zacks.fetch(ticker, browser),
     argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-    dataroma.fetch(ticker),
+    dataroma.fetch(ticker, previousRecord),
     marketBeat.fetch(ticker),
   ])
 

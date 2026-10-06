@@ -1,7 +1,13 @@
 require("../globalEnv")
 const { promptUser } = require("./util")
+const { reportDataIntegrity } = require("../test/checkDataIntegrity")
 const fs = require("fs")
 const path = require("path")
+
+// Report-only: a non-zero exit would stop the `npm run app` chain (prettyStocks,
+// check-for-missing, killall caffeinate).
+process.once("exit", () => reportDataIntegrity(STOCK_DATA_STAGING))
+process.once("SIGINT", () => process.exit(130))
 
 function getAppFileNames() {
   const appsDir = path.join(__dirname, "apps")

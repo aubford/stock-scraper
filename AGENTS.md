@@ -21,6 +21,11 @@ enough to see whether a change worked.
  debug Chrome itself and only prompts for the brokerage logins it needs. `npm run browser` just
  starts it.
 
+## Never delete anything in the Google Sheet without explicit permission
+
+Do not delete or overwrite anything in the Google Sheet (rows, columns, cells, formulas, tabs)
+unless the user specifically says to. Add alongside what's there instead of replacing it.
+
 ## Environment facts
 
 - Runs only on the user's Mac: it needs Google Chrome, `STOCK_SCRAPBOOK_LOCATION` pointing at the

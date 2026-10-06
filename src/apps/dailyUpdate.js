@@ -8,6 +8,8 @@ const {
   promptForYes,
   scrapbookWriteOut,
   vooWriteOut,
+  getStockDataFile,
+  readJsonFile,
 } = require("../util")
 
 /**
@@ -32,6 +34,9 @@ const app = async () => {
   const stockTickers = getStockTickers()
   const vooTickers = getVooTickers()
   const tickers = union(vooTickers, stockTickers)
+  const previousData = INCLUDE_DATAROMA
+    ? [getStockDataFile(), readJsonFile(VOO_LOCATION)]
+    : []
 
   /**
    * @param {string} ticker
@@ -40,7 +45,9 @@ const app = async () => {
   const fetchStockData = async ticker => {
     const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeat.fetch(ticker)]
     if (INCLUDE_DATAROMA) {
-      fetchPromises.push(dataroma.fetch(ticker))
+      fetchPromises.push(
+        dataroma.fetch(ticker, dataroma.findPreviousRecord(ticker, previousData))
+      )
     }
     const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)
     const payload = {
