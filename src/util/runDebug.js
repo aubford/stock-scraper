@@ -18,25 +18,6 @@ const { ensureDebugBrowser } = require("./debugBrowser")
  */
 
 /**
- * @param {import('puppeteer-core').Browser} browser
- * @param {string[]} names
- * @returns {Promise<void>}
- */
-const ensureLoggedIn = async (browser, names) => {
-  const { promptLogin, promptUser } = require("./index")
-  const { goToNewBrowserPage } = require("./puppeteer-utils")
-
-  const { close, needsLogin } = await promptLogin(
-    (url, options) => goToNewBrowserPage(browser, url, options),
-    names
-  )
-  if (needsLogin) {
-    await promptUser(`Press Enter after logging into ${names.join(" and ")}: `)
-  }
-  await close()
-}
-
-/**
  * @param {(ticker: string, browser?: import('puppeteer-core').Browser) => Promise<*>} fetch
  * @param {DebugOptions} options
  * @returns {Promise<number>} exit code
@@ -60,7 +41,7 @@ const run = async (fetch, { ticker: defaultTicker, browser: needsBrowser, login 
   const browser = await puppeteer.connect(CONNECTION)
   try {
     if (login.length) {
-      await ensureLoggedIn(browser, login)
+      await require("./puppeteer-utils").ensureLoggedIn(browser, login)
     }
     const res = await fetch(ticker, browser)
     console.log("success!!!")

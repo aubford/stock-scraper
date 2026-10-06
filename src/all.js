@@ -15,7 +15,6 @@ const vooTickers = getVooTickers()
 
 const main = async () => {
   console.log("🚀 Starting all 🚀")
-  console.log("🚀 DONT FORGET TO LAUNCH BROWSER!!! 🚀")
   const skipVoo = await promptForYes("Skip fetching VOO?")
   await extra()
   await fetchSPWeights()

@@ -42,7 +42,7 @@ module.exports = () =>
       tickers = promptResponse.split(/[^A-Z]/).filter(Boolean)
     }
 
-    await beginAndLogin(browser, "Press Enter")
+    await beginAndLogin(browser, ["Merrill"])
 
     const writeOut = isVoo ? vooStagingWriteOut : stagingWriteOut
     console.log("Searching for tickers:", tickers)

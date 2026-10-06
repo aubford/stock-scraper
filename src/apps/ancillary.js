@@ -6,7 +6,6 @@ const fetchSPWeights = require("./apps/fetchSPWeights")
 
 const main = async () => {
   console.log("🚀 Starting all 🚀")
-  console.log("🚀 DONT FORGET TO LAUNCH BROWSER!!! 🚀")
   await extra()
   await fetchSPWeights()
   await csv()

@@ -17,8 +17,9 @@ enough to see whether a change worked.
   formats it).
 - A ticker-level `❌` means `scrapeDataForTicker` threw; a `✅` with `source errors` means one
   source failed but the rest were written. Both are printed in the summary.
-- Need just the browser (e.g. before `node debug/<source>.debug.js` or `npm run app`)? Run
-  `npm run browser`.
+- Every browser app (`npm run app`, `npm run all`, `debug/*.debug.js`) reuses or launches the
+ debug Chrome itself and only prompts for the brokerage logins it needs. `npm run browser` just
+ starts it.
 
 ## Environment facts
 

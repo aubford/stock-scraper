@@ -34,10 +34,12 @@ const fetchData = async (ticker, browser, logger) => {
     `//a[contains(@aria-label,"View latest Morningstar")]`
   )
   const cfraLink = await boaFetcher.fetchHref(`//a[contains(@aria-label,"View latest CFRA")]`)
-  const [morningstarRating, cfraRating] = await boaFetcher.fetchAttribute(
+  const [morningstarRating, rawCfraRating] = await boaFetcher.fetchAttribute(
     `//span[contains(@class,"morningStarRating")]`,
     "aria-label"
   )
+  // BofA reports "-32768 out of 5 stars" when CFRA only has a quantitative report (no STARS rating)
+  const cfraRating = /^-\d+ out of/.test(rawCfraRating ?? "") ? "" : rawCfraRating
 
   await boaFetcher.close()
   return {

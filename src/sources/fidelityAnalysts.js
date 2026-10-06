@@ -138,7 +138,7 @@ const fetchData = async (ticker, browser, logger) => {
   return {
     fidelityAnalystsUpdatedAt: makePrettyDate(),
     fidelityAnalystRatings,
-    fidelitySummaryScore: `${essScore} ${essCurrentRating}`,
+    fidelitySummaryScore: [essScore, essCurrentRating].filter(v => v != null).join(" "),
     fidelityMorganStanleyRecommendation: formatFidelityMorganStanley(morganStanleyOpinion),
     zacksRecommendation: formatFidelityStarmine(zacksOpinion, { includeDate: false }),
     fordRecommendation: formatFidelityStarmine(fordOpinion),

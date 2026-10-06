@@ -12,9 +12,7 @@ module.exports = async skipPrompt =>
 
     const tickers = fetchUnstagedOnly ? getUnstagedVooTickers() : getVooTickers()
 
-    if (!skipPrompt) {
-      await beginAndLogin(browser, "Press Enter")
-    }
+    await beginAndLogin(browser, ["Fidelity"])
     await scrapeDataForVoo(tickers, browser)
     await exit("fetchVoo")
   })

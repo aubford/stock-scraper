@@ -27,7 +27,7 @@ const fetchTickerData = async (ticker, browser) => {
 
 module.exports = () =>
   connectAndRunApp(async browser => {
-    await beginAndLogin(browser, "Press Enter")
+    await beginAndLogin(browser, ["Fidelity"])
 
     const newData = {}
     for (const ticker of tickers) {

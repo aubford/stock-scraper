@@ -4,7 +4,6 @@
 // login tabs (Press Enter when done; skipped if both are already logged in), scrapes the given tickers into the staging file,
 // prints a per-ticker summary, and exits non-zero on failure.
 const fs = require("fs")
-const { ensureDebugBrowser } = require("./util/debugBrowser")
 const { isValidTicker } = require("./sources/util/str")
 
 const USAGE = "Usage: npm run quick -- TICKER [TICKER ...]    e.g. npm run quick -- AAPL MSFT"
@@ -97,9 +96,6 @@ const main = async () => {
     return 2
   }
 
-  await ensureDebugBrowser()
-
-  // globalEnv reads ws.json when loaded, so it must come after the browser is ready
   require("../globalEnv")
   const start = require("./apps/start")
 

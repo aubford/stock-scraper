@@ -5,6 +5,8 @@ const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
 const TARGET_LABEL = "12-Month Target Price"
+// STARS reports start with "Stock Report | <date> |", quantitative ones with "Quantitative Stock Report | <date> |"
+const HEADER_XPATH = `//span[contains(text(),"Stock Report | ")]`
 
 /**
  * @param {MyPage} page
@@ -18,7 +20,7 @@ const extractReport = page =>
     const labelIdx = texts.indexOf(label)
     const cfraTargetStr =
       labelIdx === -1 ? "" : texts.slice(labelIdx + 1, labelIdx + 6).find(t => /^USD\s/.test(t)) || ""
-    const dateMatch = texts.map(t => t.match(/^Stock Report \| ([^|]+?) \|/)).find(Boolean)
+    const dateMatch = texts.map(t => t.match(/^(?:Quantitative )?Stock Report \| ([^|]+?) \|/)).find(Boolean)
     return { cfraTargetStr, cfraDate: dateMatch ? dateMatch[1] : "" }
   }, TARGET_LABEL)
 
@@ -47,7 +49,7 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
     browser,
     analystName: "CFRA",
     url: cfraLink,
-    xPathArr: [`//span[text()="${TARGET_LABEL}"]`],
+    xPathArr: [HEADER_XPATH],
     timeout: CFRA_TIMEOUT,
     extract: extractReport,
   })

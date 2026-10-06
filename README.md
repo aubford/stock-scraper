@@ -23,9 +23,10 @@ scraped record, and exits non-zero if a ticker fails. Results are written to
 
 # To Run App
 
-1. Make sure the debug browser is up: `npm run browser` (reuse or launch, refreshes `ws.json`)
-   or `npm run launch` (kills all Chrome windows and starts a fresh one; keep that terminal open).
-2. Run: npm run app
-3. Type the name of the app you want to run. Simply use the name of the file (minus extension) from the src/apps directory.
+1. Run: npm run app
+2. Type the name of the app you want to run. Simply use the name of the file (minus extension) from the src/apps directory.
    - For testing a single ticket, use the "start" app.
-4. Some apps will require manually logging in to the user's brokerage accounts.
+3. Apps that need the browser reuse the debug Chrome on port 9222, or launch one in the
+   background if none is running. `npm run launch` is the hard reset (kills all Chrome windows).
+4. Apps that scrape through Fidelity or Merrill open only those login tabs and wait for Enter
+   only if you are logged out.

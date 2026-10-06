@@ -1,14 +1,14 @@
+// connectAndRunApp overrides browserWSEndpoint with the live debug target
+global.CONNECTION = {
+  defaultViewport: {
+    width: 1400,
+    height: 1800,
+  },
+}
 try {
-  const { webSocketDebuggerUrl } = require(__dirname + "/ws.json")
-  global.CONNECTION = {
-    browserWSEndpoint: webSocketDebuggerUrl,
-    defaultViewport: {
-      width: 1400,
-      height: 1800,
-    },
-  }
+  CONNECTION.browserWSEndpoint = require(__dirname + "/ws.json").webSocketDebuggerUrl
 } catch (err) {
-  console.log("skipped ws connection", err)
+  // ws.json is written by ensureDebugBrowser
 }
 
 // puppeteer-core 18 auto-attaches shared workers without catching; a worker that closes first

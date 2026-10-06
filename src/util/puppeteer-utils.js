@@ -1,9 +1,18 @@
 const { pause, ReError, begin, promptLogin, promptUser } = require("./index")
+const { ensureDebugBrowser } = require("./debugBrowser")
 const puppeteer = require("puppeteer-core")
 
+/**
+ * Reuse (or launch) the debug Chrome, connect, and run the app.
+ * @template T
+ * @param {(browser: import('puppeteer-core').Browser) => Promise<T>} app
+ * @returns {Promise<T | void>}
+ */
 const connectAndRunApp = app =>
-  puppeteer
-    .connect(CONNECTION)
+  ensureDebugBrowser()
+    .then(({ version }) =>
+      puppeteer.connect({ ...CONNECTION, browserWSEndpoint: version.webSocketDebuggerUrl })
+    )
     .then(browser =>
       app(browser).then(result => {
         browser.disconnect()
@@ -136,24 +145,30 @@ const getPageCookies = async (browser, url) => {
 }
 
 /**
+ * Open login tabs for the given brokerages and wait for Enter only if one is logged out.
  * @param {Browser} browser
- * @param {string} prompt
- * @param {{ skipIfLoggedIn?: boolean }} [options] - skip the prompt (returning "") when every brokerage is already logged in
- * @returns {Promise<string>}
+ * @param {("Fidelity" | "Merrill")[]} names
+ * @returns {Promise<void>}
  */
-const beginAndLogin = async (browser, prompt, { skipIfLoggedIn = false } = {}) => {
-  begin()
-
-  const { close, needsLogin } = await promptLogin((url, options) =>
-    goToNewBrowserPage(browser, url, options)
+const ensureLoggedIn = async (browser, names) => {
+  const { close, needsLogin } = await promptLogin(
+    (url, options) => goToNewBrowserPage(browser, url, options),
+    names
   )
-
-  const promptResponse =
-    skipIfLoggedIn && !needsLogin ? "" : await promptUser(prompt)
-
+  if (needsLogin) {
+    await promptUser(`Press Enter after logging into ${names.join(" and ")}: `)
+  }
   await close()
+}
 
-  return promptResponse
+/**
+ * @param {Browser} browser
+ * @param {("Fidelity" | "Merrill")[]} names - brokerages the app scrapes through
+ * @returns {Promise<void>}
+ */
+const beginAndLogin = async (browser, names) => {
+  begin()
+  await ensureLoggedIn(browser, names)
 }
 
 module.exports = {
@@ -164,6 +179,7 @@ module.exports = {
   goToPage,
   evalX,
   getPageCookies,
+  ensureLoggedIn,
   beginAndLogin,
   connectAndRunApp,
 }
