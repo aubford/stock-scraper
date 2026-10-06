@@ -22,21 +22,13 @@ exec("killall Google\\ Chrome; ", (...args) => {
 
   let chrome
   try {
-    chrome = launchChrome()
+    // detached: Chrome must outlive this terminal (Ctrl-C / closing it would drop brokerage sessions)
+    chrome = launchChrome({ detached: true })
   } catch (err) {
     console.error(err.message)
     process.exitCode = 1
     return
   }
-  chrome.stdout.on("data", data => {
-    console.log(`chrome stdout: ${data}`)
-  })
-  chrome.stderr.on("data", err => {
-    console.log(`chrome stderr: ${err}`)
-  })
-  chrome.on("close", code => {
-    console.log(`chrome process exited with code ${code}`)
-  })
 
   waitForDebugTarget({ chrome })
     .then(version => {

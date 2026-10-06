@@ -4,7 +4,6 @@ const { get, merge } = require("lodash")
 const { makePrettyDate, pause, MessageError, ReError } = require("../util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
-const shortDateCalendar = require("../../shortDateCalendar.json")
 const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { handleFetch } = require("./util/www")
 
@@ -132,20 +131,6 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
   const wsjLowTarget = target("targetLowPrice")
   const wsjAverageTarget = target("targetMeanPrice")
 
-  const shortInterest = get(marketData, "pricingStatistics.endOfDayStatistics.shortInterest")
-  const shortVolume = get(shortInterest, "volume.value")
-  const floatMillions = get(marketData, "fundamentals.floatSharesInMillions.value")
-  // WSJ reports percentOfFloat as "N/A" for some tickers (e.g. BAC), so derive it like they do
-  const shortPct =
-    shortVolume && floatMillions
-      ? ((shortVolume / (floatMillions * 1e6)) * 100).toFixed(2)
-      : get(shortInterest, "percentOfFloat.value") || undefined
-  const wsjShortDate = reformatDate(
-    get(shortInterest, "shortInterestDate.formattedValue"),
-    "MMM D, YYYY",
-    "MM/DD/YY"
-  )
-
   const retVal = {
     wsjPriceTargets: currentRatings
       ? `$${wsjLowTarget} - $${wsjAverageTarget} ($${wsjMedianTarget}) - $${wsjHighTarget}`
@@ -156,11 +141,6 @@ const fetchData = async (ticker, browser, logger, tries = 1) => {
     wsjAverageTarget,
     wsjUpdatedAt: makePrettyDate(),
     wsjChart: buildWsjChart(ratings),
-    wsjShortPct: shortPct ? `${shortPct}%` : undefined,
-    wsjShortDate,
-    wsjShortDatePrev: wsjShortDate
-      ? shortDateCalendar[shortDateCalendar.indexOf(wsjShortDate) - 1]
-      : undefined,
     wsjNextEarningsDate: reformatDate(
       get(marketData, "financials.epsDueDate.value"),
       "YYYY-MM-DD",

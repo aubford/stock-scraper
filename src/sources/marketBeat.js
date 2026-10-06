@@ -44,8 +44,54 @@ const formatShortDate = raw =>
   raw && raw.length >= 8 ? `${raw.slice(4, 6)}/${raw.slice(6, 8)}/${raw.slice(2, 4)}` : ""
 
 /**
+ * @param {number} fraction e.g. 0.1232
+ * @returns {string} e.g. "12.32%", or "" when not finite
+ */
+const formatPct = fraction => (Number.isFinite(fraction) ? `${(fraction * 100).toFixed(2)}%` : "")
+
+/**
+ * Up to 5 years of the page's "Short Percent of Float" chart data, oldest first. The chart data is
+ * embedded as a CSV string ("ActualDate,Date,Period,Percent") with exact fractions; reports
+ * MarketBeat has no float figure for are 0 and are dropped. Prices come from the history table.
  * @param {string} html
- * @returns {{marketBeatShortPct:string, marketBeatShortChange:string, marketBeatShortDate:string, marketBeatShortDatePrev:string}}
+ * @param {Map<number, number>} priceByDate "Price on Report Date" keyed by YYYYMMDD
+ * @returns {{marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[]}}
+ */
+const parseShortFloatSeries = (html, priceByDate) => {
+  const match = html.match(/shortInterestFloatSeries\s*=\s*"((?:[^"\\]|\\.)*)"/)
+  const points = match
+    ? JSON.parse(`"${match[1]}"`)
+        .trim()
+        .split("\n")
+        .slice(1)
+        .map(line => {
+          const [date, , , pct] = line.split(",")
+          const [mm, dd, yyyy] = (date || "").split("/")
+          return {
+            date: `${mm}/${dd}/${(yyyy || "").slice(2)}`,
+            yyyymmdd: Number(`${yyyy}${mm}${dd}`),
+            pct: parseFloat(pct),
+          }
+        })
+        .filter(({ yyyymmdd }) => Number.isFinite(yyyymmdd))
+    : []
+
+  const fiveYearsBeforeLatest = points.length ? points[points.length - 1].yyyymmdd - 50000 : 0
+  const recent = points.filter(({ pct, yyyymmdd }) => pct > 0 && yyyymmdd > fiveYearsBeforeLatest)
+
+  return {
+    marketBeatShortFloatHistoryDates: recent.map(({ date }) => date),
+    marketBeatShortFloatHistoryPct: recent.map(({ pct }) => Number(pct.toFixed(6))),
+    marketBeatShortFloatHistoryPrice: recent.map(({ yyyymmdd }) => {
+      const price = priceByDate.get(yyyymmdd)
+      return Number.isFinite(price) ? price : null
+    }),
+  }
+}
+
+/**
+ * @param {string} html
+ * @returns {{marketBeatShortPct:string, marketBeatShortChange:string, marketBeatShortDate:string, marketBeatShortDatePrev:string, marketBeatShortPriceChange:string, marketBeatShortSentiment:string, marketBeatShortHistoryDates:string[], marketBeatShortHistoryShares:number[], marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[]}}
  */
 const parseShortInterest = html => {
   const $ = cheerio.load(html)
@@ -60,20 +106,65 @@ const parseShortInterest = html => {
   const historyTable = $("table")
     .toArray()
     .find(table => $(table).find("thead th").first().text().trim() === "Report Date")
-  const rows = historyTable ? $(historyTable).find("tbody tr").toArray() : []
+  if (!historyTable) {
+    return { marketBeatShortPct, ...parseShortFloatSeries(html, new Map()) }
+  }
 
-  const rowDate = row => formatShortDate($(row).find("td").first().attr("data-sort-value"))
+  const headers = $(historyTable)
+    .find("thead th")
+    .map((i, th) => $(th).text().trim())
+    .get()
+  const col = {
+    date: headers.indexOf("Report Date"),
+    shares: headers.indexOf("Total Shares Sold Short"),
+    change: headers.indexOf("Change from Previous Report"),
+    price: headers.indexOf("Price on Report Date"),
+  }
 
-  // "Change from Previous Report" cell carries the exact fraction (e.g. "0.1232")
-  // in data-sort-value; the visible text is rounded to one decimal.
-  const changeRaw = rows[0] && $(rows[0]).find("td").eq(3).attr("data-sort-value")
-  const change = parseFloat(changeRaw)
+  // data-sort-value carries exact values (e.g. change "0.1232"); visible text is rounded.
+  // Cells without it fall back to their text with "$", "," and "%" stripped.
+  const cellNum = (tds, idx) => {
+    if (idx < 0) return NaN
+    const td = tds.eq(idx)
+    const sortValue = td.attr("data-sort-value")
+    return parseFloat(sortValue ?? td.text().replace(/[$,%]/g, ""))
+  }
+
+  // Ad/newsletter rows are injected into the table body; real rows have a
+  // "YYYYMMDDhhmmss" sort value on the date cell.
+  const rows = $(historyTable)
+    .find("tbody tr")
+    .toArray()
+    .map(row => $(row).find("td"))
+    .filter(tds => /^\d{8,}$/.test(tds.eq(col.date).attr("data-sort-value") || ""))
+    .map(tds => {
+      const sortValue = tds.eq(col.date).attr("data-sort-value")
+      return {
+        date: formatShortDate(sortValue),
+        yyyymmdd: Number(sortValue.slice(0, 8)),
+        shares: cellNum(tds, col.shares),
+        change: cellNum(tds, col.change),
+        price: cellNum(tds, col.price),
+      }
+    })
+
+  const [latest, prev] = rows
+  const priceChange = latest && prev ? latest.price / prev.price - 1 : NaN
+  const fiveYearsBeforeLatest = latest ? latest.yyyymmdd - 50000 : 0
+  const historyRows = rows
+    .filter(({ shares, yyyymmdd }) => Number.isFinite(shares) && yyyymmdd > fiveYearsBeforeLatest)
+    .reverse()
 
   return {
     marketBeatShortPct,
-    marketBeatShortChange: Number.isFinite(change) ? `${(change * 100).toFixed(2)}%` : "",
-    marketBeatShortDate: rows[0] ? rowDate(rows[0]) : "",
-    marketBeatShortDatePrev: rows[1] ? rowDate(rows[1]) : "",
+    marketBeatShortChange: formatPct(latest?.change),
+    marketBeatShortDate: latest?.date || "",
+    marketBeatShortDatePrev: prev?.date || "",
+    marketBeatShortPriceChange: formatPct(priceChange),
+    marketBeatShortSentiment: formatPct(latest?.change - priceChange),
+    marketBeatShortHistoryDates: historyRows.map(({ date }) => date),
+    marketBeatShortHistoryShares: historyRows.map(({ shares }) => shares),
+    ...parseShortFloatSeries(html, new Map(rows.map(({ yyyymmdd, price }) => [yyyymmdd, price]))),
   }
 }
 
@@ -341,7 +432,7 @@ const fetchMarketBeatPage = url =>
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string}>}
+ * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string, marketBeatShortPriceChange?:string, marketBeatShortSentiment?:string, marketBeatShortHistoryDates?:string[], marketBeatShortHistoryShares?:number[], marketBeatShortFloatHistoryDates?:string[], marketBeatShortFloatHistoryPct?:number[], marketBeatShortFloatHistoryPrice?:(number|null)[]}>}
  */
 const fetchData = async (logger, ticker) => {
   const [forecastResponse, profileResponse, shortInterestResponse] = await Promise.all([
@@ -434,3 +525,51 @@ const fetchData = async (logger, ticker) => {
 }
 
 exports.fetch = ticker => handleFetch(fetchData, ticker, "MARKETBEAT")
+
+/**
+ * MarketBeat's "Price on Report Date" is not split-adjusted, so swap in Yahoo's split-adjusted
+ * daily closes (same day, or the closest prior trading day for weekends/holidays). The price
+ * change only falls back to MarketBeat's when Yahoo lacks a date; history points without a
+ * Yahoo close become null.
+ * @param {Object} marketBeatData result of `fetch`
+ * @param {{yahooDailyPricesDates?:string[], yahooDailyPrices?:string[]}} yahooPrices "M/D/YYYY" dates
+ * @returns {Object} marketBeatData with adjusted short-interest price fields
+ */
+exports.applySplitAdjustedPrices = (marketBeatData, yahooPrices) => {
+  const { yahooDailyPricesDates = [], yahooDailyPrices = [] } = yahooPrices || {}
+  const closeByDate = new Map(
+    yahooDailyPricesDates.map((date, i) => [date, parseFloat(yahooDailyPrices[i])])
+  )
+  /** @param {string} mmddyy e.g. "09/15/26" */
+  const closeOnOrBefore = mmddyy => {
+    if (!mmddyy) return null
+    const [mm, dd, yy] = mmddyy.split("/").map(Number)
+    const date = new Date(2000 + yy, mm - 1, dd)
+    for (let i = 0; i < 5; i++) {
+      const close = closeByDate.get(
+        `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+      )
+      if (Number.isFinite(close)) return close
+      date.setDate(date.getDate() - 1)
+    }
+    return null
+  }
+
+  const adjusted = { ...marketBeatData }
+  if (Array.isArray(marketBeatData.marketBeatShortFloatHistoryDates)) {
+    adjusted.marketBeatShortFloatHistoryPrice =
+      marketBeatData.marketBeatShortFloatHistoryDates.map(closeOnOrBefore)
+  }
+
+  const latest = closeOnOrBefore(marketBeatData.marketBeatShortDate)
+  const prev = closeOnOrBefore(marketBeatData.marketBeatShortDatePrev)
+  const shortChange = parseFloat(marketBeatData.marketBeatShortChange) / 100
+  if (latest && prev) {
+    const priceChange = latest / prev - 1
+    adjusted.marketBeatShortPriceChange = formatPct(priceChange)
+    if (Number.isFinite(shortChange)) {
+      adjusted.marketBeatShortSentiment = formatPct(shortChange - priceChange)
+    }
+  }
+  return adjusted
+}

@@ -9,7 +9,6 @@
     "**stockData.json": false,
     "**stockDataMeta.json": false,
     "**vooData.json": false,
-    "**shortDateCalendar.json": false,
     "**ws.json": false,
     "**playground.js": false,
     "**package-lock.json": false,

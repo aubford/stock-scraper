@@ -11,6 +11,16 @@ try {
   console.log("skipped ws connection", err)
 }
 
+// puppeteer-core 18 auto-attaches shared workers without catching; a worker that closes first
+// rejects with this and would otherwise crash the process mid-scrape.
+process.on("unhandledRejection", err => {
+  if (err && err.name === "ProtocolError" && /No target with given id found/.test(err.message)) {
+    console.warn(`Ignored puppeteer target race: ${err.message}`)
+    return
+  }
+  throw err
+})
+
 // Error.stackTraceLimit = 1
 
 const timeoutCoeff = 2
@@ -33,7 +43,21 @@ global.STOCK_DATA_STAGING = `${__dirname}/stockDataStaging.json`
 global.VOO_DATA_STAGING = `${__dirname}/vooDataStaging.json`
 global.VOO_LOCATION = `${SCRAPBOOK_LOCATION}/vooData.json`
 global.META_LOCATION = `${SCRAPBOOK_LOCATION}/stockDataMeta.json`
-global.NO_FETCH_STOCKS = ["GOOG", "BRKB", "BRK.B", "CSCCF", "RSP", "VOO", "VTI", "PWCDF", "LLYVA", "LLYVK", "HEIA"]
+global.NO_FETCH_STOCKS = [
+  "GOOG",
+  "BRKB",
+  "BRK.B",
+  "CSCCF",
+  "RSP",
+  "VOO",
+  "VTI",
+  "PWCDF",
+  "LLYVA",
+  "LLYVK",
+  "HEIA",
+  "IWR",
+  "VO",
+]
 
 Promise.stagger = async (asyncFunc, paramArr, ms) => {
   const staggered = paramArr.map(async (params, idx) => {

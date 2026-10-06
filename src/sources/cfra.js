@@ -1,11 +1,26 @@
 const Logger = require("../util/Logger")
-const { prevSiblingTextContains, extractNumbers } = require("./util")
+const { extractNumbers } = require("./util")
 const { makePrettyDate } = require("../util")
 const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
-const prevSiblingTextContainsForCfra = text =>
-  `//span[contains(text(),"${text}")]/../following-sibling::span[1]/span`
+const TARGET_LABEL = "12-Month Target Price"
+
+/**
+ * @param {MyPage} page
+ * @returns {Promise<{cfraTargetStr: string, cfraDate: string}>}
+ */
+const extractReport = page =>
+  page.evaluate(label => {
+    const texts = [...document.querySelectorAll(".textLayer span[role=presentation]")].map(s =>
+      s.textContent.trim()
+    )
+    const labelIdx = texts.indexOf(label)
+    const cfraTargetStr =
+      labelIdx === -1 ? "" : texts.slice(labelIdx + 1, labelIdx + 6).find(t => /^USD\s/.test(t)) || ""
+    const dateMatch = texts.map(t => t.match(/^Stock Report \| ([^|]+?) \|/)).find(Boolean)
+    return { cfraTargetStr, cfraDate: dateMatch ? dateMatch[1] : "" }
+  }, TARGET_LABEL)
 
 /**
  * @param {string} ticker
@@ -27,24 +42,20 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
     }
   }
 
-  const [cfraTargetStr, [, cfraFairValue] = [], cfraDate] = await fetchPdfData({
+  const { cfraTargetStr, cfraDate } = await fetchPdfData({
     ticker,
     browser,
     analystName: "CFRA",
     url: cfraLink,
-    xPathArr: [
-      prevSiblingTextContainsForCfra("12-Mo. Target Price"),
-      prevSiblingTextContainsForCfra("Calculation", 2),
-      prevSiblingTextContains("Stock Report Front|", 2),
-    ],
-    waitForPostScroll: prevSiblingTextContainsForCfra("Calculation", 2),
+    xPathArr: [`//span[text()="${TARGET_LABEL}"]`],
     timeout: CFRA_TIMEOUT,
+    extract: extractReport,
   })
 
   return {
     cfraTarget: extractNumbers(cfraTargetStr),
-    cfraFairValue,
-    cfraDate: cfraDate ? cfraDate.split(" ").slice(1, 4).join(" ") : "",
+    cfraFairValue: "",
+    cfraDate,
     cfraUpdatedAt: makePrettyDate(),
   }
 }

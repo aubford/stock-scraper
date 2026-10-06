@@ -43,7 +43,11 @@ const app = async () => {
       fetchPromises.push(dataroma.fetch(ticker))
     }
     const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)
-    const payload = { ...prices, ...marketBeatData, ...dataromaData }
+    const payload = {
+      ...prices,
+      ...marketBeat.applySplitAdjustedPrices(marketBeatData, prices),
+      ...dataromaData,
+    }
 
     if (hasSourceError(payload)) {
       return null
