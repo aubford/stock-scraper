@@ -378,6 +378,66 @@ const formatPriceTargetRows = rows =>
     )
     .join("\n")
 
+/**
+ * @param {string} raw
+ * @returns {string} e.g. "340.12", or "" when not finite
+ */
+const formatTargetNumber = raw => {
+  const num = parseFloat(String(raw).replace(/[^0-9.]/g, ""))
+  return Number.isFinite(num) ? num.toFixed(2) : ""
+}
+
+/**
+ * Published count of analysts in the consensus price-target set (last 12 months).
+ * This is not `marketBeatChartCurrentNum`, which counts current ratings.
+ * @param {string} text
+ * @returns {number|""}
+ */
+const parseConsensusCount = text => {
+  const faq = text.match(/research reports of (\d+) Wall Street/i)
+  const body = text.match(
+    /According to the (\d+) analysts['’] twelve-month price targets/i,
+  )
+  const n = Number((faq || body)?.[1])
+  return Number.isInteger(n) && n > 0 ? n : ""
+}
+
+/**
+ * Consensus low / average / high from the forecast page FAQ or body copy.
+ * MarketBeat does not publish a median.
+ * @param {string} html
+ * @returns {{marketBeatLowTarget:string, marketBeatAverageTarget:string, marketBeatHighTarget:string, marketBeatPriceTargets:string, marketBeatPriceTargetNum:number|""}}
+ */
+const parseConsensusTargets = html => {
+  const empty = {
+    marketBeatLowTarget: "",
+    marketBeatAverageTarget: "",
+    marketBeatHighTarget: "",
+    marketBeatPriceTargets: "",
+    marketBeatPriceTargetNum: "",
+  }
+  const text = html.replace(/<[^>]+>/g, " ")
+  const faq = text.match(
+    /average twelve-month stock price forecast for .+? is \$([0-9,.]+), with a high forecast of \$([0-9,.]+) and a low forecast of \$([0-9,.]+)/i,
+  )
+  const body = text.match(
+    /the average price target is \$([0-9,.]+)[\s\S]{0,160}?highest price target for \S+ is \$([0-9,.]+)[\s\S]{0,120}?lowest price target for \S+ is \$([0-9,.]+)/i,
+  )
+  const match = faq || body
+  if (!match) return empty
+  const average = formatTargetNumber(match[1])
+  const high = formatTargetNumber(match[2])
+  const low = formatTargetNumber(match[3])
+  if (!average || !high || !low) return empty
+  return {
+    marketBeatLowTarget: low,
+    marketBeatAverageTarget: average,
+    marketBeatHighTarget: high,
+    marketBeatPriceTargets: `$${low} - $${average} - $${high}`,
+    marketBeatPriceTargetNum: parseConsensusCount(text),
+  }
+}
+
 const formatPriceTargets = rows => {
   const priceTargets = rows.filter(hasPriceTarget)
   const changedTargets = priceTargets.filter(hasPriceTargetChange)
@@ -420,6 +480,128 @@ const formatAnalystRatings = rows => {
   ]
     .filter(Boolean)
     .join("\n\n")
+}
+
+/** Sheet order matches WSJ: Sell → Underweight → Hold → Overweight → Buy. */
+const RATING_BUCKETS = {
+  sell: 0,
+  "strong sell": 0,
+  underweight: 1,
+  underperform: 1,
+  "moderate sell": 1,
+  reduce: 1,
+  negative: 1,
+  hold: 2,
+  neutral: 2,
+  "market perform": 2,
+  "equal weight": 2,
+  "sector perform": 2,
+  "peer perform": 2,
+  "sector weight": 2,
+  "in-line": 2,
+  inline: 2,
+  mixed: 2,
+  cautious: 2,
+  "market weight": 2,
+  overweight: 3,
+  outperform: 3,
+  "sector outperform": 3,
+  "market outperform": 3,
+  positive: 3,
+  accumulate: 3,
+  "moderate buy": 3,
+  buy: 4,
+  "strong-buy": 4,
+  "strong buy": 4,
+}
+
+/**
+ * @param {string} rating
+ * @returns {number} 0–4, or -1 when unmapped
+ */
+const ratingBucket = rating => {
+  const raw = (rating || "").trim().toLowerCase()
+  const normalized = raw.replace(/\s*\([^)]*\)\s*$/, "").trim()
+  if (normalized in RATING_BUCKETS) return RATING_BUCKETS[normalized]
+  if (raw in RATING_BUCKETS) return RATING_BUCKETS[raw]
+  return -1
+}
+
+/**
+ * @param {{ratingTo?:string,rating?:string}} row
+ * @returns {string}
+ */
+const currentRating = row => {
+  const to = row.ratingTo && row.ratingTo !== "N/A" ? row.ratingTo : ""
+  const fallback = (row.rating || "").split("➝").pop().trim()
+  const rating = to || fallback
+  return rating === "N/A" ? "" : rating
+}
+
+/**
+ * Latest rating per firm as of `asOf` (inclusive). History is newest-first but
+ * we still compare dates so a shuffled table can't pick a stale row.
+ * @param {Array<{date:string,firm:string,ratingTo?:string,rating?:string}>} rows
+ * @param {Date|null} asOf
+ * @returns {Map<string, string>}
+ */
+const latestRatingPerFirm = (rows, asOf) => {
+  const latest = new Map()
+  for (const row of rows) {
+    const firm = row.firm
+    const rating = currentRating(row)
+    if (!firm || !rating) continue
+    const date = parseMbFormattedDate(row.date)
+    if (asOf && date && date > asOf) continue
+    const prev = latest.get(firm)
+    if (!prev || (date && (!prev.date || date > prev.date))) {
+      latest.set(firm, { date, rating })
+    }
+  }
+  return new Map([...latest].map(([firm, { rating }]) => [firm, rating]))
+}
+
+/**
+ * @param {Iterable<string>} ratings
+ * @returns {number[]}
+ */
+const countRatingBuckets = ratings => {
+  const counts = [0, 0, 0, 0, 0]
+  for (const rating of ratings) {
+    const bucket = ratingBucket(rating)
+    if (bucket >= 0) counts[bucket] += 1
+  }
+  return counts
+}
+
+/**
+ * @param {Date} now
+ * @param {number} months
+ * @returns {Date}
+ */
+const asOfMonthsAgo = (now, months) =>
+  new Date(now.getFullYear(), now.getMonth() - months, now.getDate())
+
+/**
+ * 5-bucket charts from MarketBeat's per-firm history, same shape as `wsjChart*`.
+ * @param {Array<{date:string,firm:string,ratingTo?:string,rating?:string}>} rows
+ * @param {Date} [now]
+ * @returns {{marketBeatChartCurrent:number[], marketBeatChartCurrentNum:number, marketBeatChartMonthAgo:number[], marketBeatChartThreeMonthAgo:number[]}|{}}
+ */
+const buildAnalystCharts = (rows, now = new Date()) => {
+  const current = countRatingBuckets(latestRatingPerFirm(rows, null).values())
+  const total = current.reduce((sum, n) => sum + n, 0)
+  if (!total) return {}
+  return {
+    marketBeatChartCurrent: current,
+    marketBeatChartCurrentNum: total,
+    marketBeatChartMonthAgo: countRatingBuckets(
+      latestRatingPerFirm(rows, asOfMonthsAgo(now, 1)).values(),
+    ),
+    marketBeatChartThreeMonthAgo: countRatingBuckets(
+      latestRatingPerFirm(rows, asOfMonthsAgo(now, 3)).values(),
+    ),
+  }
 }
 
 /**
@@ -483,6 +665,10 @@ const fetchData = async (logger, ticker) => {
   }
 
   const marketBeatTargets = parseHistoryRows(forecastHtml)
+  const consensusTargets = parseConsensusTargets(forecastHtml)
+  if (!consensusTargets.marketBeatPriceTargets) {
+    logger.warn(`No MarketBeat consensus targets found for ${ticker}`)
+  }
 
   if (!marketBeatTargets.length) {
     logger.warn(`No MarketBeat target history found for ${ticker}`)
@@ -495,6 +681,7 @@ const fetchData = async (logger, ticker) => {
       marketBeatAnalystRatingsFormatted: "",
       morganStanleyPriceTarget: "",
       morganStanleyCurrentPriceTargetNum: "",
+      ...consensusTargets,
       ...shortInterest,
     }
   }
@@ -507,6 +694,7 @@ const fetchData = async (logger, ticker) => {
     getMorganStanleyCurrentPriceTargetNum(marketBeatTargets)
 
   const marketBeatTargetsFormatted = formatPriceTargets(marketBeatTargets)
+  const analystCharts = buildAnalystCharts(marketBeatAnalystRatings)
 
   return {
     sector,
@@ -515,16 +703,21 @@ const fetchData = async (logger, ticker) => {
     marketBeatTargetsFormatted,
     marketBeatAnalystRatings,
     marketBeatAnalystRatingsFormatted,
+    ...analystCharts,
     // Omit when empty: dailyUpdate/updateMarketBeat spread this raw into the
     // merge write-out, and "" would clobber a Fidelity-sourced rating.
     ...(morganStanleyRating ? { morganStanleyRating } : {}),
     morganStanleyPriceTarget,
     morganStanleyCurrentPriceTargetNum,
+    ...consensusTargets,
     ...shortInterest,
   }
 }
 
 exports.fetch = ticker => handleFetch(fetchData, ticker, "MARKETBEAT")
+exports.buildAnalystCharts = buildAnalystCharts
+exports.ratingBucket = ratingBucket
+exports.parseConsensusTargets = parseConsensusTargets
 
 /**
  * MarketBeat's "Price on Report Date" is not split-adjusted, so swap in Yahoo's split-adjusted

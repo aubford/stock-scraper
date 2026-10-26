@@ -198,10 +198,45 @@ const CHECKS = [
     },
   },
   {
+    name: "marketbeat-targets-ordered",
+    test: record => {
+      const [low, average, high] = [
+        record.marketBeatLowTarget,
+        record.marketBeatAverageTarget,
+        record.marketBeatHighTarget,
+      ].map(toNumber)
+      if ([low, average, high].some(Number.isNaN)) {
+        return undefined
+      }
+      return (
+        (low > 0 && low <= average && average <= high) ||
+        `low=${low} avg=${average} high=${high}`
+      )
+    },
+  },
+  {
+    name: "marketbeat-target-count",
+    test: record => {
+      if (isBlank(record.marketBeatPriceTargets)) {
+        return undefined
+      }
+      const n = toNumber(record.marketBeatPriceTargetNum)
+      return (
+        (Number.isInteger(n) && n > 0) ||
+        `marketBeatPriceTargetNum=${record.marketBeatPriceTargetNum}`
+      )
+    },
+  },
+  {
     name: "targets-near-price",
     test: record => {
       const price = getLastPrice(record)
-      const targets = ["wsjAverageTarget", "morningstarFairValue", "cfraTarget"].filter(
+      const targets = [
+        "wsjAverageTarget",
+        "marketBeatAverageTarget",
+        "morningstarFairValue",
+        "cfraTarget",
+      ].filter(
         key => toNumber(record[key]) > 0
       )
       if (!price || !targets.length) {
@@ -237,6 +272,34 @@ const CHECKS = [
         isBlank(record.wsjChartCurrentNum) ||
         total === toNumber(record.wsjChartCurrentNum) ||
         `sum=${total} wsjChartCurrentNum=${record.wsjChartCurrentNum}`
+      )
+    },
+  },
+  {
+    name: "marketbeat-chart-matches-total",
+    test: record => {
+      const charts = [
+        "marketBeatChartCurrent",
+        "marketBeatChartMonthAgo",
+        "marketBeatChartThreeMonthAgo",
+      ]
+      if (!charts.some(key => Array.isArray(record[key]))) {
+        return undefined
+      }
+      const badShape = charts.filter(
+        key =>
+          !Array.isArray(record[key]) ||
+          record[key].length !== 5 ||
+          !record[key].every(n => Number.isInteger(n) && n >= 0)
+      )
+      if (badShape.length) {
+        return `bad shape: ${badShape.join(",")}`
+      }
+      const total = sum(record.marketBeatChartCurrent)
+      return (
+        isBlank(record.marketBeatChartCurrentNum) ||
+        total === toNumber(record.marketBeatChartCurrentNum) ||
+        `sum=${total} marketBeatChartCurrentNum=${record.marketBeatChartCurrentNum}`
       )
     },
   },
