@@ -2,10 +2,13 @@ const moment = require("moment")
 const JsDomFetcher = require("../fetchers/JsDomFetcher")
 const { handleFetch } = require("./util/www")
 const { extractNumbers } = require("./util/str")
-const { tail, range, sum } = require("lodash")
+const { range, sum } = require("lodash")
 const { orderBy } = require("lodash/collection")
 
 const MAX_CHART_QUARTERS = 20
+// 13Fs are due 45 days after quarter end; holders with no filing by this point are dead.
+const QUARTER_COMPLETE_DAYS = 60
+const MAX_CONCURRENT_REQUESTS = 3
 
 const getMovementNumber = activity => {
   const movementNum = Number(extractNumbers(activity))
@@ -51,26 +54,93 @@ const getMovementValue = movement => {
 }
 
 /**
- * The activity page lists exits as "Sell 100%", which scores like "Reduce 100%".
+ * Exits are listed as "Sell 100%", which scores like "Reduce 100%".
  * @param {string} activity
  * @returns {number}
  */
-const getActivityValue = activity =>
-  getMovementValue(getMovementNumber(activity.replace("Sell", "Reduce")))
+const getActivityMovement = activity => getMovementNumber(activity.replace("Sell", "Reduce"))
+
+/**
+ * @param {string} activity
+ * @returns {number}
+ */
+const getActivityValue = activity => getMovementValue(getActivityMovement(activity))
+
+let activeRequests = 0
+const waitingRequests = []
+
+/**
+ * Every Dataroma page load shares one cap, including across tickers fetched in parallel.
+ * @param {string} url
+ * @returns {Promise<JsDomFetcher>}
+ */
+const loadPage = async url => {
+  if (activeRequests < MAX_CONCURRENT_REQUESTS) {
+    activeRequests++
+  } else {
+    await new Promise(resolve => waitingRequests.push(resolve))
+  }
+  try {
+    const fetcher = new JsDomFetcher()
+    await fetcher.setPage(url)
+    return fetcher
+  } finally {
+    const next = waitingRequests.shift()
+    next ? next() : activeRequests--
+  }
+}
+
+/**
+ * @param {Object} row - grid row with a link to the manager's holding/activity history
+ * @param {string} firm
+ * @returns {string} e.g. "pcm" from hist.php?f=pcm&s=LLY, or the firm name if unlinked
+ */
+const getManagerCode = (row, firm) => {
+  const href = row.element.querySelector("a[href*='hist.php']")?.getAttribute("href") || ""
+  return href.match(/[?&]f=([^&]+)/)?.[1] || firm
+}
+
+/**
+ * @param {string} label - "Q2 2026" on activity pages, "2026 Q2" on history pages
+ * @returns {number} quarters since year 0, so consecutive quarters differ by 1
+ */
+const getQuarterIndex = label => {
+  const [, quarter, year] = label.match(/Q(\d)\s+(\d{4})/) || []
+  const [, histYear, histQuarter] = label.match(/(\d{4})\s+Q(\d)/) || []
+  return Number(year || histYear) * 4 + Number(quarter || histQuarter) - 1
+}
+
+/**
+ * @param {number} quarter - see getQuarterIndex
+ * @returns {string} e.g. "Q3 2026"
+ */
+const formatQuarterLabel = quarter =>
+  `Q${(quarter % 4) + 1} ${Math.floor(quarter / 4)}`
+
+/**
+ * @param {number} quarter - see getQuarterIndex
+ * @returns {boolean}
+ */
+const isQuarterComplete = quarter => {
+  const quarterEnd = moment
+    .utc([Math.floor(quarter / 4), (quarter % 4) * 3 + 2])
+    .endOf("month")
+  return moment.utc().isSameOrAfter(quarterEnd.add(QUARTER_COMPLETE_DAYS, "days"))
+}
 
 /**
  * @param ticker
- * @param fetcher
- * @returns {Promise<{firm: *, activity, pctOfPortfolio: *, value: string}[]>}
+ * @returns {Promise<{firm: string, code: string, activity: string, pctOfPortfolio: string, value: string}[]>}
  */
-const getOwnership = async (ticker, fetcher) => {
-  await fetcher.setPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
-  const ownershipRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
+const getOwnership = async ticker => {
+  const fetcher = await loadPage(`https://dataroma.com/m/stock.php?sym=${ticker}`)
+  const ownershipRows = fetcher.$$x(`//table[@id='grid']/tbody/tr`)
   return ownershipRows.map(row => {
     const [, firm, pctOfPortfolio, activity, , valueString] = row.getTextArrByX(`td`)
     const value = valueString.replaceAll(",", "")
     return {
-      firm,
+      firm: firm.trim(),
+      code: getManagerCode(row, firm.trim()),
       pctOfPortfolio,
       activity: activity?.trim() || "0",
       value: (value / 1000000).toFixed(2) + "M",
@@ -79,56 +149,20 @@ const getOwnership = async (ticker, fetcher) => {
 }
 
 /**
- * @param ticker
- * @param fetcher
- * @returns {Promise<{firm: *, activity: string, pctOfPortfolio: string, value: string}[]>}
- */
-const getSells = async (ticker, fetcher) => {
-  await fetcher.setPage(`https://dataroma.com/m/activity.php?sym=${ticker}&typ=a`)
-  const activityRows = await fetcher.$$x(`//table[@id='grid']/tbody/tr`)
-  const nextQuarterIndex = tail(activityRows).findIndex(({ textContent }) => {
-    return textContent.includes("Q") && textContent.replace(" ", "").length === 7
-  })
-  const thisQuarterActivity = activityRows.slice(1, nextQuarterIndex + 1)
-  const sellRows = thisQuarterActivity.filter(row => row.textContent.includes("Sell"))
-  const sellFirmNames = sellRows.map(sell => sell.textContent.split("\n")[2])
-  return sellFirmNames.map(firm => ({
-    firm,
-    activity: "Reduce 100%",
-    value: "0",
-    pctOfPortfolio: "0",
-  }))
-}
-
-/**
- * @param {string} label - e.g. "Q2 2026"
- * @returns {number} quarters since year 0, so consecutive quarters differ by 1
- */
-const getQuarterIndex = label => {
-  const [, quarter, year] = label.match(/Q(\d)\s+(\d{4})/)
-  return Number(year) * 4 + Number(quarter) - 1
-}
-
-/**
  * @param {string} ticker
  * @param {number} page
  * @returns {Promise<JsDomFetcher>}
  */
-const getActivityPage = async (ticker, page) => {
-  const fetcher = new JsDomFetcher()
-  await fetcher.setPage(
-    `https://dataroma.com/m/activity.php?sym=${ticker}&typ=a&L=${page}&o=a`
-  )
-  return fetcher
-}
+const getActivityPage = (ticker, page) =>
+  loadPage(`https://dataroma.com/m/activity.php?sym=${ticker}&typ=a&L=${page}&o=a`)
 
 /**
- * The full activity history keyed by quarter index. Page 1 links every page, so the rest
- * are fetched in parallel; quarters can span pages, so rows are parsed in page order.
+ * The full activity history. Page 1 links every page, so the rest are fetched in
+ * parallel; quarters can span pages, so rows are parsed in page order.
  * @param {string} ticker
- * @returns {Promise<Map<number, {firm: string, activity: string}[]>>}
+ * @returns {Promise<{quarter: number, firm: string, code: string, activity: string}[]>}
  */
-const getQuarterlyActivity = async ticker => {
+const getActivityRows = async ticker => {
   const firstPage = await getActivityPage(ticker, 1)
   const pageLinks = Array.from(firstPage.document().querySelectorAll("#pages a"))
   const lastPage = Math.max(
@@ -139,57 +173,125 @@ const getQuarterlyActivity = async ticker => {
     range(2, lastPage + 1).map(page => getActivityPage(ticker, page))
   )
 
-  const activityByQuarter = new Map()
+  const activityRows = []
   let quarter
   ;[firstPage, ...otherPages].forEach(fetcher => {
     fetcher.$$x(`//table[@id='grid']/tbody/tr`).forEach(row => {
       if (row.element.classList.contains("q_chg")) {
         quarter = getQuarterIndex(row.textContent)
-        if (!activityByQuarter.has(quarter)) {
-          activityByQuarter.set(quarter, [])
-        }
       } else if (quarter !== undefined) {
         const [, firm, activity] = row.getTextArrByX(`td`)
-        activityByQuarter.get(quarter).push({ firm: firm.trim(), activity: activity.trim() })
+        activityRows.push({
+          quarter,
+          firm: firm.trim(),
+          code: getManagerCode(row, firm.trim()),
+          activity: activity.trim(),
+        })
       }
     })
   })
-  return activityByQuarter
+  return activityRows
 }
 
 /**
- * Walks the whole history oldest to newest. A manager's position opens on any non-Sell
- * activity (an Add/Reduce with no earlier Buy predates the history) and closes on Sell.
- * Open positions with no activity in a quarter are holds, scored like the ownership
- * page's no-change holders and counted like them in dataromaCount.
- * @param {Map<number, {firm: string, activity: string}[]>} activityByQuarter
- * @returns {{dataromaRatingChart: number[], dataromaCountChart: number[]}}
+ * One row per quarter the manager reported the stock, including no-change holds, so a
+ * missing quarter means no filing.
+ * @param {string} ticker
+ * @param {string} code - see getManagerCode
+ * @returns {Promise<Map<number, string> | undefined>} activity by quarter, "0" for holds
  */
-const getCharts = activityByQuarter => {
-  const quarters = [...activityByQuarter.keys()]
-  if (!quarters.length) {
-    return { dataromaRatingChart: [], dataromaCountChart: [] }
-  }
-  const holdValue = getActivityValue("0")
-  const openPositions = new Set()
-  const ratings = []
-  const counts = []
-  range(Math.min(...quarters), Math.max(...quarters) + 1).forEach(q => {
-    const actions = activityByQuarter.get(q) || []
-    const activeFirms = new Set(actions.map(({ firm }) => firm))
-    const holds = [...openPositions].filter(firm => !activeFirms.has(firm)).length
-    actions.forEach(({ firm, activity }) =>
-      activity.startsWith("Sell") ? openPositions.delete(firm) : openPositions.add(firm)
-    )
-    ratings.push(
-      sum(actions.map(({ activity }) => getActivityValue(activity))) + holds * holdValue
-    )
-    counts.push(actions.length + holds)
+const getHolderHistory = async (ticker, code) => {
+  const fetcher = await loadPage(`https://dataroma.com/m/hist/hist.php?f=${code}&s=${ticker}`)
+  const rows = fetcher.$$x(`//table[@id='grid']/tbody/tr`)
+  return new Map(
+    rows.map(row => {
+      const [period, , , activity] = row.getTextArrByX(`td`)
+      return [getQuarterIndex(period), activity?.trim() || "0"]
+    })
+  )
+}
+
+/**
+ * @typedef {{firm: string, rows: Map<number, string>, hasFilingHistory: boolean, isHolder: boolean}} ManagerTimeline
+ */
+
+/**
+ * Current holders use their history pages; everyone else comes from the activity pages.
+ * @param {{firm: string, code: string}[]} ownershipData
+ * @param {{quarter: number, firm: string, code: string, activity: string}[]} activityRows
+ * @param {Map<string, Map<number, string> | undefined>} holderHistories
+ * @returns {Map<string, ManagerTimeline>}
+ */
+const getManagerTimelines = (ownershipData, activityRows, holderHistories) => {
+  const timelines = new Map()
+  activityRows.forEach(({ quarter, firm, code, activity }) => {
+    if (!timelines.has(code)) {
+      timelines.set(code, { firm, rows: new Map(), hasFilingHistory: false, isHolder: false })
+    }
+    const { rows } = timelines.get(code)
+    if (!rows.has(quarter)) {
+      rows.set(quarter, activity)
+    }
   })
-  return {
-    dataromaRatingChart: ratings.slice(-MAX_CHART_QUARTERS),
-    dataromaCountChart: counts.slice(-MAX_CHART_QUARTERS),
+  ownershipData.forEach(({ firm, code }) => {
+    const history = holderHistories.get(code)
+    timelines.set(code, {
+      firm,
+      rows: history?.size ? history : timelines.get(code)?.rows || new Map(),
+      hasFilingHistory: Boolean(history?.size),
+      isHolder: true,
+    })
+  })
+  return timelines
+}
+
+/**
+ * Walks each manager's history oldest to newest. A position opens on any non-Sell
+ * activity (an Add/Reduce with no earlier Buy predates the history) and closes on Sell.
+ *
+ * - Holders with a filing history: a missing quarter means no filing. In a complete quarter
+ *   they are dead (left out) until they file again; in an incomplete one they keep their
+ *   previous quarter's activity until they file.
+ * - Everyone else: quarters between activity rows are holds. Last quarter's sellouts carry
+ *   into an incomplete quarter. Former holders with no sellout row are dropped after their
+ *   last activity.
+ * @param {Map<string, ManagerTimeline>} timelines
+ * @returns {{quarter: number, code: string, firm: string, activity: string}[][]} entries per quarter
+ */
+const getQuarterEntries = timelines => {
+  const quarters = [...timelines.values()].flatMap(({ rows }) => [...rows.keys()])
+  if (!quarters.length) {
+    return []
   }
+  const allQuarters = range(Math.min(...quarters), Math.max(...quarters) + 1)
+  const entriesByQuarter = allQuarters.map(() => [])
+
+  timelines.forEach(({ firm, rows, hasFilingHistory, isHolder }, code) => {
+    const lastQuarter = Math.max(...rows.keys())
+    const vanished = !isHolder && !rows.get(lastQuarter).startsWith("Sell")
+    let open = false
+    let previousActivity
+
+    allQuarters.forEach((quarter, i) => {
+      let activity = rows.get(quarter)
+      if (activity !== undefined) {
+        open = !activity.startsWith("Sell")
+      } else if (
+        previousActivity !== undefined &&
+        !isQuarterComplete(quarter) &&
+        (hasFilingHistory || previousActivity.startsWith("Sell"))
+      ) {
+        activity = previousActivity
+      } else if (open && !hasFilingHistory && !(vanished && quarter > lastQuarter)) {
+        activity = "0"
+      }
+      previousActivity = activity
+      if (activity !== undefined) {
+        entriesByQuarter[i].push({ quarter, code, firm, activity })
+      }
+    })
+  })
+  return entriesByQuarter
 }
 
 /**
@@ -232,57 +334,74 @@ const findPreviousRecord = (ticker, dataFiles) =>
     .find(record => record && Number.isFinite(parseFloat(record.dataromaRating)))
 
 /**
+ * @param {Promise<T>} promise
+ * @param {T} fallback - used when the page has no grid rows (ticker or manager not listed)
+ * @returns {Promise<T>}
+ * @template T
+ */
+const orIfMissing = (promise, fallback) =>
+  promise.catch(err => {
+    if (err.code === 489) {
+      return fallback
+    }
+    throw err
+  })
+
+/**
+ * The current rating is the newest chart quarter.
  * @param logger
  * @param ticker
  * @param {Object} [previousRecord]
- * @returns {Promise<{dataromaActions: string, dataromaRating: *, dataromaCount: number, dataromaRatingChart: number[], dataromaCountChart: number[], previousDataromaRating: (string|undefined)}>}
+ * @returns {Promise<{dataromaActions: string, dataromaRating: number, dataromaCount: number, dataromaRatingChart: number[], dataromaCountChart: number[], dataromaChartQuarter: (string|undefined), previousDataromaRating: (string|undefined)}>}
  */
 const fetchData = async (logger, ticker, previousRecord) => {
-  const fetcher = new JsDomFetcher()
+  const [ownershipData, activityRows] = await Promise.all([
+    orIfMissing(getOwnership(ticker), []),
+    orIfMissing(getActivityRows(ticker), []),
+  ])
+  const holderHistories = new Map(
+    await Promise.all(
+      ownershipData.map(async ({ code }) => [
+        code,
+        await orIfMissing(getHolderHistory(ticker, code), undefined),
+      ])
+    )
+  )
 
-  const ownershipData = await getOwnership(ticker, fetcher).catch(err => {
-    if (err.code === 489) {
-      return []
-    }
-    throw err
-  })
-  const sells = await getSells(ticker, fetcher).catch(err => {
-    if (err.code === 489) {
-      return []
-    }
-    throw err
-  })
-  const quarterlyActivity = await getQuarterlyActivity(ticker).catch(err => {
-    if (err.code === 489) {
-      return new Map()
-    }
-    throw err
-  })
+  const timelines = getManagerTimelines(ownershipData, activityRows, holderHistories)
+  const entriesByQuarter = getQuarterEntries(timelines)
+  const ratings = entriesByQuarter.map(entries =>
+    sum(entries.map(({ activity }) => getActivityValue(activity)))
+  )
+  const counts = entriesByQuarter.map(entries => entries.length)
 
+  const ownershipByCode = new Map(ownershipData.map(holder => [holder.code, holder]))
   const dataromaActions = orderBy(
-    ownershipData,
-    ({ activity }) => getMovementNumber(activity),
+    entriesByQuarter[entriesByQuarter.length - 1] || [],
+    ({ activity }) => getActivityMovement(activity),
     "desc"
   )
-    .concat(sells)
-    .map(({ firm, pctOfPortfolio, activity, value }) => {
+    .map(({ code, firm, activity }) => {
+      const { pctOfPortfolio = "0", value = "0" } = ownershipByCode.get(code) || {}
       return `${firm}\n [${activity}, ${pctOfPortfolio}] ${value}`
     })
     .join("\n")
 
-  const dataromaRating = ownershipData.concat(sells).reduce((sum, { activity }) => {
-    const movement = getMovementNumber(activity)
-    const value = getMovementValue(movement)
-    return sum + value
-  }, 0)
-
-  const dataromaCount = ownershipData.length + sells.length
+  const dataromaRating = ratings[ratings.length - 1] ?? 0
+  const lastQuarter = Math.max(
+    ...[...timelines.values()].flatMap(({ rows }) => [...rows.keys()]),
+    Number.NEGATIVE_INFINITY
+  )
 
   return {
     dataromaRating,
     dataromaActions,
-    dataromaCount,
-    ...getCharts(quarterlyActivity),
+    dataromaCount: counts[counts.length - 1] ?? 0,
+    dataromaRatingChart: ratings.slice(-MAX_CHART_QUARTERS),
+    dataromaCountChart: counts.slice(-MAX_CHART_QUARTERS),
+    dataromaChartQuarter: Number.isFinite(lastQuarter)
+      ? formatQuarterLabel(lastQuarter)
+      : undefined,
     previousDataromaRating: getPreviousDataromaRating(dataromaRating, previousRecord),
   }
 }
