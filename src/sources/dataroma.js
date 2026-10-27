@@ -9,6 +9,8 @@ const MAX_CHART_QUARTERS = 20
 // 13Fs are due 45 days after quarter end; holders with no filing by this point are dead.
 const QUARTER_COMPLETE_DAYS = 60
 const MAX_CONCURRENT_REQUESTS = 3
+// Positions below this % of the manager's portfolio are treated as not held.
+const MIN_PORTFOLIO_PCT = 0.02
 
 const getMovementNumber = activity => {
   const movementNum = Number(extractNumbers(activity))
@@ -198,51 +200,113 @@ const getActivityRows = async ticker => {
  * missing quarter means no filing.
  * @param {string} ticker
  * @param {string} code - see getManagerCode
- * @returns {Promise<Map<number, string> | undefined>} activity by quarter, "0" for holds
+ * @returns {Promise<{rows: Map<number, string>, pcts: Map<number, number>} | undefined>}
  */
 const getHolderHistory = async (ticker, code) => {
   const fetcher = await loadPage(`https://dataroma.com/m/hist/hist.php?f=${code}&s=${ticker}`)
-  const rows = fetcher.$$x(`//table[@id='grid']/tbody/tr`)
-  return new Map(
-    rows.map(row => {
-      const [period, , , activity] = row.getTextArrByX(`td`)
-      return [getQuarterIndex(period), activity?.trim() || "0"]
-    })
-  )
+  const tableRows = fetcher.$$x(`//table[@id='grid']/tbody/tr`)
+  const rows = new Map()
+  const pcts = new Map()
+  tableRows.forEach(row => {
+    const [period, , pct, activity] = row.getTextArrByX(`td`)
+    const quarter = getQuarterIndex(period)
+    rows.set(quarter, activity?.trim() || "0")
+    pcts.set(quarter, Number(pct) || 0)
+  })
+  return rows.size ? { rows, pcts } : undefined
 }
 
 /**
- * @typedef {{firm: string, rows: Map<number, string>, hasFilingHistory: boolean, isHolder: boolean}} ManagerTimeline
+ * @typedef {{firm: string, rows: Map<number, string>, pcts: Map<number, number>, hasFilingHistory: boolean, isHolder: boolean}} ManagerTimeline
  */
 
 /**
- * Current holders use their history pages; everyone else comes from the activity pages.
+ * Current holders and anyone with a history page use that page; everyone else comes
+ * from the activity pages.
  * @param {{firm: string, code: string}[]} ownershipData
  * @param {{quarter: number, firm: string, code: string, activity: string}[]} activityRows
- * @param {Map<string, Map<number, string> | undefined>} holderHistories
+ * @param {Map<string, {rows: Map<number, string>, pcts: Map<number, number>} | undefined>} holderHistories
  * @returns {Map<string, ManagerTimeline>}
  */
 const getManagerTimelines = (ownershipData, activityRows, holderHistories) => {
   const timelines = new Map()
   activityRows.forEach(({ quarter, firm, code, activity }) => {
     if (!timelines.has(code)) {
-      timelines.set(code, { firm, rows: new Map(), hasFilingHistory: false, isHolder: false })
+      timelines.set(code, {
+        firm,
+        rows: new Map(),
+        pcts: new Map(),
+        hasFilingHistory: false,
+        isHolder: false,
+      })
     }
     const { rows } = timelines.get(code)
     if (!rows.has(quarter)) {
       rows.set(quarter, activity)
     }
   })
+  const holderCodes = new Set(ownershipData.map(({ code }) => code))
   ownershipData.forEach(({ firm, code }) => {
-    const history = holderHistories.get(code)
-    timelines.set(code, {
-      firm,
-      rows: history?.size ? history : timelines.get(code)?.rows || new Map(),
-      hasFilingHistory: Boolean(history?.size),
-      isHolder: true,
-    })
+    if (!timelines.has(code)) {
+      timelines.set(code, {
+        firm,
+        rows: new Map(),
+        pcts: new Map(),
+        hasFilingHistory: false,
+        isHolder: true,
+      })
+    }
+    timelines.get(code).isHolder = true
+    timelines.get(code).firm = firm
+  })
+  holderHistories.forEach((history, code) => {
+    const timeline = timelines.get(code)
+    if (!timeline || !history?.rows.size) {
+      return
+    }
+    timeline.rows = history.rows
+    timeline.pcts = history.pcts
+    timeline.hasFilingHistory = true
+    timeline.isHolder = holderCodes.has(code)
   })
   return timelines
+}
+
+/**
+ * Positions under MIN_PORTFOLIO_PCT are treated as not held. Crossing above is a Buy;
+ * crossing below is a full sellout. Managers with no % data are left unchanged.
+ * @param {Map<string, ManagerTimeline>} timelines
+ * @returns {Map<string, ManagerTimeline>}
+ */
+const applyMinHoldingPct = timelines => {
+  const filtered = new Map()
+  timelines.forEach((timeline, code) => {
+    const { rows, pcts } = timeline
+    if (!pcts.size) {
+      filtered.set(code, timeline)
+      return
+    }
+    const newRows = new Map()
+    let holding = false
+    ;[...rows.keys()]
+      .sort((a, b) => a - b)
+      .forEach(quarter => {
+        const activity = rows.get(quarter)
+        const sold = activity.startsWith("Sell")
+        const isHeld = !sold && pcts.get(quarter) >= MIN_PORTFOLIO_PCT
+        if (!holding && isHeld) {
+          newRows.set(quarter, "Buy")
+          holding = true
+        } else if (holding && !isHeld) {
+          newRows.set(quarter, "Sell 100.00%")
+          holding = false
+        } else if (holding) {
+          newRows.set(quarter, activity)
+        }
+      })
+    filtered.set(code, { ...timeline, rows: newRows })
+  })
+  return filtered
 }
 
 /**
@@ -267,6 +331,9 @@ const getQuarterEntries = timelines => {
   const entriesByQuarter = allQuarters.map(() => [])
 
   timelines.forEach(({ firm, rows, hasFilingHistory, isHolder }, code) => {
+    if (!rows.size) {
+      return
+    }
     const lastQuarter = Math.max(...rows.keys())
     const vanished = !isHolder && !rows.get(lastQuarter).startsWith("Sell")
     let open = false
@@ -304,19 +371,24 @@ const formatRating = rating => String(Number(Number(rating).toFixed(2)))
  * Stamped only when the rating changes; otherwise the stored value carries over.
  * @param {number} dataromaRating
  * @param {Object} [previousRecord]
+ * @param {{rating?: string, count?: string, actions?: string, previous?: string}} [keys]
  * @returns {string | undefined} e.g. "Oct 6, 2026: was 3.25 (5 actions)"
  */
-const getPreviousDataromaRating = (dataromaRating, previousRecord) => {
-  if (!previousRecord) {
+const getPreviousDataromaRating = (dataromaRating, previousRecord, keys = {}) => {
+  const ratingKey = keys.rating || "dataromaRating"
+  const countKey = keys.count || "dataromaCount"
+  const actionsKey = keys.actions || "dataromaActions"
+  const previousKey = keys.previous || "previousDataromaRating"
+  if (!previousRecord || !Number.isFinite(parseFloat(previousRecord[ratingKey]))) {
     return undefined
   }
-  const { dataromaRating: prevRating, dataromaCount, dataromaActions } = previousRecord
+  const prevRating = previousRecord[ratingKey]
   if (formatRating(prevRating) === formatRating(dataromaRating)) {
-    return previousRecord.previousDataromaRating
+    return previousRecord[previousKey]
   }
   const prevCount =
-    dataromaCount ??
-    (dataromaActions || "").split("\n").filter(line => line.startsWith(" [")).length
+    previousRecord[countKey] ??
+    (previousRecord[actionsKey] || "").split("\n").filter(line => line.startsWith(" [")).length
   const actionsLabel = prevCount === 1 ? "action" : "actions"
   return `${moment().format("MMM D, YYYY")}: was ${formatRating(
     prevRating
@@ -348,34 +420,29 @@ const orIfMissing = (promise, fallback) =>
   })
 
 /**
- * The current rating is the newest chart quarter.
- * @param logger
- * @param ticker
+ * @param {{quarter: number, code: string, firm: string, activity: string}[][]} entriesByQuarter
+ * @param {Map<string, ManagerTimeline>} timelines
+ * @param {Map<string, {pctOfPortfolio?: string, value?: string}>} ownershipByCode
  * @param {Object} [previousRecord]
- * @returns {Promise<{dataromaActions: string, dataromaRating: number, dataromaCount: number, dataromaRatingChart: number[], dataromaCountChart: number[], dataromaChartQuarter: (string|undefined), previousDataromaRating: (string|undefined)}>}
+ * @param {{rating: string, count: string, actions: string, ratingChart: string, countChart: string, chartQuarter: string, previous: string}} names
+ * @returns {Object}
  */
-const fetchData = async (logger, ticker, previousRecord) => {
-  const [ownershipData, activityRows] = await Promise.all([
-    orIfMissing(getOwnership(ticker), []),
-    orIfMissing(getActivityRows(ticker), []),
-  ])
-  const holderHistories = new Map(
-    await Promise.all(
-      ownershipData.map(async ({ code }) => [
-        code,
-        await orIfMissing(getHolderHistory(ticker, code), undefined),
-      ])
-    )
-  )
-
-  const timelines = getManagerTimelines(ownershipData, activityRows, holderHistories)
-  const entriesByQuarter = getQuarterEntries(timelines)
+const summarizeEntries = (
+  entriesByQuarter,
+  timelines,
+  ownershipByCode,
+  previousRecord,
+  names
+) => {
   const ratings = entriesByQuarter.map(entries =>
     sum(entries.map(({ activity }) => getActivityValue(activity)))
   )
   const counts = entriesByQuarter.map(entries => entries.length)
-
-  const ownershipByCode = new Map(ownershipData.map(holder => [holder.code, holder]))
+  const lastQuarter = Math.max(
+    ...[...timelines.values()].flatMap(({ rows }) => [...rows.keys()]),
+    Number.NEGATIVE_INFINITY
+  )
+  const dataromaRating = ratings[ratings.length - 1] ?? 0
   const dataromaActions = orderBy(
     entriesByQuarter[entriesByQuarter.length - 1] || [],
     ({ activity }) => getActivityMovement(activity),
@@ -387,22 +454,90 @@ const fetchData = async (logger, ticker, previousRecord) => {
     })
     .join("\n")
 
-  const dataromaRating = ratings[ratings.length - 1] ?? 0
-  const lastQuarter = Math.max(
-    ...[...timelines.values()].flatMap(({ rows }) => [...rows.keys()]),
-    Number.NEGATIVE_INFINITY
-  )
-
   return {
-    dataromaRating,
-    dataromaActions,
-    dataromaCount: counts[counts.length - 1] ?? 0,
-    dataromaRatingChart: ratings.slice(-MAX_CHART_QUARTERS),
-    dataromaCountChart: counts.slice(-MAX_CHART_QUARTERS),
-    dataromaChartQuarter: Number.isFinite(lastQuarter)
+    [names.rating]: dataromaRating,
+    [names.actions]: dataromaActions,
+    [names.count]: counts[counts.length - 1] ?? 0,
+    [names.ratingChart]: ratings.slice(-MAX_CHART_QUARTERS),
+    [names.countChart]: counts.slice(-MAX_CHART_QUARTERS),
+    [names.chartQuarter]: Number.isFinite(lastQuarter)
       ? formatQuarterLabel(lastQuarter)
       : undefined,
-    previousDataromaRating: getPreviousDataromaRating(dataromaRating, previousRecord),
+    [names.previous]: getPreviousDataromaRating(dataromaRating, previousRecord, {
+      rating: names.rating,
+      count: names.count,
+      actions: names.actions,
+      previous: names.previous,
+    }),
+  }
+}
+
+const UNFILTERED_NAMES = {
+  rating: "dataromaRating",
+  count: "dataromaCount",
+  actions: "dataromaActions",
+  ratingChart: "dataromaRatingChart",
+  countChart: "dataromaCountChart",
+  chartQuarter: "dataromaChartQuarter",
+  previous: "previousDataromaRating",
+}
+
+const MIN_PCT_NAMES = {
+  rating: "dataromaMinPctRating",
+  count: "dataromaMinPctCount",
+  actions: "dataromaMinPctActions",
+  ratingChart: "dataromaMinPctRatingChart",
+  countChart: "dataromaMinPctCountChart",
+  chartQuarter: "dataromaMinPctChartQuarter",
+  previous: "previousDataromaMinPctRating",
+}
+
+/**
+ * The current rating is the newest chart quarter.
+ * @param logger
+ * @param ticker
+ * @param {Object} [previousRecord]
+ * @returns {Promise<Object>}
+ */
+const fetchData = async (logger, ticker, previousRecord) => {
+  const [ownershipData, activityRows] = await Promise.all([
+    orIfMissing(getOwnership(ticker), []),
+    orIfMissing(getActivityRows(ticker), []),
+  ])
+  const historyCodes = [
+    ...new Set([
+      ...ownershipData.map(({ code }) => code),
+      ...activityRows.map(({ code }) => code),
+    ]),
+  ]
+  const holderHistories = new Map(
+    await Promise.all(
+      historyCodes.map(async code => [
+        code,
+        await orIfMissing(getHolderHistory(ticker, code), undefined),
+      ])
+    )
+  )
+
+  const timelines = getManagerTimelines(ownershipData, activityRows, holderHistories)
+  const minPctTimelines = applyMinHoldingPct(timelines)
+  const ownershipByCode = new Map(ownershipData.map(holder => [holder.code, holder]))
+
+  return {
+    ...summarizeEntries(
+      getQuarterEntries(timelines),
+      timelines,
+      ownershipByCode,
+      previousRecord,
+      UNFILTERED_NAMES
+    ),
+    ...summarizeEntries(
+      getQuarterEntries(minPctTimelines),
+      minPctTimelines,
+      ownershipByCode,
+      previousRecord,
+      MIN_PCT_NAMES
+    ),
   }
 }
 

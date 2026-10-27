@@ -343,68 +343,82 @@ const CHECKS = [
       )
     },
   },
-  {
-    name: "dataroma-rating-matches-chart",
-    test: record => {
-      const { dataromaRatingChart: ratings, dataromaCountChart: counts } = record
-      if (!Array.isArray(ratings) || !ratings.length || isBlank(record.dataromaRating)) {
-        return undefined
-      }
-      const lastRating = ratings[ratings.length - 1]
-      const lastCount = counts?.[counts.length - 1]
-      const ratingOk = toNumber(record.dataromaRating) === lastRating
-      const countOk = isBlank(record.dataromaCount) || record.dataromaCount === lastCount
-      return (
-        (ratingOk && countOk) ||
-        `rating=${record.dataromaRating} chart=${lastRating} count=${record.dataromaCount} chart=${lastCount}`
-      )
-    },
-  },
-  {
-    name: "dataroma-charts-shape",
-    test: record => {
-      const { dataromaRatingChart: ratings, dataromaCountChart: counts } = record
-      if (!Array.isArray(ratings) && !Array.isArray(counts)) {
-        return undefined
-      }
-      if (ratings?.length !== counts?.length || ratings.length > 20) {
-        return `ratings=${ratings?.length} counts=${counts?.length}`
-      }
-      const badRating = ratings.some(n => typeof n !== "number" || !Number.isFinite(n))
-      const badCount = counts.some(n => !Number.isInteger(n) || n < 0)
-      // A quarter with no managers can only score 0.
-      const zeroMismatch = counts.some((n, i) => n === 0 && ratings[i] !== 0)
-      return (!badRating && !badCount && !zeroMismatch) || JSON.stringify({ ratings, counts })
-    },
-  },
-  {
-    name: "dataroma-count-matches-actions",
-    test: record => {
-      if (isBlank(record.dataromaCount) || typeof record.dataromaActions !== "string") {
-        return undefined
-      }
-      const listed = record.dataromaActions
-        .split("\n")
-        .filter(line => line.startsWith(" [")).length
-      return (
-        listed === record.dataromaCount || `count=${record.dataromaCount} listed=${listed}`
-      )
-    },
-  },
-  {
-    name: "previous-dataroma-rating-format",
-    test: record => {
-      if (isBlank(record.previousDataromaRating)) {
-        return undefined
-      }
-      const value = String(record.previousDataromaRating)
-      const match = value.match(
-        /^([A-Z][a-z]{2} \d{1,2}, \d{4}): was -?\d+(?:\.\d+)? \(\d+ actions?\)$/
-      )
-      const date = match && moment(match[1], "MMM D, YYYY", true)
-      return (date && date.isValid() && !date.isAfter(moment(), "day")) || `"${value}"`
-    },
-  },
+  ...["", "MinPct"].flatMap(suffix => {
+    const ratingKey = suffix ? "dataromaMinPctRating" : "dataromaRating"
+    const countKey = suffix ? "dataromaMinPctCount" : "dataromaCount"
+    const actionsKey = suffix ? "dataromaMinPctActions" : "dataromaActions"
+    const ratingChartKey = suffix ? "dataromaMinPctRatingChart" : "dataromaRatingChart"
+    const countChartKey = suffix ? "dataromaMinPctCountChart" : "dataromaCountChart"
+    const previousKey = suffix
+      ? "previousDataromaMinPctRating"
+      : "previousDataromaRating"
+    const label = suffix ? "minpct-" : ""
+    return [
+      {
+        name: `${label}dataroma-rating-matches-chart`,
+        test: record => {
+          const ratings = record[ratingChartKey]
+          const counts = record[countChartKey]
+          if (!Array.isArray(ratings) || !ratings.length || isBlank(record[ratingKey])) {
+            return undefined
+          }
+          const lastRating = ratings[ratings.length - 1]
+          const lastCount = counts?.[counts.length - 1]
+          const ratingOk = toNumber(record[ratingKey]) === lastRating
+          const countOk = isBlank(record[countKey]) || record[countKey] === lastCount
+          return (
+            (ratingOk && countOk) ||
+            `rating=${record[ratingKey]} chart=${lastRating} count=${record[countKey]} chart=${lastCount}`
+          )
+        },
+      },
+      {
+        name: `${label}dataroma-charts-shape`,
+        test: record => {
+          const ratings = record[ratingChartKey]
+          const counts = record[countChartKey]
+          if (!Array.isArray(ratings) && !Array.isArray(counts)) {
+            return undefined
+          }
+          if (ratings?.length !== counts?.length || ratings.length > 20) {
+            return `ratings=${ratings?.length} counts=${counts?.length}`
+          }
+          const badRating = ratings.some(n => typeof n !== "number" || !Number.isFinite(n))
+          const badCount = counts.some(n => !Number.isInteger(n) || n < 0)
+          const zeroMismatch = counts.some((n, i) => n === 0 && ratings[i] !== 0)
+          return (!badRating && !badCount && !zeroMismatch) || JSON.stringify({ ratings, counts })
+        },
+      },
+      {
+        name: `${label}dataroma-count-matches-actions`,
+        test: record => {
+          if (isBlank(record[countKey]) || typeof record[actionsKey] !== "string") {
+            return undefined
+          }
+          const listed = record[actionsKey]
+            .split("\n")
+            .filter(line => line.startsWith(" [")).length
+          return (
+            listed === record[countKey] || `count=${record[countKey]} listed=${listed}`
+          )
+        },
+      },
+      {
+        name: `${label}previous-dataroma-rating-format`,
+        test: record => {
+          if (isBlank(record[previousKey])) {
+            return undefined
+          }
+          const value = String(record[previousKey])
+          const match = value.match(
+            /^([A-Z][a-z]{2} \d{1,2}, \d{4}): was -?\d+(?:\.\d+)? \(\d+ actions?\)$/
+          )
+          const date = match && moment(match[1], "MMM D, YYYY", true)
+          return (date && date.isValid() && !date.isAfter(moment(), "day")) || `"${value}"`
+        },
+      },
+    ]
+  }),
 ]
 
 /**

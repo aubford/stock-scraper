@@ -30,10 +30,11 @@ const hasSourceError = data =>
 const app = async () => {
   console.log("🚀 Daily Update 🚀")
   const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
+  const INCLUDE_VOO = await promptForYes("Include VOO?")
 
   const stockTickers = getStockTickers()
   const vooTickers = getVooTickers()
-  const tickers = union(vooTickers, stockTickers)
+  const tickers = INCLUDE_VOO ? union(vooTickers, stockTickers) : stockTickers
   const previousData = INCLUDE_DATAROMA
     ? [getStockDataFile(), readJsonFile(VOO_LOCATION)]
     : []
@@ -107,7 +108,9 @@ const app = async () => {
   const vooData = companyData.filter(([ticker]) => vooTickers.includes(ticker))
   const stockData = companyData.filter(([ticker]) => stockTickers.includes(ticker))
 
-  vooWriteOut(fromPairs(vooData), true)
+  if (INCLUDE_VOO) {
+    vooWriteOut(fromPairs(vooData), true)
+  }
   scrapbookWriteOut(fromPairs(stockData), true)
 
   await exit("Daily Update")
