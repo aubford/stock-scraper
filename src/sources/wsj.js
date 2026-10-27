@@ -13,6 +13,20 @@ const RATING_KEYS = ["buy", "overweight", "hold", "underweight", "sell"]
 const RATING_PERIODS = ["P3M_AGO", "P1M_AGO", "CURRENT"]
 
 /**
+ * Apollo rehydration payloads are JSON except they emit JS `undefined`
+ * (e.g. `"missing":undefined`), which JSON.parse rejects.
+ * @param {string} raw
+ * @returns {Object | null}
+ */
+const parseApolloPush = raw => {
+  try {
+    return JSON.parse(raw.replace(/:\s*undefined\b/g, ":null"))
+  } catch {
+    return null
+  }
+}
+
+/**
  * @param wsjChart
  * @param wsjData
  * @returns {Object}
@@ -55,7 +69,7 @@ const getMarketData = html => {
     .get()
     .map(el => $(el).text().trim().match(APOLLO_PUSH_REGEX)?.[1])
     .filter(Boolean)
-    .flatMap(json => Object.values(JSON.parse(json).rehydrate || {}))
+    .flatMap(raw => Object.values(parseApolloPush(raw)?.rehydrate || {}))
     .map(entry => entry?.data)
     .filter(data => data?.__typename === "MDMarketData")
   return merge({}, ...marketDataEntries)
