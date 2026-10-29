@@ -11,6 +11,7 @@ const {
   getStockDataFile,
   readJsonFile,
 } = require("../util")
+const fetchSPWeights = require("./fetchSPWeights")
 
 /**
  * @param {Object} data
@@ -31,6 +32,7 @@ const app = async () => {
   console.log("🚀 Daily Update 🚀")
   const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
   const INCLUDE_VOO = await promptForYes("Include VOO?")
+  await fetchSPWeights()
 
   const stockTickers = getStockTickers()
   const vooTickers = getVooTickers()
