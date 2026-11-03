@@ -8,7 +8,7 @@ const {
   getUnrealizedShares,
 } = require("../csv/csv-util")
 const { metaWriteOut, promptUser, openInBrowser } = require("../util")
-const { slickCharts } = require("../sources")
+const fetchSPWeights = require("./fetchSPWeights")
 
 const SYMBOL_HEADER = "Symbol"
 
@@ -20,14 +20,13 @@ const main = async () => {
   const unrealizedTaxLotsCsv = await parseCSV(unrealizedPath)
   const unrealizedTaxLots = groupBy(unrealizedTaxLotsCsv, SYMBOL_HEADER)
 
-  const spWeights = await slickCharts.fetch()
+  await fetchSPWeights()
 
   metaWriteOut({
     myStocks: mapValues(unrealizedTaxLots, csvRows => ({
       my_costBasis: getUnrealizedCostBasis(csvRows),
       my_shares: getUnrealizedShares(csvRows),
     })),
-    spWeights,
   })
 }
 

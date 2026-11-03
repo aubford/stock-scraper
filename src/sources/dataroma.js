@@ -10,7 +10,7 @@ const MAX_CHART_QUARTERS = 20
 const QUARTER_COMPLETE_DAYS = 60
 const MAX_CONCURRENT_REQUESTS = 3
 // Positions below this % of the manager's portfolio are treated as not held.
-const MIN_PORTFOLIO_PCT = 0.02
+const MIN_PORTFOLIO_PCT = 0.2
 
 const getMovementNumber = activity => {
   const movementNum = Number(extractNumbers(activity))

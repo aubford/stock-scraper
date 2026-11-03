@@ -1,4 +1,5 @@
 const { writeOut, deleteFile, readJsonFile, promptForYes } = require("../util")
+const fetchSPWeights = require("./fetchSPWeights")
 const fs = require("fs")
 
 const commit = async (isVoo, merge) => {
@@ -18,6 +19,7 @@ const commit = async (isVoo, merge) => {
 
 const app = async () => {
   console.log("🚀 Commit 🚀")
+  await fetchSPWeights()
   const mergeRes = await promptForYes("Merge new data with existing data for each ticker?")
   await commit(false, mergeRes)
   await commit(true, mergeRes)
