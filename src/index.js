@@ -24,6 +24,11 @@ function getAppFileNames() {
   }
 }
 
+function printHelp() {
+  console.log("Available apps:\n")
+  console.log(getAppFileNames(), "\n")
+}
+
 const run = async () => {
   const res = await promptUser("App: ")
   if (res === "exit") {
@@ -31,11 +36,15 @@ const run = async () => {
   }
 
   if (res === "help") {
-    console.log("Available apps:\n")
-    console.log(getAppFileNames(), "\n")
+    printHelp()
   } else {
-    const app = require(`./apps/${res}`)
-    await app()
+    const appPath = path.join(__dirname, "apps", `${res}.js`)
+    if (!fs.existsSync(appPath)) {
+      printHelp()
+    } else {
+      const app = require(`./apps/${res}`)
+      await app()
+    }
   }
 
   await run()

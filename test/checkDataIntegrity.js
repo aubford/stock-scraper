@@ -349,9 +349,6 @@ const CHECKS = [
     const actionsKey = suffix ? "dataromaMinPctActions" : "dataromaActions"
     const ratingChartKey = suffix ? "dataromaMinPctRatingChart" : "dataromaRatingChart"
     const countChartKey = suffix ? "dataromaMinPctCountChart" : "dataromaCountChart"
-    const previousKey = suffix
-      ? "previousDataromaMinPctRating"
-      : "previousDataromaRating"
     const label = suffix ? "minpct-" : ""
     return [
       {
@@ -403,22 +400,26 @@ const CHECKS = [
           )
         },
       },
-      {
-        name: `${label}previous-dataroma-rating-format`,
-        test: record => {
-          if (isBlank(record[previousKey])) {
-            return undefined
-          }
-          const value = String(record[previousKey])
-          const match = value.match(
-            /^([A-Z][a-z]{2} \d{1,2}, \d{4}): was -?\d+(?:\.\d+)? \(\d+ actions?\)$/
-          )
-          const date = match && moment(match[1], "MMM D, YYYY", true)
-          return (date && date.isValid() && !date.isAfter(moment(), "day")) || `"${value}"`
-        },
-      },
     ]
   }),
+  {
+    name: "dataroma-sentiment-matches-chart",
+    test: record => {
+      const chart = record.dataromaSentimentChart
+      const ratingChart = record.dataromaRatingChart
+      if (!Array.isArray(chart) || !chart.length || isBlank(record.dataromaSentiment)) {
+        return undefined
+      }
+      const last = chart[chart.length - 1]
+      const matches = toNumber(record.dataromaSentiment) === last
+      const lengthOk = !Array.isArray(ratingChart) || chart.length === ratingChart.length
+      const allFinite = chart.every(n => typeof n === "number" && Number.isFinite(n))
+      return (
+        (matches && lengthOk && allFinite) ||
+        `sentiment=${record.dataromaSentiment} chartLast=${last} len=${chart.length}/${ratingChart?.length}`
+      )
+    },
+  },
 ]
 
 /**

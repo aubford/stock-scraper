@@ -4,6 +4,10 @@ const { handleFetch } = require("./util/www")
 const { extractNumbers } = require("./util/str")
 const { range, sum } = require("lodash")
 const { orderBy } = require("lodash/collection")
+const {
+  getQuarterSentiments,
+  summarizeSentiments,
+} = require("./dataromaSentiment")
 
 const MAX_CHART_QUARTERS = 20
 // 13Fs are due 45 days after quarter end; holders with no filing by this point are dead.
@@ -362,50 +366,6 @@ const getQuarterEntries = timelines => {
 }
 
 /**
- * @param {*} rating
- * @returns {string}
- */
-const formatRating = rating => String(Number(Number(rating).toFixed(2)))
-
-/**
- * Stamped only when the rating changes; otherwise the stored value carries over.
- * @param {number} dataromaRating
- * @param {Object} [previousRecord]
- * @param {{rating?: string, count?: string, actions?: string, previous?: string}} [keys]
- * @returns {string | undefined} e.g. "Oct 6, 2026: was 3.25 (5 actions)"
- */
-const getPreviousDataromaRating = (dataromaRating, previousRecord, keys = {}) => {
-  const ratingKey = keys.rating || "dataromaRating"
-  const countKey = keys.count || "dataromaCount"
-  const actionsKey = keys.actions || "dataromaActions"
-  const previousKey = keys.previous || "previousDataromaRating"
-  if (!previousRecord || !Number.isFinite(parseFloat(previousRecord[ratingKey]))) {
-    return undefined
-  }
-  const prevRating = previousRecord[ratingKey]
-  if (formatRating(prevRating) === formatRating(dataromaRating)) {
-    return previousRecord[previousKey]
-  }
-  const prevCount =
-    previousRecord[countKey] ??
-    (previousRecord[actionsKey] || "").split("\n").filter(line => line.startsWith(" [")).length
-  const actionsLabel = prevCount === 1 ? "action" : "actions"
-  return `${moment().format("MMM D, YYYY")}: was ${formatRating(
-    prevRating
-  )} (${prevCount} ${actionsLabel})`
-}
-
-/**
- * @param {string} ticker
- * @param {Object[]} dataFiles - ticker-keyed data, most recent first (e.g. staging, committed)
- * @returns {Object | undefined} the most recent record that has a dataromaRating
- */
-const findPreviousRecord = (ticker, dataFiles) =>
-  dataFiles
-    .map(data => data[ticker])
-    .find(record => record && Number.isFinite(parseFloat(record.dataromaRating)))
-
-/**
  * @param {Promise<T>} promise
  * @param {T} fallback - used when the page has no grid rows (ticker or manager not listed)
  * @returns {Promise<T>}
@@ -423,17 +383,10 @@ const orIfMissing = (promise, fallback) =>
  * @param {{quarter: number, code: string, firm: string, activity: string}[][]} entriesByQuarter
  * @param {Map<string, ManagerTimeline>} timelines
  * @param {Map<string, {pctOfPortfolio?: string, value?: string}>} ownershipByCode
- * @param {Object} [previousRecord]
- * @param {{rating: string, count: string, actions: string, ratingChart: string, countChart: string, chartQuarter: string, previous: string}} names
+ * @param {{rating: string, count: string, actions: string, ratingChart: string, countChart: string, chartQuarter: string}} names
  * @returns {Object}
  */
-const summarizeEntries = (
-  entriesByQuarter,
-  timelines,
-  ownershipByCode,
-  previousRecord,
-  names
-) => {
+const summarizeEntries = (entriesByQuarter, timelines, ownershipByCode, names) => {
   const ratings = entriesByQuarter.map(entries =>
     sum(entries.map(({ activity }) => getActivityValue(activity)))
   )
@@ -463,12 +416,6 @@ const summarizeEntries = (
     [names.chartQuarter]: Number.isFinite(lastQuarter)
       ? formatQuarterLabel(lastQuarter)
       : undefined,
-    [names.previous]: getPreviousDataromaRating(dataromaRating, previousRecord, {
-      rating: names.rating,
-      count: names.count,
-      actions: names.actions,
-      previous: names.previous,
-    }),
   }
 }
 
@@ -479,7 +426,6 @@ const UNFILTERED_NAMES = {
   ratingChart: "dataromaRatingChart",
   countChart: "dataromaCountChart",
   chartQuarter: "dataromaChartQuarter",
-  previous: "previousDataromaRating",
 }
 
 const MIN_PCT_NAMES = {
@@ -489,20 +435,34 @@ const MIN_PCT_NAMES = {
   ratingChart: "dataromaMinPctRatingChart",
   countChart: "dataromaMinPctCountChart",
   chartQuarter: "dataromaMinPctChartQuarter",
-  previous: "previousDataromaMinPctRating",
+}
+
+/**
+ * @param {number|Promise<number|undefined>|undefined} marketCap
+ * @returns {Promise<number|undefined>}
+ */
+const resolveMarketCap = async marketCap => {
+  let resolved
+  try {
+    resolved = await Promise.resolve(marketCap)
+  } catch (_) {
+    resolved = undefined
+  }
+  return Number.isFinite(resolved) && resolved > 0 ? resolved : undefined
 }
 
 /**
  * The current rating is the newest chart quarter.
  * @param logger
  * @param ticker
- * @param {Object} [previousRecord]
+ * @param {number|Promise<number|undefined>} [marketCap] dollars
  * @returns {Promise<Object>}
  */
-const fetchData = async (logger, ticker, previousRecord) => {
-  const [ownershipData, activityRows] = await Promise.all([
+const fetchData = async (logger, ticker, marketCap) => {
+  const [ownershipData, activityRows, resolvedMarketCap] = await Promise.all([
     orIfMissing(getOwnership(ticker), []),
     orIfMissing(getActivityRows(ticker), []),
+    resolveMarketCap(marketCap),
   ])
   const historyCodes = [
     ...new Set([
@@ -522,34 +482,27 @@ const fetchData = async (logger, ticker, previousRecord) => {
   const timelines = getManagerTimelines(ownershipData, activityRows, holderHistories)
   const minPctTimelines = applyMinHoldingPct(timelines)
   const ownershipByCode = new Map(ownershipData.map(holder => [holder.code, holder]))
+  const entriesByQuarter = getQuarterEntries(timelines)
+  const sentiments = getQuarterSentiments(entriesByQuarter, timelines, resolvedMarketCap)
+  const { dataromaSentiment, dataromaSentimentChart } = summarizeSentiments(sentiments)
 
   return {
-    ...summarizeEntries(
-      getQuarterEntries(timelines),
-      timelines,
-      ownershipByCode,
-      previousRecord,
-      UNFILTERED_NAMES
-    ),
+    ...summarizeEntries(entriesByQuarter, timelines, ownershipByCode, UNFILTERED_NAMES),
     ...summarizeEntries(
       getQuarterEntries(minPctTimelines),
       minPctTimelines,
       ownershipByCode,
-      previousRecord,
       MIN_PCT_NAMES
     ),
+    dataromaSentiment,
+    dataromaSentimentChart,
   }
 }
 
 /**
  * @param {string} ticker
- * @param {Object} [previousRecord] - the ticker's last stored record, see findPreviousRecord
+ * @param {number|Promise<number|undefined>} [marketCap] dollars from MarketBeat
  * @returns {Promise<Object>}
  */
-exports.fetch = (ticker, previousRecord) =>
-  handleFetch(
-    (logger, ticker) => fetchData(logger, ticker, previousRecord),
-    ticker,
-    "Dataroma"
-  )
-exports.findPreviousRecord = findPreviousRecord
+exports.fetch = (ticker, marketCap) =>
+  handleFetch((logger, ticker) => fetchData(logger, ticker, marketCap), ticker, "Dataroma")

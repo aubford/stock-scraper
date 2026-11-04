@@ -37,6 +37,46 @@ const parseSector = html => {
 }
 
 /**
+ * @param {string} text e.g. "$4.84 trillion", "$7.36 billion"
+ * @returns {number|undefined} dollars
+ */
+const parseMarketCapText = text => {
+  const cleaned = String(text || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[$,]/g, " ")
+  const match = cleaned.match(/([\d.]+)\s*(trillion|billion|million|t|b|m)?/)
+  if (!match) return undefined
+  const num = parseFloat(match[1])
+  if (!Number.isFinite(num)) return undefined
+  const unit = match[2] || ""
+  const mult = unit.startsWith("t")
+    ? 1e12
+    : unit.startsWith("b")
+    ? 1e9
+    : unit.startsWith("m")
+    ? 1e6
+    : 1
+  return num * mult
+}
+
+/**
+ * @param {string} html
+ * @returns {number|undefined} market cap in dollars
+ */
+const parseMarketCap = html => {
+  const $ = cheerio.load(html)
+  const capDt = $("dt")
+    .toArray()
+    .find(el => {
+      const label = $(el).text().trim()
+      return label === "Market Capitalization" || label === "Market Cap"
+    })
+  if (!capDt) return undefined
+  return parseMarketCapText($(capDt).next("dd").text())
+}
+
+/**
  * @param {string} raw e.g. "20260529000000"
  * @returns {string} zero-padded MM/DD/YY, e.g. "05/29/26"
  */
@@ -655,6 +695,11 @@ const fetchData = async (logger, ticker) => {
     logger.warn(`No MarketBeat sector found for ${ticker}`)
   }
 
+  const marketBeatMarketCap = parseMarketCap(profileHtml)
+  if (!Number.isFinite(marketBeatMarketCap)) {
+    logger.warn(`No MarketBeat market cap found for ${ticker}`)
+  }
+
   // Drop empty short fields so a missing MarketBeat page can't clobber
   // previously-scraped values during the merge write-out.
   const shortInterest = Object.fromEntries(
@@ -670,10 +715,16 @@ const fetchData = async (logger, ticker) => {
     logger.warn(`No MarketBeat consensus targets found for ${ticker}`)
   }
 
+  // Omit market cap when missing so a failed parse can't clobber a stored value.
+  const marketCapField = Number.isFinite(marketBeatMarketCap)
+    ? { marketBeatMarketCap }
+    : {}
+
   if (!marketBeatTargets.length) {
     logger.warn(`No MarketBeat target history found for ${ticker}`)
     return {
       sector,
+      ...marketCapField,
       marketBeatTargetsUpdatedAt: makePrettyDate(),
       marketBeatTargets: [],
       marketBeatTargetsFormatted: "",
@@ -698,6 +749,7 @@ const fetchData = async (logger, ticker) => {
 
   return {
     sector,
+    ...marketCapField,
     marketBeatTargetsUpdatedAt: makePrettyDate(),
     marketBeatTargets,
     marketBeatTargetsFormatted,
@@ -718,6 +770,8 @@ exports.fetch = ticker => handleFetch(fetchData, ticker, "MARKETBEAT")
 exports.buildAnalystCharts = buildAnalystCharts
 exports.ratingBucket = ratingBucket
 exports.parseConsensusTargets = parseConsensusTargets
+exports.parseMarketCapText = parseMarketCapText
+exports.parseMarketCap = parseMarketCap
 
 /**
  * MarketBeat's "Price on Report Date" is not split-adjusted, so swap in Yahoo's split-adjusted

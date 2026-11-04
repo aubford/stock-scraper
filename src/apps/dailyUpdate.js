@@ -8,8 +8,6 @@ const {
   promptForYes,
   scrapbookWriteOut,
   vooWriteOut,
-  getStockDataFile,
-  readJsonFile,
 } = require("../util")
 const fetchSPWeights = require("./fetchSPWeights")
 
@@ -37,19 +35,20 @@ const app = async () => {
   const stockTickers = getStockTickers()
   const vooTickers = getVooTickers()
   const tickers = INCLUDE_VOO ? union(vooTickers, stockTickers) : stockTickers
-  const previousData = INCLUDE_DATAROMA
-    ? [getStockDataFile(), readJsonFile(VOO_LOCATION)]
-    : []
 
   /**
    * @param {string} ticker
    * @returns {Promise<[string, Object] | null>}
    */
   const fetchStockData = async ticker => {
-    const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeat.fetch(ticker)]
+    const marketBeatPromise = marketBeat.fetch(ticker)
+    const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeatPromise]
     if (INCLUDE_DATAROMA) {
       fetchPromises.push(
-        dataroma.fetch(ticker, dataroma.findPreviousRecord(ticker, previousData))
+        dataroma.fetch(
+          ticker,
+          marketBeatPromise.then(d => d.marketBeatMarketCap).catch(() => undefined)
+        )
       )
     }
     const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)

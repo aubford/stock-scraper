@@ -15,10 +15,9 @@ const { makePrettyDate, getEarningsPriceChange, clearErrors } = require("./util"
 /**
  * @param {string} ticker
  * @param {Browser} browser
- * @param {Object} [previousRecord] - last stored record, for previousDataromaRating
  * @returns {Promise<Object>}
  */
-module.exports = async (ticker, browser, previousRecord) => {
+module.exports = async (ticker, browser) => {
   // FIDELITY
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
@@ -37,6 +36,7 @@ module.exports = async (ticker, browser, previousRecord) => {
     cfraLink,
   } = await boa.fetch(ticker, browser)
 
+  const marketBeatPromise = marketBeat.fetch(ticker)
   const [
     yahooHistoricalPricesData,
     zacksData,
@@ -47,8 +47,11 @@ module.exports = async (ticker, browser, previousRecord) => {
     yahoo.fetchHistoricalPrices(ticker),
     zacks.fetch(ticker, browser),
     argusAnalyst.fetch(ticker, browser, argusAnalystLink),
-    dataroma.fetch(ticker, previousRecord),
-    marketBeat.fetch(ticker),
+    dataroma.fetch(
+      ticker,
+      marketBeatPromise.then(d => d.marketBeatMarketCap).catch(() => undefined)
+    ),
+    marketBeatPromise,
   ])
 
   const [wsjData, morningstarData] = await Promise.all([

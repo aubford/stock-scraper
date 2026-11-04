@@ -5,14 +5,14 @@ const {
   formatErrorObject,
   getEarningsPriceChange,
   clearErrors,
-  readJsonFile,
 } = require("./util")
 
-const scrapeDataForVoo = async (ticker, browser, previousRecord) => {
+const scrapeDataForVoo = async (ticker, browser) => {
   console.log(`* STARTING: ${ticker}`)
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
+  const marketBeatPromise = marketBeat.fetch(ticker)
   const [
     // yahooData,
     yahooHistoricalPricesData,
@@ -25,8 +25,11 @@ const scrapeDataForVoo = async (ticker, browser, previousRecord) => {
     yahoo.fetchHistoricalPrices(ticker),
     wsj.fetch(ticker, browser),
     zacks.fetch(ticker, browser),
-    dataroma.fetch(ticker, previousRecord),
-    marketBeat.fetch(ticker),
+    dataroma.fetch(
+      ticker,
+      marketBeatPromise.then(d => d.marketBeatMarketCap).catch(() => undefined)
+    ),
+    marketBeatPromise,
   ])
 
   const { yahooDailyPricesDates, yahooDailyPrices } = yahooHistoricalPricesData
@@ -65,11 +68,9 @@ module.exports = async (allTickers, browser) => {
   const scrapeDataForTickers = async tickers => {
     console.log("Searching for tickers:", tickers)
 
-    const previousData = [readJsonFile(VOO_DATA_STAGING), readJsonFile(VOO_LOCATION)]
     for (const ticker of tickers) {
       try {
-        const previousRecord = dataroma.findPreviousRecord(ticker, previousData)
-        const res = await scrapeDataForVoo(ticker, browser, previousRecord)
+        const res = await scrapeDataForVoo(ticker, browser)
         vooStagingWriteOut({ [ticker]: res })
         console.log(`* TICKER COMPLETED OK: ${ticker}\n`)
       } catch (error) {

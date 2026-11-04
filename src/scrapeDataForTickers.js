@@ -1,11 +1,6 @@
 const scrapeDataForTicker = require("./scrapeDataForTicker")
-const {
-  stagingWriteOut,
-  formatErrorObject,
-  readJsonFile,
-  getStockDataFile,
-} = require("./util")
-const { yahoo, dataroma } = require("./sources")
+const { stagingWriteOut, formatErrorObject } = require("./util")
+const { yahoo } = require("./sources")
 
 /**
  * @typedef {{ ticker: string, ok: boolean, data?: Object, error?: Error }} ScrapeResult
@@ -20,12 +15,10 @@ module.exports = async (tickers, browser) => {
   await yahoo.fetchVooIndexHistoricalPrices()
   console.log("Searching for tickers:", tickers)
 
-  const previousData = [readJsonFile(STOCK_DATA_STAGING), getStockDataFile()]
   const results = []
   for (const ticker of tickers) {
     try {
-      const previousRecord = dataroma.findPreviousRecord(ticker, previousData)
-      const stockData = await scrapeDataForTicker(ticker, browser, previousRecord)
+      const stockData = await scrapeDataForTicker(ticker, browser)
       stagingWriteOut({ [stockData.ticker]: stockData })
       console.log(`🎉 SCRAPE SUCCESS: ${ticker} 🎉`)
       results.push({ ticker, ok: true, data: stockData })
