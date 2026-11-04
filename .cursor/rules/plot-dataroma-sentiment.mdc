@@ -1,0 +1,12 @@
+---
+description: Open plotDR chart after sentiment algorithm changes
+globs: src/sources/dataromaSentiment.js,src/apps/plotDR.js
+alwaysApply: false
+---
+
+# Dataroma sentiment chart
+
+After any change to the sentiment algorithm (`src/sources/dataromaSentiment.js`)
+or its plot app, run `plotDR` (require/run `src/apps/plotDR.js`) so the HTML
+chart opens in the browser via `openInBrowser`. Do this before finishing the
+turn — do not wait for the user to ask.

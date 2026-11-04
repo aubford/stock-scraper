@@ -3,10 +3,22 @@ const { sum } = require("lodash")
 
 // Action curve (Desmos-tuned)
 const HOLD = 0.15
-const SELL_CAP = 0.75
-const S_NEG = 0.145
+const SELL_CAP = 0.7
 const D_POS = 0.1
 const S_POS = 0.2
+
+// Sell side: hill S-curve. A crosses 0 at ZERO_PCT; ~F_AT_CAP of the way to −SELL_CAP at CAP_PCT.
+const ZERO_PCT = 2
+const CAP_PCT = 60
+const F_AT_CAP = 0.95
+const tFromReducePct = pct => -Math.log(Math.max(1 - pct / 100, 0.0001))
+const T_ZERO = tFromReducePct(ZERO_PCT)
+const T_CAP = tFromReducePct(CAP_PCT)
+const F_AT_ZERO = HOLD / (HOLD + SELL_CAP)
+const P_NEG =
+  Math.log(((1 - F_AT_CAP) / F_AT_CAP) * (F_AT_ZERO / (1 - F_AT_ZERO))) /
+  Math.log(T_ZERO / T_CAP)
+const T_HALF = T_ZERO * Math.pow((1 - F_AT_ZERO) / F_AT_ZERO, 1 / P_NEG)
 
 // Conviction: half-credit at 1% portfolio weight
 const W0 = 1
@@ -32,14 +44,13 @@ const deadZonePos = t => {
 }
 
 /**
- * Gaussian dead-zone for the sell side.
+ * Sell S-curve ramp: 0 at t=0, F_AT_ZERO at T_ZERO (A=0), F_AT_CAP at T_CAP, →1 as t→∞.
  * @param {number} t |log share-change|, t >= 0
  * @returns {number}
  */
-const deadZoneNeg = t => {
+const sellRamp = t => {
   if (!(t > 0)) return 0
-  const u = t / S_NEG
-  return 1 - Math.exp(-(u * u))
+  return 1 / (1 + Math.pow(T_HALF / t, P_NEG))
 }
 
 /**
@@ -68,7 +79,7 @@ const getActionScore = activity => {
   if (!Number.isFinite(x) && x > 0) return 1
   const r = Math.log(Math.max(1 + x / 100, 0.0001))
   if (r >= 0) return HOLD + (1 - HOLD) * deadZonePos(r)
-  return HOLD - (HOLD + SELL_CAP) * deadZoneNeg(-r)
+  return HOLD - (HOLD + SELL_CAP) * sellRamp(-r)
 }
 
 /**
@@ -152,9 +163,11 @@ const summarizeSentiments = sentiments => ({
 module.exports = {
   HOLD,
   SELL_CAP,
-  S_NEG,
   D_POS,
   S_POS,
+  ZERO_PCT,
+  CAP_PCT,
+  F_AT_CAP,
   W0,
   K,
   M_REF,

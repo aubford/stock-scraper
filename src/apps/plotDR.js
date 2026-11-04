@@ -14,6 +14,7 @@ const X_MAX = 200
 
 /** @type {{ portfolioPct: number, marketCap: number, color: string, name: string }[]} */
 const SCENARIOS = [
+  { portfolioPct: 40, marketCap: 100e9, color: "#d9480f", name: "40% · $100B" },
   { portfolioPct: 5, marketCap: 100e9, color: "#6b4eff", name: "5% · $100B" },
   { portfolioPct: 1, marketCap: 10e9, color: "#c4380e", name: "1% · $10B" },
   { portfolioPct: 1, marketCap: 100e9, color: "#0b6bcb", name: "1% · $100B" },
@@ -140,7 +141,19 @@ const buildHtml = () => {
     .legend { display: flex; flex-wrap: wrap; gap: 20px; margin: 0 0 24px; font-size: 18px; }
     .legend-item { display: inline-flex; align-items: center; gap: 8px; }
     .swatch { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
-    svg { border: 1px solid #ddd; border-radius: 4px; max-width: 100%; height: auto; }
+    .chart-wrap {
+      width: 100%;
+      height: min(80vh, 900px);
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+      cursor: grab;
+      touch-action: none;
+    }
+    .chart-wrap:active { cursor: grabbing; }
+    .chart-wrap svg { display: block; width: 100%; height: 100%; }
+    .hint { margin: 8px 0 0; color: #888; font-size: 14px; }
     .axis { stroke: #999; stroke-width: 2; }
     .grid-x { stroke: #eee; stroke-width: 1; }
     .grid-x-major { stroke: #ddd; stroke-width: 1.5; }
@@ -160,7 +173,8 @@ const buildHtml = () => {
   <h1>Dataroma sentiment — one manager</h1>
   <p>S(x) = ${SCORE_SCALE} × A(share change %) × C(portfolio% × market-cap mult)</p>
   <div class="legend">${legendItems}</div>
-  <svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img"
+  <div class="chart-wrap" id="chart-wrap">
+  <svg id="chart" viewBox="0 0 ${width} ${height}" role="img"
        aria-label="Sentiment score versus share-change percent for four scenarios">
     <text class="title" x="${pad.left}" y="48">Score vs share-change %</text>
     ${yGrid
@@ -227,6 +241,8 @@ const buildHtml = () => {
     <text class="label" x="28" y="${pad.top + plotH / 2}" text-anchor="middle"
           transform="rotate(-90 28 ${pad.top + plotH / 2})">score</text>
   </svg>
+  </div>
+  <p class="hint">Scroll to zoom · drag to pan · double-click to reset</p>
   <table>
     <tr>
       <th>#</th>
@@ -234,6 +250,8 @@ const buildHtml = () => {
       ${SCENARIOS.map(s => `<th>${s.name}</th>`).join("")}
     </tr>
     ${markers
+      .slice()
+      .reverse()
       .map(
         (m, i) =>
           `<tr>
@@ -244,6 +262,75 @@ const buildHtml = () => {
       )
       .join("\n")}
   </table>
+  <script>
+    (() => {
+      const svg = document.getElementById("chart")
+      const wrap = document.getElementById("chart-wrap")
+      const base = { x: 0, y: 0, w: ${width}, h: ${height} }
+      let view = { ...base }
+      let dragging = false
+      let last = { x: 0, y: 0 }
+
+      const apply = () => {
+        svg.setAttribute("viewBox", \`\${view.x} \${view.y} \${view.w} \${view.h}\`)
+      }
+
+      const clientToSvg = (clientX, clientY) => {
+        const rect = svg.getBoundingClientRect()
+        return {
+          x: view.x + ((clientX - rect.left) / rect.width) * view.w,
+          y: view.y + ((clientY - rect.top) / rect.height) * view.h,
+        }
+      }
+
+      wrap.addEventListener("wheel", (e) => {
+        e.preventDefault()
+        const factor = e.deltaY < 0 ? 0.85 : 1 / 0.85
+        const nextW = Math.min(base.w * 4, Math.max(base.w / 40, view.w * factor))
+        const nextH = nextW * (base.h / base.w)
+        const scale = nextW / view.w
+        const p = clientToSvg(e.clientX, e.clientY)
+        view = {
+          x: p.x - (p.x - view.x) * scale,
+          y: p.y - (p.y - view.y) * scale,
+          w: nextW,
+          h: nextH,
+        }
+        apply()
+      }, { passive: false })
+
+      wrap.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return
+        dragging = true
+        last = { x: e.clientX, y: e.clientY }
+        wrap.setPointerCapture(e.pointerId)
+      })
+
+      wrap.addEventListener("pointermove", (e) => {
+        if (!dragging) return
+        const rect = svg.getBoundingClientRect()
+        const dx = ((e.clientX - last.x) / rect.width) * view.w
+        const dy = ((e.clientY - last.y) / rect.height) * view.h
+        view.x -= dx
+        view.y -= dy
+        last = { x: e.clientX, y: e.clientY }
+        apply()
+      })
+
+      const endDrag = (e) => {
+        if (!dragging) return
+        dragging = false
+        try { wrap.releasePointerCapture(e.pointerId) } catch (_) {}
+      }
+      wrap.addEventListener("pointerup", endDrag)
+      wrap.addEventListener("pointercancel", endDrag)
+
+      wrap.addEventListener("dblclick", () => {
+        view = { ...base }
+        apply()
+      })
+    })()
+  </script>
 </body>
 </html>`
 }

@@ -1,5 +1,11 @@
 # Notes for Cursor Agents
 
+## After changing the Dataroma sentiment algorithm
+
+Any edit to `src/sources/dataromaSentiment.js` (or the action/conviction math it
+exports): run the `plotDR` app so the curve HTML opens in the browser before you
+stop. Do not wait to be asked.
+
 ## Test a change against the real browser
 
 ```
