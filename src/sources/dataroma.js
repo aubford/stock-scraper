@@ -166,7 +166,7 @@ const getActivityPage = (ticker, page) =>
  * The full activity history. Page 1 links every page, so the rest are fetched in
  * parallel; quarters can span pages, so rows are parsed in page order.
  * @param {string} ticker
- * @returns {Promise<{quarter: number, firm: string, code: string, activity: string}[]>}
+ * @returns {Promise<{quarter: number, firm: string, code: string, activity: string, portfolioChangePct: string}[]>}
  */
 const getActivityRows = async ticker => {
   const firstPage = await getActivityPage(ticker, 1)
@@ -186,12 +186,14 @@ const getActivityRows = async ticker => {
       if (row.element.classList.contains("q_chg")) {
         quarter = getQuarterIndex(row.textContent)
       } else if (quarter !== undefined) {
-        const [, firm, activity] = row.getTextArrByX(`td`)
+        // Portfolio Manager, Activity, Share change, % change to portfolio
+        const [, firm, activity, , portfolioChange] = row.getTextArrByX(`td`)
         activityRows.push({
           quarter,
           firm: firm.trim(),
           code: getManagerCode(row, firm.trim()),
           activity: activity.trim(),
+          portfolioChangePct: (portfolioChange || "0").trim(),
         })
       }
     })
@@ -221,32 +223,35 @@ const getHolderHistory = async (ticker, code) => {
 }
 
 /**
- * @typedef {{firm: string, rows: Map<number, string>, pcts: Map<number, number>, hasFilingHistory: boolean, isHolder: boolean}} ManagerTimeline
+ * @typedef {{firm: string, rows: Map<number, string>, pcts: Map<number, number>, portfolioChanges: Map<number, string>, hasFilingHistory: boolean, isHolder: boolean}} ManagerTimeline
  */
 
 /**
  * Current holders and anyone with a history page use that page; everyone else comes
  * from the activity pages.
  * @param {{firm: string, code: string}[]} ownershipData
- * @param {{quarter: number, firm: string, code: string, activity: string}[]} activityRows
+ * @param {{quarter: number, firm: string, code: string, activity: string, portfolioChangePct?: string}[]} activityRows
  * @param {Map<string, {rows: Map<number, string>, pcts: Map<number, number>} | undefined>} holderHistories
  * @returns {Map<string, ManagerTimeline>}
  */
 const getManagerTimelines = (ownershipData, activityRows, holderHistories) => {
   const timelines = new Map()
-  activityRows.forEach(({ quarter, firm, code, activity }) => {
+  activityRows.forEach(({ quarter, firm, code, activity, portfolioChangePct }) => {
     if (!timelines.has(code)) {
       timelines.set(code, {
         firm,
         rows: new Map(),
         pcts: new Map(),
+        portfolioChanges: new Map(),
         hasFilingHistory: false,
         isHolder: false,
       })
     }
-    const { rows } = timelines.get(code)
+    const { rows, portfolioChanges } = timelines.get(code)
     if (!rows.has(quarter)) {
       rows.set(quarter, activity)
+      // Exact "% change to portfolio" cell from activity.php — never derived.
+      portfolioChanges.set(quarter, portfolioChangePct || "0")
     }
   })
   const holderCodes = new Set(ownershipData.map(({ code }) => code))
@@ -256,6 +261,7 @@ const getManagerTimelines = (ownershipData, activityRows, holderHistories) => {
         firm,
         rows: new Map(),
         pcts: new Map(),
+        portfolioChanges: new Map(),
         hasFilingHistory: false,
         isHolder: true,
       })
@@ -274,6 +280,25 @@ const getManagerTimelines = (ownershipData, activityRows, holderHistories) => {
     timeline.isHolder = holderCodes.has(code)
   })
   return timelines
+}
+
+/**
+ * Most-recent-actions may sit in an incomplete quarter that reuses the prior filing's
+ * activity; use that filing's activity.php "% change to portfolio" when present.
+ * @param {ManagerTimeline | undefined} timeline
+ * @param {number} quarter
+ * @param {string} activity
+ * @returns {string}
+ */
+const resolvePortfolioChangePct = (timeline, quarter, activity) => {
+  const changes = timeline?.portfolioChanges
+  if (!changes?.size) return "0"
+  if (changes.has(quarter)) return changes.get(quarter)
+  const rows = timeline.rows
+  const filed = [...changes.keys()]
+    .filter(q => q <= quarter && rows.get(q) === activity)
+    .sort((a, b) => b - a)[0]
+  return filed !== undefined ? changes.get(filed) : "0"
 }
 
 /**
@@ -401,9 +426,10 @@ const summarizeEntries = (entriesByQuarter, timelines, ownershipByCode, names) =
     ({ activity }) => getActivityMovement(activity),
     "desc"
   )
-    .map(({ code, firm, activity }) => {
+    .map(({ quarter, code, firm, activity }) => {
       const { pctOfPortfolio = "0", value = "0" } = ownershipByCode.get(code) || {}
-      return `${firm}\n [${activity}, ${pctOfPortfolio}] ${value}`
+      const change = resolvePortfolioChangePct(timelines.get(code), quarter, activity)
+      return `${firm}\n [${activity}, ${pctOfPortfolio}, ${change}%] ${value}`
     })
     .join("\n")
 
