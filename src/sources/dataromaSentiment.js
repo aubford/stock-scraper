@@ -2,11 +2,11 @@ const { extractNumbers } = require("./util/str")
 const { sum } = require("lodash")
 
 // Action curve (Desmos-tuned)
-const HOLD = 0.25
+const HOLD = 0.15
 const SELL_CAP = 0.75
 const S_NEG = 0.145
 const D_POS = 0.1
-const S_POS = 0.25
+const S_POS = 0.2
 
 // Conviction: half-credit at 1% portfolio weight
 const W0 = 1
@@ -15,6 +15,9 @@ const K = 2
 // Market-cap adjustment (M_REF in dollars)
 const M_REF = 50e9
 const BETA = 0.3
+
+// Scale so per-manager extremes match the old step score (hold 0.75, big-buy 3, sellout -2.25).
+const SCORE_SCALE = 3
 
 const MAX_CHART_QUARTERS = 20
 
@@ -126,14 +129,15 @@ const round2 = n => Number(n.toFixed(2))
 const getQuarterSentiments = (entriesByQuarter, timelines, marketCap) =>
   entriesByQuarter.map(entries =>
     round2(
-      sum(
-        entries.map(({ quarter, code, activity }) => {
-          const pcts = timelines.get(code)?.pcts
-          const weight = getStakeWeight(pcts, quarter)
-          return getActionScore(activity) * getConviction(weight, marketCap)
-        })
-      )
-    )
+      SCORE_SCALE *
+        sum(
+          entries.map(({ quarter, code, activity }) => {
+            const pcts = timelines.get(code)?.pcts
+            const weight = getStakeWeight(pcts, quarter)
+            return getActionScore(activity) * getConviction(weight, marketCap)
+          }),
+        ),
+    ),
   )
 
 /**
@@ -155,6 +159,7 @@ module.exports = {
   K,
   M_REF,
   BETA,
+  SCORE_SCALE,
   getShareChangePercent,
   getActionScore,
   getConviction,
