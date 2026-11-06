@@ -4,13 +4,23 @@ const { get, merge } = require("lodash")
 const { makePrettyDate, pause, MessageError, ReError } = require("../util")
 const vooData = require("../../vooData.json")
 const stockData = require("../../stockData.json")
-const PageDataFetcher = require("../fetchers/PageDataFetcher")
 const { handleFetch } = require("./util/www")
+const { createWarmBrowserFetch } = require("./util/warmBrowserFetch")
 
 const APOLLO_PUSH_REGEX =
   /^\(window\[Symbol\.for\("ApolloSSRDataTransport"\)\] \?\?= \[\]\)\.push\(([\s\S]*)\);?$/
 const RATING_KEYS = ["buy", "overweight", "hold", "underweight", "sell"]
 const RATING_PERIODS = ["P3M_AGO", "P1M_AGO", "CURRENT"]
+
+const { fetchHtml: fetchWsjHtml } = createWarmBrowserFetch({
+  homeUrl: "https://www.wsj.com/",
+  label: "WSJ",
+  isBlocked: (status, html) =>
+    status === 401 ||
+    status === 403 ||
+    html.includes("Just a moment") ||
+    !html.includes("ApolloSSRDataTransport"),
+})
 
 /**
  * Apollo rehydration payloads are JSON except they emit JS `undefined`
@@ -104,38 +114,34 @@ const reformatDate = (str, inFormat, outFormat) => {
 
 /**
  * @param {string} ticker
+ * @returns {string}
+ */
+const buildStockUrl = ticker =>
+  `https://www.wsj.com/market-data/stock/${ticker.toLowerCase()}`
+
+/**
+ * @param {string} ticker
  * @param {Browser} browser
  * @param {Logger} logger
  * @param {number} tries - just used for recursion
  * @returns {Promise<Object>}
  */
 const fetchData = async (ticker, browser, logger, tries = 1) => {
-  const url = `https://www.wsj.com/market-data/stock/${ticker.toLowerCase()}`
+  const url = buildStockUrl(ticker)
 
-  const fetcher = new PageDataFetcher(ticker, browser, logger, {
-    timeout: WSJ_TIMEOUT,
-  })
-
-  const interceptor = fetcher.addResponseInterceptor([url], true)
-
-  let mainPage
+  let html
   try {
-    await fetcher.setPage(url)
-    mainPage = await interceptor.waitForResult()
+    html = await fetchWsjHtml(browser, url, logger)
   } catch (err) {
-    await fetcher.close()
     if (tries < 2) {
       logger.error("RETRY WSJ!")
       await pause(2000 * tries)
       return await fetchData(ticker, browser, logger, tries + 1)
     }
-
     throw new ReError("Failed to fetch WSJ page", err, "fetchData")
   }
 
-  await fetcher.close()
-
-  const marketData = getMarketData(/**@type * */ mainPage)
+  const marketData = getMarketData(html)
 
   const ratings = get(marketData, "ratings.analystRatingsDetail", [])
   const currentRatings = ratings.find(r => r.offsetPeriod === "CURRENT")

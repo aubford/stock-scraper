@@ -1,5 +1,5 @@
 const { chunk, fromPairs, union } = require("lodash")
-const { yahoo, dataroma, marketBeat } = require("../sources")
+const { yahoo, dataroma, marketBeat, wsj } = require("../sources")
 const {
   getStockTickers,
   getVooTickers,
@@ -43,7 +43,11 @@ const app = async browser => {
    */
   const fetchStockData = async ticker => {
     const marketBeatPromise = marketBeat.fetch(ticker, browser)
-    const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeatPromise]
+    const fetchPromises = [
+      yahoo.fetchHistoricalPrices(ticker),
+      marketBeatPromise,
+      wsj.fetch(ticker, browser),
+    ]
     if (INCLUDE_DATAROMA) {
       fetchPromises.push(
         dataroma.fetch(
@@ -52,10 +56,13 @@ const app = async browser => {
         )
       )
     }
-    const [prices, marketBeatData, dataromaData = {}] = await Promise.all(fetchPromises)
+    const [prices, marketBeatData, wsjData, dataromaData = {}] = await Promise.all(
+      fetchPromises
+    )
     const payload = {
       ...prices,
       ...marketBeat.applySplitAdjustedPrices(marketBeatData, prices),
+      ...wsjData,
       ...dataromaData,
     }
 

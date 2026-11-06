@@ -1,7 +1,7 @@
 const cheerio = require("cheerio")
 const { handleFetch } = require("./util/www")
-const { goToNewBrowserPage } = require("../util/puppeteer-utils")
-const { makePrettyDate, MessageError } = require("../util")
+const { createWarmBrowserFetch } = require("./util/warmBrowserFetch")
+const { makePrettyDate } = require("../util")
 
 // MarketBeat 301-redirects wrong-exchange URLs to the correct one, so we always
 // hit NYSE and let the response settle on whichever exchange actually lists the
@@ -15,15 +15,11 @@ const buildProfileUrl = ticker => `https://www.marketbeat.com/stocks/NYSE/${tick
 const buildShortInterestUrl = ticker =>
   `https://www.marketbeat.com/stocks/NYSE/${ticker}/short-interest/`
 
-const CLOUDFLARE_WAIT_MS = 45_000
-const MARKETBEAT_HOME = "https://www.marketbeat.com/"
-
-/** @type {import('puppeteer-core').Page | null} */
-let warmPage = null
-/** @type {import('puppeteer-core').Browser | null} */
-let warmBrowser = null
-/** @type {Promise<import('puppeteer-core').Page> | null} */
-let warming = null
+const { fetchHtmlMany: fetchMarketBeatHtmlMany } = createWarmBrowserFetch({
+  homeUrl: "https://www.marketbeat.com/",
+  label: "MarketBeat",
+  isBlocked: (status, html) => status === 403 || html.includes("Just a moment"),
+})
 
 /**
  * @param {string} html
@@ -655,138 +651,19 @@ const buildAnalystCharts = (rows, now = new Date()) => {
 }
 
 /**
- * Navigate a page to MarketBeat and wait out the Cloudflare JS challenge.
- * Node `fetch` can't reuse `cf_clearance` (TLS fingerprint mismatch), but
- * `fetch` from inside this Chrome tab can — so we warm once and reuse.
- * @param {import('puppeteer-core').Page} page
- * @param {string} url
- * @returns {Promise<void>}
- */
-const waitOutCloudflare = async (page, url) => {
-  await page
-    .waitForFunction(() => !document.title.includes("Just a moment"), {
-      timeout: CLOUDFLARE_WAIT_MS,
-    })
-    .catch(() => {
-      throw new MessageError(
-        `MarketBeat Cloudflare challenge did not clear for ${url}`,
-        "marketBeat.waitOutCloudflare",
-      )
-    })
-}
-
-/**
- * @param {import('puppeteer-core').Browser} browser
- * @param {object} [logger]
- * @returns {Promise<import('puppeteer-core').Page>}
- */
-const createWarmPage = async (browser, logger) => {
-  if (warmPage && !warmPage.isClosed()) {
-    await warmPage.closeSafe()
-  }
-  const page = await goToNewBrowserPage(browser, MARKETBEAT_HOME, {
-    waitUntil: "domcontentloaded",
-    logger,
-  })
-  await waitOutCloudflare(page, MARKETBEAT_HOME)
-  warmPage = page
-  warmBrowser = browser
-  return page
-}
-
-/**
- * One shared MarketBeat tab per browser session. Concurrent callers share the
- * in-flight warm so dailyUpdate's parallel tickers don't open three tabs.
- * @param {import('puppeteer-core').Browser} browser
- * @param {object} [logger]
- * @returns {Promise<import('puppeteer-core').Page>}
- */
-const ensureWarmPage = async (browser, logger) => {
-  if (warmPage && !warmPage.isClosed() && warmBrowser === browser) {
-    return warmPage
-  }
-  if (!warming) {
-    warming = createWarmPage(browser, logger).finally(() => {
-      warming = null
-    })
-  }
-  return warming
-}
-
-/**
- * Force a fresh warm (e.g. after a mid-session challenge) under the same lock.
- * @param {import('puppeteer-core').Browser} browser
- * @param {object} [logger]
- * @returns {Promise<import('puppeteer-core').Page>}
- */
-const rewarmPage = async (browser, logger) => {
-  if (warming) await warming.catch(() => {})
-  if (warmPage && !warmPage.isClosed()) {
-    await warmPage.closeSafe()
-  }
-  warmPage = null
-  warmBrowser = null
-  return ensureWarmPage(browser, logger)
-}
-
-/**
- * @param {import('puppeteer-core').Page} page
- * @param {string} url
- * @returns {Promise<{status:number, html:string, challenged:boolean}>}
- */
-const fetchHtmlInPage = (page, url) =>
-  page.evaluate(async pageUrl => {
-    const res = await fetch(pageUrl, { credentials: "include" })
-    const html = await res.text()
-    return {
-      status: res.status,
-      html,
-      challenged: res.status === 403 || html.includes("Just a moment"),
-    }
-  }, url)
-
-/**
- * Fetch MarketBeat HTML via a warmed Chrome tab (Cloudflare-safe).
- * @param {import('puppeteer-core').Browser} browser
- * @param {string} url
- * @param {object} [logger]
- * @returns {Promise<string>}
- */
-const fetchMarketBeatHtml = async (browser, url, logger) => {
-  let page = await ensureWarmPage(browser, logger)
-  let result = await fetchHtmlInPage(page, url)
-  if (result.challenged) {
-    logger?.warn?.(`MarketBeat challenge on ${url}; re-warming`)
-    page = await rewarmPage(browser, logger)
-    result = await fetchHtmlInPage(page, url)
-  }
-  if (result.challenged) {
-    throw new MessageError(
-      `MarketBeat fetch still challenged for ${url}`,
-      "marketBeat.fetchMarketBeatHtml",
-    )
-  }
-  if (result.status < 200 || result.status >= 300) {
-    throw new MessageError(
-      `MarketBeat fetch failed: HTTP ${result.status} for ${url}`,
-      "marketBeat.fetchMarketBeatHtml",
-    )
-  }
-  return result.html
-}
-
-/**
  * @param {object} logger
  * @param {string} ticker
  * @param {import('puppeteer-core').Browser} browser
  * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string, marketBeatShortPriceChange?:string, marketBeatShortSentiment?:string, marketBeatShortHistoryDates?:string[], marketBeatShortHistoryShares?:number[], marketBeatShortFloatHistoryDates?:string[], marketBeatShortFloatHistoryPct?:number[], marketBeatShortFloatHistoryPrice?:(number|null)[], marketBeatShortFloatHistoryPctCurrentYear?:number[]}>}
  */
 const fetchData = async (logger, ticker, browser) => {
-  const [forecastHtml, profileHtml, shortInterestHtml] = await Promise.all([
-    fetchMarketBeatHtml(browser, buildForecastUrl(ticker), logger),
-    fetchMarketBeatHtml(browser, buildProfileUrl(ticker), logger),
-    fetchMarketBeatHtml(browser, buildShortInterestUrl(ticker), logger),
-  ])
+  // One CDP round-trip runs all three fetches inside the warm tab. Three
+  // concurrent page.evaluate calls contend on CDP and are much slower.
+  const [forecastHtml, profileHtml, shortInterestHtml] = await fetchMarketBeatHtmlMany(
+    browser,
+    [buildForecastUrl(ticker), buildProfileUrl(ticker), buildShortInterestUrl(ticker)],
+    logger,
+  )
 
   const sector = mapSectorForSheet(parseSector(profileHtml))
   if (!sector) {
