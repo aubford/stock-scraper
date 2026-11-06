@@ -1,9 +1,7 @@
 const cheerio = require("cheerio")
 const { handleFetch } = require("./util/www")
+const { goToNewBrowserPage } = require("../util/puppeteer-utils")
 const { makePrettyDate, MessageError } = require("../util")
-
-const USER_AGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 // MarketBeat 301-redirects wrong-exchange URLs to the correct one, so we always
 // hit NYSE and let the response settle on whichever exchange actually lists the
@@ -17,11 +15,15 @@ const buildProfileUrl = ticker => `https://www.marketbeat.com/stocks/NYSE/${tick
 const buildShortInterestUrl = ticker =>
   `https://www.marketbeat.com/stocks/NYSE/${ticker}/short-interest/`
 
-const FETCH_HEADERS = {
-  "user-agent": USER_AGENT,
-  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-  "accept-language": "en-US,en;q=0.9",
-}
+const CLOUDFLARE_WAIT_MS = 45_000
+const MARKETBEAT_HOME = "https://www.marketbeat.com/"
+
+/** @type {import('puppeteer-core').Page | null} */
+let warmPage = null
+/** @type {import('puppeteer-core').Browser | null} */
+let warmBrowser = null
+/** @type {Promise<import('puppeteer-core').Page> | null} */
+let warming = null
 
 /**
  * @param {string} html
@@ -90,12 +92,13 @@ const formatShortDate = raw =>
 const formatPct = fraction => (Number.isFinite(fraction) ? `${(fraction * 100).toFixed(2)}%` : "")
 
 /**
- * Up to 5 years of the page's "Short Percent of Float" chart data, oldest first. The chart data is
+ * Up to 3 years of the page's "Short Percent of Float" chart data, oldest first. The chart data is
  * embedded as a CSV string ("ActualDate,Date,Period,Percent") with exact fractions; reports
  * MarketBeat has no float figure for are 0 and are dropped. Prices come from the history table.
+ * Also returns the current calendar year's pct series for a zoomed sparkline.
  * @param {string} html
  * @param {Map<number, number>} priceByDate "Price on Report Date" keyed by YYYYMMDD
- * @returns {{marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[]}}
+ * @returns {{marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[], marketBeatShortFloatHistoryPctCurrentYear:number[]}}
  */
 const parseShortFloatSeries = (html, priceByDate) => {
   const match = html.match(/shortInterestFloatSeries\s*=\s*"((?:[^"\\]|\\.)*)"/)
@@ -116,8 +119,12 @@ const parseShortFloatSeries = (html, priceByDate) => {
         .filter(({ yyyymmdd }) => Number.isFinite(yyyymmdd))
     : []
 
-  const fiveYearsBeforeLatest = points.length ? points[points.length - 1].yyyymmdd - 50000 : 0
-  const recent = points.filter(({ pct, yyyymmdd }) => pct > 0 && yyyymmdd > fiveYearsBeforeLatest)
+  const threeYearsBeforeLatest = points.length ? points[points.length - 1].yyyymmdd - 30000 : 0
+  const recent = points.filter(({ pct, yyyymmdd }) => pct > 0 && yyyymmdd > threeYearsBeforeLatest)
+  const currentYear = new Date().getFullYear()
+  const currentYearPoints = recent.filter(
+    ({ yyyymmdd }) => Math.floor(yyyymmdd / 10000) === currentYear
+  )
 
   return {
     marketBeatShortFloatHistoryDates: recent.map(({ date }) => date),
@@ -126,12 +133,15 @@ const parseShortFloatSeries = (html, priceByDate) => {
       const price = priceByDate.get(yyyymmdd)
       return Number.isFinite(price) ? price : null
     }),
+    marketBeatShortFloatHistoryPctCurrentYear: currentYearPoints.map(({ pct }) =>
+      Number(pct.toFixed(6))
+    ),
   }
 }
 
 /**
  * @param {string} html
- * @returns {{marketBeatShortPct:string, marketBeatShortChange:string, marketBeatShortDate:string, marketBeatShortDatePrev:string, marketBeatShortPriceChange:string, marketBeatShortSentiment:string, marketBeatShortHistoryDates:string[], marketBeatShortHistoryShares:number[], marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[]}}
+ * @returns {{marketBeatShortPct:string, marketBeatShortChange:string, marketBeatShortDate:string, marketBeatShortDatePrev:string, marketBeatShortPriceChange:string, marketBeatShortSentiment:string, marketBeatShortHistoryDates:string[], marketBeatShortHistoryShares:number[], marketBeatShortFloatHistoryDates:string[], marketBeatShortFloatHistoryPct:number[], marketBeatShortFloatHistoryPrice:(number|null)[], marketBeatShortFloatHistoryPctCurrentYear:number[]}}
  */
 const parseShortInterest = html => {
   const $ = cheerio.load(html)
@@ -190,9 +200,9 @@ const parseShortInterest = html => {
 
   const [latest, prev] = rows
   const priceChange = latest && prev ? latest.price / prev.price - 1 : NaN
-  const fiveYearsBeforeLatest = latest ? latest.yyyymmdd - 50000 : 0
+  const threeYearsBeforeLatest = latest ? latest.yyyymmdd - 30000 : 0
   const historyRows = rows
-    .filter(({ shares, yyyymmdd }) => Number.isFinite(shares) && yyyymmdd > fiveYearsBeforeLatest)
+    .filter(({ shares, yyyymmdd }) => Number.isFinite(shares) && yyyymmdd > threeYearsBeforeLatest)
     .reverse()
 
   return {
@@ -645,49 +655,137 @@ const buildAnalystCharts = (rows, now = new Date()) => {
 }
 
 /**
+ * Navigate a page to MarketBeat and wait out the Cloudflare JS challenge.
+ * Node `fetch` can't reuse `cf_clearance` (TLS fingerprint mismatch), but
+ * `fetch` from inside this Chrome tab can — so we warm once and reuse.
+ * @param {import('puppeteer-core').Page} page
  * @param {string} url
- * @returns {Promise<Response>}
+ * @returns {Promise<void>}
  */
-const fetchMarketBeatPage = url =>
-  fetch(url, { headers: FETCH_HEADERS, redirect: "follow" })
+const waitOutCloudflare = async (page, url) => {
+  await page
+    .waitForFunction(() => !document.title.includes("Just a moment"), {
+      timeout: CLOUDFLARE_WAIT_MS,
+    })
+    .catch(() => {
+      throw new MessageError(
+        `MarketBeat Cloudflare challenge did not clear for ${url}`,
+        "marketBeat.waitOutCloudflare",
+      )
+    })
+}
+
+/**
+ * @param {import('puppeteer-core').Browser} browser
+ * @param {object} [logger]
+ * @returns {Promise<import('puppeteer-core').Page>}
+ */
+const createWarmPage = async (browser, logger) => {
+  if (warmPage && !warmPage.isClosed()) {
+    await warmPage.closeSafe()
+  }
+  const page = await goToNewBrowserPage(browser, MARKETBEAT_HOME, {
+    waitUntil: "domcontentloaded",
+    logger,
+  })
+  await waitOutCloudflare(page, MARKETBEAT_HOME)
+  warmPage = page
+  warmBrowser = browser
+  return page
+}
+
+/**
+ * One shared MarketBeat tab per browser session. Concurrent callers share the
+ * in-flight warm so dailyUpdate's parallel tickers don't open three tabs.
+ * @param {import('puppeteer-core').Browser} browser
+ * @param {object} [logger]
+ * @returns {Promise<import('puppeteer-core').Page>}
+ */
+const ensureWarmPage = async (browser, logger) => {
+  if (warmPage && !warmPage.isClosed() && warmBrowser === browser) {
+    return warmPage
+  }
+  if (!warming) {
+    warming = createWarmPage(browser, logger).finally(() => {
+      warming = null
+    })
+  }
+  return warming
+}
+
+/**
+ * Force a fresh warm (e.g. after a mid-session challenge) under the same lock.
+ * @param {import('puppeteer-core').Browser} browser
+ * @param {object} [logger]
+ * @returns {Promise<import('puppeteer-core').Page>}
+ */
+const rewarmPage = async (browser, logger) => {
+  if (warming) await warming.catch(() => {})
+  if (warmPage && !warmPage.isClosed()) {
+    await warmPage.closeSafe()
+  }
+  warmPage = null
+  warmBrowser = null
+  return ensureWarmPage(browser, logger)
+}
+
+/**
+ * @param {import('puppeteer-core').Page} page
+ * @param {string} url
+ * @returns {Promise<{status:number, html:string, challenged:boolean}>}
+ */
+const fetchHtmlInPage = (page, url) =>
+  page.evaluate(async pageUrl => {
+    const res = await fetch(pageUrl, { credentials: "include" })
+    const html = await res.text()
+    return {
+      status: res.status,
+      html,
+      challenged: res.status === 403 || html.includes("Just a moment"),
+    }
+  }, url)
+
+/**
+ * Fetch MarketBeat HTML via a warmed Chrome tab (Cloudflare-safe).
+ * @param {import('puppeteer-core').Browser} browser
+ * @param {string} url
+ * @param {object} [logger]
+ * @returns {Promise<string>}
+ */
+const fetchMarketBeatHtml = async (browser, url, logger) => {
+  let page = await ensureWarmPage(browser, logger)
+  let result = await fetchHtmlInPage(page, url)
+  if (result.challenged) {
+    logger?.warn?.(`MarketBeat challenge on ${url}; re-warming`)
+    page = await rewarmPage(browser, logger)
+    result = await fetchHtmlInPage(page, url)
+  }
+  if (result.challenged) {
+    throw new MessageError(
+      `MarketBeat fetch still challenged for ${url}`,
+      "marketBeat.fetchMarketBeatHtml",
+    )
+  }
+  if (result.status < 200 || result.status >= 300) {
+    throw new MessageError(
+      `MarketBeat fetch failed: HTTP ${result.status} for ${url}`,
+      "marketBeat.fetchMarketBeatHtml",
+    )
+  }
+  return result.html
+}
 
 /**
  * @param {object} logger
  * @param {string} ticker
- * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string, marketBeatShortPriceChange?:string, marketBeatShortSentiment?:string, marketBeatShortHistoryDates?:string[], marketBeatShortHistoryShares?:number[], marketBeatShortFloatHistoryDates?:string[], marketBeatShortFloatHistoryPct?:number[], marketBeatShortFloatHistoryPrice?:(number|null)[]}>}
+ * @param {import('puppeteer-core').Browser} browser
+ * @returns {Promise<{sector:string, marketBeatTargetsUpdatedAt:string, marketBeatTargets:object[], marketBeatTargetsFormatted:string, marketBeatAnalystRatings:object[], marketBeatAnalystRatingsFormatted:string, morganStanleyRating?:string, morganStanleyPriceTarget:string, morganStanleyCurrentPriceTargetNum:string, marketBeatShortPct?:string, marketBeatShortChange?:string, marketBeatShortDate?:string, marketBeatShortDatePrev?:string, marketBeatShortPriceChange?:string, marketBeatShortSentiment?:string, marketBeatShortHistoryDates?:string[], marketBeatShortHistoryShares?:number[], marketBeatShortFloatHistoryDates?:string[], marketBeatShortFloatHistoryPct?:number[], marketBeatShortFloatHistoryPrice?:(number|null)[], marketBeatShortFloatHistoryPctCurrentYear?:number[]}>}
  */
-const fetchData = async (logger, ticker) => {
-  const [forecastResponse, profileResponse, shortInterestResponse] = await Promise.all([
-    fetchMarketBeatPage(buildForecastUrl(ticker)),
-    fetchMarketBeatPage(buildProfileUrl(ticker)),
-    fetchMarketBeatPage(buildShortInterestUrl(ticker)),
-  ])
-
-  if (!forecastResponse.ok) {
-    throw new MessageError(
-      `MarketBeat forecast fetch failed: HTTP ${forecastResponse.status}`,
-      "marketBeat.fetchData",
-    )
-  }
-
-  if (!profileResponse.ok) {
-    throw new MessageError(
-      `MarketBeat profile fetch failed: HTTP ${profileResponse.status}`,
-      "marketBeat.fetchData",
-    )
-  }
-
-  if (!shortInterestResponse.ok) {
-    throw new MessageError(
-      `MarketBeat short interest fetch failed: HTTP ${shortInterestResponse.status}`,
-      "marketBeat.fetchData",
-    )
-  }
-
+const fetchData = async (logger, ticker, browser) => {
   const [forecastHtml, profileHtml, shortInterestHtml] = await Promise.all([
-    forecastResponse.text(),
-    profileResponse.text(),
-    shortInterestResponse.text(),
+    fetchMarketBeatHtml(browser, buildForecastUrl(ticker), logger),
+    fetchMarketBeatHtml(browser, buildProfileUrl(ticker), logger),
+    fetchMarketBeatHtml(browser, buildShortInterestUrl(ticker), logger),
   ])
 
   const sector = mapSectorForSheet(parseSector(profileHtml))
@@ -766,7 +864,8 @@ const fetchData = async (logger, ticker) => {
   }
 }
 
-exports.fetch = ticker => handleFetch(fetchData, ticker, "MARKETBEAT")
+exports.fetch = (ticker, browser) =>
+  handleFetch(logger => fetchData(logger, ticker, browser), ticker, "MARKETBEAT")
 exports.buildAnalystCharts = buildAnalystCharts
 exports.ratingBucket = ratingBucket
 exports.parseConsensusTargets = parseConsensusTargets

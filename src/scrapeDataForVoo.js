@@ -12,7 +12,7 @@ const scrapeDataForVoo = async (ticker, browser) => {
 
   const fidelityAnalystOpinionsData = await fidelityAnalysts.fetch(ticker, browser)
 
-  const marketBeatPromise = marketBeat.fetch(ticker)
+  const marketBeatPromise = marketBeat.fetch(ticker, browser)
   const [
     // yahooData,
     yahooHistoricalPricesData,

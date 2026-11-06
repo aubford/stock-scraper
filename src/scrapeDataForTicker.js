@@ -36,7 +36,7 @@ module.exports = async (ticker, browser) => {
     cfraLink,
   } = await boa.fetch(ticker, browser)
 
-  const marketBeatPromise = marketBeat.fetch(ticker)
+  const marketBeatPromise = marketBeat.fetch(ticker, browser)
   const [
     yahooHistoricalPricesData,
     zacksData,

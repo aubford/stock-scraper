@@ -1,28 +1,30 @@
 const { marketBeat } = require("../sources")
 const { stagingWriteOut, getStockTickers, exit } = require("../util")
+const { connectAndRunApp } = require("../util/puppeteer-utils")
 
-module.exports = async () => {
-  console.log("🚀 Update MarketBeat 🚀")
+module.exports = () =>
+  connectAndRunApp(async browser => {
+    console.log("🚀 Update MarketBeat 🚀")
 
-  const tickers = getStockTickers()
+    const tickers = getStockTickers()
 
-  console.log("Searching for tickers:", tickers)
+    console.log("Searching for tickers:", tickers)
 
-  for (const ticker of tickers) {
-    console.log(`* STARTING: ${ticker}`)
-    const data = await marketBeat.fetch(ticker)
+    for (const ticker of tickers) {
+      console.log(`* STARTING: ${ticker}`)
+      const data = await marketBeat.fetch(ticker, browser)
 
-    stagingWriteOut(
-      {
-        [ticker]: {
-          ticker,
-          ...data,
+      stagingWriteOut(
+        {
+          [ticker]: {
+            ticker,
+            ...data,
+          },
         },
-      },
-      true
-    )
-    console.log(`* TICKER COMPLETED OK: ${ticker}\n`)
-  }
+        true
+      )
+      console.log(`* TICKER COMPLETED OK: ${ticker}\n`)
+    }
 
-  await exit("updateMarketBeat")
-}
+    await exit("updateMarketBeat")
+  })

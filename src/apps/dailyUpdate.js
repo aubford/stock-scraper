@@ -9,6 +9,7 @@ const {
   scrapbookWriteOut,
   vooWriteOut,
 } = require("../util")
+const { connectAndRunApp } = require("../util/puppeteer-utils")
 const fetchSPWeights = require("./fetchSPWeights")
 
 /**
@@ -26,7 +27,7 @@ const hasSourceError = data =>
  * @script dailyUpdate
  */
 
-const app = async () => {
+const app = async browser => {
   console.log("🚀 Daily Update 🚀")
   const INCLUDE_DATAROMA = await promptForYes("Include Dataroma?")
   const INCLUDE_VOO = await promptForYes("Include VOO?")
@@ -41,7 +42,7 @@ const app = async () => {
    * @returns {Promise<[string, Object] | null>}
    */
   const fetchStockData = async ticker => {
-    const marketBeatPromise = marketBeat.fetch(ticker)
+    const marketBeatPromise = marketBeat.fetch(ticker, browser)
     const fetchPromises = [yahoo.fetchHistoricalPrices(ticker), marketBeatPromise]
     if (INCLUDE_DATAROMA) {
       fetchPromises.push(
@@ -117,4 +118,4 @@ const app = async () => {
   await exit("Daily Update")
 }
 
-module.exports = app
+module.exports = () => connectAndRunApp(app)
