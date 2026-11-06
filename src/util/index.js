@@ -268,9 +268,7 @@ const pause = async ms => {
  */
 const makePrettyDate = () => moment().format("MMM DD h:mma")
 
-const begin = () => {
-  console.warn("********  Turn on PDF Viewer extension!!!! ********")
-}
+const begin = () => {}
 
 /**
  * Success and close

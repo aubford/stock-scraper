@@ -1,4 +1,4 @@
-const { pause, ReError, begin, promptLogin, promptUser } = require("./index")
+const { pause, ReError, MessageError, begin, promptLogin, promptUser } = require("./index")
 const { ensureDebugBrowser } = require("./debugBrowser")
 const puppeteer = require("puppeteer-core")
 
@@ -68,15 +68,56 @@ const wrapPage = page => {
   }
 }
 
+/** @type {WeakMap<import('puppeteer-core').Browser, import('puppeteer-core').CDPSession>} */
+const browserCdpSessions = new WeakMap()
+
 /**
- *
- * @param {Browser} browser
+ * Long-lived browser CDP session. Creating + detaching a session on the browser
+ * target each time breaks puppeteer's "browser" target tracking ("Browser target
+ * is not found" on later newPage calls).
+ * @param {import('puppeteer-core').Browser} browser
+ * @returns {Promise<import('puppeteer-core').CDPSession>}
+ */
+const getBrowserCdpSession = async browser => {
+  const existing = browserCdpSessions.get(browser)
+  if (existing) return existing
+  const session = await browser.target().createCDPSession()
+  browserCdpSessions.set(browser, session)
+  return session
+}
+
+/**
+ * Open a tab via CDP. Defaults to `background: true` so macOS focus isn't
+ * stolen. Pass `{ background: false }` for pages that must be active (PDF
+ * viewer extension only renders a text layer in a foreground tab).
+ * @param {import('puppeteer-core').Browser} browser
+ * @param {{ background?: boolean }} [options]
  * @returns {Promise<MyPage>}
  */
-const newPage = async browser => {
-  const page = await browser.newPage()
-  wrapPage(page)
-  return /** @type {MyPage} */ page
+const newPage = async (browser, { background = true } = {}) => {
+  try {
+    const session = await getBrowserCdpSession(browser)
+    const { targetId } = await session.send("Target.createTarget", {
+      url: "about:blank",
+      background,
+    })
+    const target = await browser.waitForTarget(t => t._targetId === targetId)
+    const page = await target.page()
+    if (!page) {
+      throw new MessageError(`Failed to open page for target ${targetId}`, "newPage")
+    }
+    wrapPage(page)
+    if (!background) {
+      await page.bringToFront().catch(() => {})
+    }
+    return /** @type {MyPage} */ page
+  } catch (err) {
+    // Fall back if the browser target/session is unhealthy; steals focus but works.
+    browserCdpSessions.delete(browser)
+    const page = await browser.newPage()
+    wrapPage(page)
+    return /** @type {MyPage} */ page
+  }
 }
 
 /**
@@ -100,14 +141,16 @@ const goToPage = async (page, url, options = {}) => {
 }
 
 /**
- * @param {Browser} browser
+ * @param {import('puppeteer-core').Browser} browser
  * @param {string} url
- * @param {Object} options
- * @returns {Promise<{MyPage}>}
+ * @param {Object} [options] puppeteer goto options, plus:
+ * @param {boolean} [options.foreground] open an active tab (needed for PDF viewer)
+ * @returns {Promise<MyPage>}
  */
 const goToNewBrowserPage = async (browser, url, options = {}) => {
-  const page = await newPage(browser)
-  await goToPage(page, url, options)
+  const { foreground = false, ...gotoOptions } = options
+  const page = await newPage(browser, { background: !foreground })
+  await goToPage(page, url, gotoOptions)
   return page
 }
 

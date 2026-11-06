@@ -4,25 +4,18 @@ const { makePrettyDate } = require("../util")
 const fetchPdfData = require("../fetchers/fetchPdfData")
 const { handleFetch } = require("./util/www")
 
-const TARGET_LABEL = "12-Month Target Price"
-// STARS reports start with "Stock Report | <date> |", quantitative ones with "Quantitative Stock Report | <date> |"
-const HEADER_XPATH = `//span[contains(text(),"Stock Report | ")]`
-
 /**
- * @param {MyPage} page
- * @returns {Promise<{cfraTargetStr: string, cfraDate: string}>}
+ * @param {string} text
+ * @returns {{cfraTargetStr: string, cfraDate: string}}
  */
-const extractReport = page =>
-  page.evaluate(label => {
-    const texts = [...document.querySelectorAll(".textLayer span[role=presentation]")].map(s =>
-      s.textContent.trim()
-    )
-    const labelIdx = texts.indexOf(label)
-    const cfraTargetStr =
-      labelIdx === -1 ? "" : texts.slice(labelIdx + 1, labelIdx + 6).find(t => /^USD\s/.test(t)) || ""
-    const dateMatch = texts.map(t => t.match(/^(?:Quantitative )?Stock Report \| ([^|]+?) \|/)).find(Boolean)
-    return { cfraTargetStr, cfraDate: dateMatch ? dateMatch[1] : "" }
-  }, TARGET_LABEL)
+const parseCfraText = text => {
+  const targetMatch = text.match(/12-Month Target Price\s+(USD\s*[\d,]+\.?\d*)/i)
+  const dateMatch = text.match(/(?:Quantitative )?Stock Report\s*\|\s*([^|]+?)\s*\|/i)
+  return {
+    cfraTargetStr: targetMatch ? targetMatch[1] : "",
+    cfraDate: dateMatch ? dateMatch[1].trim() : "",
+  }
+}
 
 /**
  * @param {string} ticker
@@ -49,9 +42,8 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
     browser,
     analystName: "CFRA",
     url: cfraLink,
-    xPathArr: [HEADER_XPATH],
     timeout: CFRA_TIMEOUT,
-    extract: extractReport,
+    extract: parseCfraText,
   })
 
   return {
@@ -72,3 +64,4 @@ const fetchData = async (ticker, cfraRating, cfraLink, browser) => {
 exports.fetch = (ticker, cfraRating, cfraLink, browser) => {
   return handleFetch(() => fetchData(ticker, cfraRating, cfraLink, browser), ticker, "CFRA")
 }
+exports.parseCfraText = parseCfraText
